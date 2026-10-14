@@ -1,0 +1,48 @@
+# AviLog · Pilot Logbook preview
+
+Mobile-first personal pilot logbook PWA, in Vietnamese with aviation labels. Built for iPhone, iPad and desktop. No login is required and **records and evidence images stay in this browser's IndexedDB**. Export a JSON backup before clearing website data or changing devices. The public server never receives logbook, roster or evidence files.
+
+## Run
+
+Node 22+:
+
+```sh
+npm install --ignore-scripts
+npm test
+npm start
+```
+
+Open `http://localhost:3000`. Docker/Railway uses `Dockerfile` and `/api/health`. `PORT` is supplied by Railway; default 3000. No secrets or database required. `/api/weather` uses the public NOAA Aviation Weather Center API through a backend provider with a five-minute cache and eight-second timeout. Station must be a four-letter ICAO. Reports are for situational awareness, not official operational briefing.
+
+## Try it
+
+The first visit loads clearly labelled October 2026 demo data from the product brief. Crew names are fictional. `09/10` has VN7388, VN7389, VN1186 and VN1187. VN0605 on 06/10 contains the supplied A320 actual example (04:29 / 04:39 / 05:50 / 06:00), 01:11 airborne and 01:31 block. VN0343 has supplied OUT/IN crossing 03→04 October and remains an unconfirmed draft because OFF/ON were not supplied. Demo DAY OFF is illustrative.
+
+- **Lịch bay:** month/list calendar, selected-day detail, duty editor, METAR/TAF.
+- **Logbook:** Scheduled and Actual independently, explicit UTC dates on every event, role/crew/registration, takeoff/landing performer, landing mode, PIC/SIC and manual night minutes, evidence attachment, source and confidence. Confirmed Actual changes need an explicit replacement checkbox.
+- **Import roster:** PDF text extraction with PDF.js, editable raw text, editable preview, explicit confirmation. Reimport identity = UTC flight date + flight number with leading-zero normalization. Scheduled route/times update; confirmed operational route, aircraft and source stay intact; Actual never changes; missing flights are never silently deleted. Real monthplan.pdf was not available in synced sources for layout validation. Supported normalized rows:
+
+```text
+09/10 VN7388 SGN-DLI 07:14-08:06
+VN7389 DLI-SGN 08:40-09:30
+VN1186 SGN-HPH 10:52-12:57
+VN1187 HPH-SGN 13:40-15:32
+```
+
+  Use month/year selector. Other layouts require correcting extracted text to this format. Image-only PDFs are not silently interpreted; an error asks for manual entry. Review unknown lines against the original.
+- **Nhập từ ảnh:** Tesseract OCR runs locally; first use downloads the English model. JPEG/PNG/WebP ≤6 MB. A320/A321 parser recognizes flight number, ICAO route and OUT/OFF/ON/IN. Review/correct all fields before confirming. B787/A350/other families explicitly require manual entry until a validated parser is added. Example button only loads the supplied sample text and never pretends to read the user's image.
+- **Crew Book:** fictional sample profiles, per-flight Captain/FO/additional crew, confirmed sectors/block and last route, history.
+- **Statistics:** confirmed actual block, airborne, sectors, PF/PM, takeoff/landing, manually entered night/PIC, SIC remainder, aircraft, airport and crew. SIM/training/positioning activities do not contribute flying hours.
+- **Duty:** explicit report/release, same-day auto grouping with explicit exclusions, multiple activities per date, previous-duty rest and overlap indication, standby/reserve/day off/positioning/SIM/training. FTL engine scaffold is versioned; no Vietnam Airlines limits are installed and UI says **not evaluated**. Colored chips in source dialog are explanatory examples only.
+- **Settings:** profile, reminder preferences, report lead time, backup JSON (including images), validated merge restore and CSV escaping spreadsheet formulas. Restore preserves existing confirmed actuals, existing crew/duty IDs and local reminder settings. Flight/duty removal uses a recoverable Trash in Settings.
+- **PWA:** install manifest/icons, network-first shell cache with offline fallback. Weather is never cached by the service worker. Local data remains available offline; initial OCR model download needs internet.
+
+## Preview limits
+
+Browser-local workspace: no account login, cross-device sync, server storage, payments or real ads. Notifications/reminder checks run **while app is open**; no closed-app push. Tomorrow and evening preferences are UTC. Night time is manual; no unverified night calculator. No FTL compliance claim; a validated ruleset with version/effective date/source is required. Missing roster entries are retained for review, not treated as cancellations. Same flight number operated twice on one UTC date requires a future occurrence identifier and manual review.
+
+## Architecture and extension
+
+`public/lib/domain.js`: UTC, validation, merge, totals, backups and reminders. `parsers.js`: roster and aircraft-family registry. `rules.js`: pure versioned engine. `storage.js`: atomic IndexedDB transactions. `importers.js`: PDF/OCR adapters. `app.js`: browser UI. `lib/weather.js`: provider/cache adapter. `server.js`: static assets, health and weather API. To add aircraft support, register a parser and fixtures first. Add no airline rule without reviewed source provenance.
+
+Specs/plans and verification notes live under `docs/`. No uploaded company PDFs or sensitive credentials are included in this repository.
