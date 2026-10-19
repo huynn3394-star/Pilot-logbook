@@ -37,6 +37,18 @@ VN1187 HPH-SGN 13:40-15:32
 - **Settings:** profile, reminder preferences, report lead time, backup JSON (including images), validated merge restore and CSV escaping spreadsheet formulas. Restore preserves existing confirmed actuals, existing crew/duty IDs and local reminder settings. Flight/duty removal uses a recoverable Trash in Settings.
 - **PWA:** install manifest/icons, network-first shell cache with offline fallback. Weather is never cached by the service worker. Local data remains available offline; initial OCR model download needs internet.
 
+## Ôn thi ATPL và học offline
+
+Trong Pilot Logbook chọn **Ôn thi**. Có 11 bộ đề gốc, tổng **6.126 câu**, và **300 câu Mass & Balance tham khảo** ở bộ MBR riêng. Câu hỏi, lựa chọn, UID, đáp án gốc và bộ máy chấm thi được giữ nguyên từ bản ATPL đã bàn giao. Lời giải, cảnh báo xung đột/thiếu căn cứ và ảnh trích nguồn được chuyển nguyên trạng; tích hợp này không tạo thêm kết luận kiểm định.
+
+Trên iPad mở app bằng Safari khi có mạng, chọn **Tải offline** cho từng môn và chờ **✓ Sẵn sàng offline**. Có thể thêm app vào Màn hình chính qua menu Chia sẻ. Sau khi tải đủ, câu hỏi, lời giải và ảnh nguồn của môn đó dùng được khi mất mạng. Chọn câu, tiếp tục học, bookmark, thi thử, ngày/đêm và xuất/nhập tiến độ vẫn hoạt động. Bộ MBR tham khảo có tiến độ và đáp án riêng; luyện thi theo đáp án gốc dùng MB.
+
+Mỗi môn hiển thị dung lượng trước khi tải. Có thể dừng rồi tiếp tục; phần đã tải được kiểm tra và dùng lại. App kiểm tra byte và SHA-256 của từng tài nguyên, chỉ đánh dấu sẵn sàng sau khi lưu đủ. Thiếu ảnh, mất mạng hoặc hết dung lượng sẽ giữ trạng thái chưa hoàn tất. Cập nhật service worker giữ cache đề và dữ liệu logbook. Không xóa dữ liệu website nếu muốn giữ đề offline và tiến độ; xuất bản sao lưu riêng cho logbook và ATPL trước khi đổi thiết bị. Dữ liệu không tự đồng bộ giữa Mac/iPad. Các liên kết website ngoài, thời tiết và lần tải đầu cần mạng.
+
+Nguồn đóng gói: SHA-256 `28fbacae42e5b05023c89b077d977e62184a2e916da0dc7d14bd521acd89239f`. `scripts/package-atpl.py` tạo HTML từng môn, catalog và manifest từ app nguồn; `data/atpl-media/` chứa ảnh base64 chia gói, được `lib/atpl-media.js` phục vụ theo URL hash. Ảnh được dùng chung giữa các môn, không lưu toàn bộ thư viện ảnh vào RAM máy chủ.
+
+Kiểm thử: `node --test` (20/20) và `node scripts/verify-atpl-browser.cjs`. Chromium kiểm tra với offline flag; WebKit kiểm tra khi toàn bộ kết nối tới máy chủ bị từ chối do [lỗi mô phỏng offline của Playwright WebKit #42775](https://github.com/microsoft/playwright/issues/42775). Cả hai mở/chấm đủ 6.426 câu, đọc ảnh nguồn offline, khôi phục backup và giữ nguyên IndexedDB logbook. Chưa kiểm tra trực tiếp trên iPad vật lý. Báo cáo máy chạy được ghi trong `test-results/atpl/Browser_QA.json`.
+
 ## Preview limits
 
 Browser-local workspace: no account login, cross-device sync, server storage, payments or real ads. Notifications/reminder checks run **while app is open**; no closed-app push. Tomorrow and evening preferences are UTC. Night time is manual; no unverified night calculator. No FTL compliance claim; a validated ruleset with version/effective date/source is required. Missing roster entries are retained for review, not treated as cancellations. Same flight number operated twice on one UTC date requires a future occurrence identifier and manual review.

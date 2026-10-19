@@ -89,6 +89,7 @@ const titles = {
 const tabs = [
   ["schedule", "calendar", "Lịch bay"],
   ["logbook", "book", "Logbook"],
+  ["atpl", "book", "Ôn thi"],
   ["crew", "people", "Crew Book"],
   ["statistics", "stats", "Statistics"],
   ["settings", "settings", "Settings"],
@@ -1073,6 +1074,7 @@ document.addEventListener("click", async (ev) => {
         modal.close();
         break;
       case "tab":
+        if (b.dataset.tab === "atpl") { location.assign("/atpl/"); break; }
         tab = b.dataset.tab;
         modal.close();
         render();

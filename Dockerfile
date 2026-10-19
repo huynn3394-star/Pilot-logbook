@@ -4,6 +4,7 @@ COPY package.json ./
 RUN npm install --omit=dev --ignore-scripts && npm cache clean --force
 COPY public ./public
 COPY lib ./lib
+COPY data ./data
 COPY server.js ./server.js
 ENV NODE_ENV=production
 USER node

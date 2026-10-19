@@ -1,4 +1,4 @@
-const CACHE = "avilog-shell-v1";
+const CACHE = "avilog-shell-v2-atpl";
 const SHELL = [
   "/",
   "/index.html",
@@ -14,6 +14,13 @@ const SHELL = [
   "/lib/sample.js",
   "/lib/storage.js",
   "/lib/importers.js",
+  "/atpl/",
+  "/atpl/index.html",
+  "/atpl/catalog.json",
+  "/atpl/offline.js",
+  "/atpl/catalog-ui.js",
+  "/atpl/bank-bridge.js",
+  "/atpl/atpl.css",
 ];
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -29,7 +36,7 @@ self.addEventListener("activate", (e) =>
       .keys()
       .then((keys) =>
         Promise.all(
-          keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)),
+          keys.filter((k) => k.startsWith("avilog-shell-") && k !== CACHE).map((k) => caches.delete(k)),
         ),
       )
       .then(() => self.clients.claim()),
@@ -42,6 +49,27 @@ self.addEventListener("fetch", (e) => {
     new URL(e.request.url).pathname.startsWith("/api/")
   )
     return;
+  const pathname = new URL(e.request.url).pathname;
+  if (/^\/atpl\/(media|banks)\//.test(pathname)) {
+    e.respondWith((async () => {
+      const cache = await caches.open("avilog-atpl-v1");
+      if (e.request.cache !== "reload") {
+        const saved = await cache.match(e.request);
+        if (saved) return saved;
+      }
+      try {
+        const response = await fetch(e.request);
+        if (response.ok && e.request.cache !== "reload") {
+          const put = cache.put(e.request, response.clone()).catch(() => {});
+          e.waitUntil(put);
+        }
+        return response;
+      } catch {
+        return new Response('<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Chưa tải môn này</title><h1>Môn này chưa tải đầy đủ để học offline</h1><p>Kết nối mạng rồi bấm Tải offline. Tiến độ đã lưu vẫn được giữ.</p><a href="/atpl/">← Danh sách môn</a></html>', {status:503,headers:{"Content-Type":"text/html; charset=utf-8"}});
+      }
+    })());
+    return;
+  }
   e.respondWith(
     fetch(e.request)
       .then((r) => {

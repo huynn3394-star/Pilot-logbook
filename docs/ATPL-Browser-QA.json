@@ -1,0 +1,156 @@
+{
+  "date": "2026-10-19T16:48:08.563Z",
+  "browsers": {
+    "chromium": {
+      "version": "151.0.7922.34",
+      "offlineMode": "context.setOffline(true)",
+      "blockedOriginRequests": 0,
+      "banks": {
+        "POF": {
+          "count": 487,
+          "correct": 487,
+          "backup": true
+        },
+        "COM": {
+          "count": 500,
+          "correct": 500,
+          "backup": true
+        },
+        "INS": {
+          "count": 601,
+          "correct": 601,
+          "backup": true
+        },
+        "MET": {
+          "count": 900,
+          "correct": 900,
+          "backup": true
+        },
+        "RNAV": {
+          "count": 700,
+          "correct": 700,
+          "backup": true
+        },
+        "LAW": {
+          "count": 453,
+          "correct": 453,
+          "backup": true
+        },
+        "MB": {
+          "count": 300,
+          "correct": 300,
+          "backup": true
+        },
+        "MBR": {
+          "count": 300,
+          "correct": 300,
+          "backup": true
+        },
+        "AGK": {
+          "count": 782,
+          "correct": 782,
+          "backup": true
+        },
+        "PERF": {
+          "count": 399,
+          "correct": 399,
+          "backup": true
+        },
+        "OPS": {
+          "count": 501,
+          "correct": 501,
+          "backup": true
+        },
+        "HUM": {
+          "count": 503,
+          "correct": 503,
+          "backup": true
+        }
+      },
+      "popupCount": 12,
+      "cancellation": true,
+      "httpFailure": true,
+      "quotaFailure": true,
+      "missingAssetRepair": true,
+      "workerUpdateRetainsDownloads": true,
+      "logbookUnchanged": true,
+      "errors": []
+    },
+    "webkit": {
+      "version": "26.5",
+      "offlineMode": "All origin connections refused; Playwright WebKit issue 42775",
+      "blockedOriginRequests": 385,
+      "banks": {
+        "POF": {
+          "count": 487,
+          "correct": 487,
+          "backup": true
+        },
+        "COM": {
+          "count": 500,
+          "correct": 500,
+          "backup": true
+        },
+        "INS": {
+          "count": 601,
+          "correct": 601,
+          "backup": true
+        },
+        "MET": {
+          "count": 900,
+          "correct": 900,
+          "backup": true
+        },
+        "RNAV": {
+          "count": 700,
+          "correct": 700,
+          "backup": true
+        },
+        "LAW": {
+          "count": 453,
+          "correct": 453,
+          "backup": true
+        },
+        "MB": {
+          "count": 300,
+          "correct": 300,
+          "backup": true
+        },
+        "MBR": {
+          "count": 300,
+          "correct": 300,
+          "backup": true
+        },
+        "AGK": {
+          "count": 782,
+          "correct": 782,
+          "backup": true
+        },
+        "PERF": {
+          "count": 399,
+          "correct": 399,
+          "backup": true
+        },
+        "OPS": {
+          "count": 501,
+          "correct": 501,
+          "backup": true
+        },
+        "HUM": {
+          "count": 503,
+          "correct": 503,
+          "backup": true
+        }
+      },
+      "popupCount": 12,
+      "cancellation": true,
+      "httpFailure": true,
+      "quotaFailure": true,
+      "missingAssetRepair": true,
+      "workerUpdateRetainsDownloads": true,
+      "logbookUnchanged": true,
+      "errors": []
+    }
+  },
+  "complete": true
+}

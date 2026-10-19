@@ -3,12 +3,16 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { WeatherService } from "./lib/weather.js";
+import { readATPLImage } from "./lib/atpl-media.js";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const types = {
   ".html": "text/html; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
   ".mjs": "application/javascript; charset=utf-8",
   ".css": "text/css; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".webp": "image/webp",
+  ".jpg": "image/jpeg",
   ".svg": "image/svg+xml",
   ".png": "image/png",
   ".webmanifest": "application/manifest+json",
@@ -51,6 +55,16 @@ export function createServer({ weather = new WeatherService() } = {}) {
           "Cache-Control": "no-store",
         });
       }
+      if (url.pathname.startsWith("/atpl/media/")) {
+        const filename = url.pathname.slice("/atpl/media/".length);
+        const bytes = await readATPLImage(filename);
+        if (!bytes) return send(404, "Not found");
+        return send(200, req.method === "HEAD" ? null : bytes, {
+          "Content-Type": types[path.extname(filename)],
+          "Content-Length": bytes.length,
+          "Cache-Control": "public, max-age=31536000, immutable",
+        });
+      }
       const mappings = [
         ["/vendor/pdfjs/", path.join(here, "node_modules/pdfjs-dist")],
         [
@@ -71,6 +85,7 @@ export function createServer({ weather = new WeatherService() } = {}) {
           break;
         }
       if (!rel) rel = "index.html";
+      if (rel.endsWith("/")) rel += "index.html";
       if (
         rel.split("/").some((x) => x === ".." || x.startsWith(".")) ||
         rel.includes("\\") ||
