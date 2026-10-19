@@ -32,3 +32,7 @@ test('each offline manifest includes its bank, source assets and valid immutable
   const first=manifest.assets.find(a=>a.url.endsWith('.webp'));const res=await fetch(base+first.url);assert.match(res.headers.get('content-type'),/image\/webp/);const bytes=Buffer.from(await res.arrayBuffer());assert.equal(bytes.length,first.bytes);assert.equal(digest(bytes),first.sha256);
  }
 }));
+test('account packaging identities and local-only bootstrap cover every original valid source question',()=>server(async base=>{
+ const r=await fetch(base+'/atpl/identities.json');assert.equal(r.status,200);const identities=await r.json(),catalog=await(await fetch(base+'/atpl/catalog.json')).json();
+ for(const bank of catalog.banks){const html=await(await fetch(base+bank.url)).text(),payload=JSON.parse(html.match(/<script[^>]*id="bank-data"[^>]*>(.*?)<\/script>/s)[1])[bank.code];const id=identities[bank.code];assert.equal(id.bankSHA256,bank.bankSHA256);assert.equal(Object.keys(id.questions).length,counts[bank.code]);for(const q of payload.questions.filter(q=>q.valid))assert.deepEqual(id.questions[q.id],{uid:q.uid,choices:Object.keys(q.options),answer:q.answer});assert.match(html,/window\.ATPL_ACCOUNT_READY=import/);assert.match(html,/await window.ATPL_ACCOUNT_READY/);assert.match(html,/ATPLAccountBridge/);assert.match(html,/--accent:#163866/);}
+}));

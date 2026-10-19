@@ -1,0 +1,20 @@
+/* Real origin storage + native Web Locks on Chromium and WebKit. */
+const {chromium,webkit}=require('playwright');const http=require('node:http');const fs=require('node:fs/promises');const path=require('node:path');const assert=require('node:assert/strict');
+(async()=>{
+ const root=path.resolve(__dirname,'..');const server=http.createServer(async(req,res)=>{try{if(req.url==='/'){res.setHeader('Content-Type','text/html');return res.end('<!doctype html><title>Account storage test</title>');}const file=path.join(root,'public',req.url);res.setHeader('Content-Type','application/javascript');res.end(await fs.readFile(file));}catch{res.writeHead(404);res.end();}});await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin=`http://127.0.0.1:${server.address().port}`;
+ try{for(const [name,type]of Object.entries({chromium,webkit})){
+  const browser=await type.launch({headless:true}),context=await browser.newContext();
+  try{
+   const a=await context.newPage(),b=await context.newPage();await Promise.all([a.goto(origin),b.goto(origin)]);
+   const init=async page=>page.evaluate(async()=>{const {openAccountBank}=await import('/atpl/sync/store.js');globalThis.identity={code:'MB',bankSHA256:'a'.repeat(64),questions:{1:{uid:'MB-001',choices:['A','B'],answer:'B'}}};globalThis.bank=await openAccountBank({storage:localStorage,uid:'alice',identity,locks:navigator.locks});return bank.writable;});
+   assert.equal(await init(a),true);assert.equal(await init(b),false);
+   await a.evaluate(()=>{let s=bank.getEnvelope().state;s.progress={1:{attempts:3,correct:2,lastSelected:'B',lastAt:100}};bank.engineStorage.setItem('atpl_mb_v2_state',JSON.stringify(s));});
+   assert.equal(await a.evaluate(()=>localStorage.getItem('atpl_mb_v2_state')),null);
+   await a.close();await b.evaluate(()=>bank.release());await b.waitForFunction(async()=>!(await navigator.locks.query()).held.some(x=>x.name==='atpl-bank-v1:alice:MB'));assert.equal(await init(b),true);assert.equal(await b.evaluate(()=>bank.getEnvelope().state.progress[1].attempts),3);
+   await b.evaluate(async()=>{bank.release();const {openAccountBank}=await import('/atpl/sync/store.js');bank=await openAccountBank({storage:localStorage,uid:'bob',identity,locks:navigator.locks});});assert.equal(await b.evaluate(()=>Object.keys(bank.getEnvelope().state.progress).length),0);
+   await b.evaluate(()=>{const before=localStorage.getItem('atpl_account_v1:bob:MB');const real=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw new DOMException('quota','QuotaExceededError');};let failed=false;try{bank.engineStorage.setItem('atpl_mb_v2_state',JSON.stringify({...bank.getEnvelope().state,bookmarks:[1]}));}catch{failed=true;}finally{Storage.prototype.setItem=real;}if(!failed||localStorage.getItem('atpl_account_v1:bob:MB')!==before||bank.getEnvelope().state.bookmarks.length)throw new Error('atomic write failed');});
+   await b.evaluate(async()=>{localStorage.removeItem('atpl_active_account_v1');const before=localStorage.length;const {bootstrapBank,getCoordinator}=await import('/atpl/account-bootstrap.js');globalThis.fetch=()=>Promise.reject(new Error('provider unreachable'));const guest=await bootstrapBank(identity);if(guest.uid!==null||!guest.writable)throw new Error('local boot waited for provider');const {createAccountClient}=await import('/atpl/vendor/firebase-client.js');const client=createAccountClient({config:{enabled:false},coordinator:getCoordinator()});await client.ready;if(client.currentUser()!==null||client.status!=='disabled'||getCoordinator().getCachedSelection()!==null)throw new Error('disabled provider selected an account');await client.login().then(()=>{throw new Error('disabled login succeeded');},()=>{});client.close();});
+   console.log(`${name}: native lock ownership, close/retry, UID isolation and atomic quota failure passed`);
+  }finally{await context.close();await browser.close();}
+ }}finally{await new Promise(r=>server.close(r));}
+})().catch(e=>{console.error(e);process.exitCode=1;});

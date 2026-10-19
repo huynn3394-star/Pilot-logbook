@@ -1,13 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap");
 :root {
-  --bg: #f4f5f1;
+  --bg: #f3f5f9;
   --paper: #fff;
-  --ink: #182b31;
-  --muted: #778582;
-  --line: #e3e8e3;
-  --lime: #d6f58b;
-  --dark: #101f25;
-  --green: #32765e;
+  --ink: #142744;
+  --muted: #60718a;
+  --line: #dce3ee;
+  --lime: #dce8ff;
+  --dark: #102449;
+  --green: #244e83;
   --amber: #9a6c20;
   --red: #b44545;
   --radius: 18px;
@@ -48,7 +48,7 @@ button:disabled {
 }
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid #82b99a;
+  outline: 3px solid #789bd1;
   outline-offset: 3px;
 }
 a {
@@ -79,11 +79,11 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  outline: 2px solid #a6c48d;
+  outline: 2px solid #789bd1;
   border-color: transparent;
 }
 input[type="checkbox"] {
-  accent-color: #32765e;
+  accent-color: #244e83;
   width: 18px;
   height: 18px;
   padding: 0;
@@ -279,8 +279,8 @@ h3 {
   font-weight: 500;
 }
 .nav button.active {
-  color: #e7f9be;
-  background: #263837;
+  color: #dce8ff;
+  background: #1c355b;
 }
 .nav button.active svg {
   color: var(--lime);
@@ -300,7 +300,7 @@ h3 {
   margin: 25px 3px;
 }
 .plan-card strong {
-  color: #e4ecd9;
+  color: #e1eaff;
   font-size: 12px;
 }
 .plan-card p {
@@ -310,9 +310,9 @@ h3 {
 }
 .plan-card .btn {
   width: 100%;
-  background: #263936;
-  color: #d4e6bc;
-  border-color: #3c5147;
+  background: #1c355b;
+  color: #dce8ff;
+  border-color: #405b80;
 }
 .profile {
   display: flex;
@@ -327,8 +327,8 @@ h3 {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #dce8d5;
-  color: #4c6954;
+  background: #dce8ff;
+  color: #244e83;
   font-size: 11px;
   font-weight: 700;
 }
@@ -417,7 +417,7 @@ h3 {
   align-items: center;
 }
 .badge-preview {
-  border: 1px solid #dce5cc;
+  border: 1px solid #cbd9f0;
   padding: 4px 7px;
   border-radius: 5px;
   font-size: 9px;
@@ -473,11 +473,11 @@ h3 {
   gap: 5px;
 }
 .metric.featured {
-  background: #e7efd9;
-  border-color: #e0e9d2;
+  background: #e7eeff;
+  border-color: #cbd9f0;
 }
 .metric.featured .metric-value {
-  color: #365b3c;
+  color: #244e83;
 }
 .schedule-grid {
   display: grid;
@@ -573,8 +573,8 @@ h3 {
   color: #bcc5b8;
 }
 .day.selected {
-  background: #edf3e3;
-  box-shadow: inset 0 0 0 1.5px #93ad76;
+  background: #e7eeff;
+  box-shadow: inset 0 0 0 1.5px #789bd1;
   z-index: 1;
 }
 .day.today .day-number {
@@ -593,9 +593,9 @@ h3 {
 .cal-flight {
   display: block;
   width: 100%;
-  background: #f0f4e9;
-  color: #4f6d42;
-  border-left: 2px solid #a8c57e;
+  background: #edf2fa;
+  color: #244e83;
+  border-left: 2px solid #789bd1;
   border-radius: 3px;
   padding: 4px;
   font-size: 8px;
@@ -605,7 +605,7 @@ h3 {
   text-overflow: ellipsis;
 }
 .selected .cal-flight {
-  background: #dfe9d1;
+  background: #dce8ff;
 }
 .cal-flight.confirmed {
   background: #e7f0ee;
@@ -637,7 +637,7 @@ h3 {
   width: 6px;
   height: 6px;
   border-radius: 2px;
-  background: #a8c57e;
+  background: #789bd1;
 }
 .legend .actual {
   background: #80ad9d;
@@ -1055,12 +1055,12 @@ h3 {
   padding: 0;
   width: min(760px, calc(100% - 28px));
   max-height: 90dvh;
-  box-shadow: 0 25px 100px #101f2533;
+  box-shadow: 0 25px 100px #10244933;
   color: var(--ink);
   background: #fafbf7;
 }
 #modal::backdrop {
-  background: #101f2570;
+  background: #10244970;
   backdrop-filter: blur(4px);
 }
 .modal-head {
@@ -1136,7 +1136,7 @@ h3 {
   color: #8a9c7d;
 }
 .steps b {
-  background: #e7efd9;
+  background: #e7eeff;
   color: #5d7c44;
   border-radius: 6px;
   padding: 7px 11px;
@@ -1658,7 +1658,7 @@ h3 {
     border-top: 1px solid #dfe5d8;
     justify-content: space-around;
     padding: 8px 6px max(10px, env(safe-area-inset-bottom));
-    box-shadow: 0 -5px 20px #101f2505;
+    box-shadow: 0 -5px 20px #10244905;
   }
   .bottom-nav button {
     background: transparent;

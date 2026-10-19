@@ -1,3 +1,4 @@
+import {setupAccountUI} from './account-ui.js';
 import {getCatalog,enableOffline,bankStatus,downloadBank,downloadError,size} from './offline.js';
 const host=document.querySelector('#atpl-banks'),status=document.querySelector('#atpl-status');
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -17,3 +18,5 @@ async function render(){
 enableOffline().catch(e=>{status.textContent=downloadError(e)});
 render().catch(e=>{host.textContent=downloadError(e)});
 window.addEventListener('offline',()=>{status.textContent='Đang offline. Mở các môn đã tải đầy đủ; tiến độ và bookmark vẫn lưu trên thiết bị.'});
+
+setupAccountUI({element:document.getElementById('atpl-account')}).catch(()=>{document.getElementById('atpl-account').textContent='Chưa kết nối tài khoản; các môn đã tải vẫn học offline được.';});

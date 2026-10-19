@@ -1,0 +1,153 @@
+{
+  "date": "2026-10-19T19:38:13.864Z",
+  "project": "demo-atpl-sync",
+  "realGoogleOAuth": false,
+  "browsers": {
+    "chromium": {
+      "version": "151.0.7922.34",
+      "mode": "context offline",
+      "sameGoogleUID": true,
+      "differentUIDIsolated": true,
+      "offlineSourceImage": true,
+      "attemptsAfterLostAckAndTail": 5,
+      "concurrentTabs": true,
+      "unsupportedLocksReadOnly": true,
+      "logoutReloadsOtherTab": true,
+      "lateGuestBootIsolation": true,
+      "disabledLogoutPersists": true,
+      "rawImportValidation": true,
+      "libraryPersistedLifecycle": true,
+      "desktopIPadRedirect": true,
+      "mobileRedirect": true,
+      "mobileRedirectMode": "same-origin Auth emulator relay; SW disabled for this separate helper test",
+      "resetRecovery": true,
+      "freshDeviceAfterReset": true,
+      "revokedTokenNoFalseSync": true,
+      "logbookUnchanged": true,
+      "networkDiagnostics": [],
+      "errors": []
+    },
+    "webkit": {
+      "version": "26.5",
+      "mode": "origin and provider refused",
+      "sameGoogleUID": true,
+      "differentUIDIsolated": true,
+      "offlineSourceImage": true,
+      "attemptsAfterLostAckAndTail": 5,
+      "concurrentTabs": true,
+      "unsupportedLocksReadOnly": true,
+      "logoutReloadsOtherTab": true,
+      "lateGuestBootIsolation": true,
+      "disabledLogoutPersists": true,
+      "rawImportValidation": true,
+      "libraryPersistedLifecycle": true,
+      "desktopIPadRedirect": true,
+      "mobileRedirect": true,
+      "mobileRedirectMode": "same-origin Auth emulator relay; SW disabled for this separate helper test",
+      "resetRecovery": true,
+      "freshDeviceAfterReset": true,
+      "revokedTokenNoFalseSync": true,
+      "logbookUnchanged": true,
+      "networkDiagnostics": [
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        },
+        {
+          "type": "WebKit emulator connection cancellation",
+          "path": "/127.0.0.1:8080/google.firestore.v1.Firestore/Listen/channel"
+        }
+      ],
+      "errors": []
+    }
+  },
+  "refusedOriginRequests": 48
+}

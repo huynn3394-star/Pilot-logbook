@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function owner(uid) {return request.auth != null && request.auth.uid == uid && request.auth.token.firebase.sign_in_provider == 'google.com';}
+  function bank(code) {return code in ['POF','COM','INS','MET','RNAV','LAW','MB','MBR','AGK','PERF','OPS','HUM'];}
+  function identity(d,code) {return bank(code) && d.schemaVersion == 1 && d.code == code && d.bankSHA256 is string && d.bankSHA256.matches('^[a-f0-9]{64}$') && d.epoch is string && d.epoch.matches('^[A-Za-z0-9:_-]{1,128}$');}
+  function smallState(s) {return s is map && s.keys().hasOnly(['version','progress','wrong','bookmarks','examHistory','study','exam','settings','updatedAt']) && s.version == 2 && s.progress is map && s.progress.size() <= 1000 && s.wrong is list && s.wrong.size() <= 1000 && s.bookmarks is list && s.bookmarks.size() <= 1000 && s.settings is map && s.settings.keys().hasOnly(['theme','language']) && s.settings.theme in ['light','dark','system'] && s.settings.language in ['vi','en','both'] && s.examHistory == [] && s.study == null && s.exam == null;}
+  match /users/{uid} {
+   allow get: if owner(uid);
+   match /banks/{code} {
+    allow get,list: if owner(uid) && bank(code);
+    // Transaction update-time preconditions arbitrate concurrent writers; equal revision must reach retry.
+    allow create,update: if owner(uid) && identity(request.resource.data,code) && request.resource.data.keys().hasOnly(['schemaVersion','code','bankSHA256','epoch','revision','state','selected']) && request.resource.data.revision is int && request.resource.data.revision > 0 && request.resource.data.revision <= 1000000000 && smallState(request.resource.data.state) && request.resource.data.selected is map && request.resource.data.selected.keys().hasOnly(['study','exam']) && (request.method == 'create' || (request.resource.data.bankSHA256 == resource.data.bankSHA256 && request.resource.data.revision >= resource.data.revision));
+    match /sessions/{sessionId} {
+     allow get,list: if owner(uid) && bank(code);
+     allow create,update: if owner(uid) && identity(request.resource.data,code) && sessionId.matches('^[A-Za-z0-9:_-]{1,128}$') && request.resource.data.keys().hasOnly(['schemaVersion','code','bankSHA256','epoch','kind','revision','state']) && request.resource.data.kind in ['study','exam'] && request.resource.data.revision is int && request.resource.data.revision > 0 && (request.resource.data.state == null || (request.resource.data.state is map && request.resource.data.state.ids is list && request.resource.data.state.ids.size() <= 1000 && request.resource.data.state.answers is map && request.resource.data.state.answers.size() <= 1000)) && (request.method == 'create' || (request.resource.data.epoch == resource.data.epoch && request.resource.data.kind == resource.data.kind && request.resource.data.revision >= resource.data.revision));
+    }
+    match /exams/{reportId} {
+     allow get,list: if owner(uid) && bank(code);
+     allow create: if owner(uid) && identity(request.resource.data,code) && request.resource.data.keys().hasOnly(['schemaVersion','code','bankSHA256','epoch','hash','report']) && request.resource.data.hash.matches('^[a-f0-9]{64}$') && reportId == request.resource.data.epoch + '~' + request.resource.data.hash && request.resource.data.report is map && request.resource.data.report.keys().hasOnly(['at','size','correct','percent','results']) && request.resource.data.report.size is int && request.resource.data.report.size >= 0 && request.resource.data.report.size <= 1000 && request.resource.data.report.correct is int && request.resource.data.report.correct >= 0 && request.resource.data.report.correct <= request.resource.data.report.size && (!('results' in request.resource.data.report) || (request.resource.data.report.results is list && request.resource.data.report.results.size() == request.resource.data.report.size));
+    }
+    match /receipts/{batchId} {
+     allow get,list: if owner(uid) && bank(code);
+     allow create: if owner(uid) && identity(request.resource.data,code) && request.resource.data.keys().hasOnly(['schemaVersion','code','bankSHA256','epoch','batchId','revision','deviceId','importIds']) && batchId == request.resource.data.batchId && batchId.matches('^[A-Za-z0-9:_-]{1,128}$') && request.resource.data.deviceId is string && request.resource.data.deviceId.size() <= 128 && request.resource.data.revision is int && request.resource.data.revision > 0 && request.resource.data.importIds is list && request.resource.data.importIds.size() <= 10;
+    }
+    match /imports/{importId} {
+     allow get,list: if owner(uid) && bank(code);
+     allow create: if owner(uid) && identity(request.resource.data,code) && request.resource.data.keys().hasOnly(['schemaVersion','code','bankSHA256','epoch','hash']) && request.resource.data.hash.matches('^[a-f0-9]{64}$') && importId == request.resource.data.epoch + '~' + request.resource.data.hash;
+    }
+   }
+  }
+  match /{document=**} {allow read,write: if false;}
+ }
+}

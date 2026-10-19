@@ -1,0 +1,5 @@
+export const identity={code:'MB',bankSHA256:'a'.repeat(64),questions:{1:{uid:'MB-001',choices:['A','B','C','D'],answer:'B'},2:{uid:'MB-002',choices:['A','B','C','D'],answer:'A'},148:{uid:'INS-03-U001',choices:['E','F','G','H'],answer:'F'}}};
+export const empty=()=>({version:2,progress:{},wrong:[],bookmarks:[],examHistory:[],study:null,exam:null,settings:{theme:'system',language:'both'},updatedAt:null});
+export const counted=(attempts=3,correct=2,selected='B',at=100)=>({...empty(),progress:{1:{attempts,correct,lastSelected:selected,lastAt:at}},wrong:selected==='B'?[]:[1]});
+export const envelope=(state=counted(),uid='alice')=>({schemaVersion:1,uid,code:'MB',bankSHA256:identity.bankSHA256,epoch:'initial',localVersion:1,state:structuredClone(state),baseline:structuredClone(state),cloudRevision:0,sessionIds:{study:'study-a',exam:'exam-a'},inflight:null,pendingReports:[],pendingImports:[],importReceipts:[]});
+export const report=(at=1000)=>({at,size:1,correct:1,percent:100,results:[{id:1,selected:'B',answer:'B',correct:true}]});

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-19T16:48:08.563Z",
+  "date": "2026-10-19T19:36:01.813Z",
   "browsers": {
     "chromium": {
       "version": "151.0.7922.34",
@@ -79,7 +79,7 @@
     "webkit": {
       "version": "26.5",
       "offlineMode": "All origin connections refused; Playwright WebKit issue 42775",
-      "blockedOriginRequests": 385,
+      "blockedOriginRequests": 1348,
       "banks": {
         "POF": {
           "count": 487,

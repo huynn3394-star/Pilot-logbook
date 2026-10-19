@@ -1,4 +1,4 @@
-const CACHE = "avilog-shell-v2-atpl";
+const CACHE = "avilog-shell-v3-account-navy";
 const SHELL = [
   "/",
   "/index.html",
@@ -21,12 +21,27 @@ const SHELL = [
   "/atpl/catalog-ui.js",
   "/atpl/bank-bridge.js",
   "/atpl/atpl.css",
+  "/atpl/account-bootstrap.js",
+  "/atpl/account.js",
+  "/atpl/account-ui.js",
+  "/atpl/sync/model.js",
+  "/atpl/sync/common.js",
+  "/atpl/sync/store.js",
+  "/atpl/sync/import.js",
+  "/atpl/sync/controller.js",
+  "/atpl/vendor/firebase-client.js",
+  "/atpl/identities.json",
+  "/atpl/privacy.html",
 ];
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches
       .open(CACHE)
-      .then((c) => c.addAll(SHELL))
+      .then(async(c) => {
+        await c.addAll(SHELL);
+        // Public config is optional; provider setup/failure cannot poison shell install.
+        try{const r=await fetch('/atpl/firebase-config.json',{cache:'no-store',signal:AbortSignal.timeout(3000)});if(r.ok)await c.put('/atpl/firebase-config.json',r);}catch{}
+      })
       .then(() => self.skipWaiting()),
   );
 });
@@ -46,7 +61,8 @@ self.addEventListener("fetch", (e) => {
   if (
     e.request.method !== "GET" ||
     new URL(e.request.url).origin !== self.location.origin ||
-    new URL(e.request.url).pathname.startsWith("/api/")
+    new URL(e.request.url).pathname.startsWith("/api/") ||
+    new URL(e.request.url).pathname.startsWith("/__/auth/")
   )
     return;
   const pathname = new URL(e.request.url).pathname;

@@ -4,10 +4,10 @@ Mobile-first personal pilot logbook PWA, in Vietnamese with aviation labels. Bui
 
 ## Run
 
-Node 22+:
+Node >=24.12:
 
 ```sh
-npm install --ignore-scripts
+npm ci --ignore-scripts
 npm test
 npm start
 ```
@@ -43,15 +43,47 @@ Trong Pilot Logbook chọn **Ôn thi**. Có 11 bộ đề gốc, tổng **6.126 
 
 Trên iPad mở app bằng Safari khi có mạng, chọn **Tải offline** cho từng môn và chờ **✓ Sẵn sàng offline**. Có thể thêm app vào Màn hình chính qua menu Chia sẻ. Sau khi tải đủ, câu hỏi, lời giải và ảnh nguồn của môn đó dùng được khi mất mạng. Chọn câu, tiếp tục học, bookmark, thi thử, ngày/đêm và xuất/nhập tiến độ vẫn hoạt động. Bộ MBR tham khảo có tiến độ và đáp án riêng; luyện thi theo đáp án gốc dùng MB.
 
-Mỗi môn hiển thị dung lượng trước khi tải. Có thể dừng rồi tiếp tục; phần đã tải được kiểm tra và dùng lại. App kiểm tra byte và SHA-256 của từng tài nguyên, chỉ đánh dấu sẵn sàng sau khi lưu đủ. Thiếu ảnh, mất mạng hoặc hết dung lượng sẽ giữ trạng thái chưa hoàn tất. Cập nhật service worker giữ cache đề và dữ liệu logbook. Không xóa dữ liệu website nếu muốn giữ đề offline và tiến độ; xuất bản sao lưu riêng cho logbook và ATPL trước khi đổi thiết bị. Dữ liệu không tự đồng bộ giữa Mac/iPad. Các liên kết website ngoài, thời tiết và lần tải đầu cần mạng.
+Mỗi môn hiển thị dung lượng trước khi tải. Có thể dừng rồi tiếp tục; phần đã tải được kiểm tra và dùng lại. App kiểm tra byte và SHA-256 của từng tài nguyên, chỉ đánh dấu sẵn sàng sau khi lưu đủ. Thiếu ảnh, mất mạng hoặc hết dung lượng sẽ giữ trạng thái chưa hoàn tất. Cập nhật service worker giữ cache đề và dữ liệu logbook. Không xóa dữ liệu website nếu muốn giữ đề offline và tiến độ; xuất bản sao lưu riêng cho logbook và ATPL trước khi đổi thiết bị. Logbook và tiến độ khách không tự đồng bộ giữa Mac/iPad. Tiến độ ATPL của tài khoản Google có thể đồng bộ khi tính năng tài khoản được kích hoạt và có mạng. Các liên kết website ngoài, thời tiết và lần tải đầu cần mạng.
 
 Nguồn đóng gói: SHA-256 `28fbacae42e5b05023c89b077d977e62184a2e916da0dc7d14bd521acd89239f`. `scripts/package-atpl.py` tạo HTML từng môn, catalog và manifest từ app nguồn; `data/atpl-media/` chứa ảnh base64 chia gói, được `lib/atpl-media.js` phục vụ theo URL hash. Ảnh được dùng chung giữa các môn, không lưu toàn bộ thư viện ảnh vào RAM máy chủ.
 
-Kiểm thử: `node --test` (20/20) và `node scripts/verify-atpl-browser.cjs`. Chromium kiểm tra với offline flag; WebKit kiểm tra khi toàn bộ kết nối tới máy chủ bị từ chối do [lỗi mô phỏng offline của Playwright WebKit #42775](https://github.com/microsoft/playwright/issues/42775). Cả hai mở/chấm đủ 6.426 câu, đọc ảnh nguồn offline, khôi phục backup và giữ nguyên IndexedDB logbook. Chưa kiểm tra trực tiếp trên iPad vật lý. Báo cáo máy chạy được ghi trong `test-results/atpl/Browser_QA.json`.
+Kiểm thử: `npm test` và `node scripts/verify-atpl-browser.cjs`. Chromium kiểm tra với offline flag; WebKit kiểm tra khi toàn bộ kết nối tới máy chủ bị từ chối do [lỗi mô phỏng offline của Playwright WebKit #42775](https://github.com/microsoft/playwright/issues/42775). Cả hai mở/chấm đủ 6.426 câu, đọc ảnh nguồn offline, khôi phục backup và giữ nguyên IndexedDB logbook. Chưa kiểm tra trực tiếp trên iPad vật lý. Báo cáo máy chạy được ghi trong `test-results/atpl/Browser_QA.json`.
+
+## Tài khoản Google và đồng bộ ATPL
+
+Tính năng đăng nhập **mặc định tắt** cho đến khi cấu hình Firebase và kiểm tra OAuth thật hoàn tất. Người học vẫn dùng chế độ khách và học các môn đã tải khi offline. Lần đăng nhập Google đầu tạo tài khoản; app không xin quyền đọc Gmail, Drive hoặc Calendar.
+
+Khi tính năng được kích hoạt:
+
+1. Điện thoại và iPad dùng **cùng tài khoản Google**. Đăng nhập lần đầu cần mạng.
+2. Trên máy cũ, bấm **Đồng bộ ngay** và chờ **Đã đồng bộ** trước khi mở máy khác. Dữ liệu chưa gửi không thể tự xuất hiện ở máy khác.
+3. Trên máy mới, đăng nhập và đồng bộ rồi tải offline các môn muốn học. Mất mạng vẫn lưu tiến độ riêng của tài khoản đã chọn; mở lại app khi có mạng để gửi phần đang chờ.
+4. **Xem / nhập tiến độ khách** cho xem số câu và yêu cầu xác nhận riêng từng môn. Bản sao trước khi nhập được tải xuống, dữ liệu khách vẫn giữ nguyên. Lượt cũ trùng nhau lấy giá trị lớn hơn, không tự cộng thành các lượt độc lập. Bản sao trước nhập vẫn có định dạng JSON v2 để khôi phục; `sourceOriginal` giữ bản nguồn đi kèm.
+5. Đăng xuất về kho khách; các tài khoản có kho riêng. Tab cùng tài khoản/môn chỉ có một tab ghi. Trình duyệt thiếu Web Locks chỉ xem/xuất kho tài khoản; chế độ khách vẫn dùng được.
+
+**Xuất tiến độ** trong Cài đặt của môn tạo bản JSON có thể nhập lại. **Xuất bản lưu tài khoản** giữ cả thông tin phục hồi đồng bộ; đây là bản kỹ thuật để xử lý sự cố. Nếu báo chưa lưu được, hãy xuất tiến độ trước khi đóng. Đặt lại tiến độ tài khoản cần xác nhận và tạo phiên dữ liệu mới; bản chờ từ phiên cũ được giữ để xuất khi báo xung đột. Không sửa thủ công UID, baseline hoặc lô đang gửi.
+
+Logbook/roster/ảnh bằng chứng tiếp tục nằm ở IndexedDB của thiết bị, không gửi lên Firebase. Không có đồng bộ ngầm khi iOS đã đóng app. Xóa dữ liệu website cũng xóa bản tải offline; giữ sao lưu trước khi xóa hoặc đổi địa chỉ website.
+
+### Cấu hình cho chủ ứng dụng
+
+Tạo dự án Firebase riêng thuộc tài khoản của chủ ứng dụng, dùng **Spark**, không liên kết billing, không bật Analytics/Gemini hay Storage. Đăng ký một web app, bật **Google** trong Authentication, thêm đúng hostname Railway vào Authorized domains và đúng `https://<hostname>/__/auth/handler` vào redirect URI của OAuth web client. Tạo Firestore Standard ở vùng phù hợp và ghi lại vùng đã chọn; tránh test-mode rules.
+
+Triển khai `firebase/firestore.rules` và indexes trước khi bật tính năng. CLI cần phiên đăng nhập của chủ dự án (không đưa service-account key vào repo/browser):
+
+```sh
+firebase deploy --only firestore:rules,firestore:indexes --project <project-id>
+```
+
+Cấu hình Railway theo `.env.example`: `ATPL_APP_ORIGIN` là HTTPS origin chính xác; `FIREBASE_PROJECT_ID`, `FIREBASE_API_KEY`, `FIREBASE_APP_ID` là cấu hình web công khai. `authDomain` tự lấy từ origin, còn proxy `/__/auth/` chỉ chuyển tới `<project-id>.firebaseapp.com`. Không dùng `ATPL_USE_EMULATORS=true` trên bản thật. Chỉ đặt `ATPL_ACCOUNTS_ENABLED=true` trong cửa sổ kiểm thử OAuth thật sau khi các kiểm thử/rules đã qua; nếu lỗi, tắt lại cờ và giữ nguyên dữ liệu.
+
+`npm run build:atpl-account` đóng gói SDK Firebase tại cùng origin, không tải SDK từ CDN khi học. `npm run test:rules` kiểm thử các luật/giao dịch với Auth/Firestore emulator. `npm run test:account-browser` kiểm thử SDK thật, hai thiết bị mô phỏng, Google emulator, mất mạng/mất xác nhận và đổi tài khoản. Đây không phải bằng chứng OAuth Google thật hay iPad vật lý; xem [báo cáo kiểm thử](docs/account-verification.md).
+
+Người dùng đã yêu cầu giao diện navy và địa chỉ `avilog`, sau đó chọn **giữ địa chỉ cũ đến khi sao lưu xong**. Chưa đổi domain; đổi origin sẽ không tự chuyển localStorage/IndexedDB/cache của iPad.
 
 ## Preview limits
 
-Browser-local workspace: no account login, cross-device sync, server storage, payments or real ads. Notifications/reminder checks run **while app is open**; no closed-app push. Tomorrow and evening preferences are UTC. Night time is manual; no unverified night calculator. No FTL compliance claim; a validated ruleset with version/effective date/source is required. Missing roster entries are retained for review, not treated as cancellations. Same flight number operated twice on one UTC date requires a future occurrence identifier and manual review.
+Logbook remains browser-local. Optional Google login/sync covers ATPL progress only and is disabled until the Firebase deployment gate passes; no logbook sync, payments or real ads. Notifications/reminder checks run **while app is open**; no closed-app push. Tomorrow and evening preferences are UTC. Night time is manual; no unverified night calculator. No FTL compliance claim; a validated ruleset with version/effective date/source is required. Missing roster entries are retained for review, not treated as cancellations. Same flight number operated twice on one UTC date requires a future occurrence identifier and manual review.
 
 ## Architecture and extension
 

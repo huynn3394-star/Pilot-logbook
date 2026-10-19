@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { WeatherService } from "./lib/weather.js";
+import {createFirebaseAuthHandler,readFirebaseConfig} from "./lib/firebase-auth.js";
 import { readATPLImage } from "./lib/atpl-media.js";
 const here = path.dirname(fileURLToPath(import.meta.url));
 const types = {
@@ -19,7 +20,8 @@ const types = {
   ".wasm": "application/wasm",
   ".gz": "application/gzip",
 };
-export function createServer({ weather = new WeatherService() } = {}) {
+export function createServer({ weather = new WeatherService(), firebaseConfig=readFirebaseConfig(), firebaseFetch=fetch } = {}) {
+  const authHandler=createFirebaseAuthHandler({config:firebaseConfig,fetchImpl:firebaseFetch});
   return http.createServer(async (req, res) => {
     const security = {
       "X-Content-Type-Options": "nosniff",
@@ -33,6 +35,7 @@ export function createServer({ weather = new WeatherService() } = {}) {
     };
     try {
       const url = new URL(req.url, "http://localhost");
+      if(await authHandler(req,res,url))return;
       if (!["GET", "HEAD"].includes(req.method))
         return send(405, "Method not allowed");
       if (url.pathname === "/api/health")
