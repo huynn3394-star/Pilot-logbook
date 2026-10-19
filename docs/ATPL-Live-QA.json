@@ -1,0 +1,137 @@
+{
+  "at": "2026-10-19T23:33:10.723287+00:00",
+  "releaseCommit": "0f920576599fee5b8b3906405463f0d6864c5806",
+  "testedTree": "002419c18782886b42e7c9f69115e9cee96826f0",
+  "deployments": {
+    "code": "61a28b15-d6e9-44ce-8027-aad7f8c80073",
+    "enabledConfig": "1ebf905d-eb9c-4d21-9c71-82b135219fc1"
+  },
+  "sourceCheck": {
+    "at": "2026-10-19T23:30:19.610Z",
+    "origin": "https://avilog-preview-preview.up.railway.app",
+    "realGoogleOAuth": false,
+    "physicalIPad": false,
+    "banks": {
+      "POF": {
+        "payloadSHA256": "e3f02a87e69aca374d46a981870589cf98d9d0a317ff0954e4fc263ee84eb1af",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 487
+      },
+      "COM": {
+        "payloadSHA256": "3829b4c7244269abc218f96447673b96a4e680fbd460a39ef45b7e584493c025",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 500
+      },
+      "INS": {
+        "payloadSHA256": "97ec888c1e9401e5e2edd6fb581b156dca3cfed1c08678123e6a26183d54711f",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 601
+      },
+      "MET": {
+        "payloadSHA256": "73d1b8350a89daca2b6a311303b0330894994549ccf77f0f5ac9fda66cbf02a1",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 900
+      },
+      "RNAV": {
+        "payloadSHA256": "9047d735ae901ca313f2563d4ab8647e6b750aa44769667c8e209ae8fde89346",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 700
+      },
+      "LAW": {
+        "payloadSHA256": "d9dae728af27c5042e9209d52c8fd9123cfa96219030db00732fb3b0f91030e4",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 453
+      },
+      "MB": {
+        "payloadSHA256": "e33f90ae6e234f65cbd173886bf8e2b2a6f0b362171106d3197381841be4da22",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 300
+      },
+      "MBR": {
+        "payloadSHA256": "f867d78448d16b25b371afa4a8cf76e47069600089493c80449dc8fc5b448288",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 300
+      },
+      "AGK": {
+        "payloadSHA256": "6171b4220c1dd53ab5b6b863fce49f6719b810949824aa7e1518bf8b68ecf19a",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 782
+      },
+      "PERF": {
+        "payloadSHA256": "4e495ffaf09e23fa17d5e53d0b4c7831d8b05fb001431439468973f43a640ff0",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 399
+      },
+      "OPS": {
+        "payloadSHA256": "19a53dcd892ab41cb46fbcb6f8a397d15ed5f2cb55ab319ba1fab89e2acc4cc5",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 501
+      },
+      "HUM": {
+        "payloadSHA256": "4f633d2a1faaa702e2485739b2a51b10b3b56d9a31e93547eac254aae29a5a97",
+        "engineUnchanged": true,
+        "sourceImage": true,
+        "count": 503
+      }
+    },
+    "health": {
+      "ok": true,
+      "app": "avilog-preview",
+      "version": "0.1.0",
+      "storage": "browser-local"
+    },
+    "config": {
+      "enabled": true,
+      "appOrigin": "https://avilog-preview-preview.up.railway.app",
+      "projectId": "avilog-atpl",
+      "authDomain": "avilog-preview-preview.up.railway.app"
+    }
+  },
+  "offlineCheck": {
+    "at": "2026-10-19T23:27:37.731Z",
+    "browser": "151.0.7922.34",
+    "realOrigin": "https://avilog-preview-preview.up.railway.app",
+    "trueOffline": true,
+    "bank": "MB",
+    "sourceImage": true,
+    "sourceKeyUnchanged": true,
+    "answerBookmarkResumeExport": true,
+    "reconnect": true,
+    "realGoogleOAuth": false,
+    "physicalIPad": false,
+    "errors": []
+  },
+  "googleOAuth": {
+    "realProvider": true,
+    "nativeSafariConsent": true,
+    "basicIdentityScopesOnly": true,
+    "firebaseGoogleUserCreated": true,
+    "clientSyncStatus": "awaiting user confirmation; native window automation unavailable after popup closes",
+    "twoDeviceProductionSync": false,
+    "physicalIPad": false
+  },
+  "provider": {
+    "projectId": "avilog-atpl",
+    "plan": "Spark",
+    "database": "(default)",
+    "edition": "Standard",
+    "location": "asia-southeast1",
+    "rulesPublishedExactMatch": true,
+    "googleOnly": true,
+    "oauthAudience": "External",
+    "oauthPublishing": "In production",
+    "sensitiveAndRestrictedScopesConfigured": false
+  },
+  "domainRenameDeferredByUser": true
+}
