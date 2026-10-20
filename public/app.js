@@ -22,7 +22,14 @@ import {
   icaoFor,
 } from "./lib/parsers.js";
 import { sampleState, sampleRoster, sampleAOC } from "./lib/sample.js";
-import { readState, writeState } from "./lib/storage.js";
+import { getCoordinator } from './account/coordinator.js';
+import { getAccountClient } from './account/client.js';
+import { openWorkspaceSession } from './workspace/session.js';
+import { createWorkspaceController } from './workspace/controller.js';
+import { createTransfers } from './workspace/transfers.js';
+import { mountWorkspaceUI } from './workspace/ui.js';
+import { mountBackupUI } from './workspace/backup-ui.js';
+import { createWeatherCollector } from './workspace/weather.js';
 import { evaluateRules } from "./lib/rules.js";
 import { extractPDF, extractImage, asDataURL } from "./lib/importers.js";
 const paths = {
@@ -79,6 +86,26 @@ let state,
   imageAttachment = null,
   imageIsSample = false,
   notificationShown = new Set();
+const coordinator=getCoordinator();
+let workspaceSession=null,account=null,workspaceController=null,evidenceTransfers=null,accountUI=null,backupUI=null,renderCapture=null,formDirty=false,pendingRemote=false,transitioning=false,draftPrepared=false,bootVersion=0,weatherCollector=null;
+const busyForm=()=>modal.open||formDirty;
+function asyncCapture(){return{session:workspaceSession,token:workspaceSession.token,context:modal.dataset.context};}
+function asyncCurrent(capture){return capture.session===workspaceSession&&coordinator.isCurrent(capture.token)&&capture.context===modal.dataset.context&&modal.open;}
+function assertAsync(capture){if(capture.session!==workspaceSession||!coordinator.isCurrent(capture.token)||capture.context!==modal.dataset.context||!modal.open)throw Error('Phiên hoặc cửa sổ đã đổi; kết quả cũ không được áp dụng.');}
+async function draftContent(){if(!formDirty)return null;const forms=[...document.querySelectorAll('#modal input,#modal textarea,#modal select,#settings-form input,#settings-form select')];const fields=[];for(const input of forms){if(input.type==='file'){for(const file of input.files||[])fields.push({name:input.name||input.id,fileName:file.name,type:file.type,bytes:file.size,...(/^image\/(png|jpeg|webp)$/.test(file.type)&&file.size<=6*1024*1024?{dataURL:await asDataURL(file)}:{fileNotEmbedded:true})});}else fields.push({name:input.name||input.id,value:input.value,checked:input.checked});}return{sourceUID:workspaceSession?.uid,form:fields,base:modal._formCapture?.base||renderCapture?.base,view:structuredClone(state),at:new Date().toISOString()};}
+function exportDraft(draft){download('avilog-unsaved-draft.json',JSON.stringify({format:'avilog-workspace-recovery',version:1,draft}),'application/json');return true;}
+async function beforeAccountSwitch(){const current=workspaceSession,draft=await draftContent();const ok=await current.prepareSwitch({draft,exportDraft:async value=>exportDraft(value),confirmDiscard:async()=>confirm('Không lưu được bản nháp. Bỏ bản nháp và đổi tài khoản?')});if(ok)draftPrepared=true;return ok;}
+async function transitionAccount(){if(transitioning||!workspaceSession)return;transitioning=true;try{if(formDirty&&!draftPrepared){const draft=await draftContent();openModal('Tài khoản đã thay đổi','<div class="modal-body"><p>Bản nháp thuộc tài khoản cũ. Hãy xuất bản nháp hoặc chủ động bỏ trước khi mở dữ liệu tài khoản mới.</p><button class="btn primary" data-workspace-draft="export">Xuất bản nháp rồi tiếp tục</button><button class="btn ghost" data-workspace-draft="discard">Bỏ bản nháp rồi tiếp tục</button></div>');modal.querySelector('.modal-head button').hidden=true;await new Promise(resolve=>{const cancel=event=>event.preventDefault();modal.addEventListener('cancel',cancel);const click=event=>{const button=event.target.closest('[data-workspace-draft]');if(!button)return;if(button.dataset.workspaceDraft==='export')exportDraft(draft);modal.removeEventListener('click',click);modal.removeEventListener('cancel',cancel);resolve();};modal.addEventListener('click',click);});}formDirty=false;draftPrepared=false;modal.close();await bootWorkspace();}catch(err){error(err.message);}finally{transitioning=false;}}
+function connectWorkspaceServices(){if(!workspaceSession?.isCurrent())return;workspaceController?.stop();evidenceTransfers?.stop();workspaceController=null;evidenceTransfers=null;if(account&&workspaceSession.uid){const current=workspaceSession;const update=area=>status=>{if(workspaceSession===current&&current.isCurrent()){coordinator.publishAreaStatus({uid:current.uid,area,status});accountUI?.render();}};workspaceController=createWorkspaceController({account,repository:current.repository,coordinator,onStatus:update('workspace')});evidenceTransfers=createTransfers({account,repository:current.repository,coordinator,onStatus:update('evidence')});account.ready.then(()=>{if(workspaceSession===current&&current.isCurrent()){workspaceController.schedule();evidenceTransfers.pump();}});}mountWorkspaceControls();}
+function mountWorkspaceControls(){accountUI?.dispose();backupUI?.dispose();if(!workspaceSession||!state)return;const host=document.querySelector('[data-workspace-account]');if(host)accountUI=mountWorkspaceUI({element:host,session:workspaceSession,account,coordinator,controller:workspaceController,transfers:evidenceTransfers,beforeSwitch:beforeAccountSwitch,openDialog:(title,body)=>{openModal(title,body);return modal;},onError:error,onChanged:()=>{},onLegacyImport:()=>{tab="settings";render();document.querySelector('[data-workspace-backup="import"]')?.click();}});const backups=document.querySelector('[data-workspace-backups]');if(backups)backupUI=mountBackupUI({element:backups,session:workspaceSession,transfers:evidenceTransfers,openDialog:(title,body)=>{openModal(title,body);return modal;},onChanged:()=>{workspaceController?.schedule();evidenceTransfers?.pump();}});}
+async function bootWorkspace(){const version=++bootVersion;workspaceController?.stop();evidenceTransfers?.stop();workspaceSession?.release();weatherCollector?.clear();let candidate;candidate=await openWorkspaceSession({coordinator,onLocalChange:()=>{if(workspaceSession===candidate&&candidate.isCurrent()){workspaceController?.schedule();evidenceTransfers?.pump();}},onView:next=>{if(workspaceSession!==candidate)return;if(busyForm()){pendingRemote=true;accountUI?.render();}else{state=next;render();}},onTransition:()=>{transitionAccount();}});if(version!==bootVersion){candidate.release();return;}workspaceSession=candidate;state=candidate.view();formDirty=false;pendingRemote=false;render();connectWorkspaceServices();weatherCollector=createWeatherCollector({isCurrent:token=>candidate.isCurrent()&&coordinator.isCurrent(token)});collectTodayWeather().catch(()=>{});}
+async function collectTodayWeather({id,refresh=false}={}){const current=workspaceSession,outcomes=[];if(!current?.writable||!weatherCollector||!navigator.onLine)return outcomes;for(const flight of current.view().flights.filter(f=>f.date===new Date().toISOString().slice(0,10)&&(!id||f.id===id))){const token=current.token,result=await weatherCollector.collect(flight,{token,refresh});outcomes.push(result);if(current!==workspaceSession||!current.isCurrent())return outcomes;if(result.weather&&JSON.stringify(result.weather)!==JSON.stringify(flight.weather)){const form=current.captureForm(),next=current.view(),latest=next.flights.find(f=>f.id===flight.id);if(!latest||latest.date!==flight.date||latest.dep!==flight.dep||latest.dest!==flight.dest)continue;latest.weather=result.weather;await current.saveView({...form,next});}}return outcomes;}
+window.addEventListener('offline',()=>{workspaceController?.syncNow();accountUI?.render();});
+window.addEventListener('online',()=>{workspaceController?.schedule();evidenceTransfers?.pump();collectTodayWeather().catch(()=>{});});window.addEventListener('focus',()=>workspaceController?.schedule());
+modal.addEventListener('close',()=>{if(transitioning)return;formDirty=false;pendingRemote=false;if(workspaceSession?.isCurrent()){state=workspaceSession.view();render();}});
+document.addEventListener('input',event=>{if(event.target.closest('#modal')||event.target.closest('#settings-form')){formDirty=true;draftPrepared=false;}});
+window.addEventListener('pagehide',()=>{workspaceController?.stop();evidenceTransfers?.stop();workspaceSession?.release();weatherCollector?.clear();});window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});
+window.addEventListener('avilog-workspace-update',()=>{if(workspaceSession?.isCurrent())workspaceSession.refresh().catch(err=>error(err.message));});
 const titles = {
   schedule: "Lịch bay",
   logbook: "Logbook",
@@ -127,18 +154,23 @@ function error(text) {
     target.hidden = false;
   } else toast(text);
 }
-async function commit(next, message) {
+async function commit(next, message, options={}) {
   if (saving) throw Error("Đang lưu, vui lòng chờ");
   saving = true;
   try {
-    await writeState(next);
-    state = next;
+    const captured=modal.open?modal._formCapture:renderCapture;
+    if(!captured)throw Error('Không còn phiên ghi hợp lệ; mở lại biểu mẫu.');
+    state = await workspaceSession.saveView({...captured,next,...options});
+    formDirty=false;pendingRemote=false;workspaceController?.schedule();evidenceTransfers?.pump();
+    collectTodayWeather().catch(()=>{});
     if (message) toast(message);
   } finally {
     saving = false;
   }
 }
 function openModal(title, body, footer = "") {
+  try{modal._formCapture=workspaceSession?.captureForm();}catch{modal._formCapture=null;}
+  modal.dataset.context=crypto.randomUUID();formDirty=false;
   modal.innerHTML = `<div class="modal-head"><h2>${title}</h2><button class="iconbtn" data-action="close" aria-label="Đóng">${icon("close")}</button></div>${body}<div class="modal-footer">${footer || btn("close", "Đóng", null, "ghost")}</div>`;
   if (!modal.open) modal.showModal();
 }
@@ -151,6 +183,8 @@ const toUTC = (value) =>
 const timeInput = (name, label, t) =>
   input(name, label, t?.slice(0, 16) || "", "datetime-local");
 function render() {
+  if(!workspaceSession||!state)return;
+  accountUI?.dispose();backupUI?.dispose();renderCapture=workspaceSession.captureForm();
   const fs = getFlights(),
     s = statistics(fs);
   const nav = tabs
@@ -159,7 +193,8 @@ function render() {
         `<button data-action="tab" data-tab="${id}" class="${tab === id ? "active" : ""}" ${tab === id ? 'aria-current="page"' : ""}>${icon(ico)}<span>${title}</span>${id === "schedule" ? `<span class="num">${String(fs.length).padStart(2, "0")}</span>` : ""}</button>`,
     )
     .join("");
-  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><div class="brand"><span class="brandmark">${icon("plane")}</span>AviLog<span style="color:#d6f58b">.</span></div><div class="nav-caption">YOUR FLIGHT COMPANION</div><nav class="nav" aria-label="Điều hướng">${nav}</nav><div class="sidebar-bottom"><div class="plan-card"><strong>${icon("shield")} Your logbook, your story.</strong><p>Lịch bay, giờ bay và những người đồng hành. Gọn trong một nơi.</p>${btn("plan", "Free preview ↗", null, "small")}</div><button class="profile iconbtn" style="width:100%;height:auto;text-align:left;display:flex" data-action="tab" data-tab="settings"><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span><span><strong>${e(state.settings.name || "Pilot")}</strong><small>Personal workspace</small></span>${icon("settings")}</button></div></aside><section class="workspace"><header class="topbar"><div class="breadcrumbs">Workspace <span>/</span> <strong>${titles[tab]}</strong></div><div class="mobile-brand"><span class="brandmark">${icon("plane")}</span>AviLog.</div><div class="top-actions"><span class="utc-clock mono" id="utc-clock">${new Date().toISOString().slice(11, 16)} <b>UTC</b></span><button class="iconbtn notification-btn" data-action="reminders" aria-label="Thông báo">${icon("bell")}</button><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span></div></header><main class="main"><div class="page-heading"><div><div style="display:flex;gap:10px;align-items:center"><h1>${titles[tab]}</h1><span class="badge-preview">PREVIEW</span></div><p>${{ schedule: "Mỗi hành trình, một câu chuyện. Sẵn sàng cho chuyến bay tiếp theo.", logbook: "Ghi lại hành trình. Giữ trọn từng phút bay.", crew: "Những người đồng hành trên mỗi chuyến bay.", statistics: "Một góc nhìn rõ hơn về hành trình của bạn.", settings: "Thiết lập không gian bay của riêng bạn." }[tab]}</p></div><div class="actions">${["schedule", "logbook"].includes(tab) ? `${btn("import", "Import roster", "upload")}${btn("add", "Thêm chuyến bay", "plus", "primary")}` : tab === "crew" ? btn("add-person", "Thêm người", "plus", "primary") : tab === "statistics" ? btn("csv", "Xuất CSV", "download") : ""}</div></div>${tab === "schedule" ? schedule(fs, s) : tab === "logbook" ? logbook(fs, s) : tab === "crew" ? crew() : tab === "statistics" ? statsPage(fs, s) : settingsPage()}<footer class="footer"><span>${icon("shield")} Lưu riêng trên thiết bị · All times in UTC · AviLog preview v0.1</span><span>Made for the journey, logged for you.</span></footer></main></section><nav class="bottom-nav" aria-label="Điều hướng mobile">${nav}</nav></div>`;
+  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><div class="brand"><span class="brandmark">${icon("plane")}</span>AviLog<span style="color:#d6f58b">.</span></div><div class="nav-caption">YOUR FLIGHT COMPANION</div><nav class="nav" aria-label="Điều hướng">${nav}</nav><div class="sidebar-bottom"><div class="plan-card"><strong>${icon("shield")} Your logbook, your story.</strong><p>Lịch bay, giờ bay và những người đồng hành. Gọn trong một nơi.</p>${btn("plan", "Free preview ↗", null, "small")}</div><button class="profile iconbtn" style="width:100%;height:auto;text-align:left;display:flex" data-action="tab" data-tab="settings"><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span><span><strong>${e(state.settings.name || "Pilot")}</strong><small>Personal workspace</small></span>${icon("settings")}</button></div></aside><section class="workspace"><header class="topbar"><div class="breadcrumbs">Workspace <span>/</span> <strong>${titles[tab]}</strong></div><div class="mobile-brand"><span class="brandmark">${icon("plane")}</span>AviLog.</div><div class="top-actions"><span class="utc-clock mono" id="utc-clock">${new Date().toISOString().slice(11, 16)} <b>UTC</b></span><button class="iconbtn notification-btn" data-action="reminders" aria-label="Thông báo">${icon("bell")}</button><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span></div></header><main class="main"><section class="workspace-account" data-workspace-account aria-label="Tài khoản AviLog"></section><div class="page-heading"><div><div style="display:flex;gap:10px;align-items:center"><h1>${titles[tab]}</h1><span class="badge-preview">PREVIEW</span></div><p>${{ schedule: "Mỗi hành trình, một câu chuyện. Sẵn sàng cho chuyến bay tiếp theo.", logbook: "Ghi lại hành trình. Giữ trọn từng phút bay.", crew: "Những người đồng hành trên mỗi chuyến bay.", statistics: "Một góc nhìn rõ hơn về hành trình của bạn.", settings: "Thiết lập không gian bay của riêng bạn." }[tab]}</p></div><div class="actions">${["schedule", "logbook"].includes(tab) ? `${btn("import", "Import roster", "upload")}${btn("add", "Thêm chuyến bay", "plus", "primary")}` : tab === "crew" ? btn("add-person", "Thêm người", "plus", "primary") : tab === "statistics" ? btn("csv", "Xuất CSV", "download") : ""}</div></div>${tab === "schedule" ? schedule(fs, s) : tab === "logbook" ? logbook(fs, s) : tab === "crew" ? crew() : tab === "statistics" ? statsPage(fs, s) : settingsPage()}<footer class="footer"><span>${icon("shield")} Lưu offline theo không gian đang chọn · All times in UTC · AviLog</span><span>Made for the journey, logged for you.</span></footer></main></section><nav class="bottom-nav" aria-label="Điều hướng mobile">${nav}</nav></div>`;
+  mountWorkspaceControls();
 }
 function metrics(s) {
   return `<div class="metrics"><div class="metric featured"><div class="metric-top">Block time ${icon("clock")}</div><div class="metric-value mono">${duration(s.block)}<small>hrs</small></div><div class="metric-foot">${icon("check")} Actual đã xác nhận</div></div><div class="metric"><div class="metric-top">Airborne time ${icon("plane")}</div><div class="metric-value mono">${duration(s.airborne)}<small>hrs</small></div><div class="metric-foot">OFF → ON · UTC</div></div><div class="metric"><div class="metric-top">Sectors ${icon("pin")}</div><div class="metric-value">${String(s.sectors).padStart(2, "0")}<small>flights</small></div><div class="metric-foot">${s.pf} PF <span>·</span> ${s.pm} PM</div></div><div class="metric"><div class="metric-top">Night time ${icon("moon")}</div><div class="metric-value mono">${duration(s.night)}<small>hrs</small></div><div class="metric-foot">Night time nhập thủ công</div></div></div>`;
@@ -168,7 +203,7 @@ function monthControls() {
   return `<div class="month-controls"><h2>${new Date(month + "-01T12:00Z").toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" })}</h2><button class="iconbtn" data-action="month-prev" aria-label="Tháng trước">${icon("left")}</button><button class="iconbtn" data-action="month-next" aria-label="Tháng sau">${icon("chevron")}</button><button class="btn small ghost" data-action="today">Hôm nay</button></div>`;
 }
 function schedule(fs, s) {
-  return `${metrics(s)}<div class="schedule-grid"><section class="panel"><div class="calendar-toolbar">${monthControls()}<div class="view-switch"><button class="${view === "calendar" ? "active" : ""}" data-action="view" data-view="calendar">Tháng</button><button class="${view === "list" ? "active" : ""}" data-action="view" data-view="list">Danh sách</button></div></div>${view === "calendar" ? calendar(fs) : flightTable(fs)}<div class="calendar-footer"><div class="legend"><span><b></b> Scheduled</span><span><b class="actual"></b> Confirmed actual</span></div><span>Giờ hiển thị: UTC</span></div></section><section class="panel day-panel">${dayPanel()}</section></div><div class="below-grid"><div class="import-card"><div class="import-icon">${icon("camera")}</div><div><h3>Hạ cánh. Chụp lại. Hoàn tất.</h3><p>Nhập giờ thực tế từ ảnh MCDU / AOC FLT LOG.<br>Luôn kiểm tra và xác nhận trước khi lưu.</p></div>${btn("image", "Nhập từ ảnh ↗", null)}</div><div class="storage-note"><strong>${icon("cloud")} Personal, by design.</strong>Dữ liệu lưu trên trình duyệt này. Xuất backup thường xuyên để giữ lại hành trình.</div></div>${state.demo ? `<div class="welcome"><span>${icon("info")} Đang xem dữ liệu mẫu · tháng 10/2026. Crew là nhân vật giả.</span>${btn("fresh", "Bắt đầu logbook riêng", null, "small ghost")}</div>` : ""}`;
+  return `${metrics(s)}<div class="schedule-grid"><section class="panel"><div class="calendar-toolbar">${monthControls()}<div class="view-switch"><button class="${view === "calendar" ? "active" : ""}" data-action="view" data-view="calendar">Tháng</button><button class="${view === "list" ? "active" : ""}" data-action="view" data-view="list">Danh sách</button></div></div>${view === "calendar" ? calendar(fs) : flightTable(fs)}<div class="calendar-footer"><div class="legend"><span><b></b> Scheduled</span><span><b class="actual"></b> Confirmed actual</span></div><span>Giờ hiển thị: UTC</span></div></section><section class="panel day-panel">${dayPanel()}</section></div><div class="below-grid"><div class="import-card"><div class="import-icon">${icon("camera")}</div><div><h3>Hạ cánh. Chụp lại. Hoàn tất.</h3><p>Nhập giờ thực tế từ ảnh MCDU / AOC FLT LOG.<br>Luôn kiểm tra và xác nhận trước khi lưu.</p></div>${btn("image", "Nhập từ ảnh ↗", null)}</div><div class="storage-note"><strong>${icon("cloud")} Personal, by design.</strong>Lưu trên máy để dùng offline. Đăng nhập Google để đồng bộ; xuất backup để giữ thêm một bản riêng.</div></div>${state.demo ? `<div class="welcome"><span>${icon("info")} Đang xem dữ liệu mẫu · tháng 10/2026. Crew là nhân vật giả.</span>${btn("fresh", "Bắt đầu logbook riêng", null, "small ghost")}</div>` : ""}`;
 }
 function calendar(fs) {
   const date = new Date(month + "-01T00:00Z"),
@@ -297,7 +332,7 @@ function statsPage(fs, s) {
 }
 function settingsPage() {
   const s = state.settings;
-  return `<div class="settings-grid"><section class="panel settings-card"><h3>Personal workspace</h3><p class="muted">Không cần tài khoản công ty. Dữ liệu thuộc trình duyệt này và chưa đồng bộ giữa các thiết bị.</p><form id="settings-form"><div class="form-grid">${input("name", "Tên hiển thị", s.name, "text", 'maxlength="60" required')}${input("base", "Home base (IATA)", s.base, "text", 'maxlength="4"')}<label>Múi giờ dữ liệu<input value="UTC · không đổi" disabled></label><label>Gói sử dụng<input value="Free Preview" disabled></label></div><hr class="divider"><h3>Nhắc lịch</h3>${[
+  return `<div class="settings-grid"><section class="panel settings-card"><h3>Personal workspace</h3><p class="muted">${workspaceSession?.uid?"Hồ sơ, lịch bay, logbook, crew và cài đặt được tách theo tài khoản Google. Lưu trên máy để dùng offline; khi có mạng, xem trạng thái gửi dữ liệu ở thanh tài khoản.":"Bạn đang dùng không gian khách trên thiết bị. Đăng nhập Google, rồi xem trước dữ liệu khách để chọn nội dung cần đồng bộ."}</p><form id="settings-form">${account?.currentUser()?.displayName?`<p class="muted">Gợi ý từ Google: ${e(account.currentUser().displayName)}. Bạn có thể dùng tên / nickname riêng bên dưới.</p>`:""}<div class="form-grid">${input("name", "Tên hiển thị", s.name, "text", 'maxlength="60" required')}${input("base", "Home base (IATA)", s.base, "text", 'maxlength="4"')}<label>Múi giờ dữ liệu<input value="UTC · không đổi" disabled></label><label>Gói sử dụng<input value="Free Preview" disabled></label></div><hr class="divider"><h3>Nhắc lịch</h3>${[
     [
       "tomorrow",
       "Lịch ngày mai",
@@ -320,7 +355,7 @@ function settingsPage() {
     )
     .join(
       "",
-    )}<div class="form-grid">${input("leadMinutes", "Nhắc trước report (phút)", s.leadMinutes, "number", 'min="5" max="1440" required')}${input("eveningHour", "Giờ nhắc tối hôm trước (UTC)", s.eveningHour, "number", 'min="0" max="23" required')}</div><div class="actions"><button class="btn primary" type="submit">${icon("check")}Lưu cài đặt</button>${btn("notifications", s.notifications ? "Tắt thông báo" : "Bật thông báo trình duyệt", "bell")}</div></form><div class="source-card">Preview kiểm tra reminder khi app đang mở. Chưa có push nền khi app đã đóng. Trên iOS, cài PWA bằng Share → Add to Home Screen; quyền thông báo tùy phiên bản và trình duyệt.</div></section><div><section class="panel settings-card"><h3>Backup & export</h3><p class="muted">Backup JSON gồm chuyến bay, crew, cài đặt và ảnh. Giữ file này ở nơi riêng tư. Restore gộp dữ liệu và giữ Actual đã xác nhận hiện có.</p><div class="actions">${btn("backup", "Backup JSON", "download")}${btn("csv", "Export CSV", "file")}${btn("restore", "Restore backup", "upload")}${btn("trash", "Thùng rác (" + (state.trash || []).length + ")", null, "ghost")}</div></section><section class="panel settings-card" style="margin-top:20px"><h3>Duty / Rest & FTL</h3><p class="muted">Theo dõi thời lượng thực tế. Chưa có giới hạn FTL Vietnam Airlines được cài đặt.</p><div class="actions">${btn("rules", "Xem căn cứ", "shield")}${btn("duty-list", "Danh sách duty", "clock")}</div></section><section class="panel settings-card" style="margin-top:20px"><h3>Free / Pro</h3><p class="muted">Chỗ dành cho gói Pro và quảng cáo sau này. Preview chưa có thanh toán hoặc quảng cáo thật.</p><div class="actions">${btn("plan", "Thông tin preview ↗", null, "ghost")}${state.demo ? btn("fresh", "Bắt đầu logbook riêng", null, "ghost") : ""}</div></section></div></div>`;
+    )}<div class="form-grid">${input("leadMinutes", "Nhắc trước report (phút)", s.leadMinutes, "number", 'min="5" max="1440" required')}${input("eveningHour", "Giờ nhắc tối hôm trước (UTC)", s.eveningHour, "number", 'min="0" max="23" required')}</div><div class="actions"><button class="btn primary" type="submit">${icon("check")}Lưu cài đặt</button>${btn("notifications", s.notifications ? "Tắt thông báo" : "Bật thông báo trình duyệt", "bell")}</div></form><div class="source-card">Preview kiểm tra reminder khi app đang mở. Chưa có push nền khi app đã đóng. Trên iOS, cài PWA bằng Share → Add to Home Screen; quyền thông báo tùy phiên bản và trình duyệt.</div></section><div><section class="panel settings-card"><div data-workspace-backups></div><h3>Backup logbook & export</h3><p class="muted">Backup JSON gồm chuyến bay, crew, cài đặt và ảnh. Giữ file này ở nơi riêng tư. Restore gộp dữ liệu và giữ Actual đã xác nhận hiện có.</p><div class="actions">${workspaceSession?.uid?"":btn("backup", "Backup JSON khách", "download")}${btn("csv", "Export CSV", "file")}${workspaceSession?.uid?"":btn("restore", "Restore backup", "upload")}${btn("trash", "Thùng rác (" + (state.trash || []).length + ")", null, "ghost")}</div></section><section class="panel settings-card" style="margin-top:20px"><h3>Duty / Rest & FTL</h3><p class="muted">Theo dõi thời lượng thực tế. Chưa có giới hạn FTL Vietnam Airlines được cài đặt.</p><div class="actions">${btn("rules", "Xem căn cứ", "shield")}${btn("duty-list", "Danh sách duty", "clock")}</div></section><section class="panel settings-card" style="margin-top:20px"><h3>Free / Pro</h3><p class="muted">Chỗ dành cho gói Pro và quảng cáo sau này. Preview chưa có thanh toán hoặc quảng cáo thật.</p><div class="actions">${btn("plan", "Thông tin preview ↗", null, "ghost")}${state.demo ? btn("fresh", "Bắt đầu logbook riêng", null, "ghost") : ""}</div></section></div></div>`;
 }
 function editFlight(original, imported) {
   const f = structuredClone(
@@ -393,6 +428,7 @@ function editFlight(original, imported) {
   form.addEventListener("input", actualSummary);
   actualSummary();
   form.addEventListener("submit", saveFlight);
+  if(old?.evidence){const holder=document.createElement('div');holder.className='source-card';holder.textContent='Ảnh minh chứng: đang kiểm tra bản offline…';form.querySelector('.modal-body').append(holder);const capture=asyncCapture();workspaceSession.loadEvidence(old.evidence.sha256).then(url=>{assertAsync(capture);if(url){const image=document.createElement('img');image.className='image-preview';image.alt='Ảnh minh chứng đã lưu trên máy';image.src=url;holder.replaceChildren(image);}else holder.textContent=old.evidence.cloudReady?'Ảnh đã có trên cloud, chưa tải về máy này. Dùng Settings → Tải ảnh để dùng offline.':'Ảnh chưa gửi từ máy nguồn; cần mở máy đã thêm ảnh.';const label=document.createElement('label');label.className='check';label.innerHTML='<input type="checkbox" name="removeAttachment"> Bỏ ảnh khỏi chuyến này';holder.append(label);}).catch(err=>{if(holder.isConnected)holder.textContent=err.message;});}
 }
 function safeImage(value) {
   return /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(
@@ -489,21 +525,21 @@ async function saveFlight(ev) {
     validateFlight(f);
     if (f.captainId && f.captainId === f.foId)
       throw Error("Captain và First Officer cần khác nhau.");
-    const file = fd.get("evidence");
+    const file = fd.get("evidence"), evidenceCapture=asyncCapture();
     if (file?.size) {
       if (
         file.size > 6 * 1024 * 1024 ||
         !["image/jpeg", "image/png", "image/webp"].includes(file.type)
       )
         throw Error("Ảnh JPG/PNG/WebP tối đa 6 MB");
-      f.attachment = await asDataURL(file);
+      f.attachment = await asDataURL(file);assertAsync(evidenceCapture);
     }
-    if (fd.has("removeAttachment")) delete f.attachment;
+    if (fd.has("removeAttachment")) {delete f.attachment;delete f.evidence;}
     const next = structuredClone(state),
       i = next.flights.findIndex((x) => x.id === f.id);
     if (i < 0) next.flights.push(f);
     else next.flights[i] = f;
-    await commit(next, "Đã lưu chuyến bay");
+    await commit(next, "Đã lưu chuyến bay",{confirmActualReplacement:fd.has("replaceConfirmed")});
     month = f.date.slice(0, 7);
     day = f.date;
     modal.close();
@@ -522,17 +558,14 @@ function importRoster() {
   modal.querySelector("#roster-file").onchange = async (ev) => {
     const file = ev.target.files[0];
     if (!file) return;
-    setImportBusy(true);
+    setImportBusy(true);const capture=asyncCapture();formDirty=true;
     try {
-      modal.querySelector("#roster-text").value = await extractPDF(
-        file,
-        importProgress,
-      );
+      const text = await extractPDF(file,text=>{if(asyncCurrent(capture))importProgress(text);});assertAsync(capture);modal.querySelector("#roster-text").value=text;
       toast("Đã đọc PDF. Kiểm tra văn bản trước khi phân tích.");
     } catch (err) {
-      error(err.message);
+      if(asyncCurrent(capture))error(err.message);
     } finally {
-      setImportBusy(false);
+      if(asyncCurrent(capture))setImportBusy(false);
     }
   };
 }
@@ -612,24 +645,21 @@ function imageImport(targetId) {
   modal.querySelector("#image-file").onchange = async (ev) => {
     const file = ev.target.files[0];
     if (!file) return;
-    imageIsSample = false;
+    imageIsSample = false;const capture=asyncCapture();formDirty=true;
     setImportBusy(true);
     try {
       if (file.size > 6 * 1024 * 1024) throw Error("Ảnh tối đa 6 MB");
       if (!["image/jpeg", "image/png", "image/webp"].includes(file.type))
         throw Error("Dùng JPG/PNG/WebP");
-      imageAttachment = await asDataURL(file);
+      const attachment = await asDataURL(file);assertAsync(capture);imageAttachment=attachment;
       modal.querySelector("#image-evidence").innerHTML =
         `<img class="image-preview" src="${safeImage(imageAttachment)}" alt="Ảnh FLT LOG đang nhập">`;
-      modal.querySelector("#image-text").value = await extractImage(
-        file,
-        importProgress,
-      );
+      const text=await extractImage(file,text=>{if(asyncCurrent(capture))importProgress(text);});assertAsync(capture);modal.querySelector("#image-text").value=text;
       importProgress("OCR xong. Kiểm tra văn bản và bấm Xem trước.");
     } catch (err) {
-      error(err.message);
+      if(asyncCurrent(capture))error(err.message);
     } finally {
-      setImportBusy(false);
+      if(asyncCurrent(capture))setImportBusy(false);
     }
   };
 }
@@ -801,32 +831,15 @@ function dutyList() {
     `${btn("close", "Đóng", null, "ghost")}${btn("duty", "Thêm duty", "plus", "primary")}`,
   );
 }
-async function weather(id) {
-  const f = find(id);
-  const stations = [...new Set([icaoFor(f.dep), icaoFor(f.dest)])];
-  openModal(
-    "METAR / TAF · " + e(f.dep) + " → " + e(f.dest),
-    `<div class="modal-body"><p>Situational awareness only. Xem thời điểm phát hành trong bản tin gốc; không dùng thay briefing thời tiết chính thức.</p><div id="weather-results"><div class="empty">Đang lấy bản tin mới nhất…</div></div></div>`,
-  );
-  const target = modal.querySelector("#weather-results");
-  const reports = await Promise.all(
-    stations.map(async (station) => {
-      try {
-        if (!/^[A-Z]{4}$/.test(station))
-          throw Error("Chưa có ICAO cho mã sân bay này.");
-        const r = await fetch("/api/weather?station=" + station, {
-            signal: AbortSignal.timeout(12000),
-          }),
-          d = await r.json();
-        if (!r.ok) throw Error(d.error);
-        return `<div class="form-section"><span>${e(station)}</span><span class="pill ${d.stale ? "amber" : "green"}">${d.stale ? "STALE CACHE" : d.cached ? "CACHE" : "LATEST FETCH"}</span></div><div class="weather-meta">${e(d.provider)} · Lấy lúc ${e(d.fetchedAt)}${d.error ? "<br>" + e(d.error) : ""}</div><h3 style="margin-top:15px">METAR</h3><pre class="weather-report">${e(d.metar || "Không có METAR cho trạm này.")}</pre><h3>TAF</h3><pre class="weather-report">${e(d.taf || "Không có TAF cho trạm này.")}</pre>`;
-      } catch (err) {
-        return `<div class="source-card"><strong>${e(station)}</strong><p>${e(err.message)}</p></div>`;
-      }
-    }),
-  );
-  if (target.isConnected) target.innerHTML = reports.join("");
+async function weather(id,refresh=false) {
+  const flight=workspaceSession.view().flights.find(f=>f.id===id);if(!flight)throw Error('Không tìm thấy chuyến bay.');
+  const today=flight.date===new Date().toISOString().slice(0,10);
+  openModal('METAR / TAF · '+e(flight.dep)+' → '+e(flight.dest),`<div class="modal-body"><p>Thời tiết ngày chuyến: <strong>${e(flight.date)} UTC</strong>. Chỉ lưu chữ của sân bay đi/đến. Xem giờ phát hành trong bản tin gốc; không thay briefing chính thức hoặc khẳng định là thời tiết tại giờ OUT/IN.</p><div id="weather-results"></div><p data-weather-status></p>${today?btn('weather-refresh','Lấy lại và lưu bản tin hiện tại',null,'',`data-id="${e(id)}"`):''}</div>`);
+  const target=modal.querySelector('#weather-results'),status=modal.querySelector('[data-weather-status]'),capture=asyncCapture();
+  const renderSaved=()=>{const saved=workspaceSession.view().flights.find(f=>f.id===id)?.weather;if(!saved?.reports?.length){target.innerHTML='<div class="source-card">Chưa lưu thời tiết cho ngày chuyến. '+(today?'Cần mạng để lấy bản tin hôm nay.':'App không gắn bản tin mới nhất vào chuyến ngày khác.')+'</div>';return;}target.innerHTML=saved.reports.map(report=>`<div class="form-section"><strong>${e(report.station)}</strong><span class="pill ${report.stale?'amber':'gray'}">ĐÃ LƯU DẠNG CHỮ${report.stale?' · CACHE CŨ':''}</span></div><p>${e(report.provider)} · Lấy lúc ${e(report.fetchedAt)}</p><h3>METAR</h3><pre class="weather-report">${e(report.metar||'Chưa có bản tin.')}</pre><h3>TAF</h3><pre class="weather-report">${e(report.taf||'Chưa có bản tin.')}</pre><p><a href="${e(report.sources?.metar||report.source)}" target="_blank" rel="noopener">Nguồn METAR</a> · <a href="${e(report.sources?.taf||report.source)}" target="_blank" rel="noopener">Nguồn TAF</a></p>`).join('');};
+  renderSaved();if(today&&navigator.onLine){status.textContent='Đang kiểm tra bản tin hai sân bay…';try{const results=await collectTodayWeather({id,refresh});assertAsync(capture);renderSaved();status.textContent=results.flatMap(result=>result.errors).map(error=>error.station+': '+error.message).join(' · ')||'Đã kiểm tra và lưu bản tin chữ trên máy.';}catch(err){if(target.isConnected)status.textContent=err.message;}}else if(!navigator.onLine)status.textContent='Offline · xem bản chữ đã lưu, chưa cập nhật nguồn.';
 }
+
 function rules() {
   const r = evaluateRules(state.duties, null);
   openModal(
@@ -942,11 +955,11 @@ function restoreDialog() {
     `<div class="modal-body"><p>Chọn backup AviLog JSON. Dữ liệu được kiểm tra trước; chỉ gộp sau khi bạn xác nhận. Actual đang xác nhận sẽ được giữ nguyên.</p><div class="file-zone">${icon("upload")}<input type="file" id="backup-file" accept="application/json,.json"><span class="tiny muted">Tối đa 50 MB</span></div><div id="restore-preview"></div><div class="error" data-error hidden></div></div>`,
   );
   modal.querySelector("#backup-file").onchange = async (ev) => {
-    try {
+    const capture=asyncCapture();formDirty=true;try {
       const f = ev.target.files[0];
       if (!f) return;
       if (f.size > 50 * 1024 * 1024) throw Error("Backup tối đa 50 MB");
-      const data = JSON.parse(await f.text());
+      const sourceText=await f.text();assertAsync(capture);const data = JSON.parse(sourceText);
       const m = restoreBackup(data, state.flights);
       if (!Array.isArray(data.people) || !Array.isArray(data.duties))
         throw Error("Backup thiếu people/duties");
@@ -996,8 +1009,7 @@ function restoreDialog() {
       modal.querySelector(".modal-footer").innerHTML =
         `${btn("close", "Hủy", null, "ghost")}${btn("restore-save", "Xác nhận gộp backup", "check", "primary")}`;
     } catch (err) {
-      modal._backup = null;
-      error(err.message);
+      if(asyncCurrent(capture)){modal._backup = null;error(err.message);}
     }
   };
 }
@@ -1074,7 +1086,7 @@ document.addEventListener("click", async (ev) => {
         modal.close();
         break;
       case "tab":
-        if (b.dataset.tab === "atpl") { location.assign("/atpl/"); break; }
+        if (b.dataset.tab === "atpl") { if(await beforeAccountSwitch())location.assign("/atpl/"); break; }
         tab = b.dataset.tab;
         modal.close();
         render();
@@ -1155,6 +1167,9 @@ document.addEventListener("click", async (ev) => {
       case "duty-list":
         dutyList();
         break;
+      case "weather-refresh":
+        await weather(id,true);
+        break;
       case "weather":
         await weather(id);
         break;
@@ -1177,7 +1192,7 @@ document.addEventListener("click", async (ev) => {
           throw Error(
             "Trình duyệt chưa hỗ trợ thông báo PWA. Bạn vẫn xem nhắc lịch trong app.",
           );
-        const permission = await Notification.requestPermission();
+        const notificationCapture=workspaceSession.captureForm(),notificationSession=workspaceSession;const permission = await Notification.requestPermission();if(notificationSession!==workspaceSession||!coordinator.isCurrent(notificationCapture.token))throw Error("Tài khoản đã đổi; không bật thông báo cho phiên mới.");
         if (permission !== "granted")
           throw Error(
             "Quyền thông báo chưa được cấp. Kiểm tra cài đặt trình duyệt.",
@@ -1212,14 +1227,7 @@ document.addEventListener("click", async (ev) => {
         break;
       case "archive-flight":
       case "archive-duty":
-        await commit(
-          archiveRecord(
-            state,
-            action === "archive-flight" ? "flight" : "duty",
-            id,
-          ),
-          "Đã chuyển vào Thùng rác · có thể khôi phục trong Settings",
-        );
+        state=await workspaceSession.archive(action === "archive-flight" ? "flight" : "duty",id,modal._formCapture?.token||workspaceSession.token);workspaceController?.schedule();toast("Đã chuyển vào Thùng rác; có thể khôi phục");
         modal.close();
         render();
         break;
@@ -1230,7 +1238,7 @@ document.addEventListener("click", async (ev) => {
         );
         break;
       case "unarchive":
-        await commit(restoreRecord(state, id), "Đã khôi phục");
+        state=await workspaceSession.restore(id,workspaceSession.token);workspaceController?.schedule();toast("Đã khôi phục");
         modal.close();
         render();
         break;
@@ -1258,7 +1266,7 @@ document.addEventListener("click", async (ev) => {
       case "plan":
         openModal(
           "AviLog · Free preview",
-          `<div class="modal-body"><p>Tất cả luồng preview đang mở để bạn thử. Chưa có thanh toán hoặc quảng cáo thật.</p><div class="source-card">✓ Schedule / Actual & logbook<br>✓ PDF / A320 image import có xác nhận<br>✓ Crew Book & thống kê<br>✓ Backup JSON / CSV<br><br>Giai đoạn tiếp: xác minh monthplan.pdf thật, thêm FTL từ tài liệu hãng, tài khoản đồng bộ và push nền.</div></div>`,
+          `<div class="modal-body"><p>Tất cả luồng preview đang mở để bạn thử. Chưa có thanh toán hoặc quảng cáo thật.</p><div class="source-card">✓ Schedule / Actual & logbook<br>✓ PDF / A320 image import có xác nhận<br>✓ Crew Book & thống kê<br>✓ Backup JSON / CSV<br><br>Đăng nhập Google dùng chung với Ôn thi. Dữ liệu và ảnh đã tải vẫn dùng offline; thông báo hiện chạy khi app mở. FTL chưa có bộ quy định hãng.</div></div>`,
         );
         break;
     }
@@ -1266,16 +1274,8 @@ document.addEventListener("click", async (ev) => {
     error(err.message);
   }
 });
-try {
-  state = await readState();
-  if (!state) {
-    state = sampleState();
-    await writeState(state);
-  }
-  render();
-} catch (err) {
-  app.innerHTML = `<div class="loading"><h2>Không mở được bộ nhớ logbook</h2><p>${e(err.message)}</p><p>Thử tắt chế độ duyệt riêng tư hoặc cho phép lưu dữ liệu website rồi tải lại.</p></div>`;
-}
+try {await bootWorkspace();} catch(err){app.innerHTML=`<div class="loading"><h2>Không mở được bộ nhớ logbook</h2><p>${e(err.message)}</p><p>Cho phép lưu dữ liệu website rồi tải lại.</p></div>`;}
+getAccountClient().then(client=>{account=client;client.subscribe(()=>{if(workspaceSession&&!workspaceSession.isCurrent())transitionAccount();else accountUI?.render();});connectWorkspaceServices();}).catch(err=>toast('Đăng nhập chưa sẵn sàng: '+err.message));
 if ("serviceWorker" in navigator)
   navigator.serviceWorker
     .register("/sw.js")

@@ -5,6 +5,6 @@ test-results/
 .DS_Store
 
 node_modules
-.tooling/
+.tooling
 *-debug.log
 .firebase/

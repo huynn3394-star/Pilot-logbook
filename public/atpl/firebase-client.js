@@ -3,10 +3,14 @@ import {initializeApp,getApps} from 'firebase/app';
 import {initializeAuth,getAuth,indexedDBLocalPersistence,browserLocalPersistence,browserPopupRedirectResolver,GoogleAuthProvider,onIdTokenChanged,getRedirectResult,signInWithPopup,signInWithRedirect,signOut,connectAuthEmulator} from 'firebase/auth';
 import {initializeFirestore,memoryLocalCache,connectFirestoreEmulator} from 'firebase/firestore';
 import {createProgressTransport} from './sync/firebase-transport.js';
+import {createWorkspaceTransport} from '../workspace/firebase-transport.js';
+import {getStorage,connectStorageEmulator} from 'firebase/storage';
+import {createEvidenceTransport} from '../workspace/evidence-transport.js';
 import {validUID} from './sync/store.js';
 export const prefersRedirect=(agent=navigator)=>/iPhone|iPad|iPod|Android/i.test(agent.userAgent)||(/Macintosh/i.test(agent.userAgent)&&agent.maxTouchPoints>0);
 export function createAccountClient({config,coordinator}){
- const listeners=new Set();let user=null,status=config.enabled?'connecting':'disabled',error=null,auth=null,db=null,stop=()=>{};
+ config={...config,workspaceSyncEnabled:config.enabled===true&&config.workspaceSyncEnabled===true,evidenceSyncEnabled:config.enabled===true&&config.workspaceSyncEnabled===true&&config.evidenceSyncEnabled===true};
+ const listeners=new Set();let user=null,status=config.enabled?'connecting':'disabled',error=null,auth=null,db=null,storage=null,stop=()=>{};
  const notify=()=>{for(const fn of listeners)fn({user,status,error});};
  const ready=(async()=>{
   if(!config.enabled)return null;
@@ -16,6 +20,7 @@ export function createAccountClient({config,coordinator}){
   try{auth=initializeAuth(app,{persistence:[indexedDBLocalPersistence,browserLocalPersistence],popupRedirectResolver:browserPopupRedirectResolver});}catch(e){if(e.code!=='auth/already-initialized')throw e;auth=getAuth(app);}
   // Short-lived sync reads use long polling to avoid stalled streaming reads on WebKit/proxies.
   db=initializeFirestore(app,{localCache:memoryLocalCache(),experimentalForceLongPolling:true,experimentalAutoDetectLongPolling:false});
+  if(config.evidenceSyncEnabled){if(!config.storageBucket)throw new Error('Thiếu bucket ảnh riêng tư.');storage=getStorage(app);if(config.emulators?.storage)connectStorageEmulator(storage,config.emulators.storage.host,config.emulators.storage.port);}
   if(config.emulators){connectAuthEmulator(auth,config.emulators.auth,{disableWarnings:true});connectFirestoreEmulator(db,config.emulators.firestore.host,config.emulators.firestore.port);}
   await new Promise(resolve=>{let first=true;stop=onIdTokenChanged(auth,async current=>{
    const valid=current&&validUID(current.uid)&&current.providerData.some(p=>p.providerId==='google.com');
@@ -36,6 +41,8 @@ export function createAccountClient({config,coordinator}){
   },
   async logout(){await ready;coordinator.invalidateGeneration();if(auth)await signOut(auth);user=null;status='guest';coordinator.selectGuest();notify();},
   transport(identity){if(!user||status!=='authenticated')throw new Error('Cần đăng nhập lại để đồng bộ.');return createProgressTransport({db,uid:user.uid,identity,getAuthGeneration:()=>coordinator.generation});},
+  workspaceTransport(){if(!config.workspaceSyncEnabled)throw new Error('Đồng bộ workspace chưa được kích hoạt.');if(!user||status!=='authenticated')throw new Error('Cần đăng nhập lại để đồng bộ.');return createWorkspaceTransport({db,uid:user.uid,getAuthGeneration:()=>coordinator.generation});},
+  evidenceTransport(){if(!config.evidenceSyncEnabled||!storage)throw new Error('Đồng bộ ảnh chưa được kích hoạt.');if(!user||status!=='authenticated')throw new Error('Cần đăng nhập lại để truyền ảnh.');return createEvidenceTransport({storage,uid:user.uid,getAuthGeneration:()=>coordinator.generation});},
   close(){stop();listeners.clear();}
  };
 }

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "status": "candidate-not-published",
+  "activated": false,
+  "realGoogleOAuth": false,
+  "physicalIPad": false,
+  "sourceQuestionCount": 6426,
+  "sourceSHA256": "28fbacae42e5b05023c89b077d977e62184a2e916da0dc7d14bd521acd89239f",
+  "engineSHA256": "d2500d598ca2c997459d1c2f10b6ce72e78eee7a2ea5b93e137dc1d540625872",
+  "production": {
+    "workspaceFlag": false,
+    "evidenceFlag": false,
+    "rulesPublished": false,
+    "corsConfigured": false,
+    "newDomainClaimed": false
+  },
+  "budget": {
+    "monthlyVND": 130000,
+    "approximateUSD": 5,
+    "alertPercent": [
+      50,
+      90,
+      100
+    ],
+    "spendingCap": false
+  },
+  "verification": "Pending complete twelve-stage suite and independent review; see workspace-verification.md"
+}

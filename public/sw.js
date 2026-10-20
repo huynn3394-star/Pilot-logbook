@@ -1,4 +1,4 @@
-const CACHE = "avilog-shell-v3-account-navy";
+const CACHE = "avilog-shell-v4-workspace";
 const SHELL = [
   "/",
   "/index.html",
@@ -23,6 +23,23 @@ const SHELL = [
   "/atpl/atpl.css",
   "/atpl/account-bootstrap.js",
   "/atpl/account.js",
+  "/account/coordinator.js",
+  "/account/client.js",
+  "/workspace/schema.js",
+  "/workspace/model.js",
+  "/workspace/projection.js",
+  "/workspace/repository.js",
+  "/workspace/controller.js",
+  "/workspace/evidence.js",
+  "/workspace/transfers.js",
+  "/workspace/migration.js",
+  "/workspace/backup.js",
+  "/workspace/pull.js",
+  "/workspace/session.js",
+  "/workspace/ui.js",
+  "/workspace/backup-ui.js",
+  "/workspace/weather.js",
+
   "/atpl/account-ui.js",
   "/atpl/sync/model.js",
   "/atpl/sync/common.js",
@@ -60,12 +77,16 @@ self.addEventListener("activate", (e) =>
 self.addEventListener("fetch", (e) => {
   if (
     e.request.method !== "GET" ||
+    e.request.headers?.has?.("Authorization") ||
     new URL(e.request.url).origin !== self.location.origin ||
     new URL(e.request.url).pathname.startsWith("/api/") ||
     new URL(e.request.url).pathname.startsWith("/__/auth/")
   )
     return;
-  const pathname = new URL(e.request.url).pathname;
+  const requestURL=new URL(e.request.url);
+  if(requestURL.search)return;
+  const pathname = requestURL.pathname;
+  if(!SHELL.includes(pathname)&&pathname!=="/atpl/firebase-config.json"&&!/^\/atpl\/(media|banks)\//.test(pathname))return;
   if (/^\/atpl\/(media|banks)\//.test(pathname)) {
     e.respondWith((async () => {
       const cache = await caches.open("avilog-atpl-v1");
@@ -81,17 +102,23 @@ self.addEventListener("fetch", (e) => {
         }
         return response;
       } catch {
+        // Reload still needs downloaded immutable assets when the network is unavailable.
+        const saved = await cache.match(e.request);
+        if (saved) return saved;
         return new Response('<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Chưa tải môn này</title><h1>Môn này chưa tải đầy đủ để học offline</h1><p>Kết nối mạng rồi bấm Tải offline. Tiến độ đã lưu vẫn được giữ.</p><a href="/atpl/">← Danh sách môn</a></html>', {status:503,headers:{"Content-Type":"text/html; charset=utf-8"}});
       }
     })());
     return;
   }
-  e.respondWith(
-    fetch(e.request)
+  e.respondWith((async()=>{
+    // A shell version is installed as one module graph. Prefer those exact
+    // installed bytes; provider/gateway failures cannot replace individual modules.
+    if(SHELL.includes(pathname)){const cached=await(await caches.open(CACHE)).match(e.request);if(cached)return cached;}
+    return fetch(e.request)
       .then((r) => {
         if (r.ok) {
           const copy = r.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy));
+          e.waitUntil(caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(()=>{}));
         }
         return r;
       })
@@ -105,8 +132,8 @@ self.addEventListener("fetch", (e) => {
                 ? caches.match("/")
                 : new Response("Offline asset unavailable", { status: 503 })),
           ),
-      ),
-  );
+      );
+  })());
 });
 self.addEventListener("notificationclick", (e) => {
   e.notification.close();
@@ -116,3 +143,5 @@ self.addEventListener("notificationclick", (e) => {
       .then((cs) => (cs.length ? cs[0].focus() : clients.openWindow("/"))),
   );
 });
+// Readiness is a controller property, not just the presence of a cache bucket.
+self.addEventListener('message',event=>{if(event.data?.type==='avilog-shell-version')event.ports?.[0]?.postMessage({version:CACHE});});

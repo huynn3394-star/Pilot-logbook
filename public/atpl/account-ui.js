@@ -1,5 +1,6 @@
 import {bootstrapBank,getCoordinator} from './account-bootstrap.js';
 import {getAccountClient} from './account.js';
+import {publishAreaStatus} from '../account/coordinator.js';
 import {openAccountBank} from './sync/store.js';
 import {createSyncController,reviewLegacyImport} from './sync/controller.js';
 let activeController=null;
@@ -58,7 +59,7 @@ export async function setupAccountUI({element,bankStore=null}={}){
  const controller=createSyncController({account,codes:bankStore?.identity?[bankStore.identity.code]:Object.keys(identities),openBank:async code=>{
   if(bankStore?.uid&&code===bankStore.identity.code)return bankStore;
   const store=await openAccountBank({storage:localStorage,uid:account.currentUser().uid,identity:identities[code],locks:navigator.locks});store.releaseAfterSync=true;return store;
- },onStatus:s=>{ui?.update(s);dispatchEvent(new Event('atpl-sync-status'));}});
+ },onStatus:s=>{const uid=bankStore?.uid||account.currentUser()?.uid;if(uid&&uid===coordinator.getCachedSelection()?.uid){const code=s.code||bankStore?.identity?.code||'ALL';publishAreaStatus({uid,area:'atpl',code,status:{...s,...(!bankStore&&!s.code&&s.kind==='synced'?{checkedCodes:Object.keys(identities)}:{})}});}ui?.update(s);dispatchEvent(new Event('atpl-sync-status'));}});
  activeController=controller;ui=mountAccountUI({element,account,controller,coordinator,store:bankStore?.uid?bankStore:null,identities});
  addEventListener('atpl-local-change',()=>controller.schedule(bankStore?.identity?.code));for(const event of ['online','focus'])addEventListener(event,()=>controller.syncNow(bankStore?.identity?.code));
  account.subscribe(({user,status})=>{if(user&&status==='authenticated')controller.schedule(bankStore?.identity?.code);});

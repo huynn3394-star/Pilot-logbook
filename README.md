@@ -1,6 +1,6 @@
 # AviLog · Pilot Logbook preview
 
-Mobile-first personal pilot logbook PWA, in Vietnamese with aviation labels. Built for iPhone, iPad and desktop. No login is required and **records and evidence images stay in this browser's IndexedDB**. Export a JSON backup before clearing website data or changing devices. The public server never receives logbook, roster or evidence files.
+Mobile-first personal pilot logbook PWA, in Vietnamese with aviation labels. Built for iPhone, iPad and desktop. Guest mode needs no login. Data is saved first in this browser's IndexedDB. When whole-app sync is enabled, the selected Google account has a separate local workspace and can synchronize records through private Firestore and original evidence bytes through private Firebase Storage. The public web server does not receive logbook, roster or evidence uploads. Export backups before clearing website data or moving to a different website origin.
 
 ## Run
 
@@ -35,7 +35,7 @@ VN1187 HPH-SGN 13:40-15:32
 - **Statistics:** confirmed actual block, airborne, sectors, PF/PM, takeoff/landing, manually entered night/PIC, SIC remainder, aircraft, airport and crew. SIM/training/positioning activities do not contribute flying hours.
 - **Duty:** explicit report/release, same-day auto grouping with explicit exclusions, multiple activities per date, previous-duty rest and overlap indication, standby/reserve/day off/positioning/SIM/training. FTL engine scaffold is versioned; no Vietnam Airlines limits are installed and UI says **not evaluated**. Colored chips in source dialog are explanatory examples only.
 - **Settings:** profile, reminder preferences, report lead time, backup JSON (including images), validated merge restore and CSV escaping spreadsheet formulas. Restore preserves existing confirmed actuals, existing crew/duty IDs and local reminder settings. Flight/duty removal uses a recoverable Trash in Settings.
-- **PWA:** install manifest/icons, network-first shell cache with offline fallback. Weather is never cached by the service worker. Local data remains available offline; initial OCR model download needs internet.
+- **PWA:** install manifest/icons, versioned cache-first static shell and downloaded banks. Private data, weather API and OAuth requests bypass the public service-worker cache. Local data remains available offline; initial OCR model download needs internet. Only raw METAR/TAF text for the departure/arrival airports and UTC flight day is retained with source/retrieval time; old/future flights never acquire today’s weather as historical evidence.
 
 ## Ôn thi ATPL và học offline
 
@@ -43,7 +43,7 @@ Trong Pilot Logbook chọn **Ôn thi**. Có 11 bộ đề gốc, tổng **6.126 
 
 Trên iPad mở app bằng Safari khi có mạng, chọn **Tải offline** cho từng môn và chờ **✓ Sẵn sàng offline**. Có thể thêm app vào Màn hình chính qua menu Chia sẻ. Sau khi tải đủ, câu hỏi, lời giải và ảnh nguồn của môn đó dùng được khi mất mạng. Chọn câu, tiếp tục học, bookmark, thi thử, ngày/đêm và xuất/nhập tiến độ vẫn hoạt động. Bộ MBR tham khảo có tiến độ và đáp án riêng; luyện thi theo đáp án gốc dùng MB.
 
-Mỗi môn hiển thị dung lượng trước khi tải. Có thể dừng rồi tiếp tục; phần đã tải được kiểm tra và dùng lại. App kiểm tra byte và SHA-256 của từng tài nguyên, chỉ đánh dấu sẵn sàng sau khi lưu đủ. Thiếu ảnh, mất mạng hoặc hết dung lượng sẽ giữ trạng thái chưa hoàn tất. Cập nhật service worker giữ cache đề và dữ liệu logbook. Không xóa dữ liệu website nếu muốn giữ đề offline và tiến độ; xuất bản sao lưu riêng cho logbook và ATPL trước khi đổi thiết bị. Logbook và tiến độ khách không tự đồng bộ giữa Mac/iPad. Tiến độ ATPL của tài khoản Google có thể đồng bộ khi tính năng tài khoản được kích hoạt và có mạng. Các liên kết website ngoài, thời tiết và lần tải đầu cần mạng.
+Mỗi môn hiển thị dung lượng trước khi tải. Có thể dừng rồi tiếp tục; phần đã tải được kiểm tra và dùng lại. App kiểm tra byte và SHA-256 của từng tài nguyên, chỉ đánh dấu sẵn sàng sau khi lưu đủ. Thiếu ảnh, mất mạng hoặc hết dung lượng sẽ giữ trạng thái chưa hoàn tất. Cập nhật service worker giữ cache đề và dữ liệu logbook. Không xóa dữ liệu website nếu muốn giữ đề offline và tiến độ; xuất bản sao lưu riêng cho logbook và ATPL trước khi đổi thiết bị. Dữ liệu khách không tự nhập vào tài khoản. Dữ liệu tài khoản Google chỉ sang thiết bị khác sau khi đồng bộ khi có mạng; ảnh minh chứng cần được tải riêng trên máy muốn dùng offline. Các liên kết website ngoài, thời tiết và lần tải đầu cần mạng.
 
 Nguồn đóng gói: SHA-256 `28fbacae42e5b05023c89b077d977e62184a2e916da0dc7d14bd521acd89239f`. `scripts/package-atpl.py` tạo HTML từng môn, catalog và manifest từ app nguồn; `data/atpl-media/` chứa ảnh base64 chia gói, được `lib/atpl-media.js` phục vụ theo URL hash. Ảnh được dùng chung giữa các môn, không lưu toàn bộ thư viện ảnh vào RAM máy chủ.
 
@@ -63,11 +63,21 @@ Khi tính năng được kích hoạt:
 
 **Xuất tiến độ** trong Cài đặt của môn tạo bản JSON có thể nhập lại. **Xuất bản lưu tài khoản** giữ cả thông tin phục hồi đồng bộ; đây là bản kỹ thuật để xử lý sự cố. Nếu báo chưa lưu được, hãy xuất tiến độ trước khi đóng. Đặt lại tiến độ tài khoản cần xác nhận và tạo phiên dữ liệu mới; bản chờ từ phiên cũ được giữ để xuất khi báo xung đột. Không sửa thủ công UID, baseline hoặc lô đang gửi.
 
-Logbook/roster/ảnh bằng chứng tiếp tục nằm ở IndexedDB của thiết bị, không gửi lên Firebase. Không có đồng bộ ngầm khi iOS đã đóng app. Xóa dữ liệu website cũng xóa bản tải offline; giữ sao lưu trước khi xóa hoặc đổi địa chỉ website.
+Khi bật đồng bộ toàn app, hồ sơ, logbook, lịch/duty, crew, cài đặt nhắc việc và thùng rác cũng có kho riêng theo Google UID. Ảnh gốc dùng Firebase Storage khi cờ ảnh được bật. Quyền thông báo và trạng thái tải offline vẫn riêng từng thiết bị. Không có đồng bộ ngầm khi iOS đã đóng app. Xóa dữ liệu website cũng xóa bản tải offline; giữ sao lưu trước khi xóa hoặc đổi địa chỉ website.
+
+### Đồng bộ toàn app và ảnh offline
+
+Dùng cùng Google trên điện thoại và iPad. **Đồng bộ ngay** gửi dữ liệu đã lưu trên máy; kiểm tra riêng trạng thái logbook, ảnh và Ôn thi. Một môn chưa được kiểm tra không có nghĩa toàn bộ môn đã đồng bộ. Khi có xung đột, xem hai phiên bản rồi chọn rõ ràng; thời gian thiết bị không tự quyết định bản thắng.
+
+Trong **Settings → Dữ liệu tài khoản & ảnh offline**, chọn **Tải ảnh để dùng offline** trên máy mới và chờ đủ số ảnh. App kiểm tra byte/SHA-256, không tự tải mọi ảnh khi mở. Ảnh gốc JPG/PNG/WebP tối đa 6 MiB, không nén hoặc chụp lại thời tiết. Mất mạng vẫn giữ ảnh và thay đổi chưa gửi trên máy.
+
+**Xuất backup đầy đủ ảnh** tạo các phần JSON tối đa 50 MiB. Giữ đủ mọi phần cùng bộ; thiếu ảnh/phần hoặc sai hash không được gọi là khôi phục đầy đủ. Có bản xuất thiếu ảnh và bản phục hồi riêng khi cần cứu dữ liệu. Backup Ôn thi giữ riêng trong Cài đặt từng môn. Khôi phục dữ liệu cũ có xem trước, bảo toàn nguồn và Actual đã xác nhận; không tự phát lại các operation cũ từ một gói phục hồi.
+
+`AVILOG_WORKSPACE_SYNC_ENABLED` và `AVILOG_EVIDENCE_SYNC_ENABLED` mặc định `false`; ảnh cần cả workspace và bucket. Tắt cờ vẫn giữ kho tài khoản/local queue/ảnh/phục hồi. Rollback phải dùng build có namespace mới; không quay về build chỉ có một kho chung và không xóa bucket/dữ liệu để rollback. Xem [kiểm thử toàn app](docs/workspace-verification.md).
 
 ### Cấu hình cho chủ ứng dụng
 
-Tạo dự án Firebase riêng thuộc tài khoản của chủ ứng dụng, dùng **Spark**, không liên kết billing, không bật Analytics/Gemini hay Storage. Đăng ký một web app, bật **Google** trong Authentication, thêm đúng hostname Railway vào Authorized domains và đúng `https://<hostname>/__/auth/handler` vào redirect URI của OAuth web client. Tạo Firestore Standard ở vùng phù hợp và ghi lại vùng đã chọn; tránh test-mode rules.
+Dùng đúng dự án chủ ứng dụng `avilog-atpl`, Google provider và Firestore Standard `(default)` tại `asia-southeast1`; không tạo dự án thay thế. Thêm hostname Railway đang thực sự sở hữu vào Firebase Authorized domains, OAuth JavaScript origins và `https://<hostname>/__/auth/handler`. Đồng bộ ảnh cần Blaze và bucket riêng tư cùng vùng Singapore; không bật Analytics/Gemini/Functions hoặc public sharing. Chọn billing account và cảnh báo ngân sách do chủ ứng dụng xác nhận; cảnh báo không tự giới hạn chi phí. Cấu hình phát hành thực tế nằm trong `docs/WORKSPACE-Account-QA.json` khi có.
 
 Triển khai `firebase/firestore.rules` và indexes trước khi bật tính năng. CLI cần phiên đăng nhập của chủ dự án (không đưa service-account key vào repo/browser):
 
@@ -79,14 +89,14 @@ Cấu hình Railway theo `.env.example`: `ATPL_APP_ORIGIN` là HTTPS origin chí
 
 `npm run build:atpl-account` đóng gói SDK Firebase tại cùng origin, không tải SDK từ CDN khi học. `npm run test:rules` kiểm thử các luật/giao dịch với Auth/Firestore emulator. `npm run test:account-browser` kiểm thử SDK thật, hai thiết bị mô phỏng, Google emulator, mất mạng/mất xác nhận và đổi tài khoản. Đây không phải bằng chứng OAuth Google thật hay iPad vật lý; xem [báo cáo kiểm thử](docs/account-verification.md).
 
-Người dùng đã yêu cầu giao diện navy và địa chỉ `avilog`, sau đó chọn **giữ địa chỉ cũ đến khi sao lưu xong**. Chưa đổi domain; đổi origin sẽ không tự chuyển localStorage/IndexedDB/cache của iPad.
+Ngày 20/10/2026 người dùng yêu cầu hoàn tất và đổi sang tên miền `avilog`. Chỉ công bố địa chỉ sau khi Railway xác nhận quyền sở hữu và cấu hình Google/CORS đã khớp. Đổi origin không tự chuyển localStorage/IndexedDB/cache: đăng nhập cùng Google để nhận dữ liệu đã đồng bộ, nhập backup đối với phần chỉ lưu trên máy, rồi tải lại môn/ảnh cần dùng offline.
 
 ## Preview limits
 
-Logbook remains browser-local. Optional Google login/sync covers ATPL progress only and is disabled until the Firebase deployment gate passes; no logbook sync, payments or real ads. Notifications/reminder checks run **while app is open**; no closed-app push. Tomorrow and evening preferences are UTC. Night time is manual; no unverified night calculator. No FTL compliance claim; a validated ruleset with version/effective date/source is required. Missing roster entries are retained for review, not treated as cancellations. Same flight number operated twice on one UTC date requires a future occurrence identifier and manual review.
+Guest data remains browser-local. Optional whole-app Google synchronization is independently controlled by workspace/evidence feature flags. A cached UID selects its local workspace but never authorizes cloud access. A new account starts empty; existing guest data is imported only after preview and explicit confirmation. Production activation and physical-device evidence are recorded separately. Notifications/reminder checks run **while app is open**; no closed-app push. Tomorrow and evening preferences are UTC. Night time is manual; no unverified night calculator. No FTL compliance claim; a validated ruleset with version/effective date/source is required. Missing roster entries are retained for review, not treated as cancellations. Same flight number operated twice on one UTC date requires a future occurrence identifier and manual review.
 
 ## Architecture and extension
 
-`public/lib/domain.js`: UTC, validation, merge, totals, backups and reminders. `parsers.js`: roster and aircraft-family registry. `rules.js`: pure versioned engine. `storage.js`: atomic IndexedDB transactions. `importers.js`: PDF/OCR adapters. `app.js`: browser UI. `lib/weather.js`: provider/cache adapter. `server.js`: static assets, health and weather API. To add aircraft support, register a parser and fixtures first. Add no airline rule without reviewed source provenance.
+`public/account/`: shared account client/coordinator. `public/workspace/`: canonical records, native UID repository, causal outbox/receipts/conflicts, bounded pull, Session/UI, original image transfers and multipart backup. `public/lib/domain.js`: UTC, validation, merge, totals, backups and reminders. `parsers.js`: roster and aircraft-family registry. `rules.js`: pure versioned engine. `storage.js`: atomic IndexedDB transactions. `importers.js`: PDF/OCR adapters. `app.js`: browser UI. `lib/weather.js`: provider/cache adapter. `server.js`: static assets, health and weather API. To add aircraft support, register a parser and fixtures first. Add no airline rule without reviewed source provenance.
 
 Specs/plans and verification notes live under `docs/`. No uploaded company PDFs or sensitive credentials are included in this repository.

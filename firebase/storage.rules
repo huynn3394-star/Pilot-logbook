@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+ match /b/{bucket}/o {
+  function owner(uid) { return request.auth != null && request.auth.uid == uid && request.auth.token.firebase.sign_in_provider == 'google.com'; }
+  match /users/{uid}/evidence/v1/{digest} {
+   allow get: if owner(uid) && digest.matches('^[a-f0-9]{64}$');
+   allow create: if resource == null && owner(uid) && digest.matches('^[a-f0-9]{64}$')
+    && request.resource.size > 0 && request.resource.size <= 6291456
+    && request.resource.contentType in ['image/png','image/jpeg','image/webp']
+    && request.resource.metadata.keys().hasOnly(['sha256','schemaVersion'])
+    && request.resource.metadata.sha256 == digest && request.resource.metadata.schemaVersion == '1';
+  }
+ }
+}

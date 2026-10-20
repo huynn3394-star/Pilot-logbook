@@ -11,7 +11,14 @@
     "test": "node --test tests/*.test.js",
     "test:rules": "node scripts/atpl-emulators.cjs rules",
     "test:account-browser": "node scripts/atpl-emulators.cjs browser",
-    "build:atpl-account": "node scripts/build-atpl-account.mjs"
+    "build:atpl-account": "node scripts/build-atpl-account.mjs",
+    "test:workspace-storage": "node scripts/verify-workspace-storage.cjs",
+    "test:workspace-rules": "node scripts/workspace-emulators.cjs rules",
+    "test:evidence-rules": "node scripts/workspace-emulators.cjs evidence",
+    "test:workspace-ui": "node scripts/verify-workspace-ui.cjs",
+    "test:workspace-upgrade": "node scripts/verify-workspace-upgrade.cjs",
+    "test:workspace-browser": "node scripts/workspace-emulators.cjs browser",
+    "test:workspace-all": "node scripts/verify-workspace-all.cjs"
   },
   "dependencies": {
     "pdfjs-dist": "5.6.205",

@@ -40,6 +40,10 @@ Bundled license information:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
 @firebase/firestore/dist/index.esm.js:
+@firebase/storage/dist/index.esm.js:
+@firebase/storage/dist/index.esm.js:
+@firebase/storage/dist/index.esm.js:
+@firebase/storage/dist/index.esm.js:
   /**
    * @license
    * Copyright 2017 Google LLC
@@ -58,14 +62,7 @@ Bundled license information:
    */
 
 @firebase/util/dist/index.esm.js:
-@firebase/util/dist/index.esm.js:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
-@firebase/firestore/dist/common-D9UYuXJO.esm.js:
-@firebase/firestore/dist/common-D9UYuXJO.esm.js:
-@firebase/firestore/dist/common-D9UYuXJO.esm.js:
-@firebase/firestore/dist/common-D9UYuXJO.esm.js:
-@firebase/firestore/dist/common-D9UYuXJO.esm.js:
-@firebase/firestore/dist/index.esm.js:
   /**
    * @license
    * Copyright 2022 Google LLC
@@ -82,8 +79,6 @@ Bundled license information:
    * See the License for the specific language governing permissions and
    * limitations under the License.
    */
-
-@firebase/util/dist/index.esm.js:
   /**
    * @license
    * Copyright 2017 Google LLC
@@ -118,6 +113,31 @@ Bundled license information:
    */
 
 @firebase/util/dist/index.esm.js:
+@firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/firestore/dist/index.esm.js:
+  /**
+   * @license
+   * Copyright 2022 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+
+@firebase/util/dist/index.esm.js:
 @firebase/component/dist/esm/index.esm.js:
 @firebase/app/dist/esm/index.esm.js:
 @firebase/app/dist/esm/index.esm.js:
@@ -126,6 +146,7 @@ Bundled license information:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/storage/dist/index.esm.js:
   /**
    * @license
    * Copyright 2019 Google LLC
@@ -189,6 +210,7 @@ firebase/app/dist/esm/index.esm.js:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
 @firebase/firestore/dist/index.esm.js:
 @firebase/firestore/dist/index.esm.js:
+@firebase/storage/dist/index.esm.js:
   /**
    * @license
    * Copyright 2020 Google LLC
@@ -310,6 +332,7 @@ firebase/app/dist/esm/index.esm.js:
 
 @firebase/auth/dist/esm/index-LY22yodV.js:
 @firebase/firestore/dist/index.esm.js:
+@firebase/storage/dist/index.esm.js:
   /**
    * @license
    * Copyright 2021 Google LLC
@@ -728,7 +751,7 @@ re2js/build/index.js:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
-@firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/storage/dist/index.esm.js:
   /**
    * @license
    * Copyright 2017 Google LLC
@@ -798,6 +821,38 @@ re2js/build/index.js:
    */
 
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+  /**
+   * @license
+   * Copyright 2020 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
   /**
    * @license
    * Copyright 2025 Google LLC
@@ -816,39 +871,7 @@ re2js/build/index.js:
    */
   /**
    * @license
-   * Copyright 2017 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * @license
    * Copyright 2023 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * @license
-   * Copyright 2020 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
    * you may not use this file except in compliance with the License.
@@ -967,56 +990,6 @@ re2js/build/index.js:
   /**
    * @license
    * Copyright 2017 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-
-@firebase/firestore/dist/common-D9UYuXJO.esm.js:
-  /**
-   * @license
-   * Copyright 2022 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * @license
-   * Copyright 2017 Google LLC
-   *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *   http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
-   */
-  /**
-   * @license
-   * Copyright 2021 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
    * you may not use this file except in compliance with the License.
@@ -1658,6 +1631,7 @@ re2js/build/index.js:
    */
 
 @firebase/firestore/dist/common-D9UYuXJO.esm.js:
+@firebase/storage/dist/index.esm.js:
   /**
    * @license
    * Copyright 2017 Google LLC
@@ -1727,6 +1701,56 @@ re2js/build/index.js:
   /**
    * @license
    * Copyright 2020 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+
+@firebase/storage/dist/index.esm.js:
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+  /**
+   * @license
+   * Copyright 2022 Google LLC
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *   http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+  /**
+   * @license
+   * Copyright 2021 Google LLC
    *
    * Licensed under the Apache License, Version 2.0 (the "License");
    * you may not use this file except in compliance with the License.
