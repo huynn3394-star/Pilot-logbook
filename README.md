@@ -89,7 +89,7 @@ Cấu hình Railway theo `.env.example`: `ATPL_APP_ORIGIN` là HTTPS origin chí
 
 `npm run build:atpl-account` đóng gói SDK Firebase tại cùng origin, không tải SDK từ CDN khi học. `npm run test:rules` kiểm thử các luật/giao dịch với Auth/Firestore emulator. `npm run test:account-browser` kiểm thử SDK thật, hai thiết bị mô phỏng, Google emulator, mất mạng/mất xác nhận và đổi tài khoản. Đây không phải bằng chứng OAuth Google thật hay iPad vật lý; xem [báo cáo kiểm thử](docs/account-verification.md).
 
-Ngày 20/10/2026 người dùng yêu cầu hoàn tất và đổi sang tên miền `avilog`. Chỉ công bố địa chỉ sau khi Railway xác nhận quyền sở hữu và cấu hình Google/CORS đã khớp. Đổi origin không tự chuyển localStorage/IndexedDB/cache: đăng nhập cùng Google để nhận dữ liệu đã đồng bộ, nhập backup đối với phần chỉ lưu trên máy, rồi tải lại môn/ảnh cần dùng offline.
+Địa chỉ từ ngày 20/10/2026: **https://avilog.up.railway.app/**. Railway đã xác nhận quyền sở hữu; Google OAuth, Firebase Authorized domains và CORS đã chuyển sang địa chỉ này theo phê duyệt của chủ ứng dụng. Địa chỉ preview cũ đã được thay thế. Người dùng đã xác nhận đăng nhập Google trên Safari của Mac; kiểm chứng đồng bộ toàn app/ảnh và iPad thật được ghi riêng trong báo cáo QA. Đổi origin không tự chuyển localStorage/IndexedDB/cache: đăng nhập cùng Google để nhận dữ liệu đã đồng bộ, nhập backup đối với phần chỉ lưu trên máy, rồi tải lại môn/ảnh cần dùng offline.
 
 ## Preview limits
 

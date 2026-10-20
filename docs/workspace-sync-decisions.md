@@ -81,3 +81,12 @@ Cloud-only evidence viewing currently requires Settings → download all rather 
 ## Independent review and fixes
 
 One fresh independent review found no Critical issue and three Important issues. All three were reproduced before fixing: full backup omitted acknowledged/resolved conflict originals; background image/weather writes left a stale synced label; offline multipart image-only continuation could not resume queued metadata. Native Chromium/WebKit now verify retained originals, strict missing-byte rejection, automatic metadata commits and status invalidation, durable restore progress, quota rollback, image-only continuation and stable queued operation IDs. Final completion suite: all 12 stages, 131 Node tests, legacy/workspace/evidence rule suites 12/14/4, all 6,426 source questions and both browser engines passed. Production Google/OAuth/CORS and physical devices remain separate gates.
+
+
+## Live validation update — 20 October 2026
+
+The human subsequently approved only https://avilog.up.railway.app. Railway confirmed and renamed the service domain to that exact hostname. Existing OAuth origin/callback and Firebase authorized domain now match; the released preview authorized domain was removed. Firestore/Storage published rule text was copied back and matched tested source. CORS Save succeeded for only the approved new origin; real provider OPTIONS confirms it and denies unrelated origins. Anonymous Firestore/Storage return HTTP 403. This resolves the earlier old-preview CORS approval block without bypass. Both flags are on for live validation, not a claim that all gates passed. No guest data was auto-imported.
+
+- Ruling: native Safari observation disconnects after Google popup closure; accept the human email-visible confirmation as real OAuth evidence only, then require separate live sync evidence — login does not prove sync — cost if wrong: reproduce login on the physical device before final activation.
+
+The user then confirmed TEST SYNC Crew appeared on the iPad with synced status, proving an actual owner SDK metadata write and independent-device pull through the app. Original image/offline/reconnect checks remain pending. Budget and all previously recorded rulings still apply.

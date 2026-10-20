@@ -57,3 +57,11 @@ benchmark a 10,000-record restore/import.
 Real Google OAuth, production rule/CORS checks and physical phone/iPad testing
 are separate gates. Emulator and viewport results never establish those gates.
 The latest rollout status is recorded in the release QA JSON and decision log.
+
+## Owned production origin — 20 October 2026
+
+The Railway domain is now `https://avilog.up.railway.app`. The existing OAuth client origin/callback and Firebase authorized domain were updated; the released preview hostname was removed. Storage CORS permits only the new origin, confirmed by real provider OPTIONS; an unrelated origin gets no allowance. Published Firestore and Storage rule text was copied back from the console and matched the tested source. Real anonymous Firestore and Storage requests both return HTTP 403. These checks do not establish authenticated owner/other-user SDK behavior.
+
+The user confirmed their email visible in Safari after the real Google chooser on the new origin. Safari observation disconnected when the popup closed. This establishes user-confirmed OAuth, not a sync pass. Workspace and evidence flags are enabled for a controlled validation window; `activated` remains false pending original-byte transfer between independent devices and offline/reconnect checks. The user confirmed TEST SYNC Crew appeared on the physical iPad with synced status after saving on Mac; this verifies same-account owner metadata SDK writes and independent-device pull, not photo/offline behavior. No guest data was imported automatically.
+
+On phone and iPad, use the new URL and same Google account. Refresh after deployment; save a clearly marked test crew entry or flight, then choose **Đồng bộ ngay** on both. Attach a small test image and use **Settings → Dữ liệu tài khoản & ảnh offline → Tải ảnh để dùng offline** on the second device. Download a study bank before disconnecting. In airplane mode, reopen, view that image, study, edit the test record and export backup. Reconnect and confirm the saved change and sync acknowledgement on both devices. Report each result separately. Do not clear website data while changes are pending.
