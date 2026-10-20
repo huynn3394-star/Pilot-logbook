@@ -51,7 +51,7 @@ Kiểm thử: `npm test` và `node scripts/verify-atpl-browser.cjs`. Chromium ki
 
 ## Tài khoản Google và đồng bộ ATPL
 
-Tính năng đăng nhập **mặc định tắt** cho đến khi cấu hình Firebase và kiểm tra OAuth thật hoàn tất. Người học vẫn dùng chế độ khách và học các môn đã tải khi offline. Lần đăng nhập Google đầu tạo tài khoản; app không xin quyền đọc Gmail, Drive hoặc Calendar.
+Tính năng đăng nhập **mặc định tắt trong cấu hình mã nguồn**. Bản công khai hiện đã bật Google: đăng nhập Safari và chuyển bookmark từ điện thoại sang iPad được người dùng xác nhận ngày 20/10/2026. Người học vẫn dùng chế độ khách và học các môn đã tải khi offline. Lần đăng nhập Google đầu tạo tài khoản; app không xin quyền đọc Gmail, Drive hoặc Calendar.
 
 Khi tính năng được kích hoạt:
 

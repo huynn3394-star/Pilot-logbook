@@ -117,9 +117,13 @@
     "nativeSafariConsent": true,
     "basicIdentityScopesOnly": true,
     "firebaseGoogleUserCreated": true,
-    "clientSyncStatus": "awaiting user confirmation; native window automation unavailable after popup closes",
-    "twoDeviceProductionSync": false,
-    "physicalIPad": false
+    "clientSyncStatus": "user confirmed correct email and Đã đồng bộ on native Safari",
+    "twoDeviceProductionSync": true,
+    "physicalIPad": true,
+    "clientSyncStatusEvidence": "direct human confirmation on 2026-10-20",
+    "twoDeviceProductionSyncEvidence": "user marked a question on phone, synchronized both devices with the same Google account, confirmed bookmark appeared on iPad",
+    "physicalIPadEvidence": "user-performed online cross-device bookmark test; physical iPad offline test not performed",
+    "physicalIPadOffline": false
   },
   "provider": {
     "projectId": "avilog-atpl",
