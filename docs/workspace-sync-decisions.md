@@ -42,6 +42,22 @@ Implementation decision record. Production activation is pending final verificat
 
 - Task 10: Ruling: WebKit navigation cancels an existing Firestore Listen SID and then reports CORS-shaped diagnostics for retries of that same channel; requestfailed evidence shows cancelled for the identical SID/database/page within milliseconds. Classify only that channel within two seconds, plus exact intentional route aborts; negative regression rejects different SID/database/page/port/time or actual CORS failure — cost if wrong: a concurrent error on the same just-cancelled emulator SID could be classified. Earlier exact-URL-only proof correctly failed. Discarded same-origin relay and native WebKit offline Blob NotReadable fixtures were not accepted as release evidence; preinstalled route cuts now assert all three provider probes fail. No production error filtering was added.
 
+- Task 11: in progress BASE 12d18831bb44e0473479d1df556e386b059cc7a9; brief read. Ruling: begin read-only whole-branch review and release documentation while Task10's final twelve-stage verification continues — production implementation is frozen, targeted engine acceptance is green and this overlaps independent work without publishing — cost if wrong: any later important defect must enter the one test-proven fix pass; no merge/activation gate is waived. Single fresh reviewer final_workspace_review dispatched on gpt-6-astra high, no implementer agents, range03a64b2..7980302, template/plan/spec/five Review Focus/ledger/advisories provided. No production app published.
+
+- Final: Ruling: real Google OAuth and exact production rules/domain/CORS remain release gates outside read-only review — do not activate or claim them based on emulators — cost if wrong: deployment remains unavailable until actual checks pass.
+
+- Final: Ruling: desktop WebKit/viewport coverage does not prove physical iPad/iPhone behavior — require separate user evidence — cost if wrong: platform-specific device issues can remain until manual test.
+
+- Final: Ruling: billing/account ownership was checked by executor/provider UI, not independently by reviewer; actual future costs are not inferred from emulator reads — retain alerts-only budget and no cost-cap claim — cost if wrong: usage may incur charges beyond the warning.
+
+- Final: Ruling: authenticated owners may deliberately bypass business merge rules in their own namespace; enforce cross-UID isolation and correct official-client behavior — within the spec's security boundary — cost if wrong: custom clients can corrupt their own records.
+
+- Final: Ruling: scale evidence covers pagination/native persistence/duty operations, not10000-flight backup restore/import throughput — publish only measured workload — cost if wrong: large imports may be slower or need further optimization.
+
+- Final: Ruling: audit findings have no demonstrated reachable server/scripting path in this app; keep pinned versions for this release and track compatible patched upgrades; isEvalSupported:false alone is not the PDF scripting advisory mitigation — cost if wrong: an unrecognized dependency exposure remains until upgrade or further analysis.
+
+- Final: Ruling: persist restore progress keyed by full validated backup-set identity and target UID in the existing recoveries store, atomically with each local domain/blob save — this allows image-only continuation without recreating queued metadata and rejects changed records/unrelated edits — cost if wrong: progress metadata and retained source parts consume additional local space. Image continuation loads one verified image at a time, not the whole photo collection. Completion still requires all validated parts/images and expected records.
+
 ## Provider preparation
 
 Existing Firebase project avilog-atpl; default bucket avilog-atpl.firebasestorage.app in asia-southeast1. Blaze selected using the user-approved existing billing account. Alerts-only project budget: 130,000 VND/month (approximately USD 5 at configuration time); email thresholds 50%, 90%, 100%. This is not a spending cap. Storage remains deny-all and feature flags remain disabled until release gates pass. Automatic approval review rejected saving CORS for the old preview hostname: exact target authorization was missing and the requested new AviLog hostname was not yet verified. No CORS policy was saved; do not bypass this via another tool. Finish unaffected work and obtain approval for the concrete owned origin. No public image access, credential rotation or automatic upload of guest data.
@@ -60,4 +76,8 @@ The latest user request authorizes renaming to avilog. Claim and verify the actu
 
 ## Deferred minors
 
-Pending independent review.
+Cloud-only evidence viewing currently requires Settings → download all rather than a per-photo on-view download. This is deferred; original bytes remain available through the authenticated bulk-download path.
+
+## Independent review and fixes
+
+One fresh independent review found no Critical issue and three Important issues. All three were reproduced before fixing: full backup omitted acknowledged/resolved conflict originals; background image/weather writes left a stale synced label; offline multipart image-only continuation could not resume queued metadata. Native Chromium/WebKit now verify retained originals, strict missing-byte rejection, automatic metadata commits and status invalidation, durable restore progress, quota rollback, image-only continuation and stable queued operation IDs. Final completion suite: all 12 stages, 131 Node tests, legacy/workspace/evidence rule suites 12/14/4, all 6,426 source questions and both browser engines passed. Production Google/OAuth/CORS and physical devices remain separate gates.

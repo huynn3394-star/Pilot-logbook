@@ -18,6 +18,9 @@ Storage 9199). Production credentials and real logbooks are not fixtures.
 | Independent fields converge; concurrent Actual stays a conflict | Actual Firestore/browser commits and explicit conflict resolution; confirmed Actual never replaced implicitly |
 | Commit succeeded but reply/IDB acknowledgement failed | Lost-response injection after real commit, actual native IDB transaction abort, stable operation ID retry and retained later edit |
 | Account switch during pending work | Main UI PDF, OCR and attachment file callbacks; production backup UI emission, image preparation and server-committed ack held across real Auth logout |
+| Multipart continuation | Native IDB close/reopen between metadata and image-only parts, atomic restore-progress quota failure, same queued IDs on complete-set retry, unrelated local edits rejected |
+| Background writes | Actual main UI/Session/IDB/controller with only external provider boundary stubbed; delayed upload/weather trigger metadata commits and invalidate stale synced labels without focus/manual sync |
+| Recovery originals | Acknowledged and resolved image conflicts export every original; missing recovery bytes reject full backup or are explicitly listed in incomplete export |
 | Multipart integrity | Native browser backup parts, missing-part and tampered-payload checks; model tests for missing image, mixed sets/UIDs, corrupt bytes, restore recovery and no arbitrary old-queue replay |
 | Duty backlinks at scale | 10,000 synthetic flights, archive duty, move one flight, restore duty: 9,999 original backlinks and one reassigned backlink |
 | Stable pagination | Actual Firestore SDK with 100-record pages and root changed between pages; observed root/page/document counts and resulting snapshot bytes/time in report |

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "candidate-not-published",
+  "status": "verified-candidate-cloud-disabled",
   "activated": false,
   "realGoogleOAuth": false,
   "physicalIPad": false,
@@ -12,7 +12,10 @@
     "evidenceFlag": false,
     "rulesPublished": false,
     "corsConfigured": false,
-    "newDomainClaimed": false
+    "newDomainClaimed": false,
+    "currentOrigin": "https://avilog-preview-preview.up.railway.app",
+    "requestedOrigin": "https://avilog.up.railway.app",
+    "activationBlock": "Automatic approval review rejected old-preview CORS Save; exact target authorization and verified domain are required. No bypass attempted."
   },
   "budget": {
     "monthlyVND": 130000,
@@ -24,5 +27,108 @@
     ],
     "spendingCap": false
   },
-  "verification": "Pending complete twelve-stage suite and independent review; see workspace-verification.md"
+  "verification": {
+    "command": "node scripts/verify-workspace-all.cjs",
+    "allStages": 12,
+    "passedStages": 12,
+    "unitTests": 131,
+    "rules": {
+      "legacy": 12,
+      "workspace": 14,
+      "evidence": 4
+    },
+    "sourceQuestionCount": 6426,
+    "browsers": {
+      "chromium": {
+        "version": "151.0.7922.34",
+        "sameUID": true,
+        "differentUID": true,
+        "serviceWorkerMode": "disabled for controlled provider cuts; native cold-start verified separately",
+        "offlineMode": "context offline",
+        "originalImageHash": "3307fda1b5b022a3110b3feb603463be378fe97f17334684fad658033ec1b861",
+        "independentFields": true,
+        "actualConflict": true,
+        "lostReplyAndIDBAbort": true,
+        "backupIntegrity": true,
+        "guestPreserved": true,
+        "uiRaces": {
+          "pdf": true,
+          "ocr": true,
+          "attachment": true
+        },
+        "asyncRaces": {
+          "pendingImageGuard": true,
+          "backupEmissionGuard": true,
+          "committedAckGuard": true
+        },
+        "scale": {
+          "flights": 10000,
+          "rootReads": 4,
+          "pageQueries": 202,
+          "documentReads": 20004,
+          "rootRaceInjected": true,
+          "milliseconds": 65458,
+          "snapshotJSONBytes": 5768352,
+          "returnedRecords": 10002,
+          "finalRevision": 100001,
+          "browserPullAndIDBMilliseconds": 15327
+        },
+        "verifiedProviderAbortDiagnostics": 0,
+        "errors": []
+      },
+      "webkit": {
+        "version": "26.5",
+        "sameUID": true,
+        "differentUID": true,
+        "serviceWorkerMode": "disabled for controlled provider cuts; native cold-start verified separately",
+        "offlineMode": "origin refusal plus preinstalled Auth/Firestore/Storage cuts, each probed",
+        "originalImageHash": "06d446893576d50240b867aea5450e3a9d9e47d4193706a99915f0c8641e999e",
+        "independentFields": true,
+        "actualConflict": true,
+        "lostReplyAndIDBAbort": true,
+        "backupIntegrity": true,
+        "guestPreserved": true,
+        "uiRaces": {
+          "pdf": true,
+          "ocr": true,
+          "attachment": true
+        },
+        "asyncRaces": {
+          "pendingImageGuard": true,
+          "backupEmissionGuard": true,
+          "committedAckGuard": true
+        },
+        "scale": {
+          "flights": 10000,
+          "rootReads": 4,
+          "pageQueries": 202,
+          "documentReads": 20004,
+          "rootRaceInjected": true,
+          "milliseconds": 68005,
+          "snapshotJSONBytes": 5768352,
+          "returnedRecords": 10002,
+          "finalRevision": 100001,
+          "browserPullAndIDBMilliseconds": 16095
+        },
+        "verifiedProviderAbortDiagnostics": 8,
+        "errors": []
+      }
+    },
+    "failures": [],
+    "realGoogleOAuth": false,
+    "physicalIPad": false
+  },
+  "candidateCommit": "2730e71c13a95620bed84cca821bff3c57499102",
+  "independentReview": {
+    "base": "03a64b2feb814ff5e480bcae61c8c2a247d1c5fd",
+    "head": "7980302ab88f8b1a8855ecf33de277519e08670f",
+    "critical": 0,
+    "importantFound": 3,
+    "importantFixed": 3,
+    "fixCommit": "2730e71c13a95620bed84cca821bff3c57499102",
+    "fixVerification": "Each reproduced RED then GREEN; final twelve-stage suite passed",
+    "deferredMinors": [
+      "Cloud-only photo viewing currently requires Settings/download-all; per-photo on-view download deferred."
+    ]
+  }
 }
