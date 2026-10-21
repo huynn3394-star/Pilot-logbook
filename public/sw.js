@@ -1,4 +1,4 @@
-const CACHE = "avilog-shell-v6-weather-groups";
+const CACHE = "avilog-shell-v7-navy-compact-app";
 const SHELL = [
   "/",
   "/index.html",
@@ -21,6 +21,7 @@ const SHELL = [
   "/atpl/catalog-ui.js",
   "/atpl/bank-bridge.js",
   "/atpl/atpl.css",
+  "/atpl/avilog-theme.css",
   "/atpl/account-bootstrap.js",
   "/atpl/account.js",
   "/account/coordinator.js",

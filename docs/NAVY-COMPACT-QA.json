@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-21",
+  "scope": "Compact navy/white layout across Weather, Schedule, Logbook, Crew, Statistics, Settings and ATPL; secondary controls collapsed.",
+  "sourceBaseline": "40085e01c178ac591b3dd813a09a587cbeb620d8",
+  "verification": {
+    "stagesCovered": 14,
+    "unitPassed": 156,
+    "unitFailed": 0,
+    "engines": [
+      "Chromium",
+      "WebKit"
+    ],
+    "viewportWidths": [
+      390,
+      1024
+    ],
+    "runs": [
+      {
+        "log": "avilog-navy-completion.log",
+        "passed": [
+          "build",
+          "unit",
+          "native-storage",
+          "main-ui",
+          "weather-ui",
+          "legacy-rules",
+          "workspace-rules",
+          "weather-account",
+          "evidence-rules"
+        ],
+        "stoppedAt": "account-browser: test fixture did not await actual cloud recovery reload"
+      },
+      {
+        "log": "avilog-navy-final-remaining.log",
+        "passed": [
+          "account-browser",
+          "workspace-browser"
+        ],
+        "stoppedAt": "all-bank-source-offline: fixture left popover over study button"
+      },
+      {
+        "log": "avilog-navy-offline-final.log",
+        "passed": [
+          "all-bank-source-offline"
+        ],
+        "exitCode": 0
+      },
+      {
+        "log": "avilog-navy-main-ui-final.log",
+        "passed": [
+          "main-ui with late edition-banner assertion"
+        ],
+        "exitCode": 0
+      },
+      {
+        "log": "avilog-navy-storage-upgrade-final.log",
+        "passed": [
+          "legacy-native-storage",
+          "upgrade"
+        ],
+        "exitCode": 0
+      }
+    ],
+    "note": "Coverage is assembled from these runs, not one uninterrupted 14-stage run. After the first nine stages, production changes were limited to idempotent wrapping of the asynchronously inserted MB edition banner. All-bank offline, main UI, legacy native storage and upgrade were rerun after that change.",
+    "cases": [
+      "Data-first page headers; creation/import/export in real management menus; settings collapsed",
+      "Account actions in top-right menu; same-UID view preserved, different UID reset; connecting login disabled",
+      "Full wrapped METAR and TAF-only preview; folder-level deduplicated sources; stale/expired flags retained",
+      "All 12 bank modes graded against their existing source keys offline; original source images decoded; bookmark/resume and day/night verified",
+      "Native v5-to-v7 controlling-worker upgrade preserves downloaded MB, source image, account bookmark and offline shell",
+      "Actual SDK/emulator account isolation, offline queue, merge/conflicts, attachments and 10000-flight regression",
+      "Sidebar text contrast 10.64:1; wrong answers/question-picker dashed border and symbols distinct from correct solid border"
+    ]
+  },
+  "review": {
+    "critical": 0,
+    "important": 0,
+    "fixes": [
+      "Inactive navy-sidebar contrast",
+      "Wrong attempted question-picker border precedence",
+      "Late account-ready MB edition banner wrapping"
+    ],
+    "lastNarrowChangeReviewed": true
+  },
+  "preservation": {
+    "questionBankHTML": true,
+    "answerKeys": true,
+    "scoringEngine": true,
+    "catalog": true,
+    "identities": true,
+    "sourceImages": true,
+    "weatherProvider": true,
+    "firebaseRulesAndStoragePolicy": true
+  },
+  "limitations": {
+    "physicalIPadTested": false,
+    "realGoogleOAuthRetested": false,
+    "webkitOfflineMethod": "Origin connections refused because native offline navigation is affected by Playwright WebKit issue 42775; Chromium uses context.setOffline(true).",
+    "upgradeInstruction": "Close old AviLog tabs/PWA and reopen online to update every device. Keep site data; do not clear offline downloads or progress."
+  }
+}

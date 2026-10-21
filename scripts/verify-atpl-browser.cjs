@@ -17,19 +17,19 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
   assert.equal(cancelled.error,'AbortError');assert.equal(cancelled.ready,false);
   // Real503 failure through the server, not a fake cache implementation.
   const agk=catalog.banks.find(b=>b.code==='AGK');failPath=agk.url;
-  await p.locator('[data-download="AGK"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="AGK"]').disabled);assert(!(await p.locator('[data-bank="AGK"] [data-ready]').innerText()).includes('✓'));assert((await p.locator('[data-bank="AGK"] .atpl-progress').innerText()).length>20);failPath=null;
+  await require('./ui-controls.cjs').libraryManage(p,'AGK');await p.locator('[data-download="AGK"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="AGK"]').disabled);assert(!(await p.locator('[data-bank="AGK"] [data-ready]').innerText()).includes('✓'));assert((await p.locator('[data-bank="AGK"] .atpl-progress').innerText()).length>20);failPath=null;
   for(const b of catalog.banks){
-   await p.locator(`[data-download="${b.code}"]`).click();await p.waitForFunction(code=>!document.querySelector(`[data-download="${code}"]`).disabled,b.code,{timeout:180000});
+   await require('./ui-controls.cjs').libraryManage(p,b.code);await p.locator(`[data-download="${b.code}"]`).click();await p.waitForFunction(code=>!document.querySelector(`[data-download="${code}"]`).disabled,b.code,{timeout:180000});
    assert((await p.locator(`[data-bank="${b.code}"] [data-ready]`).innerText()).includes('✓'),name+':'+b.code+':'+await p.locator(`[data-bank="${b.code}"] .atpl-progress`).innerText());
-   if(b.code==='COM') {const corrupted=await p.evaluate(async b=>{const m=await import('/atpl/offline.js'),c=await caches.open(m.ATPL_CACHE),manifest=await(await c.match(b.manifest)).json();await c.put(manifest.assets.find(a=>a.url.endsWith('.webp')).url,new Response('corrupted-but-present'));return(await m.bankStatus(b)).ready},b);assert.equal(corrupted,false,'Unverified replacement must not still be called offline-ready');await p.locator('[data-download="COM"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="COM"]').disabled)}
+   if(b.code==='COM') {const corrupted=await p.evaluate(async b=>{const m=await import('/atpl/offline.js'),c=await caches.open(m.ATPL_CACHE),manifest=await(await c.match(b.manifest)).json();await c.put(manifest.assets.find(a=>a.url.endsWith('.webp')).url,new Response('corrupted-but-present'));return(await m.bankStatus(b)).ready},b);assert.equal(corrupted,false,'Unverified replacement must not still be called offline-ready');await require('./ui-controls.cjs').libraryManage(p,'COM');await p.locator('[data-download="COM"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="COM"]').disabled)}
   }
   // Missing asset must invalidate ready; retry must repair it.
   const missing=await p.evaluate(async b=>{const m=await import('/atpl/offline.js'),c=await caches.open(m.ATPL_CACHE),a=await(await c.match(b.manifest)).json();await c.delete(a.assets.find(a=>a.url.endsWith('.webp')).url);return (await m.bankStatus(b)).ready},catalog.banks.find(b=>b.code==='MB'));
-  assert.equal(missing,false);await p.locator('[data-download="MB"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="MB"]').disabled);
+  assert.equal(missing,false);await require('./ui-controls.cjs').libraryManage(p,'MB');await p.locator('[data-download="MB"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="MB"]').disabled);
   // Storage failure can be safely injected at the actual browser cache boundary.
   const quota=await p.evaluate(async b=>{const m=await import('/atpl/offline.js'),c=await caches.open(m.ATPL_CACHE);await c.delete(b.manifest);const original=Cache.prototype.put;Cache.prototype.put=async function(){throw new DOMException('Test quota full','QuotaExceededError')};let result;try{await m.downloadBank(b);result={error:'none'}}catch(e){result={error:e.name,message:m.downloadError(e)}}finally{Cache.prototype.put=original}return{...result,ready:(await m.bankStatus(b)).ready}},catalog.banks.find(b=>b.code==='HUM'));
   assert.equal(quota.error,'QuotaExceededError');assert.equal(quota.ready,false);assert(quota.message.includes('Chưa tải xong'));
-  await p.locator('[data-download="HUM"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="HUM"]').disabled);
+  await require('./ui-controls.cjs').libraryManage(p,'HUM');await p.locator('[data-download="HUM"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="HUM"]').disabled);
   // New SW activation must retain the ATPL cache and unrelated caches.
   await p.evaluate(async()=>{await(await caches.open('unrelated-app-cache')).put('/keep',new Response('keep'));await(await caches.open('avilog-shell-obsolete')).put('/old',new Response('old'));await navigator.serviceWorker.register('/sw.js?qa-update=1',{scope:'/'});});
   await p.waitForFunction(()=>navigator.serviceWorker.controller?.scriptURL.includes('qa-update=1') && navigator.serviceWorker.controller.state==='activated');
@@ -41,19 +41,19 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
   await p.goto(base+'/atpl/');await p.locator('[data-bank="POF"] [data-ready]').filter({hasText:'✓'}).waitFor({timeout:30000});
   const banks={};let popupCount=0;
   for(const b of catalog.banks){
-   await p.goto(base+b.url);await p.locator('[data-action="study"]').first().waitFor();await p.locator('#atpl-offline-button').waitFor();
+   await p.goto(base+b.url);await p.locator('[data-action="study"]').first().waitFor();await require('./ui-controls.cjs').bankManage(p);await p.locator('#atpl-offline-button').waitFor();await p.locator('[data-bank-manage]>summary').click();
    const grade=await p.evaluate(()=>{const E=window.ATPLQuizEngine,b=Object.values(JSON.parse(document.getElementById('bank-data').textContent))[0].questions,valid=b.filter(q=>q.valid);let s=E.startExam(E.defaultState(),valid.map(q=>q.id));for(const q of valid)s=E.answerExam(s,q.id,q.answer);s=E.submitExam(s,b);const round=E.importBackup(E.exportBackup(s),b);return{count:valid.length,correct:s.exam.report.correct,backup:round.examHistory[0].correct===valid.length}});assert.equal(grade.correct,b.count,b.code);assert(grade.backup);
    await p.locator('[data-action="study"]').first().click();const id=b.code==='INS'?148:1;await jump(p,id);
    const key=await p.evaluate(id=>Object.values(JSON.parse(document.getElementById('bank-data').textContent))[0].questions.find(q=>q.id===id).answer,id);await p.locator(`[data-action="answer"][data-key="${key}"]`).click();
    if(b.code==='INS')assert.deepEqual(await p.locator('.answer-option .letter').allTextContents(),['E','F','G','H']);
    await p.locator('[data-action="bookmark"]').click();
-   const old=await p.locator('html').getAttribute('data-theme');await p.locator('[data-action="theme"]').click();assert.notEqual(await p.locator('html').getAttribute('data-theme'),old);
+   const old=await p.locator('html').getAttribute('data-theme');await require('./ui-controls.cjs').bankManage(p);await p.locator('[data-action="theme"]').click();assert.notEqual(await p.locator('html').getAttribute('data-theme'),old);await p.locator('[data-bank-manage]>summary').click();
    const source=p.locator('[data-action="source"],[data-action="image"]').first();if(await source.count()){
     await source.evaluate(el=>{for(let x=el.parentElement;x;x=x.parentElement)if(x.tagName==='DETAILS')x.open=true});await source.click();await p.locator('#image-dialog img').evaluate(img=>img.decode());assert(await p.locator('#image-dialog img').evaluate(img=>img.naturalWidth>500));await p.locator('[data-action="image-close"]').click();popupCount++;
    }
    assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2)),b.code+' overflow');
    await p.reload();await p.locator('[data-action="resume"]').first().click();await jump(p,id);assert.equal(await p.locator('[data-action="bookmark"]').innerText(),'★');
-   if(b.code==='MB'){await p.locator('a.mb-mode-link').click();await p.waitForURL('**/'+catalog.banks.find(b=>b.code==='MBR').url.split('/').pop());await p.locator('#atpl-offline-button').waitFor();assert.equal(await p.evaluate(()=>window.ATPL_SUBJECT),'MBR')}
+   if(b.code==='MB'){await p.locator('.bank-edition>summary').click();await p.locator('a.mb-mode-link').click();await p.waitForURL('**/'+catalog.banks.find(b=>b.code==='MBR').url.split('/').pop());await require('./ui-controls.cjs').bankManage(p);await p.locator('#atpl-offline-button').waitFor();assert.equal(await p.evaluate(()=>window.ATPL_SUBJECT),'MBR')}
    banks[b.code]=grade;console.log('OFFLINE PASS',name,b.code,grade.correct);
   }
   assert(popupCount>=8,'real offline source-image popups required');

@@ -5,9 +5,10 @@ const {pathToFileURL}=require('node:url'),{execFileSync}=require('node:child_pro
 const {chromium,webkit}=require('playwright');
 const {knownProviderAbort,knownProviderCancellation}=require('./qa-network.cjs');
 const root=path.resolve(__dirname,'..'),out=path.join(root,'test-results/avilog-workspace');fs.mkdirSync(out,{recursive:true});
+const {accountMenu}=require('./ui-controls.cjs');
 async function login(page,origin,email){
  await page.goto(origin);await page.locator('[data-workspace-account]').waitFor();
- const event=page.waitForEvent('popup'),change=await page.getByRole('button',{name:'Đăng nhập tài khoản khác',exact:true}).count();await page.getByRole('button',{name:change?'Đăng nhập tài khoản khác':'Tiếp tục với Google',exact:true}).click();const popup=await event;await popup.waitForLoadState();
+ await accountMenu(page);const event=page.waitForEvent('popup'),change=await page.getByRole('button',{name:'Đăng nhập tài khoản khác',exact:true}).count();await page.getByRole('button',{name:change?'Đăng nhập tài khoản khác':'Tiếp tục với Google',exact:true}).click();const popup=await event;await popup.waitForLoadState();
  await popup.getByRole('button',{name:'Add new account'}).click();await popup.locator('#email-input').fill(email);await popup.locator('#display-name-input').fill('Synthetic pilot');await popup.getByRole('button',{name:'Sign in with Google.com',exact:true}).click();
  await page.locator('[data-workspace-account]').filter({hasText:email}).waitFor({timeout:20000});
  await page.waitForFunction(async()=>{const a=await(await import('/account/client.js')).getAccountClient();await a.ready;return a.currentUser()&&!(await import('/account/coordinator.js')).getCoordinator().getCachedSelection()?.loginPending;});

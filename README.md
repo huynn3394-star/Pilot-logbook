@@ -125,3 +125,15 @@ Existing flat airport selections remain in **Danh sách hiện tại**, in their
 Account login, logout, manual sync and conflict actions now sit in the top toolbar. Detailed image/ATPL status and guest import are under **Chi tiết** there. The ATPL bank question screen keeps its existing background sync and original answer keys.
 
 **Update every device online:** close older AviLog tabs/PWA, reopen and reload (reload once more if the updated view has not appeared). Keep browser/site data. Older strict v5 readers require this upgrade to consume grouped preferences; no mixed-version interoperability is claimed. Native upgrade QA checks v5 worker + legacy flat IDB data/cache/outbox against the v6 reader; it does not emulate every previously loaded v5 JavaScript page.
+
+### Compact weather revision (2026-10-21)
+
+Weather opens with report folders first. **＋ Quản lý** opens group/airport forms and ordering controls; these are closed by default. METAR previews wrap completely rather than truncate. Separate calendar timestamps are omitted from the watchlist presentation; raw report times, stored retrieval metadata and stale/expired/cancelled warnings remain intact. Each folder has one collapsed **Nguồn dữ liệu** section after its stations, deduplicated by the actual product source URL, including mixed primary/fallback sources.
+
+The **⋮** menu at the top right contains Google login, sync, logout-to-guest, conflict review and account details. It closes with Escape or an outside click and preserves its open state across background updates; account changes reset it. Offline data and bank answer keys remain unchanged. Close/reopen older AviLog tabs/PWA online to install shell v7 before using the revised interface; keep site data.
+
+### App-wide navy/white layout (2026-10-21)
+
+The same compact layout applies to Schedule, Logbook, Crew and Statistics: their data stays visible first; creation, import, image import, export and advanced filtering live in **＋ Quản lý**. Settings uses four expandable sections. Main and quiz-library account actions live in **⋮** at the top right. The quiz library keeps subject links visible and places offline downloads in each card's management menu. In a bank, question answers and question navigation remain visible; theme, backup/settings and offline downloads are grouped in **＋ Quản lý**.
+
+White content surfaces, navy text/actions and subtle neutral shadows replace decorative green/amber/red areas. Day/night mode remains available in bank management; correct/incorrect answers retain explicit wording and ✓/× plus solid/dashed borders. `public/atpl/avilog-theme.css` is an external presentation layer, cached with the shared shell. Original bank HTML, question payloads, answer keys, engine bytes, identities and downloaded source illustrations remain unchanged.
