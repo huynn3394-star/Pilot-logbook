@@ -1,3 +1,4 @@
+import {validateWeatherGroups} from './weather-groups.js';
 import {weatherSourceURL} from './weather-report.js';
 import {validateFlight,validDate} from '../lib/domain.js';
 import {icaoFor} from '../lib/parsers.js';
@@ -51,7 +52,7 @@ export function validateRecord(r){
  }else if(r.kind==='profile'){
   only(d,['name','base']);if(r.id!=='profile'||r.archived)fail('Hồ sơ không hợp lệ.');text(d.name,60);text(d.base,4);if(!d.name.trim()||(d.base&&!/^[A-Z]{3,4}$/.test(d.base)))fail('Tên/base không hợp lệ.');
  }else{
-  only(d,['tomorrow','beforeDuty','missingActual','leadMinutes','eveningHour','weatherAirports']);if(d.weatherAirports!==undefined&&(!Array.isArray(d.weatherAirports)||d.weatherAirports.length>40||new Set(d.weatherAirports).size!==d.weatherAirports.length||d.weatherAirports.some(v=>typeof v!=='string'||!/^[A-Z]{4}$/.test(v))))fail('Danh sách sân bay không hợp lệ (tối đa 40 ICAO, không trùng).');if(r.id!=='preferences'||r.archived)fail('Cài đặt không hợp lệ.');for(const k of ['tomorrow','beforeDuty','missingActual'])if(d[k]!==undefined&&typeof d[k]!=='boolean')fail('Lựa chọn nhắc lịch không hợp lệ.');if(d.leadMinutes!==undefined&&(!Number.isInteger(d.leadMinutes)||d.leadMinutes<5||d.leadMinutes>1440))fail('Thời gian nhắc không hợp lệ.');if(d.eveningHour!==undefined&&(!Number.isInteger(d.eveningHour)||d.eveningHour<0||d.eveningHour>23))fail('Giờ nhắc không hợp lệ.');
+  only(d,['tomorrow','beforeDuty','missingActual','leadMinutes','eveningHour','weatherAirports','weatherGroups']);if(d.weatherAirports!==undefined&&(!Array.isArray(d.weatherAirports)||d.weatherAirports.length>40||new Set(d.weatherAirports).size!==d.weatherAirports.length||d.weatherAirports.some(v=>typeof v!=='string'||!/^[A-Z]{4}$/.test(v))))fail('Danh sách sân bay không hợp lệ (tối đa 40 ICAO, không trùng).');if(d.weatherGroups!==undefined){if(!Array.isArray(d.weatherAirports))fail('Thiếu danh sách sân bay của các nhóm.');validateWeatherGroups(d.weatherGroups,d.weatherAirports);}if(r.id!=='preferences'||r.archived)fail('Cài đặt không hợp lệ.');for(const k of ['tomorrow','beforeDuty','missingActual'])if(d[k]!==undefined&&typeof d[k]!=='boolean')fail('Lựa chọn nhắc lịch không hợp lệ.');if(d.leadMinutes!==undefined&&(!Number.isInteger(d.leadMinutes)||d.leadMinutes<5||d.leadMinutes>1440))fail('Thời gian nhắc không hợp lệ.');if(d.eveningHour!==undefined&&(!Number.isInteger(d.eveningHour)||d.eveningHour<0||d.eveningHour>23))fail('Giờ nhắc không hợp lệ.');
  }return r;
 }
 export function validateOperation(op){

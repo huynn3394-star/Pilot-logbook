@@ -20,3 +20,10 @@ test('bounded unique airport preferences remain private to the Google owner',asy
  await assertSucceeds(setDoc(doc(alice,path),record));await assertSucceeds(getDoc(doc(alice,path)));await assertFails(getDoc(doc(bob,path)));
  for(const weatherAirports of[['VVTS','VVTS'],Array(41).fill('VVTS'),'VVTS'])await assertFails(setDoc(doc(alice,path),{...record,data:{weatherAirports}}));
 });
+test('owner can save bounded airport groups; malformed groups and cross-UID access fail',async()=>{
+ const ref=doc(alice,root+'/records/'+'c'.repeat(64)),record={schemaVersion:1,kind:'preferences',id:'preferences',revision:1,archived:false,data:{weatherAirports:['VVTS'],weatherGroups:[{id:'domestic',name:'Quốc nội',airports:['VVTS']}]}};
+ await assertSucceeds(setDoc(ref,record));await assertFails(getDoc(doc(bob,ref.path)));
+ for(const weatherGroups of[null,'wrong',[{id:'bad id',name:'Bad',airports:[]}],[{id:'empty',name:'',airports:[]}],[{id:'extra',name:'Extra',airports:[],extra:'no'}],Array.from({length:9},(_,i)=>({id:'g'+i,name:'N'+i,airports:[]})),[{id:'bad',name:'Bad',airports:['VVNB']}],[{id:'duplicates',name:'Duplicate',airports:['VVTS','VVTS']}],[{id:'oversize',name:'Oversize',airports:Array(41).fill('VVTS')}]])await assertFails(setDoc(ref,{...record,data:{...record.data,weatherGroups}}));
+
+ await assertSucceeds(setDoc(ref,{...record,data:{...record.data,tomorrow:true,beforeDuty:true,missingActual:true,leadMinutes:120,eveningHour:18,weatherGroups:Array.from({length:8},(_,i)=>({id:'g'+i,name:'N'+i,airports:['VVTS']}))}}));
+});

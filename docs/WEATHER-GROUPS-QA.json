@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-21",
+  "scope": "Grouped compact weather list, Weather startup tab and top account toolbar",
+  "sourceBaseline": "5a47d5aebf1e3262d0d731c2205410a1b3548a54",
+  "verification": {
+    "command": "node scripts/verify-workspace-all.cjs",
+    "exitCode": 0,
+    "stagesPassed": 14,
+    "unitPassed": 156,
+    "workspaceRulesPassed": 16,
+    "engines": ["Chromium", "WebKit"],
+    "viewports": ["390x844", "1024x1366"],
+    "cases": [
+      "Weather startup and all four authenticated account actions in header",
+      "Legacy flat airport order preserved as Danh sách hiện tại",
+      "Create, rename, remove and reorder groups; add, move, remove and reorder airports",
+      "Same station in multiple groups; deduplicated fetch/cache union",
+      "Open sections and input drafts survive refresh; account changes reset view state",
+      "TAF-only collapsed preview; full raw METAR/TAF, UTC, source and stale flags",
+      "Native offline cold reopen preserves cached reports and queued group changes",
+      "Real SDK/emulator group sync, offline rename and maximum eight-group transaction/restore",
+      "Private UID isolation, concurrent group conflicts and independent reminder merges",
+      "v5 controlling service-worker to v6 upgrade with legacy IDB preferences, pending operation and weather cache preserved",
+      "Original source-key scoring, downloaded bank source images and offline study preserved",
+      "Existing logbook, backup, evidence sync and 10000-flight regressions"
+    ]
+  },
+  "bounds": {"groups": 8, "uniqueAirports": 40},
+  "rules": {
+    "publishedCandidateMatchesLocalFile": true,
+    "ownershipPolicyUnchanged": true,
+    "note": "Eight groups keep real full-preference SDK transactions within the Firestore expression budget."
+  },
+  "review": {
+    "critical": 0,
+    "important": 0,
+    "minorTafOnlyPreview": "Fixed after a failing native regression; Chromium and WebKit now pass."
+  },
+  "limitations": {
+    "physicalIPadTested": false,
+    "realGoogleOAuthRetestedForThisChange": false,
+    "mixedVersionInteroperabilityClaimed": false,
+    "upgradeInstruction": "Close old AviLog tabs/PWA windows and reopen online to install the current shell before group edits on every device. Do not clear site data. Native upgrade QA uses old worker and persisted data with current app assets, not concurrent v5 JavaScript clients."
+  },
+  "questionBankContentOrAnswerKeyChanges": false
+}

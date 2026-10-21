@@ -12,3 +12,10 @@ test('v4 rejects extended preferences without acknowledging pending edits; v5 re
  const upgraded=createWorkspaceController({account,coordinator,repository,transportFactory:()=>transport});await upgraded.syncNow();assert.equal(upgraded.status().kind,'synced');assert.equal(acknowledged,1);assert.equal(JSON.stringify(op),original);upgraded.stop();
  }finally{await rm(dir,{recursive:true,force:true});}
 });
+
+test('v5 requires reload for grouped preferences while v6 still accepts flat v5 data',async()=>{
+ const dir=await mkdtemp(join(tmpdir(),'avilog-v5-reader-'));try{
+ let source=execFileSync('git',['show','5a47d5a:public/workspace/schema.js'],{encoding:'utf8'});for(const relative of ['../lib/domain.js','../lib/parsers.js'])source=source.replace(relative,new URL('../public/lib/'+relative.split('/').at(-1),import.meta.url).href);source=source.replace('./weather-report.js',new URL('../public/workspace/weather-report.js',import.meta.url).href);const file=join(dir,'schema.mjs');await writeFile(file,source);const old=await import(pathToFileURL(file));
+ const flat={schemaVersion:1,kind:'preferences',id:'preferences',revision:1,archived:false,data:{weatherAirports:['VVTS']}};old.validateRecord(flat);validateRecord(flat);const grouped={...flat,data:{...flat.data,weatherGroups:[{id:'domestic',name:'Quốc nội',airports:['VVTS']}]}};assert.throws(()=>old.validateRecord(grouped));validateRecord(grouped);
+ }finally{await rm(dir,{recursive:true,force:true});}
+});
