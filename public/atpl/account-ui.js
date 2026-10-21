@@ -42,12 +42,15 @@ export function mountAccountUI({element,account,controller,coordinator,store=nul
     if(store)dispatchEvent(new Event('atpl-refresh-requested'));controller.schedule(store?.identity?.code);notice.textContent='Bản nhập được lưu trên máy; chờ báo đã đồng bộ trước khi đổi thiết bị.';
    });
   }
-  if(store&&user)button('Dùng bản trên máy chủ',async()=>{
-   const restored=await controller.restoreFromCloud(store.identity.code,{backup:envelope=>downloads(`ATPL_${store.identity.code}_truoc_khoi_phuc_${Date.now()}.json`,{format:`atpl-${store.identity.code.toLowerCase()}-backup`,subject:store.identity.code,bankSHA256:store.identity.bankSHA256,version:2,state:envelope.state,accountEnvelope:envelope}),confirm:summary=>confirm(`Đã tạo bản sao phục hồi. Dùng bản trên máy chủ (${Object.keys(summary.remote.progress).length} câu) thay bản trên máy này (${Object.keys(summary.local.progress).length} câu)? Phần chưa gửi chỉ còn trong file sao lưu. Bạn có thể nhập lại sau khi xem xét. Trang sẽ tải lại.`)});if(restored)location.reload();
+  let recoveryCode;
+  if(!store&&user){const label=document.createElement('label');label.textContent='Môn cần khôi phục ';recoveryCode=document.createElement('select');recoveryCode.setAttribute('aria-label','Môn cần khôi phục');for(const code of Object.keys(identities)){const option=document.createElement('option');option.value=code;option.textContent=code;recoveryCode.append(option);}label.append(recoveryCode);actions.append(label);}
+  if(user)button('Dùng bản trên máy chủ',async()=>{
+   const code=store?.identity.code||recoveryCode.value,identity=identities[code];
+   const restored=await controller.restoreFromCloud(code,{backup:envelope=>downloads(`ATPL_${code}_truoc_khoi_phuc_${Date.now()}.json`,{format:`atpl-${code.toLowerCase()}-backup`,subject:code,bankSHA256:identity.bankSHA256,version:2,state:envelope.state,accountEnvelope:envelope}),confirm:summary=>confirm(`Đã tạo bản sao phục hồi. Dùng bản trên máy chủ (${Object.keys(summary.remote.progress).length} câu) thay bản trên máy này (${Object.keys(summary.local.progress).length} câu)? Phần chưa gửi chỉ còn trong file sao lưu. Bạn có thể nhập lại sau khi xem xét. Trang sẽ tải lại.`)});if(restored)location.reload();
   });
   if(store)button('Cập nhật tiến độ / về trang chủ',()=>dispatchEvent(new Event('atpl-refresh-requested')));
   const privacy=document.createElement('a');privacy.href='/atpl/privacy.html';privacy.textContent='Quyền riêng tư';actions.append(privacy);
-  notice.textContent=store&&!store.writable?'Chỉ đọc: đóng tab đang học cùng môn rồi tải lại. Trình duyệt thiếu Web Locks vẫn có thể học bằng chế độ khách.':cached?'Học offline trên máy này. Cần có mạng và báo đã đồng bộ để chuyển tiến độ sang máy khác. Tiến độ khách chỉ nhập sau khi bạn xác nhận.':'Đăng nhập để đồng bộ ATPL giữa điện thoại và iPad. Các môn đã tải vẫn học được offline.';
+  notice.textContent=store&&!store.writable?'Chỉ đọc: đóng tab đang học cùng môn rồi tải lại. Trình duyệt thiếu Web Locks vẫn có thể học bằng chế độ khách.':cached?'Sau cập nhật, đóng/mở lại AviLog trên các thiết bị; không xóa dữ liệu trình duyệt. Học offline trên máy này. Cần có mạng và báo đã đồng bộ để chuyển tiến độ sang máy khác. Tiến độ khách chỉ nhập sau khi bạn xác nhận.':'Đăng nhập để đồng bộ ATPL giữa điện thoại và iPad. Các môn đã tải vẫn học được offline.';
   if(store&&!store.writable)button('Thử mở lại quyền ghi',()=>location.reload());
  }
  render();account.subscribe(render);addEventListener('atpl-sync-status',()=>{status.textContent=statusText(controller.status());});addEventListener('offline',()=>{status.textContent='Offline · tiến độ giữ trên máy';});
@@ -60,7 +63,8 @@ export async function setupAccountUI({element,bankStore=null}={}){
   if(bankStore?.uid&&code===bankStore.identity.code)return bankStore;
   const store=await openAccountBank({storage:localStorage,uid:account.currentUser().uid,identity:identities[code],locks:navigator.locks});store.releaseAfterSync=true;return store;
  },onStatus:s=>{const uid=bankStore?.uid||account.currentUser()?.uid;if(uid&&uid===coordinator.getCachedSelection()?.uid){const code=s.code||bankStore?.identity?.code||'ALL';publishAreaStatus({uid,area:'atpl',code,status:{...s,...(!bankStore&&!s.code&&s.kind==='synced'?{checkedCodes:Object.keys(identities)}:{})}});}ui?.update(s);dispatchEvent(new Event('atpl-sync-status'));}});
- activeController=controller;ui=mountAccountUI({element,account,controller,coordinator,store:bankStore?.uid?bankStore:null,identities});
+ const warning=!element&&bankStore?document.createElement('p'):null;if(warning){warning.dataset.bankSyncWarning='';warning.className='storage-line';warning.setAttribute('role','status');warning.hidden=true;document.getElementById('storage-line')?.after(warning);}
+ activeController=controller;ui=element?mountAccountUI({element,account,controller,coordinator,store:bankStore?.uid?bankStore:null,identities}):{update(s){if(!warning)return;const failure=['reauth','epoch','error'].includes(s.kind);warning.hidden=!failure;warning.textContent=failure?statusText(s)+' · Về menu Ôn thi để kiểm tra và xử lý. Tiến độ vẫn giữ trên máy.':'';},render(){}};
  addEventListener('atpl-local-change',()=>controller.schedule(bankStore?.identity?.code));for(const event of ['online','focus'])addEventListener(event,()=>controller.syncNow(bankStore?.identity?.code));
  account.subscribe(({user,status})=>{if(user&&status==='authenticated')controller.schedule(bankStore?.identity?.code);});
  account.ready.then(()=>{ui.render();if(account.currentUser())controller.syncNow(bankStore?.identity?.code);});

@@ -1,0 +1,57 @@
+{
+  "date": "2026-10-21",
+  "scope": "Weather airport watchlist and library-only ATPL sync controls",
+  "baseline": "15bb922714f9e03920f3319dc8e8af28c364e0b1",
+  "regressionStages": {
+    "passed": 14,
+    "total": 14,
+    "initialUnitTests": 150
+  },
+  "finalUnitTests": {
+    "passed": 151,
+    "failed": 0
+  },
+  "nativeBrowsers": [
+    "Chromium 151.0.7922.34",
+    "WebKit 26.5"
+  ],
+  "weatherChecks": [
+    "add/dedupe/remove and UID isolation",
+    "full METAR/SPECI/TAF and actual per-product source",
+    "partial refresh retains text/source/original retrieval and stale state",
+    "offline cold reload with network refused",
+    "offline month rollover retains original issuance dates",
+    "same synthetic Google UID airport-list sync between independent contexts",
+    "bank answers/bookmarks automatically sync without account controls",
+    "COR/AMD equal-time precedence",
+    "no source key, option, scoring or bank changes"
+  ],
+  "security": "Credentials/cookies server-only. Existing Google UID access policy preserved. Cross-UID rule tests pass. No production user data written by automated tests.",
+  "upgrade": {
+    "required": "Close/reopen all older tabs/PWA online; retain browser/site data and unsent work. Export backup if needed.",
+    "mixedVersionInteroperability": false,
+    "oldReaderTestScope": "Baseline strict validator + controller/stub no-ack preservation and upgraded merge; preference and primary URL rejection",
+    "nativeUpgradeScope": "Actual controlling v5 worker, account bank bytes/bookmark/source images and offline cold start; not native v4 cloud interoperability"
+  },
+  "review": {
+    "verdict": "approved",
+    "outstandingFindings": 0,
+    "resolved": [
+      "original-date anchors",
+      "independent product retention",
+      "equal-time corrections",
+      "visible background failure guidance",
+      "documented required client upgrade with fail-closed queue retention"
+    ]
+  },
+  "manualDeviceTests": {
+    "realGoogleOAuthNewWeather": false,
+    "physicalIPad": false
+  },
+  "productionEvidence": "Recorded separately after deployment in project output/avilog-weather-2026-10-21; this document reports release-candidate automated QA.",
+  "additionalReviewChecks": {
+    "epochAndRevokedAuthWarningVisible": true,
+    "accountBrowserFinal": "Chromium passed; WebKit passed after test waits for actual logout page reload before next login",
+    "harnessCorrection": "Replace async wait predicate with synchronous cached selection predicate; await logout domcontentloaded. No product change required."
+  }
+}

@@ -1,3 +1,4 @@
+import {weatherSourceURL} from './weather-report.js';
 import {validateFlight,validDate} from '../lib/domain.js';
 import {icaoFor} from '../lib/parsers.js';
 export const MAX_RECORD_BYTES=128*1024,MAX_OPERATION_BYTES=800*1024,MAX_RECORDS=8,PAGE_SIZE=100,MAX_PULL_ATTEMPTS=3;
@@ -26,8 +27,8 @@ export function validateWeather(w,f){
   only(d,['station','provider','fetchedAt','source','sources','metar','taf','stale','cached']);
   if(!/^[A-Z]{4}$/.test(d.station)||!airports.has(d.station)||seen.has(d.station)||!utc(d.fetchedAt)||d.fetchedAt.slice(0,10)!==w.day)fail('Bản tin thời tiết không khớp sân bay/ngày lấy.');seen.add(d.station);text(d.provider,160);
   for(const k of ['metar','taf'])if(d[k]!==null){text(d[k],32768);if(/data:image\//i.test(d[k]))fail('Chỉ lưu thời tiết dạng chữ.');}
-  const source=v=>{text(v,512);const u=new URL(v);if(u.origin!=='https://aviationweather.gov'||!/^\/api\/data\/(metar|taf)$/.test(u.pathname)||u.searchParams.get('ids')!==d.station||u.searchParams.get('format')!=='raw')fail('Nguồn thời tiết không hợp lệ.');};
-  source(d.source);if(d.sources){only(d.sources,['metar','taf']);Object.values(d.sources).forEach(source);}for(const k of ['stale','cached'])if(d[k]!==undefined&&typeof d[k]!=='boolean')fail('Trạng thái thời tiết không hợp lệ.');
+  const source=(v,product)=>{text(v,512);if(!weatherSourceURL(v,d.station,product))fail('Nguồn thời tiết không hợp lệ.');};
+  source(d.source);if(d.sources){only(d.sources,['metar','taf']);Object.entries(d.sources).forEach(([product,url])=>source(url,product));}for(const k of ['stale','cached'])if(d[k]!==undefined&&typeof d[k]!=='boolean')fail('Trạng thái thời tiết không hợp lệ.');
  }
 }
 export function validateRecord(r){
@@ -50,7 +51,7 @@ export function validateRecord(r){
  }else if(r.kind==='profile'){
   only(d,['name','base']);if(r.id!=='profile'||r.archived)fail('Hồ sơ không hợp lệ.');text(d.name,60);text(d.base,4);if(!d.name.trim()||(d.base&&!/^[A-Z]{3,4}$/.test(d.base)))fail('Tên/base không hợp lệ.');
  }else{
-  only(d,['tomorrow','beforeDuty','missingActual','leadMinutes','eveningHour']);if(r.id!=='preferences'||r.archived)fail('Cài đặt không hợp lệ.');for(const k of ['tomorrow','beforeDuty','missingActual'])if(d[k]!==undefined&&typeof d[k]!=='boolean')fail('Lựa chọn nhắc lịch không hợp lệ.');if(d.leadMinutes!==undefined&&(!Number.isInteger(d.leadMinutes)||d.leadMinutes<5||d.leadMinutes>1440))fail('Thời gian nhắc không hợp lệ.');if(d.eveningHour!==undefined&&(!Number.isInteger(d.eveningHour)||d.eveningHour<0||d.eveningHour>23))fail('Giờ nhắc không hợp lệ.');
+  only(d,['tomorrow','beforeDuty','missingActual','leadMinutes','eveningHour','weatherAirports']);if(d.weatherAirports!==undefined&&(!Array.isArray(d.weatherAirports)||d.weatherAirports.length>40||new Set(d.weatherAirports).size!==d.weatherAirports.length||d.weatherAirports.some(v=>typeof v!=='string'||!/^[A-Z]{4}$/.test(v))))fail('Danh sách sân bay không hợp lệ (tối đa 40 ICAO, không trùng).');if(r.id!=='preferences'||r.archived)fail('Cài đặt không hợp lệ.');for(const k of ['tomorrow','beforeDuty','missingActual'])if(d[k]!==undefined&&typeof d[k]!=='boolean')fail('Lựa chọn nhắc lịch không hợp lệ.');if(d.leadMinutes!==undefined&&(!Number.isInteger(d.leadMinutes)||d.leadMinutes<5||d.leadMinutes>1440))fail('Thời gian nhắc không hợp lệ.');if(d.eveningHour!==undefined&&(!Number.isInteger(d.eveningHour)||d.eveningHour<0||d.eveningHour>23))fail('Giờ nhắc không hợp lệ.');
  }return r;
 }
 export function validateOperation(op){

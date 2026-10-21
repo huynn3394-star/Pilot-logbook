@@ -12,5 +12,7 @@ async function update(){try{const s=await bankStatus(bank);line.textContent=s.re
 button.addEventListener('click',async()=>{if(active){active.abort();return}active=new AbortController();button.textContent='Dừng tải';try{await downloadBank(bank,{signal:active.signal,onProgress:p=>{line.textContent=`Đang tải ${size(p.bytes)} / ${size(p.totalBytes)} · ${p.completed}/${p.total} tài nguyên`}});active=null;await update()}catch(e){active=null;button.textContent='Tiếp tục tải offline';line.textContent=downloadError(e)}});
 enableOffline().catch(e=>{line.textContent=downloadError(e)});await update();
 
-const accountElement=document.createElement('section');document.querySelector('.topbar').after(accountElement);
-setupAccountUI({element:accountElement,bankStore:await window.ATPL_ACCOUNT_READY}).catch(()=>{accountElement.textContent='Chưa kết nối tài khoản. Bạn vẫn học và xuất tiến độ trên máy được.';});
+// Account controls live in the subject library; the bank still runs its sync controller.
+const bankStore=await window.ATPL_ACCOUNT_READY;
+if(bankStore.uid&&!bankStore.writable)document.getElementById('storage-warning').textContent='Chỉ đọc: môn này đang mở ở tab khác hoặc thiếu Web Locks. Đóng tab cùng môn rồi tải lại để lưu tiến độ.';
+setupAccountUI({bankStore}).catch(()=>{document.getElementById('storage-warning').textContent='Chưa kết nối tài khoản. Tiến độ vẫn lưu trên máy; về Ôn thi để kiểm tra đồng bộ.';});

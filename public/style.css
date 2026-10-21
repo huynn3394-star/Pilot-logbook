@@ -1788,3 +1788,15 @@ h3 {
 }
 .workspace-account{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;margin-bottom:22px;border:1px solid var(--line);border-radius:14px;background:var(--paper);min-width:0}.workspace-account-identity{display:grid;gap:6px;min-width:0;flex:1 1 240px;overflow-wrap:anywhere}.workspace-account-identity [role=status],.workspace-account-detail{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.workspace-account-detail{flex-basis:100%;line-height:1.6}.workspace-account-actions{display:flex;gap:8px;flex-wrap:wrap}.workspace-conflict{padding:12px 0;border-bottom:1px solid var(--line)}.workspace-conflict-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}.workspace-conflict pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;max-height:260px;overflow:auto;background:var(--bg);padding:10px;border-radius:8px}[data-workspace-backups]{margin-bottom:20px}[data-workspace-backups] .actions{gap:8px}[data-import-selection] details{max-height:220px;overflow:auto;padding:10px;border:1px solid var(--line);margin:12px 0} @media(max-width:600px){.workspace-account{padding:14px;gap:10px}.workspace-account-actions{width:100%}.workspace-account-actions button{flex:1 1 140px;white-space:normal}.workspace-conflict-columns{grid-template-columns:1fr}}
 .workspace-text-link{display:inline;padding:0;border:0;background:none;color:var(--ink);text-decoration:underline;font-size:inherit;text-align:left}
+.weather-watch-tools {padding:20px;margin-bottom:20px;display:flex;gap:16px;align-items:end;flex-wrap:wrap}
+.weather-watch-tools form {display:flex;gap:12px;align-items:end;flex-wrap:wrap;flex:1}
+.weather-watch-tools label {display:grid;gap:6px;min-width:180px;flex:1}
+.weather-watch-tools input {text-transform:uppercase}
+.weather-watch-tools [role=status] {flex-basis:100%;margin:0;color:var(--muted,#667085);font-size:13px}
+.weather-watch-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:20px}
+.weather-watch-card {padding:20px;min-width:0;overflow-wrap:anywhere}
+.weather-watch-top {display:flex;gap:12px;align-items:center;justify-content:space-between}
+.weather-watch-top h2 {margin:0}
+.weather-product {border-top:1px solid #dce3ed;margin-top:16px;padding-top:12px}
+.weather-report {white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;max-width:100%;font-size:13px;line-height:1.65}
+.weather-error {color:#9a3412;font-size:13px}

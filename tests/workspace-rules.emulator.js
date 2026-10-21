@@ -15,3 +15,8 @@ test('malformed records, private binary data, forged receipts and immutable over
  const receipt=doc(alice,root+'/receipts/first');await assertFails(setDoc(receipt,{schemaVersion:1,uid:'bob',operationId:'first',operationHash:'a'.repeat(64),priorRevision:0,revision:1,results:[]}));
  await env.withSecurityRulesDisabled(context=>setDoc(doc(context.firestore(),receipt.path),{schemaVersion:1,uid:'alice',operationId:'first',operationHash:'a'.repeat(64),priorRevision:0,revision:1,results:[]}));await assertFails(setDoc(receipt,{schemaVersion:1,uid:'alice',operationId:'first',operationHash:'b'.repeat(64),priorRevision:0,revision:1,results:[]}));await assertFails(deleteDoc(receipt));await assertFails(getDoc(doc(bob,receipt.path)));
 });
+test('bounded unique airport preferences remain private to the Google owner',async()=>{
+ const path=root+'/records/'+'b'.repeat(64),record={schemaVersion:1,kind:'preferences',id:'preferences',revision:1,archived:false,data:{weatherAirports:['VVTS','VVNB']}};
+ await assertSucceeds(setDoc(doc(alice,path),record));await assertSucceeds(getDoc(doc(alice,path)));await assertFails(getDoc(doc(bob,path)));
+ for(const weatherAirports of[['VVTS','VVTS'],Array(41).fill('VVTS'),'VVTS'])await assertFails(setDoc(doc(alice,path),{...record,data:{weatherAirports}}));
+});

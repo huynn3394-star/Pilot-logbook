@@ -18,7 +18,9 @@
     "test:workspace-ui": "node scripts/verify-workspace-ui.cjs",
     "test:workspace-upgrade": "node scripts/verify-workspace-upgrade.cjs",
     "test:workspace-browser": "node scripts/workspace-emulators.cjs browser",
-    "test:workspace-all": "node scripts/verify-workspace-all.cjs"
+    "test:workspace-all": "node scripts/verify-workspace-all.cjs",
+    "test:weather-ui": "node scripts/verify-weather-ui.cjs",
+    "test:weather-account": "node scripts/workspace-emulators.cjs weather"
   },
   "dependencies": {
     "pdfjs-dist": "5.6.205",
