@@ -1843,3 +1843,5 @@ html[data-theme=dark] .breadcrumbs strong,html[data-theme=dark] .muted,html[data
 .sidebar .nav button.active svg{color:inherit}.bottom-nav button.active svg{color:inherit}@media(max-width:720px){.topbar{background:var(--dark)}.topbar [data-action=appearance-theme]{color:#fff}.topbar .mobile-brand{color:#fff}.topbar .brandmark{background:#fff;color:#142744}}
 
 .day.today .day-number{color:#fff}html[data-theme=dark] .day,html[data-theme=dark] .day-route{border-color:var(--line)}
+
+.flight-time-input{border:0;margin:0;padding:0;min-width:0}.flight-time-input legend{font-size:12px;font-weight:600;color:var(--muted);padding:0;margin-bottom:9px}.flight-time-parts{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:9px}.flight-time-parts label{font-size:10px;min-width:0}.flight-time-parts input{width:100%;max-width:100%;min-width:0}.flight-time-parts [data-utc-clock]{font-family:ui-monospace,monospace;font-size:16px;font-variant-numeric:tabular-nums;letter-spacing:.03em}@media(max-width:600px){.form-grid>.flight-time-input{grid-column:1/-1}.flight-time-parts{grid-template-columns:minmax(0,1fr) 116px}}

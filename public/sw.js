@@ -1,4 +1,4 @@
-const CACHE = "avilog-shell-v8-appearance-crew-e190";
+const CACHE = "avilog-shell-v9-utc-numeric-input";
 const SHELL = [
   "/",
   "/index.html",
@@ -9,6 +9,7 @@ const SHELL = [
   "/icon-512.png",
   "/manifest.webmanifest",
   "/lib/domain.js",
+  "/lib/utc-input.js",
   "/lib/appearance.js",
   "/lib/crew-entry.js",
   "/examples/e190-oooi.png",

@@ -1,0 +1,54 @@
+{
+  "feature": "Numeric UTC flight time inputs",
+  "date": "2026-10-22",
+  "unit": {
+    "tests": 169,
+    "pass": 169,
+    "fail": 0
+  },
+  "nativeUTC": {
+    "engines": [
+      "chromium",
+      "webkit"
+    ],
+    "viewports": [
+      390,
+      1024
+    ],
+    "cases": 4,
+    "pass": 4,
+    "timezones": [
+      "Asia/Ho_Chi_Minh",
+      "America/Los_Angeles"
+    ],
+    "coverage": [
+      "today defaults; blank clocks",
+      "HHMM to HH:MM UTC 24h",
+      "explicit midnight dates",
+      "preserve existing timestamp precision on note edit",
+      "reject 2400"
+    ]
+  },
+  "targetedRegressions": {
+    "pass": 5,
+    "scripts": [
+      "verify-workspace-ui.cjs",
+      "verify-enhancements.cjs",
+      "verify-e190-note.cjs",
+      "verify-workspace-upgrade.cjs",
+      "verify-weather-ui.cjs"
+    ]
+  },
+  "serviceWorker": "avilog-shell-v9-utc-numeric-input",
+  "unchanged": [
+    "public/atpl",
+    "public/workspace",
+    "public/lib/domain.js",
+    "public/lib/parsers.js",
+    "public/lib/importers.js"
+  ],
+  "physicalIPadTested": false,
+  "realGoogleOAuthTestedThisChange": false,
+  "productionVerified": false,
+  "deploymentBlocker": "Railway official status: builds/deployments paused; latest update Oct 21 18:15 UTC"
+}

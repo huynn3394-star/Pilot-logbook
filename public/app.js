@@ -1,3 +1,4 @@
+import {todayInputDate,flightTimeInput,readUTCInput,bindUTCInputs} from './lib/utc-input.js';
 import {applyAppearance} from './lib/appearance.js';
 import {mountCrewEntry,resolveFlightPeople} from './lib/crew-entry.js';
 import {readWeatherGroups,saveWeatherGroups} from './workspace/weather-groups.js';
@@ -391,7 +392,7 @@ function editFlight(original, imported, ocrWarning) {
       imported ||
         original || {
           id: uid(),
-          date: day,
+          date: todayInputDate(),
           flightNo: "",
           dep: state.settings.base || "SGN",
           dest: "",
@@ -426,7 +427,7 @@ function editFlight(original, imported, ocrWarning) {
       ["A350", "A350"],
       ["OTHER", "Khác"],
     ],
-  )}${input("reg", "Aircraft registration", f.reg || "", "text", 'maxlength="20"')}</div><div class="form-section"><span>Scheduled · UTC</span><span class="pill gray">Kế hoạch</span></div><div class="form-grid">${input("s_dep", "Scheduled DEP", f.scheduled?.dep || f.dep, "text", 'maxlength="4"')}${input("s_dest", "Scheduled DEST", f.scheduled?.dest || f.dest, "text", 'maxlength="4"')}${timeInput("s_out", "Departure (OUT)", f.scheduled?.out)}${timeInput("s_in", "Arrival (IN)", f.scheduled?.in)}</div><div class="form-section"><span>Actual · UTC</span><span class="pill green">OUT / OFF / ON / IN</span></div><div class="form-grid">${timeInput("a_out", "OUT · off blocks", f.actual?.out)}${timeInput("a_off", "OFF · takeoff", f.actual?.off)}${timeInput("a_on", "ON · landing", f.actual?.on)}${timeInput("a_in", "IN · on blocks", f.actual?.in)}</div><div id="actual-summary" class="event-summary"></div><div class="form-section"><span>Crew & pilot role</span></div><div class="form-grid"><div class="crew-entry" data-crew-field="captain"></div><div class="crew-entry" data-crew-field="fo"></div>${select(
+  )}${input("reg", "Aircraft registration", f.reg || "", "text", 'maxlength="20"')}</div><div class="form-section"><span>Scheduled · UTC</span><span class="pill gray">Kế hoạch</span></div><div class="form-grid">${input("s_dep", "Scheduled DEP", f.scheduled?.dep || f.dep, "text", 'maxlength="4"')}${input("s_dest", "Scheduled DEST", f.scheduled?.dest || f.dest, "text", 'maxlength="4"')}${flightTimeInput("s_out", "Departure (OUT)", f.scheduled?.out)}${flightTimeInput("s_in", "Arrival (IN)", f.scheduled?.in)}</div><div class="form-section"><span>Actual · UTC</span><span class="pill green">OUT / OFF / ON / IN</span></div><div class="form-grid">${flightTimeInput("a_out", "OUT · off blocks", f.actual?.out)}${flightTimeInput("a_off", "OFF · takeoff", f.actual?.off)}${flightTimeInput("a_on", "ON · landing", f.actual?.on)}${flightTimeInput("a_in", "IN · on blocks", f.actual?.in)}</div><div id="actual-summary" class="event-summary"></div><div class="form-section"><span>Crew & pilot role</span></div><div class="form-grid"><div class="crew-entry" data-crew-field="captain"></div><div class="crew-entry" data-crew-field="fo"></div>${select(
     "role",
     "Vai trò",
     f.role,
@@ -448,6 +449,8 @@ function editFlight(original, imported, ocrWarning) {
     `${old ? btn("archive-flight", "Bỏ chuyến", null, "ghost danger", `data-id="${e(old.id)}"`) : ""}${btn("close", "Hủy", null, "ghost")}<button class="btn primary" type="submit" form="flight-form">${icon("check")}Lưu chuyến bay</button>`,
   );
   const form = modal.querySelector("form");
+  form._timeValues=f;
+  bindUTCInputs(form);
   form._crewEntry=mountCrewEntry(form,state.people,f);
   form._original = old;
   form._imported = imported;
@@ -464,16 +467,8 @@ function safeImage(value) {
     : "";
 }
 function actualSummary() {
-  const form = modal.querySelector("#flight-form");
-  if (!form) return;
-  const f = new FormData(form);
-  try {
-    const a = Object.fromEntries(
-      ["out", "off", "on", "in"].map((k) => [k, toUTC(f.get("a_" + k))]),
-    );
-    document.querySelector("#actual-summary").innerHTML =
-      `<div>Block · OUT → IN<strong class="mono">${a.out && a.in ? duration(minutes(a.out, a.in)) : "—"}</strong></div><div>Airborne · OFF → ON<strong class="mono">${a.off && a.on ? duration(minutes(a.off, a.on)) : "—"}</strong></div>`;
-  } catch {}
+  const form=modal.querySelector('#flight-form');if(!form)return;const data=new FormData(form);let a={};try{a=Object.fromEntries(['out','off','on','in'].map(k=>[k,readUTCInput(data,'a_'+k,form._timeValues?.actual?.[k])]));}catch{}
+  document.querySelector('#actual-summary').innerHTML=`<div>Block · OUT → IN<strong class="mono">${a.out&&a.in?duration(minutes(a.out,a.in)):'—'}</strong></div><div>Airborne · OFF → ON<strong class="mono">${a.off&&a.on?duration(minutes(a.off,a.on)):'—'}</strong></div>`;
 }
 async function saveFlight(ev) {
   ev.preventDefault();
@@ -485,7 +480,7 @@ async function saveFlight(ev) {
       actual = {},
       resolvedPeople=resolveFlightPeople(state.people,form._crewEntry.read());
     for (const k of ["out", "off", "on", "in"])
-      if (fd.get("a_" + k)) actual[k] = toUTC(fd.get("a_" + k));
+      if (fd.get("a_" + k)) actual[k] = readUTCInput(fd,"a_"+k,form._timeValues?.actual?.[k]);
     const f = {
       ...(old || {}),
       id: form.dataset.id,
@@ -499,8 +494,8 @@ async function saveFlight(ev) {
         ...(old?.scheduled || {}),
         dep: fd.get("s_dep").toUpperCase(),
         dest: fd.get("s_dest").toUpperCase(),
-        out: toUTC(fd.get("s_out")),
-        in: toUTC(fd.get("s_in")),
+        out: readUTCInput(fd,"s_out",form._timeValues?.scheduled?.out),
+        in: readUTCInput(fd,"s_in",form._timeValues?.scheduled?.in),
       },
       actual,
       confirmed: fd.has("confirmed"),
@@ -667,7 +662,7 @@ function imageImport(targetId) {
       "Aircraft family",
       "A320",
       Object.entries(families).map(([k, v]) => [k, v.label]),
-    )}${input("image-date", "Ngày OUT · UTC", targetId ? find(targetId).date : day, "date", 'id="image-date" required')}</div><div class="file-zone">${icon("camera")}<strong>Chụp hoặc chọn MCDU / AOC / ACARS OOOI</strong><input type="file" id="image-file" accept="image/jpeg,image/png,image/webp" capture="environment"><span class="tiny muted">JPG / PNG / WebP · tối đa 6 MB</span></div><details class="source-card"><summary>Ảnh mẫu E190 · ACARS OOOI</summary><img class="image-preview" src="/examples/e190-oooi.png" alt="Mẫu màn hình E190: OUT/OFF và IN/ON theo hai cột"><p>Chọn E190 khi đọc mẫu này. Kiểm tra riêng số chuyến, sân bay, ngày OUT và bốn mốc giờ; thông tin chưa rõ có thể sửa tay.</p></details><div id="image-evidence"></div><div class="progress" id="import-progress"></div><div class="form-section"><span>Văn bản OCR · sửa khi cần</span>${btn("image-sample", "Dùng dữ liệu mẫu", null, "small ghost")}</div><textarea id="image-text" rows="8" placeholder="VN0605 VVTS VTBS&#10;OUT 04:29&#10;OFF 04:39&#10;ON 05:50&#10;IN 06:00"></textarea><div class="error" data-error hidden></div></div>`,
+    )}${input("image-date", "Ngày OUT · UTC", targetId ? find(targetId).date : todayInputDate(), "date", 'id="image-date" required')}</div><div class="file-zone">${icon("camera")}<strong>Chụp hoặc chọn MCDU / AOC / ACARS OOOI</strong><input type="file" id="image-file" accept="image/jpeg,image/png,image/webp" capture="environment"><span class="tiny muted">JPG / PNG / WebP · tối đa 6 MB</span></div><details class="source-card"><summary>Ảnh mẫu E190 · ACARS OOOI</summary><img class="image-preview" src="/examples/e190-oooi.png" alt="Mẫu màn hình E190: OUT/OFF và IN/ON theo hai cột"><p>Chọn E190 khi đọc mẫu này. Kiểm tra riêng số chuyến, sân bay, ngày OUT và bốn mốc giờ; thông tin chưa rõ có thể sửa tay.</p></details><div id="image-evidence"></div><div class="progress" id="import-progress"></div><div class="form-section"><span>Văn bản OCR · sửa khi cần</span>${btn("image-sample", "Dùng dữ liệu mẫu", null, "small ghost")}</div><textarea id="image-text" rows="8" placeholder="VN0605 VVTS VTBS&#10;OUT 04:29&#10;OFF 04:39&#10;ON 05:50&#10;IN 06:00"></textarea><div class="error" data-error hidden></div></div>`,
     `${btn("close", "Hủy", null, "ghost")}${btn("image-parse", "Xem trước Actual", "arrow", "primary", targetId ? `data-id="${e(targetId)}"` : "")}`,
   );
   modal.querySelector("#image-file").onchange = async (ev) => {

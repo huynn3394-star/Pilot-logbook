@@ -148,3 +148,10 @@ Flight Captain, First Officer and other crew fields accept names with live sugge
 E190 appears in aircraft selection and image import. The supplied E190 ACARS OOOI photo is available as a local example. Image OCR finds the display before recognition, reads paired OUT/OFF and IN/ON columns, and leaves the result unconfirmed for review. Common OUT/OUR and Z/2 substitutions are flagged and lower confidence. The sample's four clocks read OUT 12:30, OFF 13:07, ON 13:33, IN 13:37; its flight number and route still need visual verification/manual correction. The OUT date comes from the date input, never the computer clock. No flight is automatically stored.
 
 First image recognition on a device needs Internet to load the OCR engine and English model. After one successful recognition, public engine assets and the model are cached for offline reopening. The source photo remains unchanged and no OCR cloud service receives it. Manual entry remains available offline. Original ATPL questions, keys, bank identities, scoring and figures are unchanged.
+
+
+### Numeric UTC flight times
+
+Scheduled OUT/IN and Actual OUT/OFF/ON/IN use separate date and text clock fields. Enter `0714` or `07:14`; the clock displays `07:14` on blur, always UTC 24-hour with no AM/PM. Newly created manual flights and empty event-date fields default to the device's current calendar date; clocks remain blank until entered. Edit dates explicitly for historical flights or midnight crossings. `2400` and invalid minutes are rejected rather than rolled forward.
+
+Existing and OCR-imported event dates/times are retained. If the displayed UTC date/minute has not changed, saving preserves the original timestamp including seconds/milliseconds. Note-only edits to confirmed flights do not replace Actual. The stored format, offline queue and account synchronization remain UTC ISO timestamps as before.
