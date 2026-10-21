@@ -21,6 +21,7 @@ export const icaoFor = (p) =>
     SIN: "WSSS",
   })[p] || p;
 export const families = {
+  E190: { label: "E190 · ACARS OOOI", supported: true },
   A320: { label: "A320 / A321 · MCDU / AOC", supported: true },
   B787: { label: "B787 · nhập tay / chờ parser", supported: false },
   A350: { label: "A350 · nhập tay / chờ parser", supported: false },
@@ -33,6 +34,7 @@ export function parseAircraft(text, family, date) {
         family +
         " chưa được xác minh. Vui lòng nhập Actual thủ công.",
     );
+  if(family==='E190')return parseE190(text,date);
   const t = text.toUpperCase().replace(/\b0UT\b/g, "OUT");
   const rawFlight = t.match(/\bVN\s*[0-9OIL]{1,5}\b/)?.[0]?.replace(/\s/g, "") || "";
   const flightNo = rawFlight.slice(0,2) + rawFlight.slice(2).replace(/O/g,'0').replace(/[IL]/g,'1');
@@ -107,4 +109,20 @@ export function parseRoster(text, month) {
     if (!matched && !dm) unrecognized.push(line);
   }
   return { flights, unrecognized };
+}
+
+function parseE190(text,date){
+ const raw=String(text).toUpperCase(),corrected=/\b(?:OUR|0UT|\d{4}2)\b/.test(raw),t=raw.replace(/\b(?:0UT|OUR)\b/g,'OUT').replace(/\b(\d{4})2\b/g,'$1Z'),lines=t.split(/\n/).map(s=>s.trim()).filter(Boolean),clocks={};
+ const put=(label,time)=>{const k=label.toLowerCase(),value=time.replace(/[:. ]/g,'').replace(/Z$/,'');if(clocks[k]&&clocks[k]!==value.slice(0,2)+':'+value.slice(2))throw Error('Giờ '+label+' mâu thuẫn; sửa văn bản OCR trước khi tiếp tục.');clocks[k]=value.slice(0,2)+':'+value.slice(2);};
+ for(let i=0;i<lines.length;i++){
+  const line=lines[i],labels=[...line.matchAll(/\b(OUT|OFF|ON|IN)\b/g)];if(!labels.length)continue;
+  const inline=[...line.matchAll(/\b(OUT|OFF|ON|IN)\b\s*[:=]?\s*(\d{2}[:. ]?\d{2}Z?)\b/g)];
+  if(inline.length===labels.length){for(const m of inline)put(m[1],m[2]);continue;}
+  const next=lines[i+1]||'',times=[...next.matchAll(/\b(\d{2}[:.]?\d{2})Z?\b/g)];
+  if(inline.length||times.length!==labels.length||/\b(?:UTC|DATE|BLOCK|FLIGHT|OUT|OFF|ON|IN)\b/.test(next))throw Error('Hàng OUT/OFF/ON/IN không rõ; sửa OCR hoặc nhập tay.');
+  for(let n=0;n<labels.length;n++)put(labels[n][1],times[n][1]);i++;
+ }
+ if(!Object.keys(clocks).length)throw Error('Không nhận ra OUT/OFF/ON/IN; sửa OCR hoặc nhập tay.');
+ const flight=t.match(/FLIGHT\s+N[O0]\b[ \t]*(?:DEP\s*[/ -]\s*DEST[ \t]*)?\s*([A-Z0-9]{2,3}\d{1,5}[A-Z]?)\b/)?.[1]||t.match(/\bVN\s*\d{1,5}\b/)?.[0]?.replace(/\s/g,'')||'',route=t.match(/\b([A-Z]{4})\s*[/→-]\s*([A-Z]{4})\b/);
+ return {id:uid(),date:validDate(date),flightNo:flight,dep:airportAliases[route?.[1]]||route?.[1]||'',dest:airportAliases[route?.[2]]||route?.[2]||'',aircraft:'E190',actual:normalizeEvents(date,clocks),scheduled:{},confirmed:false,source:'image OCR · E190 ACARS OOOI',confidence:Math.round(Object.keys(clocks).length/4*(corrected?60:75)),...(corrected?{note:'OCR E190 có sửa nhận dạng nhãn OUT và hậu tố Z/2. Kiểm tra ảnh gốc, ngày OUT, số chuyến, sân bay và tất cả mốc giờ trước khi xác nhận.'}:{}),role:'PF',nightMinutes:0,picMinutes:0};
 }

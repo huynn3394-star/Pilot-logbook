@@ -1,3 +1,4 @@
+import {appearance,applyAppearance,setAppearance} from '../lib/appearance.js';
 import {setupAccountUI} from './account-ui.js';
 import {getCatalog,enableOffline,bankStatus,downloadBank,downloadError,size} from './offline.js';
 const theme=document.createElement('link');theme.rel='stylesheet';theme.href='/atpl/avilog-theme.css';document.head.append(theme);
@@ -23,3 +24,11 @@ enableOffline().catch(e=>{line.textContent=downloadError(e)});await update();
 const bankStore=await window.ATPL_ACCOUNT_READY;
 if(bankStore.uid&&!bankStore.writable)document.getElementById('storage-warning').textContent='Chỉ đọc: môn này đang mở ở tab khác hoặc thiếu Web Locks. Đóng tab cùng môn rồi tải lại để lưu tiến độ.';
 setupAccountUI({bankStore}).catch(()=>{document.getElementById('storage-warning').textContent='Chưa kết nối tài khoản. Tiến độ vẫn lưu trên máy; về Ôn thi để kiểm tra đồng bộ.';});
+
+// Display choice is shared with AviLog without rewriting source-bank engine state.
+applyAppearance();new MutationObserver(()=>{applyAppearance();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+document.addEventListener('click',event=>{if(!event.target.closest('[data-action=theme]'))return;event.preventDefault();event.stopImmediatePropagation();setAppearance({theme:document.documentElement.dataset.theme==='dark'?'light':'dark'});},true);
+
+// Keep the original quiz settings control connected to the shared display choice.
+const themeDialog=document.querySelector('#dialog');new MutationObserver(()=>{const select=themeDialog.querySelector('#theme-select');if(select)select.value=appearance().theme||'light';}).observe(themeDialog,{childList:true});
+document.addEventListener('change',event=>{if(event.target.id==='theme-select')setAppearance({theme:event.target.value});},true);

@@ -1,4 +1,4 @@
-const CACHE = "avilog-shell-v7-navy-compact-app";
+const CACHE = "avilog-shell-v8-appearance-crew-e190";
 const SHELL = [
   "/",
   "/index.html",
@@ -9,6 +9,9 @@ const SHELL = [
   "/icon-512.png",
   "/manifest.webmanifest",
   "/lib/domain.js",
+  "/lib/appearance.js",
+  "/lib/crew-entry.js",
+  "/examples/e190-oooi.png",
   "/lib/parsers.js",
   "/lib/rules.js",
   "/lib/sample.js",
@@ -91,6 +94,11 @@ self.addEventListener("fetch", (e) => {
   const requestURL=new URL(e.request.url);
   if(requestURL.search)return;
   const pathname = requestURL.pathname;
+  // Cache public OCR runtime assets after their first successful online use.
+  // Model data itself is retained by Tesseract's IndexedDB cache.
+  if(/^\/vendor\/(tesseract|tesseract-core)\/[a-zA-Z0-9._-]+\.(js|wasm)$/.test(pathname)){
+    e.respondWith((async()=>{const cache=await caches.open('avilog-ocr-v1'),saved=await cache.match(e.request);if(saved)return saved;const response=await fetch(e.request);if(response.ok)e.waitUntil(cache.put(e.request,response.clone()).catch(()=>{}));return response;})());return;
+  }
   if(!SHELL.includes(pathname)&&pathname!=="/atpl/firebase-config.json"&&!/^\/atpl\/(media|banks)\//.test(pathname))return;
   if (/^\/atpl\/(media|banks)\//.test(pathname)) {
     e.respondWith((async () => {

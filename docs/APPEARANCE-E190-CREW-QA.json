@@ -1,0 +1,104 @@
+{
+  "date": "2026-10-21",
+  "baselineGitHubCommit": "2fa5d28fa01185576180e6ed4d8dc7f2050b67d8",
+  "scope": [
+    "Shared day/night including quiz settings and library; per-UID device preferences, retained offline",
+    "Compact desktop/tablet sidebar with retained collapsed rail",
+    "E190 selection, supplied ACARS OOOI sample, local screen OCR and manual preview",
+    "Inline crew suggestions, reuse by ID, new names saved with flight"
+  ],
+  "verification": {
+    "aggregate": {
+      "command": "node scripts/verify-workspace-all.cjs",
+      "exitCode": 0,
+      "stagesPassed": 14,
+      "unitPassed": 164,
+      "unitFailed": 0,
+      "log": "avilog-appearance-e190-all.log"
+    },
+    "focused": [
+      {
+        "command": "node scripts/verify-enhancements.cjs",
+        "exitCode": 0,
+        "engines": [
+          "Chromium",
+          "WebKit"
+        ],
+        "widths": [
+          390,
+          1024,
+          1440
+        ],
+        "log": "avilog-enhancements-final.log"
+      },
+      {
+        "command": "node scripts/verify-e190-photo.cjs",
+        "exitCode": 0,
+        "engines": [
+          "Chromium",
+          "WebKit"
+        ],
+        "actualUploadedPhoto": true,
+        "offlineReload": true,
+        "log": "avilog-e190-photo-offline-green.log"
+      },
+      {
+        "command": "node scripts/verify-e190-note.cjs",
+        "exitCode": 0,
+        "engines": [
+          "Chromium",
+          "WebKit"
+        ],
+        "originalNoteRetained": true,
+        "log": "avilog-e190-note-green.log"
+      },
+      {
+        "command": "node scripts/verify-workspace-ui.cjs",
+        "exitCode": 0,
+        "log": "avilog-appearance-main-final.log"
+      }
+    ],
+    "note": "After the aggregate run started, a narrow OCR-preview fix preserved existing notes with a separate warning; a final CSS fix restored today's calendar numeral contrast. Focused main UI and six enhancement browser cases were rerun on the final source, and the note-preview/save regression passed in both engines. The build regenerated equivalent SDK bundle artifacts; original pinned tracked SDK bytes were restored, with subsequent account/workspace browser and offline suites passing."
+  },
+  "review": {
+    "importantOutstanding": 0,
+    "addressed": [
+      "self pilot assignment preserved",
+      "Distinct same-name selected crew deduplicated by ID",
+      "Existing bank theme dropdown connected to shared preference",
+      "Old flight note preserved separately from OCR warning"
+    ]
+  },
+  "e190": {
+    "sampleClocksUTC": {
+      "out": "12:30",
+      "off": "13:07",
+      "on": "13:33",
+      "in": "13:37"
+    },
+    "confirmedAutomatically": false,
+    "dateSource": "Explicit OUT date input",
+    "ocrCorrections": "OUT/OUR and UTC suffix Z/2 are disclosed and reduce confidence to at most 60",
+    "identityRecognition": "Sample flight number and destination still require visual verification/manual correction",
+    "firstUseNeedsNetwork": "OCR runtime and English model download; successful recognition caches both for offline reopening",
+    "externalOCRService": false
+  },
+  "preserved": {
+    "sourceBankHTML": true,
+    "originalKeys": true,
+    "scoring": true,
+    "identities": true,
+    "figures": true,
+    "firebaseSDK": true,
+    "accountGuards": true,
+    "schemaAndCloudRules": true
+  },
+  "limitations": {
+    "physicalIPadTested": false,
+    "realGoogleOAuthRetested": false,
+    "displayPreferencesCloudSynced": false,
+    "displayPreferencesScope": "Per account on each device; not flight cloud schema",
+    "newProductionDeployment": false,
+    "railway": "Global build pause; no deployment retry during pause"
+  }
+}

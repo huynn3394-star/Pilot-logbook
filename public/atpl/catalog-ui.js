@@ -1,3 +1,4 @@
+import {applyAppearance} from '../lib/appearance.js';
 import {setupAccountUI} from './account-ui.js';
 import {getCatalog,enableOffline,bankStatus,downloadBank,downloadError,size} from './offline.js';
 const host=document.querySelector('#atpl-banks'),status=document.querySelector('#atpl-status');

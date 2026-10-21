@@ -40,11 +40,11 @@ const {execFileSync}=require('node:child_process'),{pathToFileURL}=require('node
     controlled=await page.evaluate(()=>new Promise(resolve=>{
      if(!navigator.serviceWorker.controller){resolve(false);return;}
      const channel=new MessageChannel(),timer=setTimeout(()=>{channel.port1.close();resolve(false);},250);
-     channel.port1.onmessage=event=>{clearTimeout(timer);channel.port1.close();resolve(event.data.version==='avilog-shell-v7-navy-compact-app');};
+     channel.port1.onmessage=event=>{clearTimeout(timer);channel.port1.close();resolve(event.data.version==='avilog-shell-v8-appearance-crew-e190');};
      navigator.serviceWorker.controller.postMessage({type:'avilog-shell-version'},[channel.port2]);
     }));if(controlled)break;await new Promise(resolve=>setTimeout(resolve,100));
    }assert.equal(controlled,true,'The actual controlling worker must acknowledge v7 before cutting the network');
-   const names=await page.evaluate(()=>caches.keys());assert.ok(names.includes('avilog-atpl-v1'));assert.ok(names.includes('avilog-shell-v7-navy-compact-app'));
+   const names=await page.evaluate(()=>caches.keys());assert.ok(names.includes('avilog-atpl-v1'));assert.ok(names.includes('avilog-shell-v8-appearance-crew-e190'));
    if(name==='chromium')await context.setOffline(true);else originUnavailable=true;await page.goto(origin);await page.locator('[data-workspace-account]').filter({hasText:'upgrade@example.test'}).waitFor({timeout:10000});
    assert.equal(await page.evaluate(()=>localStorage.getItem('atpl_account_v1:upgrade-alice:MB')),before.bank);
    await page.locator('.weather-group-heading').filter({hasText:'Danh sách hiện tại'}).waitFor();assert.equal(await page.getByRole('heading',{name:'Thời tiết',exact:true}).count(),1);await page.locator('[data-weather-station=VVTS]>summary').click();assert.match(await page.locator('[data-weather-station=VVTS]').innerText(),/CAVOK/);
@@ -53,7 +53,7 @@ const {execFileSync}=require('node:child_process'),{pathToFileURL}=require('node
    await page.locator('[data-action=study]').first().click();await page.evaluate(()=>{const button=document.createElement('button');button.dataset.action='jump';button.dataset.qid='1';document.body.append(button);button.click();button.remove();});
    const key=await page.evaluate(()=>Object.values(JSON.parse(document.getElementById('bank-data').textContent))[0].questions.find(q=>q.id===1).answer);await page.locator(`[data-action=answer][data-key="${key}"]`).click();
    const image=page.locator('[data-action=image],[data-action=source]').first();await image.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;});await image.click();await page.locator('#image-dialog img').evaluate(img=>img.decode());assert.ok(await page.locator('#image-dialog img').evaluate(img=>img.naturalWidth>500));
-   assert.deepEqual(errors,[]);console.log(name+': controlling v7 verified; v5 flat-data upgrade preserves account bookmark, MB and source image; cold main opens offline with provider disabled');
+   assert.deepEqual(errors,[]);console.log(name+': controlling v8 verified; v5 flat-data upgrade preserves account bookmark, MB and source image; cold main opens offline with provider disabled');
   }catch(error){console.error('UPGRADE',name,page.url(),(await page.locator('body').innerText()).slice(0,1500),errors);throw error;}
   finally{await context.close();await browser.close();}
  }}finally{await new Promise(r=>server.close(r));}
