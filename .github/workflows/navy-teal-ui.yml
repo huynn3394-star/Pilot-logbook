@@ -38,12 +38,18 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
       - name: Build account SDK
+        id: build
         run: npm run build:atpl-account
       - name: Unit regression suite
+        id: units
         run: npm test
+      # Preserve any failed unit outcome. Still collect independent UI diagnostics.
       - name: Install browser engines
+        id: browsers
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: npx playwright install --with-deps chromium webkit
       - name: Color contrast, real editor and offline shell
+        if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
         run: node scripts/verify-navy-teal.cjs
       - name: Save screenshots and test report
         if: always()
