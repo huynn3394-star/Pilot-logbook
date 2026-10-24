@@ -1,0 +1,163 @@
+/* AviLog Navy + Teal. Presentation only; load after style.css.
+   Navy, Compact dimensions, fields and all saved-status logic stay unchanged. */
+:root {
+  --accent: #0f766e;
+  --accent-soft: #e8f6f2;
+  --accent-line: #83bfb5;
+  --accent-contrast: #ffffff;
+  --accent-on-navy: #5eead4;
+  --quiet-surface: #f3f5f8;
+  --ui-muted: #52627a;
+  --ui-error: #b4233a;
+  --ui-error-soft: #fff1f3;
+}
+html[data-theme="dark"] {
+  --accent: #2dd4bf;
+  --accent-soft: #183e46;
+  --accent-line: #368c88;
+  --accent-contrast: #142744;
+  --quiet-surface: #243b5d;
+  --ui-muted: #bac9df;
+  --ui-error: #fda4af;
+  --ui-error-soft: #3a273b;
+}
+
+/* Main app: one accent for actions, selection and key values. */
+#app .btn.primary,
+#modal .btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+#app .btn.primary:hover,
+#modal .btn.primary:hover { box-shadow: 0 0 0 2px var(--accent-line); }
+#app .text-button,
+#modal .text-button,
+#app .metric-value,
+#app .crew-stats b { color: var(--accent); }
+#app .metric-value small { color: var(--ui-muted); }
+#app .metric-foot,
+#app .muted,
+#modal .muted { color: var(--ui-muted); }
+#app .bar-track>div { background: var(--accent); }
+#app .view-switch button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+#app .sidebar .nav button.active {
+  background: #ffffff0d;
+  color: var(--accent-on-navy);
+  box-shadow: inset 3px 0 0 var(--accent-on-navy);
+}
+#app .sidebar .nav button.active svg { color: inherit; }
+#app .sidebar .brandmark { color: var(--accent-on-navy); }
+#app .bottom-nav button.active {
+  background: var(--accent-soft);
+  color: var(--accent);
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+#app .bottom-nav button.active svg { color: inherit; }
+#app .bottom-nav button:not(.active) { color: var(--ui-muted); }
+#app .pill.green,
+#modal .pill.green {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+#app .pill.gray,
+#app .pill.amber,
+#modal .pill.gray,
+#modal .pill.amber {
+  color: var(--ui-muted);
+  background: var(--quiet-surface);
+  border-color: var(--line);
+}
+#app input[type="checkbox"],
+#modal input[type="checkbox"],
+#app input[type="radio"],
+#modal input[type="radio"] { accent-color: var(--accent); }
+#app :is(input, select, textarea):focus,
+#modal :is(input, select, textarea):focus { outline-color: var(--accent); }
+#app :is(button, a, summary):focus-visible,
+#modal :is(button, a, summary):focus-visible { outline-color: var(--accent); }
+#app .sidebar :is(button, a):focus-visible { outline-color: var(--accent-on-navy); }
+
+/* Flight editor: keep V13 Compact's grid, spacing and all six UTC fields. */
+#modal.flight-editor-modal {
+  --fe-accent: var(--accent);
+  --fe-muted: var(--ui-muted);
+}
+html[data-theme="dark"] #modal.flight-editor-modal {
+  --fe-accent: var(--accent);
+  --fe-muted: var(--ui-muted);
+}
+#modal .fe-save { color: var(--accent); }
+#modal .fe-back { color: var(--ink); }
+#modal .fe-tabs button[aria-selected="true"] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+#modal .fe-tabs button[aria-selected="false"] { color: var(--fe-muted); }
+#modal .fe-time-caption {
+  background: var(--fe-soft);
+  color: var(--fe-muted);
+}
+#modal .fe-time-cell [data-utc-clock] { color: var(--ink); }
+#modal .fe-main-fields [name="date"],
+#modal .fe-aircraft-fields [name="aircraft"],
+#modal .fe-operations select,
+#modal .fe-summary-grid strong { color: var(--accent); }
+#modal .fe-summary-grid>div { background: var(--fe-card); }
+#modal .fe-summary-grid>div:first-child,
+#modal .fe-summary-grid>div:nth-child(2) { background: var(--accent-soft); }
+#modal .fe-status {
+  color: var(--fe-muted);
+  background: transparent;
+}
+/* Only the existing protected original is FINAL; an unsaved checkbox is not. */
+#modal .flight-editor-form:has(.fe-protected) .fe-status { color: var(--accent); }
+#modal .fe-protected {
+  color: var(--ink);
+  background: var(--accent-soft);
+  border-color: var(--accent-line);
+}
+#modal .fe-autofill .btn,
+#modal .fe-review-button,
+#modal .fe-inline-button {
+  color: var(--accent);
+  border-color: var(--accent-line);
+  background: var(--fe-card);
+}
+#modal .fe-review-button small { color: var(--fe-muted); }
+#modal .fe-comparison-head { background: var(--fe-soft); }
+#modal .fe-comparison-row[data-scan-state="different"] {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+#modal .fe-comparison-row[data-scan-state="missing"] {
+  border-left-color: var(--fe-muted);
+  background: var(--fe-soft);
+}
+#modal .fe-comparison-row small { color: var(--fe-muted); }
+
+/* True errors/destructive actions are exceptions, never decorative statuses. */
+#app .error:not([hidden]),
+#modal .error:not([hidden]) {
+  color: var(--ui-error);
+  background: var(--ui-error-soft);
+  border-color: var(--ui-error);
+}
+#app .btn.danger,
+#modal .btn.danger { color: var(--ui-error); }
+
+/* Keep native accessibility behavior when the OS overrides application colors. */
+@media (forced-colors: active) {
+  #app .sidebar .nav button.active,
+  #app .bottom-nav button.active,
+  #modal .fe-tabs button[aria-selected="true"] {
+    color: Highlight;
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
