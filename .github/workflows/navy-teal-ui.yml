@@ -36,18 +36,29 @@ jobs:
           node-version: '24.12.0'
           cache: npm
       - name: Install locked dependencies
-        run: npm ci --ignore-scripts
+        run: |
+          mkdir -p test-results/navy-teal
+          npm ci --ignore-scripts > test-results/navy-teal/install.log 2>&1 || { tail -60 test-results/navy-teal/install.log; exit 1; }
+          tail -18 test-results/navy-teal/install.log
       - name: Build account SDK
         id: build
         run: npm run build:atpl-account
       - name: Unit regression suite
         id: units
-        run: npm test
-      # Preserve any failed unit outcome. Still collect independent UI diagnostics.
+        shell: bash
+        run: |
+          code=0
+          npm test > test-results/navy-teal/unit.log 2>&1 || code=$?
+          grep -E '^[✖×]|^not ok|^ℹ (tests|pass|fail)|^# (tests|pass|fail)' test-results/navy-teal/unit.log || true
+          tail -14 test-results/navy-teal/unit.log
+          exit "$code"
+      # Failed units remain failed; browser diagnostics still run independently.
       - name: Install browser engines
         id: browsers
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: npx playwright install --with-deps chromium webkit
+        run: |
+          npx playwright install --with-deps chromium webkit > test-results/navy-teal/browser-install.log 2>&1 || { tail -60 test-results/navy-teal/browser-install.log; exit 1; }
+          tail -5 test-results/navy-teal/browser-install.log
       - name: Color contrast, real editor and offline shell
         if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
         run: node scripts/verify-navy-teal.cjs

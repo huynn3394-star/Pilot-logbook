@@ -51,7 +51,6 @@ html[data-theme="dark"] {
   box-shadow: inset 3px 0 0 var(--accent-on-navy);
 }
 #app .sidebar .nav button.active svg { color: inherit; }
-#app .sidebar .brandmark { color: var(--accent-on-navy); }
 #app .bottom-nav button.active {
   background: var(--accent-soft);
   color: var(--accent);

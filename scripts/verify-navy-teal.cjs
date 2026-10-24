@@ -22,6 +22,12 @@ function contrast(a, b) {
   await fs.mkdir(out, { recursive: true });
   const report = { scope: 'Real local app and service worker, fresh guest contexts; no production account or physical iOS test.', checks: [], errors: [] };
   let server;
+  async function stopServer() {
+    if (!server) return;
+    const closing = server;
+    server = null;
+    await new Promise(resolve => { closing.close(resolve); closing.closeAllConnections(); });
+  }
   try {
     process.env.ATPL_ACCOUNTS_ENABLED = 'false';
     process.env.AVILOG_WORKSPACE_SYNC_ENABLED = 'false';
@@ -101,11 +107,12 @@ function contrast(a, b) {
           assert.deepEqual(pageErrors, [], 'No browser runtime errors');
           await context.close();
         }
-        // Real installed shell serves the accent stylesheet offline and leaves user data intact.
+        // The final WebKit test stops the local server instead of using its broken
+        // Playwright offline flag. An uncached API request proves network failure.
         const offlineContext = await browser.newContext();
         const offlinePage = await offlineContext.newPage();
         await offlinePage.goto(origin, { waitUntil: 'domcontentloaded' });
-        await offlinePage.waitForFunction(() => !!navigator.serviceWorker.controller, { timeout: 30000 });
+        await offlinePage.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 30000 });
         const cacheState = await offlinePage.evaluate(async () => {
           const keys = await caches.keys();
           const shell = keys.find(k => k.startsWith('avilog-shell-') && k.includes('navy-teal'));
@@ -114,22 +121,27 @@ function contrast(a, b) {
           return { shell, cached: !!response };
         });
         assert(cacheState.cached, 'New stylesheet must be in the active offline shell');
-        await offlineContext.setOffline(true);
+        if (name === 'webkit') await stopServer();
+        else await offlineContext.setOffline(true);
+        const networkUnavailable = await offlinePage.evaluate(async () => {
+          try { await fetch('/api/health', { cache: 'no-store', signal: AbortSignal.timeout(5000) }); return false; }
+          catch { return true; }
+        });
+        assert(networkUnavailable, 'Uncached API must be unreachable in the offline test');
         await offlinePage.reload({ waitUntil: 'domcontentloaded' });
         assert.equal(await offlinePage.evaluate(() => localStorage.getItem('theme-test-sentinel')), 'keep');
         assert.equal(await offlinePage.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()), '#0f766e');
-        report.checks.push({ name: `${name} offline stylesheet and local data`, cacheState });
+        report.checks.push({ name: `${name} offline stylesheet and local data`, method: name === 'webkit' ? 'local server stopped, uncached API rejected' : 'browser offline flag, uncached API rejected', cacheState });
         await offlineContext.close();
       } finally { await browser.close(); }
     }
-    report.passed = report.checks.length;
-    console.log(JSON.stringify(report, null, 2));
   } catch (error) {
     report.errors.push(error.stack || String(error));
-    console.error(error.stack || error);
     process.exitCode = 1;
   } finally {
+    report.passed = report.checks.length;
     await fs.writeFile(path.join(out, 'QA.json'), JSON.stringify(report, null, 2));
-    if (server) await new Promise(resolve => server.close(resolve));
+    console.log(JSON.stringify({ passed: report.passed, checks: report.checks.map(c => c.name), errors: report.errors }, null, 2));
+    await stopServer();
   }
 })();
