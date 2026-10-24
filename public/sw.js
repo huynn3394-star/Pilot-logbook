@@ -1,5 +1,5 @@
 const BUNDLE_BUILD = "da75c65e901d";
-const CACHE = "avilog-shell-v14-fast-entry" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
+const CACHE = "avilog-shell-v14-navy-teal" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
 const SHELL = [
   "/workspace/flight-conflict.js",
   "/workspace/capabilities.js",
@@ -7,6 +7,7 @@ const SHELL = [
   "/index.html",
   "/app.js",
   "/style.css",
+  "/navy-teal.css",
   "/icon.svg",
   "/icon-192.png",
   "/icon-512.png",
