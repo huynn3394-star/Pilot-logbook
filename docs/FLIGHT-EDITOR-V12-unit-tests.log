@@ -1,0 +1,1210 @@
+
+> avilog-preview@0.1.0 test
+> node --test tests/*.test.js
+
+TAP version 13
+# Subtest: findMCDUScreen finds a green-text dark display, not the surrounding frame
+ok 1 - findMCDUScreen finds a green-text dark display, not the surrounding frame
+  ---
+  duration_ms: 26.785826
+  type: 'test'
+  ...
+# Subtest: no green text or incomplete region never produces an imaginary screen
+ok 2 - no green text or incomplete region never produces an imaginary screen
+  ---
+  duration_ms: 22.781483
+  type: 'test'
+  ...
+# Subtest: A320 MCDU image fixture: DEP/DEST not confused with FLT ID/DATE and headings
+ok 3 - A320 MCDU image fixture: DEP/DEST not confused with FLT ID/DATE and headings
+  ---
+  duration_ms: 6.579762
+  type: 'test'
+  ...
+# Subtest: A320 avoids header-only and missing route; never invents airport codes
+ok 4 - A320 avoids header-only and missing route; never invents airport codes
+  ---
+  duration_ms: 0.585243
+  type: 'test'
+  ...
+# Subtest: A320 detects actual duration discrepancies without silently changing times
+ok 5 - A320 detects actual duration discrepancies without silently changing times
+  ---
+  duration_ms: 1.524609
+  type: 'test'
+  ...
+# Subtest: A320 rejects invalid OUT and prompts manual review rather than guessing 26:00
+ok 6 - A320 rejects invalid OUT and prompts manual review rather than guessing 26:00
+  ---
+  duration_ms: 0.28513
+  type: 'test'
+  ...
+# Subtest: A320 time OCR O/0 and I/1 corrections are flagged and shown as draft
+ok 7 - A320 time OCR O/0 and I/1 corrections are flagged and shown as draft
+  ---
+  duration_ms: 0.398181
+  type: 'test'
+  ...
+# Subtest: A320 contradictory duplicate timestamps need manual review
+ok 8 - A320 contradictory duplicate timestamps need manual review
+  ---
+  duration_ms: 0.250969
+  type: 'test'
+  ...
+# Subtest: A320 preserves midnight rollover and matches both displayed durations
+ok 9 - A320 preserves midnight rollover and matches both displayed durations
+  ---
+  duration_ms: 0.328325
+  type: 'test'
+  ...
+# Subtest: A320 existing sample remains valid and yields no warnings
+ok 10 - A320 existing sample remains valid and yields no warnings
+  ---
+  duration_ms: 0.256487
+  type: 'test'
+  ...
+# Subtest: A320 rejects unrelated cockpit menu words as airport route
+ok 11 - A320 rejects unrelated cockpit menu words as airport route
+  ---
+  duration_ms: 0.401546
+  type: 'test'
+  ...
+# Subtest: authentication never uploads guest storage; declining import leaves all data untouched
+ok 12 - authentication never uploads guest storage; declining import leaves all data untouched
+  ---
+  duration_ms: 8.335481
+  type: 'test'
+  ...
+# Subtest: partial history upload remains pending, then all acknowledged reports can show synced
+ok 13 - partial history upload remains pending, then all acknowledged reports can show synced
+  ---
+  duration_ms: 16.52098
+  type: 'test'
+  ...
+# Subtest: quota/auth failures and identity switches cannot claim sync or commit stale acknowledgements
+ok 14 - quota/auth failures and identity switches cannot claim sync or commit stale acknowledgements
+  ---
+  duration_ms: 2.784149
+  type: 'test'
+  ...
+# Subtest: reviewed import saves backup first and malformed imports never partially overwrite the account
+ok 15 - reviewed import saves backup first and malformed imports never partially overwrite the account
+  ---
+  duration_ms: 8.380399
+  type: 'test'
+  ...
+# Subtest: an unsaved engine answer prevents a false synced label even if older durable state syncs
+ok 16 - an unsaved engine answer prevents a false synced label even if older durable state syncs
+  ---
+  duration_ms: 0.930694
+  type: 'test'
+  ...
+# Subtest: an invalid refresh token stops before opening a cloud transport and requires Google sign-in again
+ok 17 - an invalid refresh token stops before opening a cloud transport and requires Google sign-in again
+  ---
+  duration_ms: 0.538913
+  type: 'test'
+  ...
+# Subtest: cloud epoch recovery backs up before confirmation, preserves a declined queue, and replaces only on approval
+ok 18 - cloud epoch recovery backs up before confirmation, preserves a declined queue, and replaces only on approval
+  ---
+  duration_ms: 1.218538
+  type: 'test'
+  ...
+# Subtest: account writes are atomic and cannot affect guest or another UID
+ok 19 - account writes are atomic and cannot affect guest or another UID
+  ---
+  duration_ms: 6.885294
+  type: 'test'
+  ...
+# Subtest: ack commits retain intervening durable answer and pending session ID survives quota failure
+ok 20 - ack commits retain intervening durable answer and pending session ID survives quota failure
+  ---
+  duration_ms: 2.43343
+  type: 'test'
+  ...
+# Subtest: unsupported Web Locks prevents account writes while raw guest storage remains usable
+ok 21 - unsupported Web Locks prevents account writes while raw guest storage remains usable
+  ---
+  duration_ms: 0.760547
+  type: 'test'
+  ...
+# Subtest: identity generations reject callbacks from old account and broadcast external changes
+ok 22 - identity generations reject callbacks from old account and broadcast external changes
+  ---
+  duration_ms: 0.745614
+  type: 'test'
+  ...
+# Subtest: an active engine can save another answer after remote acknowledgement without losing merged attempts or jumping sessions
+ok 23 - an active engine can save another answer after remote acknowledgement without losing merged attempts or jumping sessions
+  ---
+  duration_ms: 2.234169
+  type: 'test'
+  ...
+# Subtest: sync metadata writes do not recursively schedule new local changes
+ok 24 - sync metadata writes do not recursively schedule new local changes
+  ---
+  duration_ms: 0.680516
+  type: 'test'
+  ...
+# Subtest: resuming a server-selected exam retains its UUID instead of forking the answer into a different session
+ok 25 - resuming a server-selected exam retains its UUID instead of forking the answer into a different session
+  ---
+  duration_ms: 1.321964
+  type: 'test'
+  ...
+# Subtest: explicit guest choice survives provider-disabled logout and suppresses a later cached Google auto-login
+ok 26 - explicit guest choice survives provider-disabled logout and suppresses a later cached Google auto-login
+  ---
+  duration_ms: 0.189445
+  type: 'test'
+  ...
+# Subtest: an explicit Google login intent survives redirect while cancellation restores the guest choice
+ok 27 - an explicit Google login intent survives redirect while cancellation restores the guest choice
+  ---
+  duration_ms: 0.431
+  type: 'test'
+  ...
+# Subtest: a fresh device adopts an existing cloud reset epoch, while queued old-epoch work remains exportable
+ok 28 - a fresh device adopts an existing cloud reset epoch, while queued old-epoch work remains exportable
+  ---
+  duration_ms: 2.274651
+  type: 'test'
+  ...
+# node:internal/modules/package_json_reader:256
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'firebase' imported from /mnt/data/avilog_flight_ui_work/AviLog/public/atpl/firebase-client.js
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)
+#     at packageResolve (node:internal/modules/esm/resolve:768:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:854:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:984:11)
+#     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:137:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.16.0
+# Subtest: tests/atpl-auth-device.test.js
+not ok 5 - tests/atpl-auth-device.test.js
+  ---
+  duration_ms: 40.936678
+  type: 'test'
+  location: '/mnt/data/avilog_flight_ui_work/AviLog/tests/atpl-auth-device.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: OAuth helper requests always bypass the worker and private callbacks cannot enter its caches
+ok 30 - OAuth helper requests always bypass the worker and private callbacks cannot enter its caches
+  ---
+  duration_ms: 28.497078
+  type: 'test'
+  ...
+# Subtest: offline reload uses the downloaded immutable bank but does not hide an actual HTTP failure
+ok 31 - offline reload uses the downloaded immutable bank but does not hide an actual HTTP failure
+  ---
+  duration_ms: 4.716813
+  type: 'test'
+  ...
+# Subtest: all local account modules precache without needing a reachable provider config
+ok 32 - all local account modules precache without needing a reachable provider config
+  ---
+  duration_ms: 2.261741
+  type: 'test'
+  ...
+# Subtest: legacy merge takes conservative maxima, unions reports/bookmarks and preserves the account session
+ok 33 - legacy merge takes conservative maxima, unions reports/bookmarks and preserves the account session
+  ---
+  duration_ms: 3.148529
+  type: 'test'
+  ...
+# Subtest: same legacy state has one identity regardless of object order or export timestamp
+ok 34 - same legacy state has one identity regardless of object order or export timestamp
+  ---
+  duration_ms: 8.313557
+  type: 'test'
+  ...
+# Subtest: legacy uplift is not counted again as new offline attempts during batch preparation
+ok 35 - legacy uplift is not counted again as new offline attempts during batch preparation
+  ---
+  duration_ms: 0.801108
+  type: 'test'
+  ...
+# Subtest: an import made while a batch is in flight remains pending after its ack
+ok 36 - an import made while a batch is in flight remains pending after its ack
+  ---
+  duration_ms: 1.14671
+  type: 'test'
+  ...
+# Subtest: a backup for another bank or previous bank identity cannot change account state
+ok 37 - a backup for another bank or previous bank identity cannot change account state
+  ---
+  duration_ms: 0.387364
+  type: 'test'
+  ...
+# Subtest: legacy import uses the wrong membership from the same snapshot as its chosen last answer
+ok 38 - legacy import uses the wrong membership from the same snapshot as its chosen last answer
+  ---
+  duration_ms: 0.162005
+  type: 'test'
+  ...
+# Subtest: rejects malformed counters, unknown IDs, wrong source keys and oversized sessions without changing inputs
+ok 39 - rejects malformed counters, unknown IDs, wrong source keys and oversized sessions without changing inputs
+  ---
+  duration_ms: 6.761728
+  type: 'test'
+  ...
+# Subtest: adds independent offline deltas and uses server acceptance order despite device clock skew
+ok 40 - adds independent offline deltas and uses server acceptance order despite device clock skew
+  ---
+  duration_ms: 0.858374
+  type: 'test'
+  ...
+# Subtest: only changed memberships are applied and explicit removal survives stale unchanged sets
+ok 41 - only changed memberships are applied and explicit removal survives stale unchanged sets
+  ---
+  duration_ms: 0.345881
+  type: 'test'
+  ...
+# Subtest: a prepared in-flight batch stays immutable while local work continues
+ok 42 - a prepared in-flight batch stays immutable while local work continues
+  ---
+  duration_ms: 0.446704
+  type: 'test'
+  ...
+# Subtest: acknowledgement rebases only the newer local tail and retains pending history
+ok 43 - acknowledgement rebases only the newer local tail and retains pending history
+  ---
+  duration_ms: 0.756691
+  type: 'test'
+  ...
+# Subtest: epoch conflict preserves offline work for export
+ok 44 - epoch conflict preserves offline work for export
+  ---
+  duration_ms: 0.441185
+  type: 'test'
+  ...
+# Subtest: independent exam sessions survive and only changes to a shared session answer are merged
+ok 45 - independent exam sessions survive and only changes to a shared session answer are merged
+  ---
+  duration_ms: 0.653746
+  type: 'test'
+  ...
+# Subtest: completed report hashes are stable across object ordering and bank-specific
+ok 46 - completed report hashes are stable across object ordering and bank-specific
+  ---
+  duration_ms: 8.025703
+  type: 'test'
+  ...
+# Subtest: unacknowledged report batches survive core acknowledgement and are bounded
+ok 47 - unacknowledged report batches survive core acknowledgement and are bounded
+  ---
+  duration_ms: 3.830567
+  type: 'test'
+  ...
+# Subtest: ATPL is reachable inside logbook and exposes every original bank plus separate MB reference
+ok 48 - ATPL is reachable inside logbook and exposes every original bank plus separate MB reference
+  ---
+  duration_ms: 37.323128
+  type: 'test'
+  ...
+# Subtest: served banks retain full original question payloads and scoring engine
+ok 49 - served banks retain full original question payloads and scoring engine
+  ---
+  duration_ms: 456.904126
+  type: 'test'
+  ...
+# Subtest: each offline manifest includes its bank, source assets and valid immutable bytes
+ok 50 - each offline manifest includes its bank, source assets and valid immutable bytes
+  ---
+  duration_ms: 229.299894
+  type: 'test'
+  ...
+# Subtest: account packaging identities and local-only bootstrap cover every original valid source question
+ok 51 - account packaging identities and local-only bootstrap cover every original valid source question
+  ---
+  duration_ms: 319.12956
+  type: 'test'
+  ...
+# Subtest: existing self pilot assignment remains self and never creates a crew profile
+ok 52 - existing self pilot assignment remains self and never creates a crew profile
+  ---
+  duration_ms: 1.330577
+  type: 'test'
+  ...
+# Subtest: typed crew reuses normalized names and resolves new people without mutating source state
+ok 53 - typed crew reuses normalized names and resolves new people without mutating source state
+  ---
+  duration_ms: 2.842297
+  type: 'test'
+  ...
+# Subtest: same named distinct people require explicit profile selection and stale IDs cannot be rebound
+ok 54 - same named distinct people require explicit profile selection and stale IDs cannot be rebound
+  ---
+  duration_ms: 0.717482
+  type: 'test'
+  ...
+# Subtest: invalid crew submission leaves no partial new profile and cannot use one person as both pilots
+ok 55 - invalid crew submission leaves no partial new profile and cannot use one person as both pilots
+  ---
+  duration_ms: 0.334855
+  type: 'test'
+  ...
+# Subtest: overnight 0343 UTC crosses date and is 5:28
+ok 56 - overnight 0343 UTC crosses date and is 5:28
+  ---
+  duration_ms: 1.265118
+  type: 'test'
+  ...
+# Subtest: A320 AOC sample and independent durations
+ok 57 - A320 AOC sample and independent durations
+  ---
+  duration_ms: 3.260187
+  type: 'test'
+  ...
+# Subtest: invalid clocks and impossible date rejected
+ok 58 - invalid clocks and impossible date rejected
+  ---
+  duration_ms: 0.584631
+  type: 'test'
+  ...
+# Subtest: roster merge deduplicates, updates route, never overwrites Actual
+ok 59 - roster merge deduplicates, updates route, never overwrites Actual
+  ---
+  duration_ms: 1.534434
+  type: 'test'
+  ...
+# Subtest: roster date carry and normalized source format
+ok 60 - roster date carry and normalized source format
+  ---
+  duration_ms: 0.653075
+  type: 'test'
+  ...
+# Subtest: unknown format and unsupported aircraft require review
+ok 61 - unknown format and unsupported aircraft require review
+  ---
+  duration_ms: 0.215475
+  type: 'test'
+  ...
+# Subtest: statistics use only confirmed actual and separate PF/PM and night
+ok 62 - statistics use only confirmed actual and separate PF/PM and night
+  ---
+  duration_ms: 0.406083
+  type: 'test'
+  ...
+# Subtest: FTL unconfigured is unknown; configured rules expose version/source
+ok 63 - FTL unconfigured is unknown; configured rules expose version/source
+  ---
+  duration_ms: 0.263347
+  type: 'test'
+  ...
+# Subtest: backup invalid shape rejected and confirmed data protected
+ok 64 - backup invalid shape rejected and confirmed data protected
+  ---
+  duration_ms: 1.402936
+  type: 'test'
+  ...
+# Subtest: CSV untrusted strings cannot execute formulas
+ok 65 - CSV untrusted strings cannot execute formulas
+  ---
+  duration_ms: 0.585463
+  type: 'test'
+  ...
+# Subtest: confirmed route, aircraft and source survive roster schedule changes
+ok 66 - confirmed route, aircraft and source survive roster schedule changes
+  ---
+  duration_ms: 0.37788
+  type: 'test'
+  ...
+# Subtest: backup rejects bad crew arrays, duplicate IDs and collision with workspace
+ok 67 - backup rejects bad crew arrays, duplicate IDs and collision with workspace
+  ---
+  duration_ms: 0.604963
+  type: 'test'
+  ...
+# Subtest: deliberate duty exclusion and negative rest stay visible
+ok 68 - deliberate duty exclusion and negative rest stay visible
+  ---
+  duration_ms: 0.447635
+  type: 'test'
+  ...
+# Subtest: flight and duty removal are recoverable
+ok 69 - flight and duty removal are recoverable
+  ---
+  duration_ms: 0.647987
+  type: 'test'
+  ...
+# Subtest: OCR flight number handles O/0 confusion with review confidence
+ok 70 - OCR flight number handles O/0 confusion with review confidence
+  ---
+  duration_ms: 0.621087
+  type: 'test'
+  ...
+# Subtest: E190 screen OCR Z/2 and OUT/OUR confusions remain flagged for review
+ok 71 - E190 screen OCR Z/2 and OUT/OUR confusions remain flagged for review
+  ---
+  duration_ms: 4.444844
+  type: 'test'
+  ...
+# Subtest: E190 paired OOOI columns use event labels, not screen UTC or block duration
+ok 72 - E190 paired OOOI columns use event labels, not screen UTC or block duration
+  ---
+  duration_ms: 0.46392
+  type: 'test'
+  ...
+# Subtest: E190 inline labels retain midnight rollover and generic flight number
+ok 73 - E190 inline labels retain midnight rollover and generic flight number
+  ---
+  duration_ms: 0.294243
+  type: 'test'
+  ...
+# Subtest: E190 conflicting duplicate labels and unclear paired rows require manual review
+ok 74 - E190 conflicting duplicate labels and unclear paired rows require manual review
+  ---
+  duration_ms: 0.657833
+  type: 'test'
+  ...
+# Subtest: runtime config defaults disabled, rejects malformed origin/project and cannot expose arbitrary secrets
+ok 75 - runtime config defaults disabled, rejects malformed origin/project and cannot expose arbitrary secrets
+  ---
+  duration_ms: 41.343481
+  type: 'test'
+  ...
+# Subtest: auth GET/POST proxy is fixed, no-store and same-origin framed while ordinary routes stay DENY
+ok 76 - auth GET/POST proxy is fixed, no-store and same-origin framed while ordinary routes stay DENY
+  ---
+  duration_ms: 25.422391
+  type: 'test'
+  ...
+# Subtest: oversized callback bodies/upstream responses, bad redirects and timeout are bounded
+ok 77 - oversized callback bodies/upstream responses, bad redirects and timeout are bounded
+  ---
+  duration_ms: 28.788898
+  type: 'test'
+  ...
+# Subtest: editor summary uses block, not airborne, for existing PIC/SIC and day/night fields
+ok 78 - editor summary uses block, not airborne, for existing PIC/SIC and day/night fields
+  ---
+  duration_ms: 17.780737
+  type: 'test'
+  ...
+# Subtest: editor summary requires dates for midnight crossings and never turns missing times into zero totals
+ok 79 - editor summary requires dates for midnight crossings and never turns missing times into zero totals
+  ---
+  duration_ms: 0.668999
+  type: 'test'
+  ...
+# Subtest: editor renders one input for each existing field and three accessible tabs without changing the flight
+ok 80 - editor renders one input for each existing field and three accessible tabs without changing the flight
+  ---
+  duration_ms: 2.336163
+  type: 'test'
+  ...
+# Subtest: editor escapes notes, OCR warnings, identities and evidence, and never confirms a scan automatically
+ok 81 - editor escapes notes, OCR warnings, identities and evidence, and never confirms a scan automatically
+  ---
+  duration_ms: 0.612053
+  type: 'test'
+  ...
+# Subtest: new editor module is included in the offline shell while private cache bypasses remain
+ok 82 - new editor module is included in the offline shell while private cache bypasses remain
+  ---
+  duration_ms: 0.439914
+  type: 'test'
+  ...
+# Subtest: weather validates, caches, marks provider and no-data
+ok 83 - weather validates, caches, marks provider and no-data
+  ---
+  duration_ms: 1.563308
+  type: 'test'
+  ...
+# Subtest: server health, MIME, traversal, station validation
+ok 84 - server health, MIME, traversal, station validation
+  ---
+  duration_ms: 42.844525
+  type: 'test'
+  ...
+# Subtest: numeric clocks use 24h UTC and midnight is zero, without AM/PM
+ok 85 - numeric clocks use 24h UTC and midnight is zero, without AM/PM
+  ---
+  duration_ms: 1.627645
+  type: 'test'
+  ...
+# Subtest: invalid clock forms never roll into another day
+ok 86 - invalid clock forms never roll into another day
+  ---
+  duration_ms: 0.400284
+  type: 'test'
+  ...
+# Subtest: blank clocks remain absent even when a default date is displayed
+ok 87 - blank clocks remain absent even when a default date is displayed
+  ---
+  duration_ms: 0.521166
+  type: 'test'
+  ...
+# Subtest: timestamps are built as UTC and retain unchanged historical precision
+ok 88 - timestamps are built as UTC and retain unchanged historical precision
+  ---
+  duration_ms: 0.143546
+  type: 'test'
+  ...
+# Subtest: today default takes the device calendar date rather than demo selection
+ok 89 - today default takes the device calendar date rather than demo selection
+  ---
+  duration_ms: 0.270588
+  type: 'test'
+  ...
+# Subtest: existing airport order remains available before assigning groups, without rewriting saved settings
+ok 90 - existing airport order remains available before assigning groups, without rewriting saved settings
+  ---
+  duration_ms: 1.808247
+  type: 'test'
+  ...
+# Subtest: group and station order determine unique fetch list while duplicate membership stays in each group
+ok 91 - group and station order determine unique fetch list while duplicate membership stays in each group
+  ---
+  duration_ms: 1.353131
+  type: 'test'
+  ...
+# Subtest: invalid, duplicate, oversized and contradictory group preferences cannot enter synced records
+ok 92 - invalid, duplicate, oversized and contradictory group preferences cannot enter synced records
+  ---
+  duration_ms: 1.639672
+  type: 'test'
+  ...
+# Subtest: group edits merge with reminders; concurrent group edits conflict instead of losing a list
+ok 93 - group edits merge with reminders; concurrent group edits conflict instead of losing a list
+  ---
+  duration_ms: 1.488695
+  type: 'test'
+  ...
+# Subtest: primary preserves full amended multiline TAF and reuses one authenticated feed for multiple airports
+ok 94 - primary preserves full amended multiline TAF and reuses one authenticated feed for multiple airports
+  ---
+  duration_ms: 30.13614
+  type: 'test'
+  ...
+# Subtest: expired primary session is renewed once and does not produce a login page as a weather report
+ok 95 - expired primary session is renewed once and does not produce a login page as a weather report
+  ---
+  duration_ms: 3.198944
+  type: 'test'
+  ...
+# Subtest: fallback fills missing product without replacing primary METAR or fabricating its provenance
+ok 96 - fallback fills missing product without replacing primary METAR or fabricating its provenance
+  ---
+  duration_ms: 0.972446
+  type: 'test'
+  ...
+# Subtest: old primary METAR and expired TAF yield current fallback even when fetched just now
+ok 97 - old primary METAR and expired TAF yield current fallback even when fetched just now
+  ---
+  duration_ms: 0.505583
+  type: 'test'
+  ...
+# Subtest: provider failure cannot erase a remaining primary product, and secrets never appear in returned errors
+ok 98 - provider failure cannot erase a remaining primary product, and secrets never appear in returned errors
+  ---
+  duration_ms: 0.373753
+  type: 'test'
+  ...
+# Subtest: a newer SPECI takes precedence over an earlier METAR for the same station
+ok 99 - a newer SPECI takes precedence over an earlier METAR for the same station
+  ---
+  duration_ms: 1.796239
+  type: 'test'
+  ...
+# Subtest: implicit primary provenance never labels a primary bulletin as NOAA
+ok 100 - implicit primary provenance never labels a primary bulletin as NOAA
+  ---
+  duration_ms: 0.313723
+  type: 'test'
+  ...
+# Subtest: equal-time COR/AMD supersedes original independent of feed order
+ok 101 - equal-time COR/AMD supersedes original independent of feed order
+  ---
+  duration_ms: 1.904472
+  type: 'test'
+  ...
+# Subtest: server partial refresh retains last TAF with original source and retrieval time
+ok 102 - server partial refresh retains last TAF with original source and retrieval time
+  ---
+  duration_ms: 0.907318
+  type: 'test'
+  ...
+# fatal: not a git repository (or any of the parent directories): .git
+# Subtest: v4 rejects extended preferences without acknowledging pending edits; v5 replays the original reminder edit and keeps watchlist
+not ok 103 - v4 rejects extended preferences without acknowledging pending edits; v5 replays the original reminder edit and keeps watchlist
+  ---
+  duration_ms: 8.174278
+  type: 'test'
+  location: '/mnt/data/avilog_flight_ui_work/AviLog/tests/weather-upgrade.test.js:4:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Command failed: git show 15bb922:public/workspace/schema.js
+    fatal: not a git repository (or any of the parent directories): .git
+    
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    genericNodeError (node:internal/errors:983:15)
+    wrappedFn (node:internal/errors:537:14)
+    checkExecSyncError (node:child_process:882:11)
+    execFileSync (node:child_process:918:15)
+    TestContext.<anonymous> (file:///mnt/data/avilog_flight_ui_work/AviLog/tests/weather-upgrade.test.js:6:13)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+  ...
+# fatal: not a git repository (or any of the parent directories): .git
+# Subtest: v5 requires reload for grouped preferences while v6 still accepts flat v5 data
+not ok 104 - v5 requires reload for grouped preferences while v6 still accepts flat v5 data
+  ---
+  duration_ms: 4.454598
+  type: 'test'
+  location: '/mnt/data/avilog_flight_ui_work/AviLog/tests/weather-upgrade.test.js:16:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Command failed: git show 5a47d5a:public/workspace/schema.js
+    fatal: not a git repository (or any of the parent directories): .git
+    
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    genericNodeError (node:internal/errors:983:15)
+    wrappedFn (node:internal/errors:537:14)
+    checkExecSyncError (node:child_process:882:11)
+    execFileSync (node:child_process:918:15)
+    TestContext.<anonymous> (file:///mnt/data/avilog_flight_ui_work/AviLog/tests/weather-upgrade.test.js:18:13)
+    async Test.run (node:internal/test_runner/test:1054:7)
+    async Test.processPendingSubtests (node:internal/test_runner/test:744:7)
+  ...
+# Subtest: watchlist normalizes supported IATA, rejects bad input and duplicate airports without mutating caller
+ok 105 - watchlist normalizes supported IATA, rejects bad input and duplicate airports without mutating caller
+  ---
+  duration_ms: 1.581966
+  type: 'test'
+  ...
+# Subtest: cached full reports reopen offline for the same UID while another UID starts empty
+ok 106 - cached full reports reopen offline for the same UID while another UID starts empty
+  ---
+  duration_ms: 3.929015
+  type: 'test'
+  ...
+# Subtest: late replies for a removed airport or switched account cannot return it to the screen or write the new account cache
+ok 107 - late replies for a removed airport or switched account cannot return it to the screen or write the new account cache
+  ---
+  duration_ms: 0.456128
+  type: 'test'
+  ...
+# Subtest: cache quota failure never reports a newly fetched report as durable offline
+ok 108 - cache quota failure never reports a newly fetched report as durable offline
+  ---
+  duration_ms: 0.519373
+  type: 'test'
+  ...
+# Subtest: partial refresh retains each saved product with its own source, retrieval time and stale label
+ok 109 - partial refresh retains each saved product with its own source, retrieval time and stale label
+  ---
+  duration_ms: 1.004615
+  type: 'test'
+  ...
+# Subtest: cached bulletin dates remain anchored to original retrieval after an offline month
+ok 110 - cached bulletin dates remain anchored to original retrieval after an offline month
+  ---
+  duration_ms: 1.304548
+  type: 'test'
+  ...
+# Subtest: workspace flags cannot disable existing ATPL or enable evidence without matching project
+ok 111 - workspace flags cannot disable existing ATPL or enable evidence without matching project
+  ---
+  duration_ms: 1.308133
+  type: 'test'
+  ...
+# Subtest: emulator Storage is fixed localhost and never accepted on production origin
+ok 112 - emulator Storage is fixed localhost and never accepted on production origin
+  ---
+  duration_ms: 0.70927
+  type: 'test'
+  ...
+# Subtest: bank listener and cached UID guards observe main account logout and switching
+ok 113 - bank listener and cached UID guards observe main account logout and switching
+  ---
+  duration_ms: 3.258444
+  type: 'test'
+  ...
+# Subtest: disabled workspace transport cannot turn a remembered UID into cloud authorization
+not ok 114 - disabled workspace transport cannot turn a remembered UID into cloud authorization
+  ---
+  duration_ms: 8.067718
+  type: 'test'
+  location: '/mnt/data/avilog_flight_ui_work/AviLog/tests/workspace-account.test.js:24:1'
+  failureType: 'testCodeFailure'
+  error: "Cannot find package 'firebase' imported from /mnt/data/avilog_flight_ui_work/AviLog/public/atpl/firebase-client.js"
+  code: 'ERR_MODULE_NOT_FOUND'
+  stack: |-
+    Object.getPackageJSONURL (node:internal/modules/package_json_reader:256:9)
+    packageResolve (node:internal/modules/esm/resolve:768:81)
+    moduleResolve (node:internal/modules/esm/resolve:854:18)
+    defaultResolve (node:internal/modules/esm/resolve:984:11)
+    ModuleLoader.defaultResolve (node:internal/modules/esm/loader:780:12)
+    #cachedDefaultResolve (node:internal/modules/esm/loader:704:25)
+    ModuleLoader.resolve (node:internal/modules/esm/loader:687:38)
+    ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:305:38)
+    ModuleJob._link (node:internal/modules/esm/module_job:137:49)
+  ...
+# Subtest: fixed capture survives live edits; self-contained multipart hashes restore to authenticated target UID
+ok 115 - fixed capture survives live edits; self-contained multipart hashes restore to authenticated target UID
+  ---
+  duration_ms: 18.249504
+  type: 'test'
+  ...
+# Subtest: missing, altered, mixed and duplicate parts are diagnosed without replaying old queue
+ok 116 - missing, altered, mixed and duplicate parts are diagnosed without replaying old queue
+  ---
+  duration_ms: 6.749389
+  type: 'test'
+  ...
+# Subtest: missing image requires explicit incomplete export; corrupted image is never included as valid
+ok 117 - missing image requires explicit incomplete export; corrupted image is never included as valid
+  ---
+  duration_ms: 5.45013
+  type: 'test'
+  ...
+# Subtest: changed file after preview and changed UID cannot stage; recovery format never replays old cloud operations
+ok 118 - changed file after preview and changed UID cannot stage; recovery format never replays old cloud operations
+  ---
+  duration_ms: 9.893542
+  type: 'test'
+  ...
+# Subtest: cross-account image restore never trusts source cloud-ready status; queued local edits are retained
+ok 119 - cross-account image restore never trusts source cloud-ready status; queued local edits are retained
+  ---
+  duration_ms: 6.642217
+  type: 'test'
+  ...
+# Subtest: partial parts retain stable import positions and all supplied originals are durable before domain staging
+ok 120 - partial parts retain stable import positions and all supplied originals are durable before domain staging
+  ---
+  duration_ms: 27.089344
+  type: 'test'
+  ...
+# Subtest: offline multipart metadata then image-only continuation preserves original queued IDs and rejects unrelated edits
+ok 121 - offline multipart metadata then image-only continuation preserves original queued IDs and rejects unrelated edits
+  ---
+  duration_ms: 25.00402
+  type: 'test'
+  ...
+# Subtest: parent precedes child; receipt conflicts block only same-record descendants and let unrelated records continue
+ok 122 - parent precedes child; receipt conflicts block only same-record descendants and let unrelated records continue
+  ---
+  duration_ms: 3.730947
+  type: 'test'
+  ...
+# Subtest: an unknown receipt is retried unchanged before applying a predictive local conflict
+ok 123 - an unknown receipt is retried unchanged before applying a predictive local conflict
+  ---
+  duration_ms: 0.412171
+  type: 'test'
+  ...
+# Subtest: durability failure retains immutable operation and manual retry; edits during sending retain their tail
+ok 124 - durability failure retains immutable operation and manual retry; edits during sending retain their tail
+  ---
+  duration_ms: 1.116154
+  type: 'test'
+  ...
+# Subtest: offline, disabled and expired accounts retain their pending local records
+ok 125 - offline, disabled and expired accounts retain their pending local records
+  ---
+  duration_ms: 0.527576
+  type: 'test'
+  ...
+# Subtest: events coalesce; UID generation stops pending callbacks and closes listener/transport
+ok 126 - events coalesce; UID generation stops pending callbacks and closes listener/transport
+  ---
+  duration_ms: 5.605498
+  type: 'test'
+  ...
+# Subtest: only transient failures retry at bounded jittered backoff, at most five attempts
+ok 127 - only transient failures retry at bounded jittered backoff, at most five attempts
+  ---
+  duration_ms: 0.877133
+  type: 'test'
+  ...
+# Subtest: revision gap pulls then retries the exact acknowledgement; contiguous ack avoids a read
+ok 128 - revision gap pulls then retries the exact acknowledgement; contiguous ack avoids a read
+  ---
+  duration_ms: 0.946627
+  type: 'test'
+  ...
+# Subtest: failed empty-account fetch is error rather than a successful empty workspace
+ok 129 - failed empty-account fetch is error rather than a successful empty workspace
+  ---
+  duration_ms: 0.391371
+  type: 'test'
+  ...
+# Subtest: original image bytes and exact 6 MiB boundary survive preparation; zero, larger, SVG, HTML and forged MIME fail
+ok 130 - original image bytes and exact 6 MiB boundary survive preparation; zero, larger, SVG, HTML and forged MIME fail
+  ---
+  duration_ms: 31.037198
+  type: 'test'
+  ...
+# Subtest: downloaded or resumed byte mismatch never becomes verified
+ok 131 - downloaded or resumed byte mismatch never becomes verified
+  ---
+  duration_ms: 3.251403
+  type: 'test'
+  ...
+# Subtest: at most two uploads run, dedup same UID, metadata pending has separate status, and trash images participate
+ok 132 - at most two uploads run, dedup same UID, metadata pending has separate status, and trash images participate
+  ---
+  duration_ms: 7.693663
+  type: 'test'
+  ...
+# Subtest: failed/interrupted upload retains original bytes and retries, without marking complete
+ok 133 - failed/interrupted upload retains original bytes and retries, without marking complete
+  ---
+  duration_ms: 2.039586
+  type: 'test'
+  ...
+# Subtest: changed digest and changed account during upload cannot attach stale completion
+ok 134 - changed digest and changed account during upload cannot attach stale completion
+  ---
+  duration_ms: 2.747904
+  type: 'test'
+  ...
+# Subtest: download all includes trash, reports missing/unuploaded, and refuses account change before local put
+ok 135 - download all includes trash, reports missing/unuploaded, and refuses account change before local put
+  ---
+  duration_ms: 3.79903
+  type: 'test'
+  ...
+# Subtest: upload and explicit download share the same two-worker limit
+ok 136 - upload and explicit download share the same two-worker limit
+  ---
+  duration_ms: 3.45472
+  type: 'test'
+  ...
+# Subtest: two flights sharing one digest use a single upload and both become cloud-ready
+ok 137 - two flights sharing one digest use a single upload and both become cloud-ready
+  ---
+  duration_ms: 2.708214
+  type: 'test'
+  ...
+# Subtest: declined imports and unselected demo cannot stage data or images; raw source remains unchanged
+ok 138 - declined imports and unselected demo cannot stage data or images; raw source remains unchanged
+  ---
+  duration_ms: 12.050419
+  type: 'test'
+  ...
+# Subtest: recovery quota failure blocks every import operation; raw input is preserved before first domain save
+ok 139 - recovery quota failure blocks every import operation; raw input is preserved before first domain save
+  ---
+  duration_ms: 3.296496
+  type: 'test'
+  ...
+# Subtest: source identity cannot switch account; canonical import hash excludes external UID/device/export time
+ok 140 - source identity cannot switch account; canonical import hash excludes external UID/device/export time
+  ---
+  duration_ms: 1.840676
+  type: 'test'
+  ...
+# Subtest: confirmed existing Actual survives restore; unknown row fields are blocked rather than silently removed
+ok 141 - confirmed existing Actual survives restore; unknown row fields are blocked rather than silently removed
+  ---
+  duration_ms: 1.364558
+  type: 'test'
+  ...
+# Subtest: unsafe IDs remain data, dependencies precede flights, chunks fit bounded operations and v1 limits reject
+ok 142 - unsafe IDs remain data, dependencies precede flights, chunks fit bounded operations and v1 limits reject
+  ---
+  duration_ms: 66.518619
+  type: 'test'
+  ...
+# Subtest: different source IDs with the same active flightKey are blocked at preview before partial staging
+ok 143 - different source IDs with the same active flightKey are blocked at preview before partial staging
+  ---
+  duration_ms: 6.622328
+  type: 'test'
+  ...
+# Subtest: independent note and Scheduled changes survive three-way merge
+ok 144 - independent note and Scheduled changes survive three-way merge
+  ---
+  duration_ms: 4.308919
+  type: 'test'
+  ...
+# Subtest: same note changed differently is retained as conflict, not clock LWW
+ok 145 - same note changed differently is retained as conflict, not clock LWW
+  ---
+  duration_ms: 1.351308
+  type: 'test'
+  ...
+# Subtest: Actual is atomic across event clocks and confirmed metadata
+ok 146 - Actual is atomic across event clocks and confirmed metadata
+  ---
+  duration_ms: 0.702039
+  type: 'test'
+  ...
+# Subtest: new cloud confirmation requires review of edits from an unconfirmed base
+ok 147 - new cloud confirmation requires review of edits from an unconfirmed base
+  ---
+  duration_ms: 1.27342
+  type: 'test'
+  ...
+# Subtest: equal concurrent changes converge while false zero empty and deletion are explicit
+ok 148 - equal concurrent changes converge while false zero empty and deletion are explicit
+  ---
+  duration_ms: 0.991565
+  type: 'test'
+  ...
+# Subtest: archive versus edit conflicts and clean archive keeps restorable raw record
+ok 149 - archive versus edit conflicts and clean archive keeps restorable raw record
+  ---
+  duration_ms: 1.29962
+  type: 'test'
+  ...
+# Subtest: whole crew profiles do not mix different names and ranks
+ok 150 - whole crew profiles do not mix different names and ranks
+  ---
+  duration_ms: 0.72262
+  type: 'test'
+  ...
+# Subtest: evidence conflicts preserve both digests instead of silently replacing
+ok 151 - evidence conflicts preserve both digests instead of silently replacing
+  ---
+  duration_ms: 1.042853
+  type: 'test'
+  ...
+# Subtest: archive duty projection preserves backlinks and respects later reassignment
+ok 152 - archive duty projection preserves backlinks and respects later reassignment
+  ---
+  duration_ms: 546.740071
+  type: 'test'
+  ...
+# Subtest: new account projection never copies demo and keeps notification grants local
+ok 153 - new account projection never copies demo and keeps notification grants local
+  ---
+  duration_ms: 0.571101
+  type: 'test'
+  ...
+# Subtest: invalid domain data, identity fields and oversized metadata are rejected
+ok 154 - invalid domain data, identity fields and oversized metadata are rejected
+  ---
+  duration_ms: 2.336283
+  type: 'test'
+  ...
+# Subtest: operations reject 9 records, oversized bytes and modified owner fields
+ok 155 - operations reject 9 records, oversized bytes and modified owner fields
+  ---
+  duration_ms: 51.961045
+  type: 'test'
+  ...
+# Subtest: unsafe domain IDs are hashed rather than interpreted as path segments
+ok 156 - unsafe domain IDs are hashed rather than interpreted as path segments
+  ---
+  duration_ms: 14.572647
+  type: 'test'
+  ...
+# Subtest: causal dependencies are not capped by the eight-record write batch size
+ok 157 - causal dependencies are not capped by the eight-record write batch size
+  ---
+  duration_ms: 0.433734
+  type: 'test'
+  ...
+# Subtest: weather text is its own group and never accepts image bytes or unrelated airports
+ok 158 - weather text is its own group and never accepts image bytes or unrelated airports
+  ---
+  duration_ms: 1.487733
+  type: 'test'
+  ...
+# Subtest: native WebKit config CORS diagnostic is only a cancellation with a matching recent failed request
+ok 159 - native WebKit config CORS diagnostic is only a cancellation with a matching recent failed request
+  ---
+  duration_ms: 1.435014
+  type: 'test'
+  ...
+# Subtest: verified intentional config refusals retain recent history rather than losing proof to a newer request
+ok 160 - verified intentional config refusals retain recent history rather than losing proof to a newer request
+  ---
+  duration_ms: 1.276165
+  type: 'test'
+  ...
+# Subtest: provider error requires exact deliberate abort proof in this context; a failed sync is never classified
+ok 161 - provider error requires exact deliberate abort proof in this context; a failed sync is never classified
+  ---
+  duration_ms: 0.653636
+  type: 'test'
+  ...
+# Subtest: WebKit cancelled Firestore channel diagnostics require the same session, database, context and instant
+ok 162 - WebKit cancelled Firestore channel diagnostics require the same session, database, context and instant
+  ---
+  duration_ms: 0.699655
+  type: 'test'
+  ...
+# Subtest: v4 precaches the complete native main module graph even when provider config is down; upgrade preserves source cache
+ok 163 - v4 precaches the complete native main module graph even when provider config is down; upgrade preserves source cache
+  ---
+  duration_ms: 55.078346
+  type: 'test'
+  ...
+# Subtest: private authenticated/blob/evidence/API/OAuth and arbitrary same-origin routes never enter static caches
+ok 164 - private authenticated/blob/evidence/API/OAuth and arbitrary same-origin routes never enter static caches
+  ---
+  duration_ms: 7.357456
+  type: 'test'
+  ...
+# Subtest: area status has current UID/generation only, does not change identity and never signals complete for unverified banks
+ok 165 - area status has current UID/generation only, does not change identity and never signals complete for unverified banks
+  ---
+  duration_ms: 1.872954
+  type: 'test'
+  ...
+# Subtest: all-bank status requires the authoritative bank list and stale selection cannot revive a previous account
+ok 166 - all-bank status requires the authoritative bank list and stale selection cannot revive a previous account
+  ---
+  duration_ms: 13.799852
+  type: 'test'
+  ...
+# Subtest: installed versioned shell serves its own cached module without a network request or an offline HTTP 503
+ok 167 - installed versioned shell serves its own cached module without a network request or an offline HTTP 503
+  ---
+  duration_ms: 2.584337
+  type: 'test'
+  ...
+# Subtest: offline readiness can verify the controlling worker version instead of only seeing a new cache name
+ok 168 - offline readiness can verify the controlling worker version instead of only seeing a new cache name
+  ---
+  duration_ms: 0.979116
+  type: 'test'
+  ...
+# Subtest: a newer individual pending bank invalidates an earlier all-bank sync report
+ok 169 - a newer individual pending bank invalidates an earlier all-bank sync report
+  ---
+  duration_ms: 0.743471
+  type: 'test'
+  ...
+# Subtest: guest uses original DB adapter while a cached Google UID opens empty local workspace without waiting for Auth
+ok 170 - guest uses original DB adapter while a cached Google UID opens empty local workspace without waiting for Auth
+  ---
+  duration_ms: 3.03653
+  type: 'test'
+  ...
+# Subtest: save diffs against captured form base and merges remote independent change; confirmed Actual needs explicit replacement
+ok 171 - save diffs against captured form base and merges remote independent change; confirmed Actual needs explicit replacement
+  ---
+  duration_ms: 6.941049
+  type: 'test'
+  ...
+# Subtest: archive/restore duty retains hidden backlinks and respects a later reassignment
+ok 172 - archive/restore duty retains hidden backlinks and respects a later reassignment
+  ---
+  duration_ms: 8.780977
+  type: 'test'
+  ...
+# Subtest: stale OCR/file/form callbacks cannot save to a new UID and active transition is reported
+ok 173 - stale OCR/file/form callbacks cannot save to a new UID and active transition is reported
+  ---
+  duration_ms: 0.779305
+  type: 'test'
+  ...
+# Subtest: draft quota failure allows export or explicit discard before switching, never silent loss
+ok 174 - draft quota failure allows export or explicit discard before switching, never silent loss
+  ---
+  duration_ms: 3.381729
+  type: 'test'
+  ...
+# Subtest: notification permission stays device-local; reminder time syncs with preferences only
+ok 175 - notification permission stays device-local; reminder time syncs with preferences only
+  ---
+  duration_ms: 0.945105
+  type: 'test'
+  ...
+# Subtest: account storage read failure never falls back to guest/demo or overwrites the guest DB
+ok 176 - account storage read failure never falls back to guest/demo or overwrites the guest DB
+  ---
+  duration_ms: 0.583099
+  type: 'test'
+  ...
+# fatal: not a git repository (or any of the parent directories): .git
+# Subtest: all source questions keys options UIDs explanations and scoring bytes retain fixed published baseline
+not ok 177 - all source questions keys options UIDs explanations and scoring bytes retain fixed published baseline
+  ---
+  duration_ms: 27.276807
+  type: 'test'
+  location: '/mnt/data/avilog_flight_ui_work/AviLog/tests/workspace-source.test.js:7:1'
+  failureType: 'testCodeFailure'
+  error: |-
+    Command failed: git show 9f8e20b91a047477e04e9be080aed8f3136a08ab:public/atpl/catalog.json
+    fatal: not a git repository (or any of the parent directories): .git
+    
+  code: 'ERR_TEST_FAILURE'
+  stack: |-
+    genericNodeError (node:internal/errors:983:15)
+    wrappedFn (node:internal/errors:537:14)
+    checkExecSyncError (node:child_process:882:11)
+    execFileSync (node:child_process:918:15)
+    TestContext.<anonymous> (file:///mnt/data/avilog_flight_ui_work/AviLog/tests/workspace-source.test.js:8:26)
+    Test.runInAsyncScope (node:async_hooks:214:14)
+    Test.run (node:internal/test_runner/test:1047:25)
+    Test.start (node:internal/test_runner/test:944:17)
+    startSubtestAfterBootstrap (node:internal/test_runner/harness:296:17)
+  ...
+# Subtest: flight saves the actual primary sources and accepts no credential-bearing source URLs
+ok 178 - flight saves the actual primary sources and accepts no credential-bearing source URLs
+  ---
+  duration_ms: 7.436616
+  type: 'test'
+  ...
+# Subtest: airport watchlist survives preference merge with independent reminder edits and rejects duplicate/oversized/invalid lists
+ok 179 - airport watchlist survives preference merge with independent reminder edits and rejects duplicate/oversized/invalid lists
+  ---
+  duration_ms: 1.902259
+  type: 'test'
+  ...
+# Subtest: only dep/arrival raw text for this UTC flight day is collected once per load and airport; manual refresh remains explicit
+ok 180 - only dep/arrival raw text for this UTC flight day is collected once per load and airport; manual refresh remains explicit
+  ---
+  duration_ms: 2.697908
+  type: 'test'
+  ...
+# Subtest: old or future flight never requests today latest and retains its saved weather text
+ok 181 - old or future flight never requests today latest and retains its saved weather text
+  ---
+  duration_ms: 0.486073
+  type: 'test'
+  ...
+# Subtest: offline, no data and provider failure preserve previously saved report rather than erase it
+ok 182 - offline, no data and provider failure preserve previously saved report rather than erase it
+  ---
+  duration_ms: 1.295804
+  type: 'test'
+  ...
+# Subtest: account switch, midnight UTC and wrong-station/stale-day API reply cannot be attached to a flight
+ok 183 - account switch, midnight UTC and wrong-station/stale-day API reply cannot be attached to a flight
+  ---
+  duration_ms: 1.658051
+  type: 'test'
+  ...
+# Subtest: partial flight refresh preserves the actual source of retained TAF
+ok 184 - partial flight refresh preserves the actual source of retained TAF
+  ---
+  duration_ms: 0.743842
+  type: 'test'
+  ...
+# Subtest: server retained product is visibly stale in saved flight metadata
+ok 185 - server retained product is visibly stale in saved flight metadata
+  ---
+  duration_ms: 1.335614
+  type: 'test'
+  ...
+1..185
+# tests 185
+# suites 0
+# pass 180
+# fail 5
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3517.977552

@@ -1,7 +1,8 @@
+import {validateAuditTransition} from '../lib/flight-audit.js';
 import {clone,canonical,validateRecord,validUID} from './schema.js';
 export const same=(a,b)=>canonical(a)===canonical(b);
 const dataValue=(r,keys)=>keys.map(k=>Object.hasOwn(r.data,k)?[k,true,r.data[k]]:[k,false]);
-const actual=['actual','confirmed','dep','dest','aircraft','reg','role','picMinutes','nightMinutes','takeoffBy','landingBy','landingMode','captainId','foId','crewIds','source'];
+const actual=['actual','confirmed','dep','dest','aircraft','reg','role','picMinutes','nightMinutes','takeoffBy','landingBy','landingMode','captainId','foId','crewIds','source','logbook','auditTrail'];
 export function groupsFor(kind){if(kind==='flight')return {identity:['date','flightNo'],scheduled:['scheduled'],actual,note:['note'],confidence:['confidence'],duty:['dutyId'],weather:['weather']};if(kind==='person')return {person:['id','name','rank','note']};if(kind==='duty')return {identity:['date','type'],times:['report','release'],note:['note']};if(kind==='profile')return {name:['name'],base:['base']};return {...Object.fromEntries(['tomorrow','beforeDuty','missingActual','leadMinutes','eveningHour'].map(k=>[k,[k]])),weatherSelection:['weatherAirports','weatherGroups']};}
 const comparable=r=>{const c=clone(r);delete c.revision;delete c.data.updatedAt;return c;};
 function conflict(base,local,remote,groups,reason='Hai phiên bản cùng sửa thông tin.'){return {record:null,conflict:{kind:local.kind,recordId:local.id,groups,base:clone(base),local:clone(local),remote:clone(remote),reason}};}
@@ -12,8 +13,11 @@ export function mergeRecord({base,local,remote}){
  if([base,remote].some(r=>r.kind!==local.kind||r.id!==local.id))throw new Error('Không gộp bản ghi khác định danh.');
  const lc=!same(comparable(local),comparable(base)),rc=!same(comparable(remote),comparable(base)),la=local.archived!==base.archived,ra=remote.archived!==base.archived;
  if((la&&rc&&!same(comparable(local),comparable(remote)))||(ra&&lc&&!same(comparable(local),comparable(remote))))return conflict(base,local,remote,['archive'],'Lưu trữ/khôi phục xung đột với chỉnh sửa.');
+ if(local.kind==='flight'&&base.data.auditTrail){try{validateAuditTransition(base.data,local.data);validateAuditTransition(base.data,remote.data);}catch{return conflict(base,local,remote,['audit'],'Lịch sử cũ bị thiếu hoặc thay đổi; giữ hai bản để kiểm tra.');}}
+ const audited=local.kind==='flight'&&(base.data.auditTrail||local.data.auditTrail||remote.data.auditTrail);
+ const groups=audited?{actual:[...new Set([...actual,'date','flightNo','note','confidence'])],scheduled:['scheduled'],duty:['dutyId'],weather:['weather']}:groupsFor(local.kind);
  const result=clone(remote),conflicts=[];
- for(const [name,keys]of Object.entries(groupsFor(local.kind))){
+ for(const [name,keys]of Object.entries(groups)){
   const b=dataValue(base,keys),l=dataValue(local,keys),r=dataValue(remote,keys);if(same(l,b))continue;
   if(!same(r,b)&&!same(l,r)){conflicts.push(name);continue;}
   if(name==='actual'&&base.data.confirmed!==true&&remote.data.confirmed===true&&!same(l,r)){conflicts.push(name);continue;}

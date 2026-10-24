@@ -27,3 +27,22 @@ test('owner can save bounded airport groups; malformed groups and cross-UID acce
 
  await assertSucceeds(setDoc(ref,{...record,data:{...record.data,tomorrow:true,beforeDuty:true,missingActual:true,leadMinutes:120,eveningHour:18,weatherGroups:Array.from({length:8},(_,i)=>({id:'g'+i,name:'N'+i,airports:['VVTS']}))}}));
 });
+
+// V14 release gate: execute with the Firebase emulator before enabling the cloud flag.
+test('V14 owner can save bounded categories; invalid types and another UID are denied',async()=>{
+ await env.withSecurityRulesDisabled(context=>setDoc(doc(context.firestore(),root),{schemaVersion:1,revision:1,updatedAt:serverTimestamp()}));
+ const ref=doc(alice,root+'/records/'+'d'.repeat(64));
+ const r={schemaVersion:1,kind:'flight',id:'v14-flight',revision:1,archived:false,data:{id:'v14-flight',date:'2026-10-24',flightNo:'VN506',dep:'HAN',dest:'CAN',actual:{},logbook:{version:1,sicMinutes:0,instrumentMinutes:0,landingDay:1}}};
+ await assertSucceeds(setDoc(ref,r));await assertFails(getDoc(doc(bob,ref.path)));
+ for(const logbook of[{version:2},{version:1,sicMinutes:-1},{version:1,sicMinutes:1441},{version:1,landingDay:21},{version:1,sicMinutes:'10'},{version:1,unexpected:true}])await assertFails(setDoc(ref,{...r,data:{...r.data,logbook}}));
+});
+test('V14 audit entries cannot be removed or overwritten in owner updates',async()=>{
+ await env.withSecurityRulesDisabled(context=>setDoc(doc(context.firestore(),root),{schemaVersion:1,revision:1,updatedAt:serverTimestamp()}));
+ const ref=doc(alice,root+'/records/'+'e'.repeat(64)),entry={id:'v14-first',at:'2026-10-24T07:00:00Z',action:'confirmed',reason:'',before:{},after:{confirmed:true}};
+ const r={schemaVersion:1,kind:'flight',id:'v14-history',revision:1,archived:false,data:{id:'v14-history',date:'2026-10-24',flightNo:'VN507',dep:'CAN',dest:'HAN',actual:{},auditTrail:{version:1,entries:[entry]}}};
+ await assertSucceeds(setDoc(ref,r));
+ const {auditTrail,...data}=r.data;await assertFails(setDoc(ref,{...r,data}));
+ await assertFails(setDoc(ref,{...r,data:{...data,auditTrail:{version:1,entries:[]}}}));
+ await assertFails(setDoc(ref,{...r,data:{...data,auditTrail:{version:1,entries:[{...entry,reason:'changed'}]}}}));
+ await assertSucceeds(setDoc(ref,{...r,data:{...data,auditTrail:{version:1,entries:[entry,{...entry,id:'v14-second',action:'edited'}]}}}));
+});

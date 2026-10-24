@@ -1,0 +1,78 @@
+{
+  "release": "AviLog Flight Detail Compact V13",
+  "date": "2026-10-23",
+  "compatibleBase": "AviLog_Flight_UI_V12_FULL_2026-10-23.zip",
+  "baseArchiveSHA256": "ca5bda18e2ccdf04ce8305b230480395b8f8e96230d792b031016743ca1d964f",
+  "cumulative": false,
+  "noSchemaChanges": true,
+  "notDeployed": true,
+  "instructions": "Apply only to AviLog Flight UI V12; merge AviLog/ files at repo root after backup/diff; keep .env, Railway Variables, Firestore data; close/reopen PWA online after deploy. Do not delete website data.",
+  "manifestSelfExcluded": true,
+  "files": [
+    {
+      "path": "FLIGHT_UI_V13_RELEASE.md",
+      "sha256": "1abbb84311839b8fc6d7bb1c5ba65149be70e26de6f85467f60f4fa52ef66325",
+      "bytes": 3624
+    },
+    {
+      "path": "README.md",
+      "sha256": "aa89ef03a561f591590b50172f5b7522fa71ca42cc5fb72ac7e2925580db7388",
+      "bytes": 29072
+    },
+    {
+      "path": "public/style.css",
+      "sha256": "662698500d0ce9a27c8bf008b694c4be3c269da52db79d9e328a8a9533e6cc89",
+      "bytes": 69280
+    },
+    {
+      "path": "public/sw.js",
+      "sha256": "159b1c8210dc166fa43d24db53456cfd1b3c1cf1f418e9e42b25b71b414d1f8f",
+      "bytes": 5900
+    },
+    {
+      "path": "scripts/verify-flight-editor-compact.py",
+      "sha256": "4d09f2e3bc1e005df8d8e7a95094f69364ec6b61b861e7c72eca7904550a77e6",
+      "bytes": 3247
+    },
+    {
+      "path": "tests/flight-editor.test.js",
+      "sha256": "2d2f15e755d402aa75810590bcc9502ff74973b79e2c8c0559a5d4cd9228ce61",
+      "bytes": 3785
+    },
+    {
+      "path": "tests/workspace-service-worker.test.js",
+      "sha256": "cf38b69e792df39b7d0ce6df8433f9ff04f4fe6e569b33333211688734d76223",
+      "bytes": 6425
+    },
+    {
+      "path": "docs/FLIGHT-EDITOR-V13-QA.json",
+      "sha256": "196ac19baefa3eb581d203aff7bfb7df329c2aa76b17411864e1ce05bc2c1f41",
+      "bytes": 2000
+    },
+    {
+      "path": "docs/FLIGHT-EDITOR-V13-component-tests.log",
+      "sha256": "62ea5155a037734c94bf94eb40a69c0e655bef5ccfc5da4e2c8fdbf21f4d9125",
+      "bytes": 2758
+    },
+    {
+      "path": "docs/FLIGHT-EDITOR-V13-unit-tests.log",
+      "sha256": "d4af8454acc7b3aeafb7b06626a91ec4e2d4d29d4ad7474c3ff480871b42b84b",
+      "bytes": 48992
+    },
+    {
+      "path": "docs/flight-editor-v13/flight-390-light-compact.png",
+      "sha256": "6b3d29a5220a0b3fc1efda7cd6c9d01a59697995553235509df80a8f1b972be6",
+      "bytes": 53827
+    },
+    {
+      "path": "docs/flight-editor-v13/flight-390-dark-compact.png",
+      "sha256": "98ba368900d996bb3c9bf9ac238012af04e9c513496324043366cf09b3f37869",
+      "bytes": 55527
+    },
+    {
+      "path": "docs/flight-editor-v13/v12-to-v13-before-after.png",
+      "sha256": "cb9c14a7b1305798957dd04de838ec07a745a13a133c5cf2efcbcb46a625f148",
+      "bytes": 105689
+    }
+  ]
+}

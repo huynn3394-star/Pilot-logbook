@@ -17,7 +17,7 @@ module.exports=async function races({browser,origin,name,login}){
    await open(page);
    const png=await page.evaluate(()=>{const canvas=document.createElement('canvas');canvas.width=2;canvas.height=2;return canvas.toDataURL('image/png').split(',')[1];});
    if(flow==='attachment'){
-    await page.locator('#flight-form [name=flightNo]').fill('VN999');await page.locator('#flight-form [name=dep]').fill('SGN');await page.locator('#flight-form [name=dest]').fill('HAN');await page.locator('#flight-form [name=evidence]').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.getByRole('button',{name:'Lưu chuyến bay',exact:true}).click();
+    await page.locator('#flight-form [name=flightNo]').fill('VN999');await page.locator('#flight-form [name=dep]').fill('SGN');await page.locator('#flight-form [name=dest]').fill('HAN');await require('./ui-controls.cjs').flightTab(page,'tools');await page.locator('#flight-form [name=evidence]').setInputFiles({name:'synthetic.png',mimeType:'image/png',buffer:Buffer.from(png,'base64')});await page.getByRole('button',{name:'Lưu chuyến bay',exact:true}).click();
    }else await page.locator(flow==='pdf'?'#roster-file':'#image-file').setInputFiles({name:flow==='pdf'?'synthetic.pdf':'synthetic.png',mimeType:flow==='pdf'?'application/pdf':'image/png',buffer:flow==='pdf'?Buffer.from('%PDF synthetic boundary fixture'):Buffer.from(png,'base64')});
    await page.waitForFunction(()=>window.raceStarted===true);
    const uidB=await login(observer,origin,`${name}-race-${flow}-b@example.test`);assert.notEqual(uidA,uidB);

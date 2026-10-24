@@ -1,5 +1,8 @@
-const CACHE = "avilog-shell-v9-utc-numeric-input";
+const BUNDLE_BUILD = "da75c65e901d";
+const CACHE = "avilog-shell-v14-fast-entry" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
 const SHELL = [
+  "/workspace/flight-conflict.js",
+  "/workspace/capabilities.js",
   "/",
   "/index.html",
   "/app.js",
@@ -9,11 +12,18 @@ const SHELL = [
   "/icon-512.png",
   "/manifest.webmanifest",
   "/lib/domain.js",
+  "/lib/flight-times.js",
+  "/lib/flight-audit.js",
+  "/lib/flight-assist.js",
+  "/lib/flight-v14-ui.js",
   "/lib/utc-input.js",
+  "/lib/flight-editor.js",
   "/lib/appearance.js",
   "/lib/crew-entry.js",
   "/examples/e190-oooi.png",
   "/lib/parsers.js",
+  "/lib/a320-scan.js",
+  "/lib/scan-screen.js",
   "/lib/rules.js",
   "/lib/sample.js",
   "/lib/storage.js",

@@ -1,0 +1,10 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {renderFlightEditor} from '../public/lib/flight-editor.js';
+import {flightRecord} from './fixtures/workspace.js';
+import {recordFlightRevision} from '../public/lib/flight-audit.js';
+const f=flightRecord().data;
+test('V14 editor exposes persisted optional categories without pretending missing data is zero',()=>{const html=renderFlightEditor({...f,confirmed:false,logbook:{version:1}});for(const field of ['sicMinutes','picusMinutes','ifrMinutes','vfrMinutes','instrumentMinutes','crossCountryMinutes','takeoffDay','takeoffNight','landingDay','landingNight'])assert.match(html,new RegExp('name="log_'+field+'"[^>]*value=""'));assert.match(html,/data-flight-autofill/);});
+test('scan review clearly distinguishes old/missing/new values and requires explicit review for final',()=>{const scan={...f,confirmed:false,actual:{out:'2026-10-09T04:01:00.000Z'}};const html=renderFlightEditor(scan,{original:f,imported:scan,scan});assert.match(html,/data-scan-comparison/);assert.match(html,/Chưa đọc/);assert.match(html,/name="scanReviewed"/);assert.doesNotMatch(html,/name="scanReviewed" checked/);assert.match(html,/name="revisionReason"/);});
+test('history renderer escapes free text and exposes before/after with no raw original image bytes',()=>{const audited=recordFlightRevision(null,{...f,note:'<img onerror=bad()>'},{at:'2026-10-24T07:00:00Z',entryId:'qa-1'});const html=renderFlightEditor(audited,{original:audited});assert.match(html,/data-audit-trail/);assert.match(html,/&lt;img onerror=bad\(\)&gt;/);assert.ok(!html.includes('<img onerror=bad()>'));});
+test('account compatibility mode explains the gate instead of presenting unsavable enabled fields',()=>{const html=renderFlightEditor(f,{original:f,v14Enabled:false});assert.match(html,/data-v14-gate/);assert.ok(!html.includes('name="log_sicMinutes"'));});

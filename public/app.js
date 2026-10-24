@@ -1,3 +1,8 @@
+import {lookupFlights,normalizeFlightCode,prepareScanDraft,scanComparison} from './lib/flight-assist.js';
+import {mountFlightAssist} from './lib/flight-v14-ui.js';
+import {readLogbookFields,timeTotals} from './lib/flight-times.js';
+import {requiresFinalPermission,recordFlightRevision,evidenceFingerprint} from './lib/flight-audit.js';
+import {renderFlightEditor,mountFlightEditor,updateFlightEditor} from './lib/flight-editor.js';
 import {todayInputDate,flightTimeInput,readUTCInput,bindUTCInputs} from './lib/utc-input.js';
 import {applyAppearance} from './lib/appearance.js';
 import {mountCrewEntry,resolveFlightPeople} from './lib/crew-entry.js';
@@ -37,6 +42,7 @@ import { createWeatherCollector,createWeatherWatch } from './workspace/weather.j
 import {mountWeatherWatch} from './workspace/weather-watch-ui.js';
 import { evaluateRules } from "./lib/rules.js";
 import { extractPDF, extractImage, asDataURL } from "./lib/importers.js";
+import { readA320Scan } from "./lib/a320-scan.js";
 const paths = {
   plane: "m22 2-7 20-4-9-9-4Z M22 2 11 13",
   calendar:
@@ -90,6 +96,10 @@ let state,
   importPreview = null,
   imageAttachment = null,
   imageIsSample = false,
+  imageFile = null,
+  imageCropRect = null,
+  imageScanGeneration = 0,
+  redrawImageCrop = () => {},
   notificationShown = new Set();
 const coordinator=getCoordinator();
 let workspaceSession=null,account=null,workspaceController=null,evidenceTransfers=null,accountUI=null,backupUI=null,renderCapture=null,formDirty=false,pendingRemote=false,transitioning=false,draftPrepared=false,bootVersion=0,weatherCollector=null,weatherWatch=null,weatherWatchUI=null,weatherViewState={},accountViewState={},pageViewState={};
@@ -102,14 +112,14 @@ function exportDraft(draft){download('avilog-unsaved-draft.json',JSON.stringify(
 async function beforeAccountSwitch(){const current=workspaceSession,draft=await draftContent();const ok=await current.prepareSwitch({draft,exportDraft:async value=>exportDraft(value),confirmDiscard:async()=>confirm('Không lưu được bản nháp. Bỏ bản nháp và đổi tài khoản?')});if(ok)draftPrepared=true;return ok;}
 async function transitionAccount(){if(transitioning||!workspaceSession)return;transitioning=true;try{if(formDirty&&!draftPrepared){const draft=await draftContent();openModal('Tài khoản đã thay đổi','<div class="modal-body"><p>Bản nháp thuộc tài khoản cũ. Hãy xuất bản nháp hoặc chủ động bỏ trước khi mở dữ liệu tài khoản mới.</p><button class="btn primary" data-workspace-draft="export">Xuất bản nháp rồi tiếp tục</button><button class="btn ghost" data-workspace-draft="discard">Bỏ bản nháp rồi tiếp tục</button></div>');modal.querySelector('.modal-head button').hidden=true;await new Promise(resolve=>{const cancel=event=>event.preventDefault();modal.addEventListener('cancel',cancel);const click=event=>{const button=event.target.closest('[data-workspace-draft]');if(!button)return;if(button.dataset.workspaceDraft==='export')exportDraft(draft);modal.removeEventListener('click',click);modal.removeEventListener('cancel',cancel);resolve();};modal.addEventListener('click',click);});}formDirty=false;draftPrepared=false;modal.close();await bootWorkspace();}catch(err){error(err.message);}finally{transitioning=false;}}
 function connectWorkspaceServices(){if(!workspaceSession?.isCurrent())return;workspaceController?.stop();evidenceTransfers?.stop();workspaceController=null;evidenceTransfers=null;if(account&&workspaceSession.uid){const current=workspaceSession;const update=area=>status=>{if(workspaceSession===current&&current.isCurrent()){coordinator.publishAreaStatus({uid:current.uid,area,status});accountUI?.render();}};workspaceController=createWorkspaceController({account,repository:current.repository,coordinator,onStatus:update('workspace')});evidenceTransfers=createTransfers({account,repository:current.repository,coordinator,onStatus:update('evidence')});account.ready.then(()=>{if(workspaceSession===current&&current.isCurrent()){workspaceController.schedule();evidenceTransfers.pump();}});}mountWorkspaceControls();}
-function mountWorkspaceControls(){accountUI?.dispose();backupUI?.dispose();if(!workspaceSession||!state)return;const host=document.querySelector('[data-workspace-account]');if(host)accountUI=mountWorkspaceUI({element:host,viewState:accountViewState,session:workspaceSession,account,coordinator,controller:workspaceController,transfers:evidenceTransfers,beforeSwitch:beforeAccountSwitch,openDialog:(title,body)=>{openModal(title,body);return modal;},onError:error,onChanged:()=>{},onLegacyImport:()=>{tab="settings";render();document.querySelector('[data-workspace-backup="import"]')?.click();}});const backups=document.querySelector('[data-workspace-backups]');if(backups)backupUI=mountBackupUI({element:backups,session:workspaceSession,transfers:evidenceTransfers,openDialog:(title,body)=>{openModal(title,body);return modal;},onChanged:()=>{workspaceController?.schedule();evidenceTransfers?.pump();}});}
-async function bootWorkspace(){const previousUID=workspaceSession?.uid,version=++bootVersion;workspaceController?.stop();evidenceTransfers?.stop();workspaceSession?.release();weatherCollector?.clear();weatherWatchUI?.dispose();weatherWatch?.dispose();let candidate;candidate=await openWorkspaceSession({coordinator,onLocalChange:()=>{if(workspaceSession===candidate&&candidate.isCurrent()){workspaceController?.schedule();evidenceTransfers?.pump();}},onView:next=>{if(workspaceSession!==candidate)return;if(busyForm()){pendingRemote=true;accountUI?.render();}else{state=next;render();}},onTransition:()=>{transitionAccount();}});if(version!==bootVersion){candidate.release();return;}workspaceSession=candidate;state=candidate.view();if(previousUID!==candidate.uid){weatherViewState={};accountViewState={};pageViewState={};}weatherWatch=createWeatherWatch({uid:candidate.uid,airports:state.settings.weatherAirports||[],isCurrent:()=>workspaceSession===candidate&&candidate.isCurrent()});formDirty=false;pendingRemote=false;render();connectWorkspaceServices();weatherCollector=createWeatherCollector({isCurrent:token=>candidate.isCurrent()&&coordinator.isCurrent(token)});collectTodayWeather().catch(()=>{});}
+function mountWorkspaceControls(){accountUI?.dispose();backupUI?.dispose();if(!workspaceSession||!state)return;const host=document.querySelector('[data-workspace-account]');if(host)accountUI=mountWorkspaceUI({element:host,viewState:accountViewState,session:workspaceSession,account,coordinator,controller:workspaceController,transfers:evidenceTransfers,beforeSwitch:beforeAccountSwitch,openDialog:(title,body)=>{openModal(title,body);return modal;},onError:error,onChanged:()=>{},onLegacyImport:()=>{tab="settings";render();document.querySelector('[data-workspace-backup="import"]')?.click();}});const backups=document.querySelector('[data-workspace-backups]');if(backups)backupUI=mountBackupUI({element:backups,session:workspaceSession,v14Enabled:()=>account?.config?.logbookV14Enabled===true,transfers:evidenceTransfers,openDialog:(title,body)=>{openModal(title,body);return modal;},onChanged:()=>{workspaceController?.schedule();evidenceTransfers?.pump();}});}
+async function bootWorkspace(){const previousUID=workspaceSession?.uid,version=++bootVersion;workspaceController?.stop();evidenceTransfers?.stop();workspaceSession?.release();weatherCollector?.clear();weatherWatchUI?.dispose();weatherWatch?.dispose();let candidate;candidate=await openWorkspaceSession({coordinator,v14Enabled:()=>account?.config?.logbookV14Enabled===true,onLocalChange:()=>{if(workspaceSession===candidate&&candidate.isCurrent()){workspaceController?.schedule();evidenceTransfers?.pump();}},onView:next=>{if(workspaceSession!==candidate)return;if(busyForm()){pendingRemote=true;accountUI?.render();}else{state=next;render();}},onTransition:()=>{transitionAccount();}});if(version!==bootVersion){candidate.release();return;}workspaceSession=candidate;state=candidate.view();if(previousUID!==candidate.uid){weatherViewState={};accountViewState={};pageViewState={};}weatherWatch=createWeatherWatch({uid:candidate.uid,airports:state.settings.weatherAirports||[],isCurrent:()=>workspaceSession===candidate&&candidate.isCurrent()});formDirty=false;pendingRemote=false;render();connectWorkspaceServices();weatherCollector=createWeatherCollector({isCurrent:token=>candidate.isCurrent()&&coordinator.isCurrent(token)});collectTodayWeather().catch(()=>{});}
 async function collectTodayWeather({id,refresh=false}={}){const current=workspaceSession,outcomes=[];if(!current?.writable||!weatherCollector||!navigator.onLine)return outcomes;for(const flight of current.view().flights.filter(f=>f.date===new Date().toISOString().slice(0,10)&&(!id||f.id===id))){const token=current.token,result=await weatherCollector.collect(flight,{token,refresh});outcomes.push(result);if(current!==workspaceSession||!current.isCurrent())return outcomes;if(result.weather&&JSON.stringify(result.weather)!==JSON.stringify(flight.weather)){const form=current.captureForm(),next=current.view(),latest=next.flights.find(f=>f.id===flight.id);if(!latest||latest.date!==flight.date||latest.dep!==flight.dep||latest.dest!==flight.dest)continue;latest.weather=result.weather;await current.saveView({...form,next});}}return outcomes;}
 window.addEventListener('offline',()=>{workspaceController?.syncNow();accountUI?.render();});
 window.addEventListener('online',()=>{workspaceController?.schedule();evidenceTransfers?.pump();collectTodayWeather().catch(()=>{});});window.addEventListener('focus',()=>workspaceController?.schedule());
-modal.addEventListener('close',()=>{if(transitioning)return;formDirty=false;pendingRemote=false;if(workspaceSession?.isCurrent()){state=workspaceSession.view();render();}});
-document.addEventListener('click',event=>{for(const menu of app.querySelectorAll('[data-page-manage][open]'))if(!event.composedPath().includes(menu))menu.open=false;});
-document.addEventListener('keydown',event=>{if(event.key==='Escape')for(const menu of app.querySelectorAll('[data-page-manage][open]')){menu.open=false;menu.querySelector('summary').focus();}});
+modal.addEventListener('close',()=>{if(modal.open)return;modal._flightEditor?.dispose();modal._flightEditor=null;if(transitioning)return;formDirty=false;pendingRemote=false;if(workspaceSession?.isCurrent()){state=workspaceSession.view();render();}});
+document.addEventListener('click',event=>{for(const menu of app.querySelectorAll('[data-page-manage][open],[data-weather-manage][open]'))if(!event.composedPath().includes(menu))menu.open=false;});
+document.addEventListener('keydown',event=>{if(event.key==='Escape')for(const menu of app.querySelectorAll('[data-page-manage][open],[data-weather-manage][open]')){menu.open=false;menu.querySelector('summary').focus();}});
 document.addEventListener('input',event=>{if(event.target.closest('#modal')||event.target.closest('#settings-form')){formDirty=true;draftPrepared=false;}});
 window.addEventListener('pagehide',()=>{workspaceController?.stop();evidenceTransfers?.stop();workspaceSession?.release();weatherCollector?.clear();weatherWatchUI?.dispose();weatherWatch?.dispose();});window.addEventListener('pageshow',event=>{if(event.persisted)location.reload();});
 window.addEventListener('avilog-workspace-update',()=>{if(workspaceSession?.isCurrent())workspaceSession.refresh().catch(err=>error(err.message));});
@@ -161,6 +171,7 @@ function error(text) {
   if (target) {
     target.textContent = text;
     target.hidden = false;
+    if(modal.classList.contains("flight-editor-modal")){target.scrollIntoView({block:"nearest"});target.focus({preventScroll:true});}
   } else toast(text);
 }
 async function commit(next, message, options={}) {
@@ -178,6 +189,7 @@ async function commit(next, message, options={}) {
   }
 }
 function openModal(title, body, footer = "") {
+  modal._flightEditor?.dispose();modal._flightEditor=null;
   try{modal._formCapture=workspaceSession?.captureForm();}catch{modal._formCapture=null;}
   modal.dataset.context=crypto.randomUUID();formDirty=false;
   modal.innerHTML = `<div class="modal-head"><h2>${title}</h2><button class="iconbtn" data-action="close" aria-label="Đóng">${icon("close")}</button></div>${body}<div class="modal-footer">${footer || btn("close", "Đóng", null, "ghost")}</div>`;
@@ -204,19 +216,24 @@ function render() {
         `<button data-action="tab" data-tab="${id}" title="${title}" class="${tab === id ? "active" : ""}" ${tab === id ? 'aria-current="page"' : ""}>${icon(ico)}<span>${title}</span>${id === "schedule" ? `<span class="num">${String(fs.length).padStart(2, "0")}</span>` : ""}</button>`,
     )
     .join("");
-  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><div class="brand"><span class="brandmark">${icon("plane")}</span>AviLog<span style="color:#ffffff">.</span></div><button type="button" class="sidebar-toggle" data-action="appearance-sidebar" aria-label="Thu gọn hoặc mở rộng thanh điều hướng">☰</button><div class="nav-caption">YOUR FLIGHT COMPANION</div><nav class="nav" aria-label="Điều hướng">${nav}</nav><div class="sidebar-bottom"><div class="plan-card"><strong>${icon("shield")} Your logbook, your story.</strong><p>Lịch bay, giờ bay và những người đồng hành. Gọn trong một nơi.</p>${btn("plan", "Free preview ↗", null, "small")}</div><button class="profile iconbtn" style="width:100%;height:auto;text-align:left;display:flex" data-action="tab" data-tab="settings"><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span><span><strong>${e(state.settings.name || "Pilot")}</strong><small>Personal workspace</small></span>${icon("settings")}</button></div></aside><section class="workspace"><header class="topbar"><div class="topbar-main"><div class="breadcrumbs">Workspace <span>/</span> <strong>${titles[tab]}</strong></div><div class="mobile-brand"><span class="brandmark">${icon("plane")}</span>AviLog.</div><div class="top-actions"><button type="button" class="iconbtn" data-action="appearance-theme" aria-label="Chuyển sang ban đêm">☾</button><span class="utc-clock mono" id="utc-clock">${new Date().toISOString().slice(11, 16)} <b>UTC</b></span><button class="iconbtn notification-btn" data-action="reminders" aria-label="Thông báo">${icon("bell")}</button><section class="workspace-account" data-workspace-account aria-label="Tài khoản AviLog"></section></div></div></header><main class="main${tab === "weather" ? " weather-main" : ""}"><div class="page-heading"><div><div style="display:flex;gap:10px;align-items:center"><h1>${titles[tab]}</h1><span class="badge-preview">PREVIEW</span></div><p>${{ schedule: "Mỗi hành trình, một câu chuyện. Sẵn sàng cho chuyến bay tiếp theo.", logbook: "Ghi lại hành trình. Giữ trọn từng phút bay.", crew: "Những người đồng hành trên mỗi chuyến bay.", statistics: "Một góc nhìn rõ hơn về hành trình của bạn.", weather: "Theo dõi METAR / SPECI và TAF nguyên văn của các sân bay bạn chọn.", settings: "Thiết lập không gian bay của riêng bạn." }[tab]}</p></div><div class="actions">${["schedule", "logbook"].includes(tab) ? `${btn("import", "Import roster", "upload")}${btn("add", "Thêm chuyến bay", "plus", "primary")}` : tab === "crew" ? btn("add-person", "Thêm người", "plus", "primary") : tab === "statistics" ? btn("csv", "Xuất CSV", "download") : ""}</div></div>${tab === "schedule" ? schedule(fs, s) : tab === "logbook" ? logbook(fs, s) : tab === "crew" ? crew() : tab === "statistics" ? statsPage(fs, s) : tab === "weather" ? '<div data-weather-watch></div>' : settingsPage()}<footer class="footer"><span>${icon("shield")} Lưu offline theo không gian đang chọn · All times in UTC · AviLog</span><span>Made for the journey, logged for you.</span></footer></main></section><nav class="bottom-nav" aria-label="Điều hướng mobile">${nav}</nav></div>`;
+  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><div class="brand"><span class="brandmark">${icon("plane")}</span>AviLog<span style="color:#ffffff">.</span></div><button type="button" class="sidebar-toggle" data-action="appearance-sidebar" aria-label="Thu gọn hoặc mở rộng thanh điều hướng">☰</button><div class="nav-caption">YOUR FLIGHT COMPANION</div><nav class="nav" aria-label="Điều hướng">${nav}</nav><div class="sidebar-bottom"><div class="plan-card"><strong>${icon("shield")} Your logbook, your story.</strong><p>Lịch bay, giờ bay và những người đồng hành. Gọn trong một nơi.</p>${btn("plan", "Free preview ↗", null, "small")}</div><button class="profile iconbtn" style="width:100%;height:auto;text-align:left;display:flex" data-action="tab" data-tab="settings"><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span><span><strong>${e(state.settings.name || "Pilot")}</strong><small>Personal workspace</small></span>${icon("settings")}</button></div></aside><section class="workspace"><header class="topbar"><div class="topbar-main"><div class="breadcrumbs">Workspace <span>/</span> <strong>${titles[tab]}</strong></div><div class="mobile-brand"><span class="brandmark">${icon("plane")}</span>AviLog.</div><div class="top-actions"><button type="button" class="iconbtn" data-action="appearance-theme" aria-label="Chuyển sang ban đêm">☾</button><span class="utc-clock mono" id="utc-clock">${new Date().toISOString().slice(11, 16)} <b>UTC</b></span><button class="iconbtn notification-btn" data-action="reminders" aria-label="Thông báo">${icon("bell")}</button><div data-page-tools></div><section class="workspace-account" data-workspace-account aria-label="Tài khoản AviLog"></section></div></div></header><main class="main${tab === "weather" ? " weather-main" : ""}"><div class="page-heading"><div><div style="display:flex;gap:10px;align-items:center"><h1>${titles[tab]}</h1><span class="badge-preview">PREVIEW</span></div><p>${{ schedule: "Mỗi hành trình, một câu chuyện. Sẵn sàng cho chuyến bay tiếp theo.", logbook: "Ghi lại hành trình. Giữ trọn từng phút bay.", crew: "Những người đồng hành trên mỗi chuyến bay.", statistics: "Một góc nhìn rõ hơn về hành trình của bạn.", weather: "Theo dõi METAR / SPECI và TAF nguyên văn của các sân bay bạn chọn.", settings: "Thiết lập không gian bay của riêng bạn." }[tab]}</p></div><div class="actions">${["schedule", "logbook"].includes(tab) ? `${btn("import", "Import roster", "upload")}${btn("add", "Thêm chuyến bay", "plus", "primary")}` : tab === "crew" ? btn("add-person", "Thêm người", "plus", "primary") : tab === "statistics" ? btn("csv", "Xuất CSV", "download") : ""}</div></div>${tab === "schedule" ? schedule(fs, s) : tab === "logbook" ? logbook(fs, s) : tab === "crew" ? crew() : tab === "statistics" ? statsPage(fs, s) : tab === "weather" ? '<div data-weather-watch></div>' : settingsPage()}<footer class="footer"><span>${icon("shield")} Lưu offline theo không gian đang chọn · All times in UTC · AviLog</span><span>Made for the journey, logged for you.</span></footer></main></section><nav class="bottom-nav" aria-label="Điều hướng mobile">${nav}</nav></div>`;
   mountPageLayout();applyAppearance();mountWorkspaceControls();
   if(tab==='weather'&&weatherWatch){
     const current=workspaceSession;weatherWatch.setAirports(state.settings.weatherAirports||[]);
     weatherWatchUI=mountWeatherWatch({element:app.querySelector('[data-weather-watch]'),watch:weatherWatch,getGroups:()=>readWeatherGroups(current.view().settings),viewState:weatherViewState,isCurrent:()=>workspaceSession===current&&current.isCurrent(),onError:error,onGroups:async groups=>{
       const captured=current.captureForm(),next=current.view();next.settings=saveWeatherGroups(next.settings,groups);await current.saveView({...captured,next});if(workspaceSession!==current||!current.isCurrent())return;state=current.view();workspaceController?.schedule();render();
     }});
+    const manage=app.querySelector('[data-weather-manage]');
+    manage.querySelector('[data-watch-edit]').addEventListener('click',()=>{manage.open=false;});
+    app.querySelector('[data-page-tools]').append(manage);
   }
 }
 function mountPageLayout(){
  app.dataset.layoutUid=workspaceSession.uid||'guest';
+ const topbar=app.querySelector('.topbar');
+ topbar.addEventListener('toggle',event=>{const menu=event.target;if(menu.open&&menu.matches('[data-page-manage],[data-weather-manage],[data-account-menu]'))for(const other of topbar.querySelectorAll('[data-page-manage],[data-weather-manage],[data-account-menu]'))if(other!==menu)other.open=false;},true);
  const actions=app.querySelector('.page-heading>.actions');
- if(actions?.children.length){const menu=document.createElement('details');menu.className='page-management';menu.dataset.pageManage='';menu.dataset.layoutKey='page:'+tab;menu.innerHTML='<summary>＋ Quản lý</summary><div class="page-management-content"></div>';const content=menu.lastElementChild;content.append(...actions.childNodes);actions.append(menu);
+ if(actions?.children.length){const menu=document.createElement('details');menu.className='page-management';menu.dataset.pageManage='';menu.dataset.layoutKey='page:'+tab;menu.innerHTML='<summary>＋ Quản lý</summary><div class="page-management-content"></div>';const content=menu.lastElementChild;content.append(...actions.childNodes);app.querySelector('[data-page-tools]').append(menu);
   for(const card of app.querySelectorAll('.below-grid .import-card')){content.append(...card.querySelectorAll('button'));card.closest('.below-grid').remove();}
   if(tab==='logbook'){const filter=app.querySelector('[data-filter=status]');if(filter)content.append(filter);}
   applyAppearance();
@@ -358,7 +375,7 @@ function statsPage(fs, s) {
       ["Landing", s.landings],
     ],
     String,
-  )}</section><section class="panel"><div class="panel-head"><h3>Airports · số lượt</h3>${icon("pin")}</div>${bars(Object.entries(s.airports), String)}</section><section class="panel"><div class="panel-head"><h3>Crew · block time</h3>${icon("people")}</div>${bars(state.people.map((p) => [p.name, statistics(fs.filter((f) => [f.captainId, f.foId, ...(f.crewIds || [])].includes(p.id))).block]))}</section></div><div class="wide-note" style="margin-top:20px">PIC ${duration(s.pic)} · SIC ${duration(s.sic)} · Night ${duration(s.night)}. PIC và Night do bạn nhập và xác nhận; simulator/training không cộng vào line flying.</div>`;
+  )}</section><section class="panel"><div class="panel-head"><h3>Airports · số lượt</h3>${icon("pin")}</div>${bars(Object.entries(s.airports), String)}</section><section class="panel"><div class="panel-head"><h3>Crew · block time</h3>${icon("people")}</div>${bars(state.people.map((p) => [p.name, statistics(fs.filter((f) => [f.captainId, f.foId, ...(f.crewIds || [])].includes(p.id))).block]))}</section></div><div class="wide-note" style="margin-top:20px">PIC ${duration(s.pic)} · SIC ${duration(s.sic)} · Night ${duration(s.night)}. SIC chưa ghi: ${s.unknownSIC} chuyến; SIC theo cách tính cũ: ${s.legacySIC} chuyến, cần kiểm tra. PICUS ${duration(s.picus)} · IFR ${duration(s.ifr)} · Instrument ${duration(s.instrument)} · Cross-country ${duration(s.crossCountry)}. Các nhóm không cộng chung; simulator/training không cộng vào line flying.</div>`;
 }
 function settingsPage() {
   const s = state.settings;
@@ -387,7 +404,7 @@ function settingsPage() {
       "",
     )}<div class="form-grid">${input("leadMinutes", "Nhắc trước report (phút)", s.leadMinutes, "number", 'min="5" max="1440" required')}${input("eveningHour", "Giờ nhắc tối hôm trước (UTC)", s.eveningHour, "number", 'min="0" max="23" required')}</div><div class="actions"><button class="btn primary" type="submit">${icon("check")}Lưu cài đặt</button>${btn("notifications", s.notifications ? "Tắt thông báo" : "Bật thông báo trình duyệt", "bell")}</div></form><div class="source-card">Preview kiểm tra reminder khi app đang mở. Chưa có push nền khi app đã đóng. Trên iOS, cài PWA bằng Share → Add to Home Screen; quyền thông báo tùy phiên bản và trình duyệt.</div></section><div><section class="panel settings-card"><div data-workspace-backups></div><h3>Backup logbook & export</h3><p class="muted">Backup JSON gồm chuyến bay, crew, cài đặt và ảnh. Giữ file này ở nơi riêng tư. Restore gộp dữ liệu và giữ Actual đã xác nhận hiện có.</p><div class="actions">${workspaceSession?.uid?"":btn("backup", "Backup JSON khách", "download")}${btn("csv", "Export CSV", "file")}${workspaceSession?.uid?"":btn("restore", "Restore backup", "upload")}${btn("trash", "Thùng rác (" + (state.trash || []).length + ")", null, "ghost")}</div></section><section class="panel settings-card" style="margin-top:20px"><h3>Duty / Rest & FTL</h3><p class="muted">Theo dõi thời lượng thực tế. Chưa có giới hạn FTL Vietnam Airlines được cài đặt.</p><div class="actions">${btn("rules", "Xem căn cứ", "shield")}${btn("duty-list", "Danh sách duty", "clock")}</div></section><section class="panel settings-card" style="margin-top:20px"><h3>Free / Pro</h3><p class="muted">Chỗ dành cho gói Pro và quảng cáo sau này. Preview chưa có thanh toán hoặc quảng cáo thật.</p><div class="actions">${btn("plan", "Thông tin preview ↗", null, "ghost")}${state.demo ? btn("fresh", "Bắt đầu logbook riêng", null, "ghost") : ""}</div></section></div></div>`;
 }
-function editFlight(original, imported, ocrWarning) {
+function editFlight(original, imported, ocrWarning, scanReading=null) {
   const f = structuredClone(
       imported ||
         original || {
@@ -407,57 +424,26 @@ function editFlight(original, imported, ocrWarning) {
         },
     ),
     old = original || find(f.id);
-  const by = [
-    ["", "Chưa ghi"],
-    ["self", "Tôi"],
-    ["captain", "Captain"],
-    ["fo", "First Officer"],
-    ["other", "Crew khác"],
-  ];
-  const body = `<form id="flight-form" data-id="${e(f.id)}"><div class="modal-body">${ocrWarning?`<div class="source-card" data-ocr-review>${e(ocrWarning)}</div>`:""}<p>${imported ? "Đã đọc từ ảnh. Hãy kiểm tra từng ô và ngày UTC trước khi xác nhận." : "Scheduled và Actual được lưu riêng. Chuyến qua ngày cần ngày UTC đúng cho từng mốc."}</p>${old?.confirmed ? '<div class="wide-note" style="margin-top:12px">Actual hiện đã xác nhận. Cần tích đồng ý thay Actual nếu bạn sửa giờ thực tế.</div>' : ""}<div class="form-grid">${input("date", "Ngày chuyến bay · UTC", f.date, "date", "required")}${input("flightNo", "Flight number", f.flightNo, "text", 'required maxlength="12"')}${input("dep", "Departure · IATA / ICAO", f.dep, "text", 'required maxlength="4"')}${input("dest", "Destination · IATA / ICAO", f.dest, "text", 'required maxlength="4"')}${select(
-    "aircraft",
-    "Aircraft type",
-    f.aircraft || "",
-    [
-      ["", "Chưa ghi"],
-      ["A320", "A320"],
-      ["A321", "A321"],
-      ["E190", "E190"],
-      ["B787", "B787"],
-      ["A350", "A350"],
-      ["OTHER", "Khác"],
-    ],
-  )}${input("reg", "Aircraft registration", f.reg || "", "text", 'maxlength="20"')}</div><div class="form-section"><span>Scheduled · UTC</span><span class="pill gray">Kế hoạch</span></div><div class="form-grid">${input("s_dep", "Scheduled DEP", f.scheduled?.dep || f.dep, "text", 'maxlength="4"')}${input("s_dest", "Scheduled DEST", f.scheduled?.dest || f.dest, "text", 'maxlength="4"')}${flightTimeInput("s_out", "Departure (OUT)", f.scheduled?.out)}${flightTimeInput("s_in", "Arrival (IN)", f.scheduled?.in)}</div><div class="form-section"><span>Actual · UTC</span><span class="pill green">OUT / OFF / ON / IN</span></div><div class="form-grid">${flightTimeInput("a_out", "OUT · off blocks", f.actual?.out)}${flightTimeInput("a_off", "OFF · takeoff", f.actual?.off)}${flightTimeInput("a_on", "ON · landing", f.actual?.on)}${flightTimeInput("a_in", "IN · on blocks", f.actual?.in)}</div><div id="actual-summary" class="event-summary"></div><div class="form-section"><span>Crew & pilot role</span></div><div class="form-grid"><div class="crew-entry" data-crew-field="captain"></div><div class="crew-entry" data-crew-field="fo"></div>${select(
-    "role",
-    "Vai trò",
-    f.role,
-    [
-      ["PF", "PF · Pilot Flying"],
-      ["PM", "PM · Pilot Monitoring"],
-    ],
-  )}${select("landingMode", "Landing mode", f.landingMode || "manual", [
-    ["manual", "Manual"],
-    ["autoland", "Autoland"],
-  ])}${select("takeoffBy", "Takeoff by", f.takeoffBy || "", by)}${select("landingBy", "Landing by", f.landingBy || "", by)}${input("picMinutes", "PIC time (phút)", f.picMinutes || 0, "number", 'min="0" max="1440"')}${input("nightMinutes", "Night time (phút) · nhập thủ công", f.nightMinutes || 0, "number", 'min="0" max="1440"')}<div class="crew-entry full" data-crew-field="crew"></div></div><div class="form-section"><span>Source & evidence</span><span class="pill gray">${e(f.confidence ?? 100)}% confidence</span></div><div class="form-grid">${input("source", "Nguồn", f.source || "manual", "text", 'maxlength="120"')}${input("confidence", "Độ tin cậy (%)", f.confidence ?? 100, "number", 'min="0" max="100"')}<label class="full">Note<textarea name="note" rows="2" maxlength="3000">${e(f.note || "")}</textarea></label><label class="full">Ảnh minh chứng · JPG/PNG/WebP ≤ 6 MB<input type="file" name="evidence" accept="image/jpeg,image/png,image/webp"></label></div>${imported?.attachment || old?.attachment ? `<img class="image-preview" src="${safeImage(imported?.attachment || old.attachment)}" alt="Ảnh minh chứng"><label class="check"><input type="checkbox" name="removeAttachment">Bỏ ảnh khỏi chuyến này</label>` : ""}<div style="margin-top:20px;display:grid;gap:12px"><label class="check"><input type="checkbox" name="confirmed" ${f.confirmed ? "checked" : ""}>Tôi đã kiểm tra và xác nhận Actual (đủ 4 mốc)</label>${old?.confirmed ? '<label class="check"><input type="checkbox" name="replaceConfirmed">Cho phép thay đổi Actual đã xác nhận của chuyến này</label>' : ""}</div><div class="error" data-error hidden></div></div></form>`;
-  openModal(
-    imported
-      ? "Kiểm tra Actual từ ảnh"
-      : old
-        ? "Chi tiết chuyến bay"
-        : "Thêm chuyến bay",
-    body,
-    `${old ? btn("archive-flight", "Bỏ chuyến", null, "ghost danger", `data-id="${e(old.id)}"`) : ""}${btn("close", "Hủy", null, "ghost")}<button class="btn primary" type="submit" form="flight-form">${icon("check")}Lưu chuyến bay</button>`,
-  );
+  const v14Enabled=!workspaceSession?.uid||account?.config?.logbookV14Enabled===true;
+  if(v14Enabled&&!old&&!f.logbook)f.logbook={version:1};
+  const title=imported ? "Kiểm tra Actual từ ảnh" : old ? "Chi tiết chuyến bay" : "Thêm chuyến bay";
+  const body=renderFlightEditor(f,{original:old,imported,warning:ocrWarning||'',icon,scan:scanReading,v14Enabled});
+  openModal(title,body);
+  modal._flightEditor=mountFlightEditor(modal,{title,icon});
   const form = modal.querySelector("form");
   form._timeValues=f;
   bindUTCInputs(form);
   form._crewEntry=mountCrewEntry(form,state.people,f);
   form._original = old;
   form._imported = imported;
+  form._scanReading=scanReading;
+  const assist=mountFlightAssist(form,{flights:state.flights,onOpen:record=>{const current=find(record.id);if(current){editFlight(current);toast('Đã mở chuyến cùng ngày từ dữ liệu của bạn.');}}});
+  const dispose=modal._flightEditor.dispose;modal._flightEditor.dispose=()=>{assist.dispose();dispose();};
   form.addEventListener("input", actualSummary);
+  form.addEventListener("change", actualSummary);
   actualSummary();
   form.addEventListener("submit", saveFlight);
-  if(old?.evidence){const holder=document.createElement('div');holder.className='source-card';holder.textContent='Ảnh minh chứng: đang kiểm tra bản offline…';form.querySelector('.modal-body').append(holder);const capture=asyncCapture();workspaceSession.loadEvidence(old.evidence.sha256).then(url=>{assertAsync(capture);if(url){const image=document.createElement('img');image.className='image-preview';image.alt='Ảnh minh chứng đã lưu trên máy';image.src=url;holder.replaceChildren(image);}else holder.textContent=old.evidence.cloudReady?'Ảnh đã có trên cloud, chưa tải về máy này. Dùng Settings → Tải ảnh để dùng offline.':'Ảnh chưa gửi từ máy nguồn; cần mở máy đã thêm ảnh.';const label=document.createElement('label');label.className='check';label.innerHTML='<input type="checkbox" name="removeAttachment"> Bỏ ảnh khỏi chuyến này';holder.append(label);}).catch(err=>{if(holder.isConnected)holder.textContent=err.message;});}
+  if(old?.evidence&&!safeImage(imported?.attachment||old?.attachment)){const holder=document.createElement('div');holder.className='source-card';holder.textContent='Ảnh minh chứng: đang kiểm tra bản offline…';form.querySelector('[data-flight-evidence]').append(holder);const capture=asyncCapture();workspaceSession.loadEvidence(old.evidence.sha256).then(url=>{assertAsync(capture);if(url){const image=document.createElement('img');image.className='image-preview';image.alt='Ảnh minh chứng đã lưu trên máy';image.src=url;holder.replaceChildren(image);}else holder.textContent=old.evidence.cloudReady?'Ảnh đã có trên cloud, chưa tải về máy này. Dùng Settings → Tải ảnh để dùng offline.':'Ảnh chưa gửi từ máy nguồn; cần mở máy đã thêm ảnh.';const label=document.createElement('label');label.className='check';label.innerHTML='<input type="checkbox" name="removeAttachment"> Bỏ ảnh khỏi chuyến này';holder.append(label);}).catch(err=>{if(holder.isConnected)holder.textContent=err.message;});}
 }
 function safeImage(value) {
   return /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(
@@ -467,13 +453,15 @@ function safeImage(value) {
     : "";
 }
 function actualSummary() {
-  const form=modal.querySelector('#flight-form');if(!form)return;const data=new FormData(form);let a={};try{a=Object.fromEntries(['out','off','on','in'].map(k=>[k,readUTCInput(data,'a_'+k,form._timeValues?.actual?.[k])]));}catch{}
-  document.querySelector('#actual-summary').innerHTML=`<div>Block · OUT → IN<strong class="mono">${a.out&&a.in?duration(minutes(a.out,a.in)):'—'}</strong></div><div>Airborne · OFF → ON<strong class="mono">${a.off&&a.on?duration(minutes(a.off,a.on)):'—'}</strong></div>`;
+  const form=modal.querySelector('#flight-form');
+  if(form)updateFlightEditor(form);
 }
 async function saveFlight(ev) {
   ev.preventDefault();
   const form = ev.currentTarget,
     fd = new FormData(form);
+  if(form._saving)return;
+  form._saving=true;
   try {
     const old = form._original,
       imported = form._imported,
@@ -481,7 +469,7 @@ async function saveFlight(ev) {
       resolvedPeople=resolveFlightPeople(state.people,form._crewEntry.read());
     for (const k of ["out", "off", "on", "in"])
       if (fd.get("a_" + k)) actual[k] = readUTCInput(fd,"a_"+k,form._timeValues?.actual?.[k]);
-    const f = {
+    let f = {
       ...(old || {}),
       id: form.dataset.id,
       date: fd.get("date"),
@@ -514,34 +502,13 @@ async function saveFlight(ev) {
       updatedAt: new Date().toISOString(),
       attachment: imported?.attachment || old?.attachment,
     };
+    const v14Enabled=!workspaceSession?.uid||account?.config?.logbookV14Enabled===true;
+    if(!v14Enabled&&(old?.logbook||old?.auditTrail))throw Error('Bản ghi V14 chỉ đọc khi V14 chưa bật trên máy chủ. Không lưu để tránh mất dữ liệu; cập nhật rules/cấu hình.');
+    if(v14Enabled){const logbook=readLogbookFields(fd,old?.logbook||form._timeValues?.logbook);if(logbook)f.logbook=logbook;}
+    if(imported&&f.confirmed&&!fd.has('scanReviewed')){modal._flightEditor?.show('log');throw Error('Hãy đối chiếu ảnh và các trường giữ lại trước khi chốt FINAL.');}
+    if(requiresFinalPermission(old,f)&&!fd.has('replaceConfirmed'))throw Error('Actual đã xác nhận được bảo vệ. Tích cho phép thay đổi để tiếp tục.');
     if (
-      old?.confirmed &&
-      (JSON.stringify(old.actual) !== JSON.stringify(actual) ||
-        !f.confirmed ||
-        [
-          "dep",
-          "dest",
-          "aircraft",
-          "reg",
-          "source",
-          "role",
-          "takeoffBy",
-          "landingBy",
-          "landingMode",
-          "picMinutes",
-          "nightMinutes",
-          "captainId",
-          "foId",
-        ].some((k) => (old[k] ?? "") !== (f[k] ?? "")) ||
-        JSON.stringify(old.crewIds || []) !==
-          JSON.stringify(f.crewIds || [])) &&
-      !fd.has("replaceConfirmed")
-    )
-      throw Error(
-        "Actual đã xác nhận được bảo vệ. Tích cho phép thay đổi để tiếp tục.",
-      );
-    if (
-      state.flights.some((x) => x.id !== f.id && flightKey(x) === flightKey(f))
+      state.flights.some((x) => x.id !== f.id && x.date===f.date && normalizeFlightCode(x.flightNo)===normalizeFlightCode(f.flightNo))
     )
       throw Error("Chuyến này đã có trong ngày. Mở chuyến cũ để ghi Actual.");
     validateFlight(f);
@@ -557,6 +524,10 @@ async function saveFlight(ev) {
       f.attachment = await asDataURL(file);assertAsync(evidenceCapture);
     }
     if (fd.has("removeAttachment")) {delete f.attachment;delete f.evidence;}
+    const beforeEvidence=await evidenceFingerprint(old),afterEvidence=await evidenceFingerprint(f);assertAsync(evidenceCapture);
+    if(requiresFinalPermission(old,f,{beforeEvidence,afterEvidence})&&!fd.has('replaceConfirmed'))throw Error('Ảnh/Actual của FINAL đang được bảo vệ. Cần cho phép thay đổi.');
+    if(v14Enabled)f=recordFlightRevision(old,f,{reason:fd.get('revisionReason')||'',replaceConfirmed:fd.has('replaceConfirmed'),beforeEvidence,afterEvidence});
+    validateFlight(f);
     const next = structuredClone(state),
       i = next.flights.findIndex((x) => x.id === f.id);
     next.people=resolvedPeople.people;
@@ -569,6 +540,8 @@ async function saveFlight(ev) {
     render();
   } catch (err) {
     error(err.message);
+  } finally {
+    form._saving=false;
   }
 }
 function importRoster() {
@@ -597,7 +570,7 @@ function importProgress(text) {
   if (el) el.textContent = text;
 }
 function setImportBusy(busy) {
-  for (const b of modal.querySelectorAll('button[data-action$="parse"]'))
+  for (const b of modal.querySelectorAll('button[data-action$="parse"],button[data-action="image-ocr-crop"],button[data-action="image-ocr-full"]'))
     b.disabled = busy;
 }
 function previewRoster() {
@@ -611,7 +584,7 @@ function previewRoster() {
         "Chưa nhận ra chuyến nào. Sửa dòng về định dạng mẫu, rồi đọc lại.",
       );
     importPreview = parsed.flights;
-    const merge = mergeRoster(state.flights, parsed.flights);
+    const merge = mergeRoster(state.flights, parsed.flights,{v14Enabled:!workspaceSession?.uid||account?.config?.logbookV14Enabled===true});
     modal.querySelector("#roster-preview").innerHTML =
       `<div class="form-section"><span>${parsed.flights.length} chuyến cần kiểm tra</span><span class="pill amber">Chưa lưu</span></div>${parsed.unrecognized.length ? `<div class="source-card">${parsed.unrecognized.length} dòng chưa nhận diện:<br>${parsed.unrecognized.slice(0, 6).map(e).join("<br>")}<br>Kiểm tra lại file gốc để tránh sót chuyến / hoạt động.</div>` : ""}<div class="wide-note" style="margin-top:12px">${merge.changes.filter((x) => x.type === "new").length} mới · ${merge.changes.filter((x) => x.type === "updated").length} đổi lịch · ${merge.changes.filter((x) => x.type === "unchanged").length} không đổi. Không xóa chuyến bị thiếu.</div><form id="roster-review">${parsed.flights.map((f, i) => `<div class="import-row" data-row="${i}"><div class="import-row-head"><strong>${e(f.flightNo)} · ${e(f.dep)} → ${e(f.dest)}</strong><span class="pill gray">${merge.changes[i].type}</span></div><div class="form-grid">${input("date", "Ngày UTC", f.date, "date", "required")}${input("flightNo", "Flight", f.flightNo, "text", "required")}${input("dep", "DEP", f.dep, "text", "required")}${input("dest", "DEST", f.dest, "text", "required")}${timeInput("out", "Scheduled OUT", f.scheduled.out)}${timeInput("in", "Scheduled IN", f.scheduled.in)}</div></div>`).join("")}</form><label class="check" style="margin-top:15px"><input id="roster-confirm" type="checkbox">Tôi đã đối chiếu ngày, route và giờ UTC với file gốc.</label>`;
     modal.querySelector(".modal-footer").innerHTML =
@@ -641,7 +614,7 @@ async function saveRoster() {
       validateFlight(f);
       return f;
     });
-    const m = mergeRoster(state.flights, rows),
+    const m = mergeRoster(state.flights, rows,{v14Enabled:!workspaceSession?.uid||account?.config?.logbookV14Enabled===true}),
       next = { ...state, flights: m.flights };
     await commit(next, "Đã cập nhật Scheduled · Actual được giữ nguyên");
     month = rows[0].date.slice(0, 7);
@@ -652,9 +625,72 @@ async function saveRoster() {
     error(err.message);
   }
 }
+function scanFeedback(text) {
+  const target=modal.querySelector('#image-ocr-feedback');
+  if(!target)return;
+  if(modal.querySelector('[name="family"]')?.value!=='A320'||!text.trim()){target.hidden=true;return;}
+  const scan=readA320Scan(text);
+  const eventKeys=['out','off','on','in'];
+  target.hidden=false;
+  target.innerHTML=`<strong>Smart Scan V2 · đọc thử (chưa lưu)</strong><p>Flight: <b>${e(scan.flightNo||'Chưa nhận')}</b> · DEP: <b>${e(scan.dep||'—')}</b> · DEST: <b>${e(scan.dest||'—')}</b></p><p>UTC: ${eventKeys.map(k=>`<b>${k.toUpperCase()}</b> ${e(scan.clocks[k]||'—')}`).join(' · ')}</p><p>Kiểm tra thời gian: FLIGHT ${e(scan.reported.flight||'—')} · BLOCK ${e(scan.reported.block||'—')} · <b>${scan.verified}/2 khớp</b></p>${scan.warnings.length?`<p class="ocr-warnings">Cần đối chiếu: ${scan.warnings.map(e).join(' ')}</p>`:'<p>Đã nhận dạng đủ bốn mốc và hành trình. Vẫn phải kiểm tra ngày UTC với ảnh gốc.</p>'}<p class="tiny muted">Điểm nhận dạng tham khảo: ${scan.confidence}/100 · không phải chứng nhận độ chính xác.</p>`;
+}
+function setupImageCrop(dataURL) {
+  const details=modal.querySelector('#image-crop-tools'),canvas=modal.querySelector('#image-crop-canvas');
+  if(!details||!canvas)return;
+  details.hidden=false;
+  const ctx=canvas.getContext('2d');
+  const image=new Image();
+  image.onload=()=>{
+    if(!canvas.isConnected)return;
+    canvas.width=Math.min(440,image.naturalWidth);
+    canvas.height=Math.round(canvas.width*image.naturalHeight/image.naturalWidth);
+    const draw=()=>{
+      ctx.drawImage(image,0,0,canvas.width,canvas.height);
+      if(imageCropRect){
+        const r=imageCropRect;
+        ctx.fillStyle='rgba(24,75,142,.12)';ctx.strokeStyle='#4ff08c';ctx.lineWidth=3;
+        ctx.fillRect(r.x*canvas.width,r.y*canvas.height,r.width*canvas.width,r.height*canvas.height);
+        ctx.strokeRect(r.x*canvas.width,r.y*canvas.height,r.width*canvas.width,r.height*canvas.height);
+      }
+    };
+    redrawImageCrop=draw;draw();
+  };
+  image.src=dataURL;
+  let origin=null;
+  const locate=ev=>{const r=canvas.getBoundingClientRect();return{x:Math.max(0,Math.min(1,(ev.clientX-r.left)/r.width)),y:Math.max(0,Math.min(1,(ev.clientY-r.top)/r.height))};};
+  canvas.addEventListener('pointerdown',ev=>{if(!canvas.width)return;origin=locate(ev);canvas.setPointerCapture(ev.pointerId);});
+  canvas.addEventListener('pointermove',ev=>{if(!origin)return;const point=locate(ev);imageCropRect={x:Math.min(origin.x,point.x),y:Math.min(origin.y,point.y),width:Math.abs(point.x-origin.x),height:Math.abs(point.y-origin.y)};redrawImageCrop();});
+  canvas.addEventListener('pointerup',ev=>{
+    if(!origin)return;
+    const point=locate(ev),r={x:Math.min(origin.x,point.x),y:Math.min(origin.y,point.y),width:Math.abs(point.x-origin.x),height:Math.abs(point.y-origin.y)};
+    origin=null;
+    if(r.width<.08||r.height<.08){imageCropRect=null;modal.querySelector('#image-crop-hint').textContent='Vùng chọn quá nhỏ. Hãy kéo lại quanh toàn bộ màn hình.';}
+    else{imageCropRect=r;modal.querySelector('#image-crop-hint').textContent='Đã chọn vùng màn hình. Bấm “Đọc lại vùng chọn”.';}
+    redrawImageCrop();
+  });
+  canvas.addEventListener('pointercancel',()=>{origin=null;});
+}
+async function rescanSelectedImage(mode) {
+  if(!imageFile) {error('Chọn ảnh FLT LOG trước khi đọc lại.');return;}
+  if(mode==='manual' && (!imageCropRect||imageCropRect.width<.08||imageCropRect.height<.08)){error('Chạm kéo trên ảnh để chọn vùng màn hình trước.');modal.querySelector('#image-crop-tools').open=true;return;}
+  const capture=asyncCapture(),generation=++imageScanGeneration;setImportBusy(true);
+  try{
+    const result=await extractImage(imageFile,text=>{if(asyncCurrent(capture)&&generation===imageScanGeneration)importProgress(text);},{family:modal.querySelector('[name="family"]').value,mode,crop:imageCropRect});
+    assertAsync(capture);
+    if(generation!==imageScanGeneration)return;
+    modal.querySelector('#image-text').value=result;
+    scanFeedback(result);
+    importProgress('Đã đọc lại. Đối chiếu các trường trước khi lưu.');
+  }catch(err){if(asyncCurrent(capture)&&generation===imageScanGeneration)error(err.message);}
+  finally{if(asyncCurrent(capture)&&generation===imageScanGeneration)setImportBusy(false);}
+}
 function imageImport(targetId) {
   imageAttachment = null;
   imageIsSample = false;
+  imageFile = null;
+  imageCropRect = null;
+  imageScanGeneration++;
+  redrawImageCrop = () => {};
   openModal(
     "Nhập từ ảnh FLT LOG",
     `<div class="modal-body"><div class="steps"><b>01 · Chọn ảnh</b><span>→</span><b>02 · OCR</b><span>→</span><span>03 · Xác nhận</span></div><p>Ảnh được đọc cục bộ. OCR có thể đọc sai chữ/số; không có dữ liệu nào tự lưu. Lần dùng đầu cần mạng để tải mô hình nhận dạng tiếng Anh.</p><div class="form-grid">${select(
@@ -662,29 +698,33 @@ function imageImport(targetId) {
       "Aircraft family",
       "A320",
       Object.entries(families).map(([k, v]) => [k, v.label]),
-    )}${input("image-date", "Ngày OUT · UTC", targetId ? find(targetId).date : todayInputDate(), "date", 'id="image-date" required')}</div><div class="file-zone">${icon("camera")}<strong>Chụp hoặc chọn MCDU / AOC / ACARS OOOI</strong><input type="file" id="image-file" accept="image/jpeg,image/png,image/webp" capture="environment"><span class="tiny muted">JPG / PNG / WebP · tối đa 6 MB</span></div><details class="source-card"><summary>Ảnh mẫu E190 · ACARS OOOI</summary><img class="image-preview" src="/examples/e190-oooi.png" alt="Mẫu màn hình E190: OUT/OFF và IN/ON theo hai cột"><p>Chọn E190 khi đọc mẫu này. Kiểm tra riêng số chuyến, sân bay, ngày OUT và bốn mốc giờ; thông tin chưa rõ có thể sửa tay.</p></details><div id="image-evidence"></div><div class="progress" id="import-progress"></div><div class="form-section"><span>Văn bản OCR · sửa khi cần</span>${btn("image-sample", "Dùng dữ liệu mẫu", null, "small ghost")}</div><textarea id="image-text" rows="8" placeholder="VN0605 VVTS VTBS&#10;OUT 04:29&#10;OFF 04:39&#10;ON 05:50&#10;IN 06:00"></textarea><div class="error" data-error hidden></div></div>`,
+    )}${input("image-date", "Ngày OUT · UTC", targetId ? find(targetId).date : todayInputDate(), "date", 'id="image-date" required')}</div><div class="file-zone">${icon("camera")}<strong>Chụp hoặc chọn MCDU / AOC / ACARS OOOI</strong><input type="file" id="image-file" accept="image/jpeg,image/png,image/webp" capture="environment"><span class="tiny muted">JPG / PNG / WebP · tối đa 6 MB</span></div><details class="source-card"><summary>Ảnh mẫu E190 · ACARS OOOI</summary><img class="image-preview" src="/examples/e190-oooi.png" alt="Mẫu màn hình E190: OUT/OFF và IN/ON theo hai cột"><p>Chọn E190 khi đọc mẫu này. Kiểm tra riêng số chuyến, sân bay, ngày OUT và bốn mốc giờ; thông tin chưa rõ có thể sửa tay.</p></details><div id="image-evidence"></div><details id="image-crop-tools" class="source-card" hidden><summary>Smart Scan V2 · khoanh vùng màn hình / đọc lại</summary><p>Khung viền là vùng AviLog tự tìm. Nếu thiếu chữ hoặc giờ, kéo trực tiếp lên ảnh từ góc trái trên đến góc phải dưới để chọn lại toàn bộ màn hình AOC (gồm FLT ID, DEP/DEST và các giờ).</p><canvas id="image-crop-canvas" class="image-crop-canvas" aria-label="Chạm kéo để chọn vùng AOC trên ảnh"></canvas><p id="image-crop-hint" class="tiny muted">Chạm kéo trên ảnh để chọn vùng muốn đọc lại.</p><div class="actions">${btn("image-ocr-crop", "Đọc lại vùng chọn", "camera", "small")}${btn("image-ocr-full", "Đọc lại toàn ảnh", "camera", "small ghost")}</div></details><div class="progress" id="import-progress"></div><div class="form-section"><span>Văn bản OCR · sửa khi cần</span>${btn("image-sample", "Dùng dữ liệu mẫu", null, "small ghost")}</div><textarea id="image-text" rows="8" placeholder="VN0506/-- VVNB/ZGGG&#10;OUT 06:00&#10;OFF 06:13&#10;ON 07:35&#10;IN 07:58"></textarea><div id="image-ocr-feedback" class="source-card" aria-live="polite" hidden></div><div class="error" data-error hidden></div></div>`,
     `${btn("close", "Hủy", null, "ghost")}${btn("image-parse", "Xem trước Actual", "arrow", "primary", targetId ? `data-id="${e(targetId)}"` : "")}`,
   );
   modal.querySelector("#image-file").onchange = async (ev) => {
     const file = ev.target.files[0];
     if (!file) return;
-    imageIsSample = false;const capture=asyncCapture();formDirty=true;
+    imageIsSample = false;imageFile=file;imageCropRect=null;const capture=asyncCapture(),generation=++imageScanGeneration;formDirty=true;
     setImportBusy(true);
     try {
       if (file.size > 6 * 1024 * 1024) throw Error("Ảnh tối đa 6 MB");
       if (!["image/jpeg", "image/png", "image/webp"].includes(file.type))
         throw Error("Dùng JPG/PNG/WebP");
-      const attachment = await asDataURL(file);assertAsync(capture);imageAttachment=attachment;
+      const attachment = await asDataURL(file);assertAsync(capture);if(generation!==imageScanGeneration)return;imageAttachment=attachment;
       modal.querySelector("#image-evidence").innerHTML =
         `<img class="image-preview" src="${safeImage(imageAttachment)}" alt="Ảnh FLT LOG đang nhập">`;
-      const text=await extractImage(file,text=>{if(asyncCurrent(capture))importProgress(text);},{family:modal.querySelector('[name="family"]').value});assertAsync(capture);modal.querySelector("#image-text").value=text;
+      setupImageCrop(imageAttachment);
+      const text=await extractImage(file,text=>{if(asyncCurrent(capture)&&generation===imageScanGeneration)importProgress(text);},{family:modal.querySelector('[name="family"]').value,onRegion:r=>{if(asyncCurrent(capture)&&generation===imageScanGeneration&&r){imageCropRect=r;redrawImageCrop();modal.querySelector('#image-crop-hint').textContent='Đã tìm vùng màn hình tự động. Kéo để chỉnh nếu cần.';}}});
+      assertAsync(capture);if(generation!==imageScanGeneration)return;modal.querySelector("#image-text").value=text;scanFeedback(text);
       importProgress("OCR xong. Kiểm tra văn bản và bấm Xem trước.");
     } catch (err) {
-      if(asyncCurrent(capture))error(err.message);
+      if(asyncCurrent(capture)&&generation===imageScanGeneration)error(err.message);
     } finally {
-      if(asyncCurrent(capture))setImportBusy(false);
+      if(asyncCurrent(capture)&&generation===imageScanGeneration)setImportBusy(false);
     }
   };
+  modal.querySelector('#image-text').addEventListener('input',ev=>scanFeedback(ev.target.value));
+  modal.querySelector('[name="family"]').addEventListener('change',()=>scanFeedback(modal.querySelector('#image-text').value));
 }
 function previewImage(targetId) {
   try {
@@ -693,25 +733,22 @@ function previewImage(targetId) {
       modal.querySelector('[name="family"]').value,
       modal.querySelector("#image-date").value,
     );
-    const old = targetId
-      ? find(targetId)
-      : state.flights.find((x) => flightKey(x) === flightKey(f));
-    const imported = {
-      ...(old || {}),
-      ...f,
-      id: old?.id || f.id,
-      dep: f.dep || old?.dep || "",
-      dest: f.dest || old?.dest || "",
-      note: old?.note ?? f.note ?? "",
-      aircraft: old?.aircraft || f.aircraft,
-      role: old?.role || f.role,
-      picMinutes: old?.picMinutes || 0,
-      nightMinutes: old?.nightMinutes || 0,
-      scheduled: old?.scheduled || {},
-      attachment: imageAttachment || old?.attachment,
-      source: imageIsSample ? "sample text · "+f.aircraft : f.source,
+    const found=lookupFlights(state.flights,{flightNo:f.flightNo,date:f.date});
+    const show=old=>{
+      const imported=prepareScanDraft(old,f);
+
+      imported.attachment=imageAttachment||old?.attachment;
+      imported.source=imageIsSample?'sample text · '+f.aircraft:f.source;
+      if(old&&scanComparison(old,f).some(row=>row.state==='missing'))imported.source=(imported.source+' + dữ liệu cũ cần kiểm tra').slice(0,120);
+      editFlight(old,imported,f.note,f);
     };
-    editFlight(old, imported, f.note);
+    if(targetId){show(find(targetId));return;}
+    if(found.kind==='ambiguous'){
+      openModal('Chọn chuyến khớp ảnh',`<div class="modal-body"><p>Nhiều bản ghi cùng số hiệu/ngày. Chọn rõ chuyến cần ghi, không tự chọn kết quả đầu tiên.</p><div data-scan-match-list></div><div class="error" data-error hidden></div></div>`);
+      const list=modal.querySelector('[data-scan-match-list]');
+      for(const record of found.matches){const button=document.createElement('button');button.type='button';button.className='btn';button.textContent=record.flightNo+' · '+record.dep+' → '+record.dest+' · '+(record.reg||'Chưa có reg');button.onclick=()=>{try{show(find(record.id));}catch(err){error(err.message);}};list.append(button);}return;
+    }
+    show(found.kind==='same-day'?find(found.matches[0].id):null);
   } catch (err) {
     error(err.message);
   }
@@ -938,6 +975,8 @@ function exportCSV() {
     "Source",
     "Confidence",
     "Note",
+    "SIC origin", "PICUS minutes", "IFR minutes", "VFR minutes", "Actual instrument minutes", "Cross-country minutes",
+    "Takeoffs day", "Takeoffs night", "Landings day", "Landings night", "Audit entries",
   ];
   const rows = state.flights.map((f) => [
     f.date,
@@ -953,9 +992,7 @@ function exportCSV() {
     f.confirmed ? minutes(f.actual?.off, f.actual?.on) : "",
     f.role,
     f.picMinutes,
-    f.confirmed
-      ? minutes(f.actual?.out, f.actual?.in) - (f.picMinutes || 0)
-      : "",
+    f.confirmed ? timeTotals(f).sic??"" : "",
     f.takeoffBy,
     f.landingBy,
     f.landingMode,
@@ -964,6 +1001,9 @@ function exportCSV() {
     f.source,
     f.confidence,
     f.note,
+    f.logbook?'Explicit / unknown':'Legacy block minus PIC; review',
+    ...['picusMinutes','ifrMinutes','vfrMinutes','instrumentMinutes','crossCountryMinutes','takeoffDay','takeoffNight','landingDay','landingNight'].map(k=>f.logbook?.[k]??''),
+    f.auditTrail?.entries.length||0,
   ]);
   download(
     "avilog-logbook.csv",
@@ -1164,11 +1204,22 @@ document.addEventListener("click", async (ev) => {
       case "image-sample":
         modal.querySelector("#image-text").value = modal.querySelector('[name="family"]').value==='E190'?'FLIGHT NO DEP/DEST\nAT411M GMMX/GMMN\nOUT OFF\n1230Z 1307Z\nIN ON\n1337Z 1333Z':sampleAOC;
         imageAttachment = null;
+        imageFile = null;
+        imageCropRect = null;
+        imageScanGeneration++;
         imageIsSample = true;
         modal.querySelector("#image-evidence").innerHTML = "";
+        modal.querySelector('#image-crop-tools').hidden = true;
+        scanFeedback(modal.querySelector('#image-text').value);
         break;
       case "image-parse":
         previewImage(id);
+        break;
+      case "image-ocr-crop":
+        await rescanSelectedImage('manual');
+        break;
+      case "image-ocr-full":
+        await rescanSelectedImage('full');
         break;
       case "add-person":
         personEditor();

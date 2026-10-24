@@ -1,0 +1,327 @@
+{
+  "release": "AviLog V14 2026-10-24",
+  "appliesTo": "AviLog_Flight_UI_V13_COMPACT_FULL_2026-10-23.zip",
+  "baselineArchiveSHA256": "7619b1c87cb9250c8e1dea6562c9f2805705d4546f84af7a93ab10296602cebd",
+  "notForOlderMain": true,
+  "deployed": false,
+  "cloudRequires": [
+    "New Firebase SDK build (Dockerfile included)",
+    "Deploy included Firestore rules",
+    "AVILOG_LOGBOOK_V14_ENABLED=true only after verification",
+    "All clients updated; no downgrade to V13 after writing V14 metadata"
+  ],
+  "changes": [
+    {
+      "path": ".env.example",
+      "beforeSHA256": "0b55c2775544568b6a51c8b30b84f89ee5c659b2431d2ff036e4249db763dca4",
+      "afterSHA256": "d5445fceff56b3adace73d3b2a732ad568408aab5f4c307ed58f42cfd7115322",
+      "bytes": 828
+    },
+    {
+      "path": "Dockerfile",
+      "beforeSHA256": "a5951d33593f70c173e23b11939f978879eafd7d536d351890bc28fa33a18986",
+      "afterSHA256": "e87b28229966c1ec668f400ef4db4ddce9fa624e0d84c248e906e3ecc1cfc7dd",
+      "bytes": 713
+    },
+    {
+      "path": "README.md",
+      "beforeSHA256": "aa89ef03a561f591590b50172f5b7522fa71ca42cc5fb72ac7e2925580db7388",
+      "afterSHA256": "6e26aff01151dc40903b6411f03b368cd500d29c1097392d19be203ccf93e010",
+      "bytes": 30110
+    },
+    {
+      "path": "docs/V14-HUONG-DAN.md",
+      "beforeSHA256": null,
+      "afterSHA256": "d44fdf2843e5429b11a54ea632c14d9679a23bd33d1dc577183be60622d3ed48",
+      "bytes": 10839
+    },
+    {
+      "path": "docs/V14-PREVIEW.png",
+      "beforeSHA256": null,
+      "afterSHA256": "953c074cade85c4f3c383fc3c2aeab92c8c1ab78d57450be1fa70451c149030c",
+      "bytes": 179768
+    },
+    {
+      "path": "docs/V14-QA.json",
+      "beforeSHA256": null,
+      "afterSHA256": "8c716c4074a6de4089c13d1403261d4b8243de3ba4aac946248b114ef92d7acc",
+      "bytes": 14409
+    },
+    {
+      "path": "docs/superpowers/plans/2026-10-24-v14.md",
+      "beforeSHA256": null,
+      "afterSHA256": "73c45685a4989d62da5aeef47210b1b469f1103ef49cd3fcfcb3b2d9637febf0",
+      "bytes": 2040
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-24-v14.md",
+      "beforeSHA256": null,
+      "afterSHA256": "fe3d586f84a04ec115149c0b88949873d85828468ef62bc738aea8c859890c4f",
+      "bytes": 3927
+    },
+    {
+      "path": "docs/v14-verification/all-v14-unit.log",
+      "beforeSHA256": null,
+      "afterSHA256": "c70935b94503380af53053d58b1c3b76a987537f1fe5458c12ef029f626a65c6",
+      "bytes": 9813
+    },
+    {
+      "path": "docs/v14-verification/final-editor.log",
+      "beforeSHA256": null,
+      "afterSHA256": "62ea5155a037734c94bf94eb40a69c0e655bef5ccfc5da4e2c8fdbf21f4d9125",
+      "bytes": 2758
+    },
+    {
+      "path": "docs/v14-verification/final-unit.log",
+      "beforeSHA256": null,
+      "afterSHA256": "919ac16cf904ca3e17df989f4a45cebd575ce94dba4ffeb006d5a01eb10ce352",
+      "bytes": 59140
+    },
+    {
+      "path": "docs/v14-verification/final-v14-ui.log",
+      "beforeSHA256": null,
+      "afterSHA256": "e7f59f9389bfddd7c40f8b67c50065d4b223acf58f10d8884254063954c9e976",
+      "bytes": 2137
+    },
+    {
+      "path": "docs/v14-verification/integrity.json",
+      "beforeSHA256": null,
+      "afterSHA256": "fd4023afae1037288d4fe742aaaaa079a6fa34a9361671648cc5a9ed02f7151d",
+      "bytes": 15960
+    },
+    {
+      "path": "docs/v14-verification/v14-build-cache-green.log",
+      "beforeSHA256": null,
+      "afterSHA256": "0ad0bc110c2cad8cacf1ebfc5b9420e6672df0e315e3f8ddbdbd6c72e9c7be60",
+      "bytes": 2514
+    },
+    {
+      "path": "firebase/firestore.rules",
+      "beforeSHA256": "18b011877cc78e739afb7d9bade1dbf2dece3e0a3273718d53f7d991c44bcc57",
+      "afterSHA256": "9188f81cd9b636eef815fc1e4739be33d732681d78ec355ebc9da4eab9b4af84",
+      "bytes": 15667
+    },
+    {
+      "path": "lib/firebase-auth.js",
+      "beforeSHA256": "bce32312a1bb1104a36e07818ea142149639b3f3dc36184d8e9a1e55e20417a0",
+      "afterSHA256": "e55477dcaf727552d5b5e77004347b6701f342fcc2740e0146e24f3829fd8538",
+      "bytes": 5421
+    },
+    {
+      "path": "lib/v14-bundle.js",
+      "beforeSHA256": null,
+      "afterSHA256": "671e56cd6dddac5e402cd3b69a42ead4d6d3b3cc3f41086abb0e40f8d68934bc",
+      "bytes": 1376
+    },
+    {
+      "path": "public/app.js",
+      "beforeSHA256": "fc46379a4ce4887805b48bccf34fd7d6df98459766af0b534290f5f9f025f23e",
+      "afterSHA256": "32777d93ae3138965422506c9f020c671cb87fd24cf4d01087d9d2c15043b070",
+      "bytes": 91910
+    },
+    {
+      "path": "public/lib/domain.js",
+      "beforeSHA256": "9f2384c92b4b37fb3995bdb2d16a00a3e4dc20b9fd0864708acecc29ffb7fff5",
+      "afterSHA256": "6534b1ae1b0b0e0c1376c085105bc8033379c81b94eecdab03ad05524d98d748",
+      "bytes": 12071
+    },
+    {
+      "path": "public/lib/flight-assist.js",
+      "beforeSHA256": null,
+      "afterSHA256": "344e07f7f7392eb112274528e250f62c556ec29a333c8cb1f655b83ad3acd635",
+      "bytes": 3361
+    },
+    {
+      "path": "public/lib/flight-audit.js",
+      "beforeSHA256": null,
+      "afterSHA256": "14fb7c67ef609098c67822c19dbb296611db969cbd8358509e1f70372c9621d7",
+      "bytes": 5053
+    },
+    {
+      "path": "public/lib/flight-editor.js",
+      "beforeSHA256": "42de8756003a0e5ada33e1ff6bfabbb928b3a983e17e7fbaac8b2fc51ce8ba6f",
+      "afterSHA256": "240cf1289ef051dd7653317a2a24786abf815add9074010edf875b6d7d0b93f7",
+      "bytes": 18018
+    },
+    {
+      "path": "public/lib/flight-times.js",
+      "beforeSHA256": null,
+      "afterSHA256": "a7609cc0e2574d36b95fc7b8cb23868e969b627bbc61aef0d6e51b9eb18ec652",
+      "bytes": 2954
+    },
+    {
+      "path": "public/lib/flight-v14-ui.js",
+      "beforeSHA256": null,
+      "afterSHA256": "029826e17a5c701805f9bdc921c84bc8320986fa0a8e5555cf7974b463a43720",
+      "bytes": 7988
+    },
+    {
+      "path": "public/style.css",
+      "beforeSHA256": "662698500d0ce9a27c8bf008b694c4be3c269da52db79d9e328a8a9533e6cc89",
+      "afterSHA256": "b1042fe85ecbafa02f69b98eb95268998da2cbce92531857bfe3e2df31f3af8f",
+      "bytes": 71091
+    },
+    {
+      "path": "public/sw.js",
+      "beforeSHA256": "159b1c8210dc166fa43d24db53456cfd1b3c1cf1f418e9e42b25b71b414d1f8f",
+      "afterSHA256": "2c8e3e0e63e078f583896d86e4d07d3c6c6edbdcded1faae2efbf150693401be",
+      "bytes": 6183
+    },
+    {
+      "path": "public/workspace/backup-ui.js",
+      "beforeSHA256": "0d1f72479c1460683019c65e2438b378329ad20d03646bec7be73cb46e524336",
+      "afterSHA256": "576a9c9eafff7ab3d574016da17b64c01baba0e60f5740efa5658faf5e554895",
+      "bytes": 10639
+    },
+    {
+      "path": "public/workspace/capabilities.js",
+      "beforeSHA256": null,
+      "afterSHA256": "682bfd9ea8e8487d840b95ccb6b87598ddeb99b25b68ad0ce59ef5e72fcbd5db",
+      "bytes": 640
+    },
+    {
+      "path": "public/workspace/flight-conflict.js",
+      "beforeSHA256": null,
+      "afterSHA256": "ed03b56a90f526b8b4b3e87985f65786addc9652145b84bc77a798cd62dd674b",
+      "bytes": 1150
+    },
+    {
+      "path": "public/workspace/migration.js",
+      "beforeSHA256": "a15de912179adbda68dea1b39a0f903d99eb98fd5bdd00e0af7b7cd941067b44",
+      "afterSHA256": "45b274b9cb0b51b740df4c468547c699642a3574494c9d278037fe7c64583306",
+      "bytes": 8868
+    },
+    {
+      "path": "public/workspace/model.js",
+      "beforeSHA256": "f8297f7cd857e6bb7518f5f10b55f921cdf9983b67d957052adb645c283cfa00",
+      "afterSHA256": "8feb7c5ff856a2085e5b6099e7ade74cc8017a2535fe16c5259e717196aa9b29",
+      "bytes": 4891
+    },
+    {
+      "path": "public/workspace/schema.js",
+      "beforeSHA256": "cbf1036905effd87d0827ae877875e356799d764c7618dc9c5f5f27dde3bff77",
+      "afterSHA256": "82aa377c6d5de1137b25e822309afa2974c7a8ffe35b2599002a1cf595732b6f",
+      "bytes": 8787
+    },
+    {
+      "path": "public/workspace/session.js",
+      "beforeSHA256": "1ab1e8e960c7241700e3b417726c9e4a9b6f950c9c35ff0e7324783d7f02e631",
+      "afterSHA256": "a1b4a1930c4a0ad893e53f597c84658ed5144f88883894a860b919f6c6bcbc49",
+      "bytes": 11143
+    },
+    {
+      "path": "public/workspace/ui.js",
+      "beforeSHA256": "df19a237b9f9578f4320f7f51b98d9023f3ffde6d2297dcbf0b0b6405f6df2cc",
+      "afterSHA256": "8a9d2fa6f1178569cc320e4fa2cf05cb000256948a4ea4b8bc2a2338897a76b9",
+      "bytes": 9779
+    },
+    {
+      "path": "scripts/build-atpl-account.mjs",
+      "beforeSHA256": "35a3815d26af59f479ce44f4962bc0d5c9bc3a598e7ce65decd1120262a7719b",
+      "afterSHA256": "9a565d0475eb1a4129d599e9163c6c5bd7dd04f304d83c3006a6a9f2eb8ac2f0",
+      "bytes": 1507
+    },
+    {
+      "path": "scripts/stamp-bundle.mjs",
+      "beforeSHA256": null,
+      "afterSHA256": "0abfe582c935bbd9784efc53c0372000c5c7a3d163554a20543a8b49d7af992a",
+      "bytes": 411
+    },
+    {
+      "path": "scripts/verify-flight-editor.py",
+      "beforeSHA256": "929da50cc406a8cdcacbd8033745737c9dc7a038f024895bffa15a12502fef2a",
+      "afterSHA256": "d1cb6d75c5a56ae3e887f010798ebc23e79bb3ced99bccdc9ea955cd7fe7395d",
+      "bytes": 17554
+    },
+    {
+      "path": "scripts/verify-v14-flows.py",
+      "beforeSHA256": null,
+      "afterSHA256": "e0af0a10a0085c93b06d15b3927ef1ef0bf1d60197ba21f5be81fef08cc35ce0",
+      "bytes": 11228
+    },
+    {
+      "path": "server.js",
+      "beforeSHA256": "d22964afb04b6c9f83d25af8358e4c05527d709ba0b7a11397d92588a9cbf702",
+      "afterSHA256": "2b2131b3baab425d0ace63b2e810b3cf063003aca67bd6b5cac134ac2e0182f0",
+      "bytes": 4820
+    },
+    {
+      "path": "tests/flight-editor.test.js",
+      "beforeSHA256": "2d2f15e755d402aa75810590bcc9502ff74973b79e2c8c0559a5d4cd9228ce61",
+      "afterSHA256": "5c732341ffcde3fac2b7a85b0bf59883ab9975bfedc71de44c9f2fc1deb109f6",
+      "bytes": 3788
+    },
+    {
+      "path": "tests/v14-assist.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "387d72a421c3052e6b2183ee374c9c843df29d40050679791a68623b3df9b00a",
+      "bytes": 3856
+    },
+    {
+      "path": "tests/v14-audit.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "4f66c5c877adc9c6f63c268c3591110b44afb00a00ead09d21d0439466e91efe",
+      "bytes": 3680
+    },
+    {
+      "path": "tests/v14-build-cache.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "395d4a731b5d47d1cb59a7ba71c35ac86c89b0805169eaa95736cdb140ca14ad",
+      "bytes": 1405
+    },
+    {
+      "path": "tests/v14-bundle.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "c70d8acb524d3a922bdca4826db2abfef36664f92468c359c34fbb5e22d5b9e7",
+      "bytes": 1915
+    },
+    {
+      "path": "tests/v14-capability.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "4db853e096098a163c09c2a5058524c0ec8cb231b106486b318161bbc29e733c",
+      "bytes": 1412
+    },
+    {
+      "path": "tests/v14-conflicts.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "e60589cb690f1924faa8307dbe2a86f324e035faef86b142329f373091900e5e",
+      "bytes": 2437
+    },
+    {
+      "path": "tests/v14-editor.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "455cbe2cb47937dae60510999793b57e68220f80511ce8c1a152cf955343441b",
+      "bytes": 1900
+    },
+    {
+      "path": "tests/v14-persistence.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "b5b9664c93c471d9f66dd58e34ba512b2f0c248098ab412aca44dcd1f95f6cd7",
+      "bytes": 4987
+    },
+    {
+      "path": "tests/v14-storage.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "13737578858386532cbb05473359dc26eb2365db124424a051e48e5a76693b85",
+      "bytes": 5555
+    },
+    {
+      "path": "tests/v14-times.test.js",
+      "beforeSHA256": null,
+      "afterSHA256": "71e597aa03d4bfde07568bf43b22d0b68ea0eef64fc6985f54ab2b8482b369d0",
+      "bytes": 2573
+    },
+    {
+      "path": "tests/workspace-rules.emulator.js",
+      "beforeSHA256": "84840e945bdf1e37120e4fa485570baff8c1096a31bb9e1aea7a67721356022b",
+      "afterSHA256": "546edb7e283599336e5b5d58fe4b498c12d7ad5b1c4ef75b39f4dceeee86708a",
+      "bytes": 6753
+    },
+    {
+      "path": "tests/workspace-service-worker.test.js",
+      "beforeSHA256": "cf38b69e792df39b7d0ce6df8433f9ff04f4fe6e569b33333211688734d76223",
+      "afterSHA256": "55b388715b0d7cc36f6ac7b0935137a75711fb5f8042f42d43f98f70a0cc4a36",
+      "bytes": 6455
+    }
+  ]
+}

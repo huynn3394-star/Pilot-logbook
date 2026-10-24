@@ -40,7 +40,7 @@ export function validateRecord(r){
  if(r.evidence){if(r.kind!=='flight')fail('Ảnh chỉ thuộc chuyến bay.');validateEvidence(r.evidence);}
  const d=r.data;if(['flight','duty','person'].includes(r.kind)&&d.id!==r.id)fail('ID bản ghi không khớp.');
  if(r.kind==='flight'){
-  only(d,['id','date','flightNo','dep','dest','aircraft','reg','scheduled','actual','confirmed','role','picMinutes','nightMinutes','takeoffBy','landingBy','landingMode','captainId','foId','crewIds','source','confidence','note','dutyId','updatedAt','weather']);validateFlight(d);
+  only(d,['id','date','flightNo','dep','dest','aircraft','reg','scheduled','actual','confirmed','role','picMinutes','nightMinutes','takeoffBy','landingBy','landingMode','captainId','foId','crewIds','source','confidence','note','dutyId','updatedAt','weather','logbook','auditTrail']);validateFlight(d);
   if(d.captainId&&d.captainId===d.foId)fail('Captain và First Officer cần khác nhau.');
   for(const k of ['scheduled','actual'])if(d[k])only(d[k],k==='scheduled'?['out','off','on','in','dep','dest','aircraft','source']:['out','off','on','in']);
   for(const [k,max]of [['note',3000],['source',120],['aircraft',80],['reg',80],['updatedAt',64]])text(d[k],max,true);

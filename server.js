@@ -1,3 +1,4 @@
+import {assertV14Bundle} from './lib/v14-bundle.js';
 import http from "node:http";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
@@ -21,6 +22,7 @@ const types = {
   ".gz": "application/gzip",
 };
 export function createServer({ weather = new WeatherService(), firebaseConfig=readFirebaseConfig(), firebaseFetch=fetch } = {}) {
+  assertV14Bundle(here,firebaseConfig);
   const authHandler=createFirebaseAuthHandler({config:firebaseConfig,fetchImpl:firebaseFetch});
   return http.createServer(async (req, res) => {
     const security = {

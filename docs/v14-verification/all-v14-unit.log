@@ -1,0 +1,262 @@
+TAP version 13
+# Subtest: lookup tolerates VN/HVN and leading zeroes but not dates/suffixes of another flight
+ok 1 - lookup tolerates VN/HVN and leading zeroes but not dates/suffixes of another flight
+  ---
+  duration_ms: 25.626194
+  type: 'test'
+  ...
+# Subtest: ambiguous same-day lookup keeps all matches and does not pick first
+ok 2 - ambiguous same-day lookup keeps all matches and does not pick first
+  ---
+  duration_ms: 0.851312
+  type: 'test'
+  ...
+# Subtest: history produces route-only candidates, never registration, Actual, crew or type
+ok 3 - history produces route-only candidates, never registration, Actual, crew or type
+  ---
+  duration_ms: 24.450994
+  type: 'test'
+  ...
+# Subtest: blank, malformed identifier/date and future or unconfirmed history offer no guesses
+ok 4 - blank, malformed identifier/date and future or unconfirmed history offer no guesses
+  ---
+  duration_ms: 0.592708
+  type: 'test'
+  ...
+# Subtest: route suggestions collapse equivalent ICAO/IATA but do not swap route direction
+ok 5 - route suggestions collapse equivalent ICAO/IATA but do not swap route direction
+  ---
+  duration_ms: 1.359378
+  type: 'test'
+  ...
+# Subtest: scan comparison exposes differences and missing values without mutating or confirming
+ok 6 - scan comparison exposes differences and missing values without mutating or confirming
+  ---
+  duration_ms: 1.569389
+  type: 'test'
+  ...
+# Subtest: scan draft cannot be attached to an unrelated identity, and clean drafts retain no fake confirmation
+ok 7 - scan draft cannot be attached to an unrelated identity, and clean drafts retain no fake confirmation
+  ---
+  duration_ms: 1.396953
+  type: 'test'
+  ...
+# Subtest: protected FINAL changes include date, flight number, time categories and evidence
+ok 8 - protected FINAL changes include date, flight number, time categories and evidence
+  ---
+  duration_ms: 14.77429
+  type: 'test'
+  ...
+# Subtest: final revision requires both permission and reason and retains explicit before/after
+ok 9 - final revision requires both permission and reason and retains explicit before/after
+  ---
+  duration_ms: 3.429516
+  type: 'test'
+  ...
+# Subtest: first confirmation is recorded, draft saves and no-op saves do not invent revisions
+ok 10 - first confirmation is recorded, draft saves and no-op saves do not invent revisions
+  ---
+  duration_ms: 3.352094
+  type: 'test'
+  ...
+# Subtest: note-only edit preserves exact actual timestamps; reopened FINAL remains audited
+ok 11 - note-only edit preserves exact actual timestamps; reopened FINAL remains audited
+  ---
+  duration_ms: 1.627344
+  type: 'test'
+  ...
+# Subtest: audit validation rejects raw images, corrupt shapes and mutation/removal of old history
+ok 12 - audit validation rejects raw images, corrupt shapes and mutation/removal of old history
+  ---
+  duration_ms: 1.180004
+  type: 'test'
+  ...
+# Subtest: V14 capability cannot start with a stale compiled workspace validator
+ok 13 - V14 capability cannot start with a stale compiled workspace validator
+  ---
+  duration_ms: 7.501185
+  type: 'test'
+  ...
+# Subtest: source and built SDK hashes must match; editing source invalidates the deployment
+ok 14 - source and built SDK hashes must match; editing source invalidates the deployment
+  ---
+  duration_ms: 5.441746
+  type: 'test'
+  ...
+# Subtest: disabled cloud V14 blocks extended guest/backup import before staging
+ok 15 - disabled cloud V14 blocks extended guest/backup import before staging
+  ---
+  duration_ms: 1.413849
+  type: 'test'
+  ...
+# Subtest: legacy imports and explicit V14 activation remain usable without stripping metadata
+ok 16 - legacy imports and explicit V14 activation remain usable without stripping metadata
+  ---
+  duration_ms: 0.446587
+  type: 'test'
+  ...
+# Subtest: choosing local after concurrent edits extends the remote history and can merge
+ok 17 - choosing local after concurrent edits extends the remote history and can merge
+  ---
+  duration_ms: 17.06909
+  type: 'test'
+  ...
+# Subtest: choosing server preserves exact history; choosing local needs a reason
+ok 18 - choosing server preserves exact history; choosing local needs a reason
+  ---
+  duration_ms: 2.139341
+  type: 'test'
+  ...
+# Subtest: local evidence choice is hashed into resolution without dropping remote entries
+ok 19 - local evidence choice is hashed into resolution without dropping remote entries
+  ---
+  duration_ms: 1.944901
+  type: 'test'
+  ...
+# Subtest: V14 editor exposes persisted optional categories without pretending missing data is zero
+ok 20 - V14 editor exposes persisted optional categories without pretending missing data is zero
+  ---
+  duration_ms: 5.015019
+  type: 'test'
+  ...
+# Subtest: scan review clearly distinguishes old/missing/new values and requires explicit review for final
+ok 21 - scan review clearly distinguishes old/missing/new values and requires explicit review for final
+  ---
+  duration_ms: 1.589122
+  type: 'test'
+  ...
+# Subtest: history renderer escapes free text and exposes before/after with no raw original image bytes
+ok 22 - history renderer escapes free text and exposes before/after with no raw original image bytes
+  ---
+  duration_ms: 2.055189
+  type: 'test'
+  ...
+# Subtest: account compatibility mode explains the gate instead of presenting unsavable enabled fields
+ok 23 - account compatibility mode explains the gate instead of presenting unsavable enabled fields
+  ---
+  duration_ms: 1.40777
+  type: 'test'
+  ...
+# Subtest: V14 guest session preserves metadata/history and rejects removing an earlier revision
+ok 24 - V14 guest session preserves metadata/history and rejects removing an earlier revision
+  ---
+  duration_ms: 6.720049
+  type: 'test'
+  ...
+# Subtest: V14 account session preserves metadata/history and rejects removing an earlier revision
+ok 25 - V14 account session preserves metadata/history and rejects removing an earlier revision
+  ---
+  duration_ms: 8.126776
+  type: 'test'
+  ...
+# Subtest: stale account generation cannot store V14 time/audit data
+ok 26 - stale account generation cannot store V14 time/audit data
+  ---
+  duration_ms: 0.984374
+  type: 'test'
+  ...
+# Subtest: native WebCrypto fingerprints exact original image bytes
+ok 27 - native WebCrypto fingerprints exact original image bytes
+  ---
+  duration_ms: 13.091958
+  type: 'test'
+  ...
+# Subtest: full V14 backup restores exact image bytes, metadata and history together
+ok 28 - full V14 backup restores exact image bytes, metadata and history together
+  ---
+  duration_ms: 17.436903
+  type: 'test'
+  ...
+# Subtest: workspace accepts new optional times and audit, rejects corrupt metadata
+ok 29 - workspace accepts new optional times and audit, rejects corrupt metadata
+  ---
+  duration_ms: 8.609875
+  type: 'test'
+  ...
+# Subtest: legacy guest domain validates new categories and malformed history too
+ok 30 - legacy guest domain validates new categories and malformed history too
+  ---
+  duration_ms: 2.522838
+  type: 'test'
+  ...
+# Subtest: audited note and actual edits on two devices remain a conflict with both histories
+ok 31 - audited note and actual edits on two devices remain a conflict with both histories
+  ---
+  duration_ms: 7.606982
+  type: 'test'
+  ...
+# Subtest: same-day scheduled changes merge without replacing audited final values
+ok 32 - same-day scheduled changes merge without replacing audited final values
+  ---
+  duration_ms: 5.882382
+  type: 'test'
+  ...
+# Subtest: old backup never deletes history even when the audited record was reopened as draft
+ok 33 - old backup never deletes history even when the audited record was reopened as draft
+  ---
+  duration_ms: 18.517946
+  type: 'test'
+  ...
+# Subtest: full JSON backup and restore keep new metadata, history and exact times
+ok 34 - full JSON backup and restore keep new metadata, history and exact times
+  ---
+  duration_ms: 19.234791
+  type: 'test'
+  ...
+# Subtest: guest backup migration and private workspace conversion retain all extra fields
+ok 35 - guest backup migration and private workspace conversion retain all extra fields
+  ---
+  duration_ms: 3.826944
+  type: 'test'
+  ...
+# Subtest: stats use explicit SIC and do not invent missing instrument; day/night counts are manual
+ok 36 - stats use explicit SIC and do not invent missing instrument; day/night counts are manual
+  ---
+  duration_ms: 1.669496
+  type: 'test'
+  ...
+# Subtest: public V14 capability is off by default and can only be activated explicitly
+ok 37 - public V14 capability is off by default and can only be activated explicitly
+  ---
+  duration_ms: 1.228324
+  type: 'test'
+  ...
+# Subtest: new entries leave SIC and instrument unknown instead of deriving from PF or IFR
+ok 38 - new entries leave SIC and instrument unknown instead of deriving from PF or IFR
+  ---
+  duration_ms: 11.62441
+  type: 'test'
+  ...
+# Subtest: legacy SIC stays labelled and known while new explicit SIC is preserved
+ok 39 - legacy SIC stays labelled and known while new explicit SIC is preserved
+  ---
+  duration_ms: 0.777363
+  type: 'test'
+  ...
+# Subtest: time validation rejects nonintegers, excessive block/airborne and unknown keys without silently clipping
+ok 40 - time validation rejects nonintegers, excessive block/airborne and unknown keys without silently clipping
+  ---
+  duration_ms: 1.337389
+  type: 'test'
+  ...
+# Subtest: blank versus zero and old-entry edit are preserved through FormData
+ok 41 - blank versus zero and old-entry edit are preserved through FormData
+  ---
+  duration_ms: 51.871753
+  type: 'test'
+  ...
+# Subtest: minutes and totals cross midnight using dates; missing actual remains unknown
+ok 42 - minutes and totals cross midnight using dates; missing actual remains unknown
+  ---
+  duration_ms: 0.600799
+  type: 'test'
+  ...
+1..42
+# tests 42
+# suites 0
+# pass 42
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 509.197508

@@ -1,0 +1,54 @@
+PASS: Three accessible tabs and one Save button
+PASS: Existing confirmed flight opens with exact actuals
+PASS: Airports reflects the current operational route
+PASS: Changing tabs preserves fields and does not save
+PASS: Note-only save preserves confirmed Actual and Scheduled
+PASS: Changing confirmed Actual is blocked without permission
+PASS: Explicit replacement uses the existing save permission
+PASS: Tools photo attachment follows the existing save handler
+PASS: Existing photo is shown once with one removal control
+PASS: Removing evidence does not change confirmed times
+PASS: Midnight summary is 01:12 block and 00:50 airborne
+PASS: New confirmed flight saves explicit UTC dates
+PASS: Crew is created by the original save handler
+PASS: Missing Actual cannot be confirmed from Tools
+PASS: A delayed close event cannot dispose a newly opened editor
+PASS: Native validation reveals Log for an empty flight number
+PASS: Invalid 2400 remains rejected and its tab is shown
+PASS: Multiple invalid fields reveal the first invalid field, not the last panel
+PASS: Keyboard navigation activates Airports
+PASS: Keyboard End activates Tools
+PASS: OCR review warning remains visible
+PASS: OCR review is never automatically confirmed
+PASS: 320px light log: no horizontal overflow
+PASS: 320px light airports: no horizontal overflow
+PASS: 320px light tools: no horizontal overflow
+PASS: 320px dark log: no horizontal overflow
+PASS: 320px dark airports: no horizontal overflow
+PASS: 320px dark tools: no horizontal overflow
+PASS: 390px light log: no horizontal overflow
+PASS: 390px light airports: no horizontal overflow
+PASS: 390px light tools: no horizontal overflow
+PASS: 390px dark log: no horizontal overflow
+PASS: 390px dark airports: no horizontal overflow
+PASS: 390px dark tools: no horizontal overflow
+PASS: 430px light log: no horizontal overflow
+PASS: 430px light airports: no horizontal overflow
+PASS: 430px light tools: no horizontal overflow
+PASS: 430px dark log: no horizontal overflow
+PASS: 430px dark airports: no horizontal overflow
+PASS: 430px dark tools: no horizontal overflow
+PASS: 820px light log: no horizontal overflow
+PASS: 820px light airports: no horizontal overflow
+PASS: 820px light tools: no horizontal overflow
+PASS: 820px dark log: no horizontal overflow
+PASS: 820px dark airports: no horizontal overflow
+PASS: 820px dark tools: no horizontal overflow
+PASS: 1440px light log: no horizontal overflow
+PASS: 1440px light airports: no horizontal overflow
+PASS: 1440px light tools: no horizontal overflow
+PASS: 1440px dark log: no horizontal overflow
+PASS: 1440px dark airports: no horizontal overflow
+PASS: 1440px dark tools: no horizontal overflow
+PASS: No uncaught JavaScript errors in component interactions
+COMPONENT CHECKS PASSED: 53

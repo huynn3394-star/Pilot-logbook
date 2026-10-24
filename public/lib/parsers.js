@@ -1,8 +1,10 @@
 import { normalizeEvents, uid, validDate } from "./domain.js";
+import { readA320Scan } from "./a320-scan.js";
 export const airportAliases = {
   VVTS: "SGN",
   VTBS: "BKK",
   VVNB: "HAN",
+  ZGGG: "CAN",
   VVDL: "DLI",
   VVCI: "HPH",
   RJGG: "NGO",
@@ -12,6 +14,7 @@ export const icaoFor = (p) =>
     SGN: "VVTS",
     BKK: "VTBS",
     HAN: "VVNB",
+    CAN: "ZGGG",
     DLI: "VVDL",
     HPH: "VVCI",
     NGO: "RJGG",
@@ -35,31 +38,25 @@ export function parseAircraft(text, family, date) {
         " chưa được xác minh. Vui lòng nhập Actual thủ công.",
     );
   if(family==='E190')return parseE190(text,date);
-  const t = text.toUpperCase().replace(/\b0UT\b/g, "OUT");
-  const rawFlight = t.match(/\bVN\s*[0-9OIL]{1,5}\b/)?.[0]?.replace(/\s/g, "") || "";
-  const flightNo = rawFlight.slice(0,2) + rawFlight.slice(2).replace(/O/g,'0').replace(/[IL]/g,'1');
-  const route = t.match(/\b([A-Z]{4})\s*(?:[→/\-]|\s)\s*([A-Z]{4})\b/);
-  const clocks = {};
-  for (const k of ["out", "off", "on", "in"]) {
-    const m = t.match(
-      new RegExp("\\b" + k + "\\b\\s*[:=]?\\s*(\\d{2})[:. ]?(\\d{2})", "i"),
-    );
-    if (m) clocks[k] = m[1] + ":" + m[2];
-  }
-  if (!Object.keys(clocks).length)
+  const scan = readA320Scan(text);
+  if (!Object.keys(scan.clocks).length)
     throw Error("Không nhận ra OUT/OFF/ON/IN. Sửa văn bản OCR hoặc nhập tay.");
+  const hasUnknownAirport = [scan.dep,scan.dest].some(code => code && !(code in airportAliases));
+  const warnings = [...scan.warnings];
+  if(hasUnknownAirport)warnings.push('Mã ICAO chưa có trong danh sách chuyển đổi IATA; hãy xác nhận từ ảnh gốc.');
   return {
     id: uid(),
     date: validDate(date),
-    flightNo,
-    dep: airportAliases[route?.[1]] || route?.[1] || "",
-    dest: airportAliases[route?.[2]] || route?.[2] || "",
+    flightNo: scan.flightNo,
+    dep: airportAliases[scan.dep] || scan.dep,
+    dest: airportAliases[scan.dest] || scan.dest,
     aircraft: "A321",
-    actual: normalizeEvents(date, clocks),
+    actual: normalizeEvents(date, scan.clocks),
     scheduled: {},
     confirmed: false,
-    source: "image OCR · A320/A321",
-    confidence: Math.round((Object.keys(clocks).length / 4) * (rawFlight!==flightNo?65:85)),
+    source: "image OCR · A320/A321 Smart Scan V2",
+    confidence: Math.max(0, scan.confidence - (hasUnknownAirport?8:0)),
+    ...(warnings.length ? {note: warnings.join(' ')} : {}),
     role: "PF",
     nightMinutes: 0,
     picMinutes: 0,

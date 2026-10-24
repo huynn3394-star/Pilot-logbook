@@ -1,4 +1,18 @@
+# AviLog V14 — bản nguồn kiểm thử 24/10/2026
+
+**Hướng dẫn phát hành V14:** [docs/V14-HUONG-DAN.md](docs/V14-HUONG-DAN.md). Giữ nền V13 Compact và Smart Scan V2. Bổ sung Quick Entry, đối chiếu scan, lịch sử FINAL và các trường giờ thủ công.
+
+**Quan trọng:** dùng Google cần build SDK mới + triển khai Firestore rules + bật `AVILOG_LOGBOOK_V14_ENABLED=true`. Dockerfile đã thêm bước build; bản SDK đính kèm nguồn chưa được build lại trong môi trường bàn giao. Khi khóa tắt, tài khoản vẫn ở chế độ tương thích V13; khách dùng V14 cục bộ. Không có dữ liệu bị reset. Chưa triển khai Railway.
+
+**Kiểm thử bàn giao:** 224 đạt / 5 lỗi có trước trong `npm test`; 89 kiểm tra Chromium component đạt. Chưa có kiểm chứng cloud/emulator/Docker/thiết bị vật lý. Xem báo cáo và giới hạn đầy đủ trong hướng dẫn.
+
+---
+
+## Tài liệu nền và các bản trước (giữ để tham khảo)
+
 # AviLog · Pilot Logbook preview
+
+**Bàn giao mã nguồn / tự chạy và đưa lên GitHub:** xem [HUONG_DAN_BAN_GIAO.md](HUONG_DAN_BAN_GIAO.md).
 
 Mobile-first personal pilot logbook PWA, in Vietnamese with aviation labels. Built for iPhone, iPad and desktop. Guest mode needs no login. Data is saved first in this browser's IndexedDB. When whole-app sync is enabled, the selected Google account has a separate local workspace and can synchronize records through private Firestore and original evidence bytes through private Firebase Storage. The public web server does not receive logbook, roster or evidence uploads. Export backups before clearing website data or moving to a different website origin.
 
@@ -30,6 +44,7 @@ VN1187 HPH-SGN 13:40-15:32
 ```
 
   Use month/year selector. Other layouts require correcting extracted text to this format. Image-only PDFs are not silently interpreted; an error asks for manual entry. Review unknown lines against the original.
+- **Smart Scan V2 A320/A321 (22/10/2026):** tự tìm vùng màn hình MCDU tối có ký tự xanh, tăng tương phản cục bộ, OCR ảnh đã cắt trước và chỉ thử thêm toàn ảnh khi thiếu trường; chạm/kéo khoanh vùng và đọc lại thủ công. Parser nhận hàng `FLT ID/DATE — DEPT/DEST`, loại trừ tên cột, hỗ trợ `ZGGG → CAN`, nhận các ký tự OCR dễ nhầm trong Flight ID/time kèm cảnh báo; kiểm tra `FLIGHT = ON−OFF`, `BLOCK = IN−OUT`. Chỉ gợi ý; ngày UTC, route, giờ và ký tự đã sửa vẫn phải xác nhận trước khi lưu. Ảnh gốc được giữ nguyên, không gửi ảnh tới OCR cloud. Không có tuyên bố OCR chính xác 100% hoặc đã thử trên mọi máy bay/thiết bị.
 - **Nhập từ ảnh:** Tesseract OCR runs locally; first use downloads the English model. JPEG/PNG/WebP ≤6 MB. A320/A321 parser recognizes flight number, ICAO route and OUT/OFF/ON/IN. Review/correct all fields before confirming. B787/A350/other families explicitly require manual entry until a validated parser is added. Example button only loads the supplied sample text and never pretends to read the user's image.
 - **Crew Book:** fictional sample profiles, per-flight Captain/FO/additional crew, confirmed sectors/block and last route, history.
 - **Statistics:** confirmed actual block, airborne, sectors, PF/PM, takeoff/landing, manually entered night/PIC, SIC remainder, aircraft, airport and crew. SIM/training/positioning activities do not contribute flying hours.
@@ -155,3 +170,25 @@ First image recognition on a device needs Internet to load the OCR engine and En
 Scheduled OUT/IN and Actual OUT/OFF/ON/IN use separate date and text clock fields. Enter `0714` or `07:14`; the clock displays `07:14` on blur, always UTC 24-hour with no AM/PM. Newly created manual flights and empty event-date fields default to the device's current calendar date; clocks remain blank until entered. Edit dates explicitly for historical flights or midnight crossings. `2400` and invalid minutes are rejected rather than rolled forward.
 
 Existing and OCR-imported event dates/times are retained. If the displayed UTC date/minute has not changed, saving preserves the original timestamp including seconds/milliseconds. Note-only edits to confirmed flights do not replace Actual. The stored format, offline queue and account synchronization remain UTC ISO timestamps as before.
+
+
+## Flight Detail UI v12 (2026-10-23)
+
+Màn Thêm chuyến / Chi tiết chuyến / Kiểm tra ảnh dùng tab **Log / Airports / Tools**.
+Mobile mở toàn màn hình, navy/trắng theo chế độ ngày/đêm. Actual OUT/OFF/ON/IN
+xếp hai cột, từng mốc vẫn có ngày UTC riêng. Crew và Scheduled thu gọn; Flight Times
+hiển thị Flight/Block/PIC/SIC/Day/Night từ các trường đang có. Nguồn, ảnh, xác nhận
+và cho phép thay Actual nằm trong Tools; nút Lưu luôn ở header.
+
+Không thêm trường procedure, dịch vụ tra cứu hoặc myAVES. Không đổi schema/sync,
+Firebase rules hay ngân hàng ATPL; giữ Smart Scan V2. Cache shell `avilog-shell-v12-flight-editor`.
+Đọc [bản bàn giao UI v12](FLIGHT_UI_V12_RELEASE.md) để áp dụng, xem phạm vi và các giới hạn
+kiểm thử. **Chưa triển khai Railway.**
+
+### Flight Detail V13 — medium compact spacing (2026-10-23)
+
+Flight Detail trên iPhone/iPad/Desktop giữ nguyên ba tab Log / Airports / Tools và form hiện có,
+nhưng giảm khoảng trống trong header, card và lưới giờ Actual ở mức vừa. Nút Lưu, tab và
+chức năng xác nhận/khóa Actual không thay đổi; dữ liệu lưu, nguồn ATPL và rules Firebase
+không đổi. PWA shell `avilog-shell-v13-compact`: sau khi triển khai hãy đóng/mở lại app
+khi có mạng, **không xóa site data**. Hướng dẫn & QA xem `FLIGHT_UI_V13_RELEASE.md`.

@@ -1,3 +1,5 @@
+import { readA320Scan } from "./a320-scan.js";
+import { findMCDUScreen, validScanCrop } from "./scan-screen.js";
 export async function extractPDF(file, onProgress = () => {}) {
   if (file.size > 20 * 1024 * 1024) throw Error("PDF tối đa 20 MB");
   const pdfjs = await import("/vendor/pdfjs/build/pdf.mjs");
@@ -33,10 +35,11 @@ export async function extractPDF(file, onProgress = () => {}) {
   return text;
 }
 let script;
-export async function extractImage(file, onProgress = () => {}, {family} = {}) {
+export async function extractImage(file, onProgress = () => {}, {family, crop, onRegion, mode='auto'} = {}) {
   if (file.size > 6 * 1024 * 1024) throw Error("Ảnh tối đa 6 MB");
   if (!["image/jpeg", "image/png", "image/webp"].includes(file.type))
     throw Error("Dùng ảnh JPG, PNG hoặc WebP (HEIC cần đổi sang JPG).");
+  if (mode === 'manual' && !validScanCrop(crop)) throw Error('Khoanh vùng màn hình đủ rộng trước khi đọc lại.');
   script ||= new Promise((resolve, reject) => {
     const s = document.createElement("script");
     s.src = "/vendor/tesseract/tesseract.min.js";
@@ -51,17 +54,74 @@ export async function extractImage(file, onProgress = () => {}, {family} = {}) {
   const w = await window.Tesseract.createWorker("eng", 1, {
     workerPath: "/vendor/tesseract/worker.min.js",
     corePath: "/vendor/tesseract-core",
-    logger: (m) =>
-      onProgress(m.status + " " + Math.round((m.progress || 0) * 100) + "%"),
+    logger: m => onProgress(m.status + " " + Math.round((m.progress || 0) * 100) + "%"),
   });
   try {
-    if(family==='E190'){
-      const screen=await e190Screen(file);
+    if (family === 'A320') {
+      const screen = mode==='full' ? null : await a320Screen(file, {crop,manual:mode==='manual',onRegion});
+      if(screen){
+        onProgress(mode==='manual'?'OCR vùng do bạn chọn…':'Đã nhận diện màn hình AOC · đang đọc…');
+        await w.setParameters({tessedit_pageseg_mode:'6'});
+        const first=(await w.recognize(screen)).data.text;
+        const scan=readA320Scan(first);
+        // Only spend a second OCR pass if the cropped reading lacks key data.
+        const complete = !!scan.flightNo && !!scan.dep && !!scan.dest && Object.keys(scan.clocks).length===4 && scan.mismatch===0;
+        if(complete || mode==='manual')return first;
+        onProgress('Một số trường chưa rõ; thử đọc thêm toàn ảnh…');
+        await w.setParameters({tessedit_pageseg_mode:'11'});
+        const fallback=(await w.recognize(file)).data.text;
+        const other=readA320Scan(fallback);
+        const score=s=>(s.flightNo?15:0)+(s.dep&&s.dest?25:0)+Object.keys(s.clocks).length*10+s.verified*12-s.mismatch*20;
+        return score(other)>score(scan)?fallback:first;
+      }
+      if(mode==='manual')throw Error('Không tạo được vùng ảnh để OCR. Khoanh lại rồi thử.');
+      onProgress('Không xác định chắc chắn khung màn hình; đọc toàn ảnh để bạn kiểm tra.');
+    }
+    if (family === 'E190' && mode !== 'full') {
+      const screen = await e190Screen(file);
       if(screen){await w.setParameters({tessedit_pageseg_mode:'6'});const text=(await w.recognize(screen)).data.text;if(/\b(?:OUT|0UT|OFF|ON|IN)\b/i.test(text))return text;}
     }
     return (await w.recognize(file)).data.text;
   } finally {
     await w.terminate();
+  }
+}
+
+// Work on the original pixels, never modify the attached evidence photo.
+async function a320Screen(file,{crop,manual,onRegion}={}){
+  const image=await createImageBitmap(file);
+  try {
+    let rectangle=crop;
+    if(!manual){
+      const scale=Math.min(1,900/Math.max(image.width,image.height));
+      const width=Math.max(1,Math.round(image.width*scale)),height=Math.max(1,Math.round(image.height*scale));
+      const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+      const ctx=canvas.getContext('2d',{willReadFrequently:true});
+      if(!ctx)return null;
+      ctx.drawImage(image,0,0,width,height);
+      rectangle=findMCDUScreen(ctx.getImageData(0,0,width,height).data,width,height);
+    }
+    onRegion?.(rectangle||null);
+    if(!validScanCrop(rectangle))return null;
+    const sx=Math.round(rectangle.x*image.width),sy=Math.round(rectangle.y*image.height),
+      sw=Math.min(image.width-sx,Math.round(rectangle.width*image.width)),
+      sh=Math.min(image.height-sy,Math.round(rectangle.height*image.height));
+    if(sw<50||sh<50)return null;
+    const factor=Math.min(2,1700/Math.max(sw,sh));
+    const result=document.createElement('canvas');result.width=Math.round(sw*factor);result.height=Math.round(sh*factor);
+    const c=result.getContext('2d',{willReadFrequently:true});
+    if(!c)return null;
+    c.drawImage(image,sx,sy,sw,sh,0,0,result.width,result.height);
+    const data=c.getImageData(0,0,result.width,result.height);
+    for(let p=0;p<data.data.length;p+=4){
+      const light=Math.max(data.data[p],data.data[p+1],data.data[p+2]);
+      const pixel=255-Math.max(0,Math.min(255,(light-45)*255/160));
+      data.data[p]=data.data[p+1]=data.data[p+2]=pixel;
+    }
+    c.putImageData(data,0,0);
+    return result;
+  } finally {
+    image.close();
   }
 }
 export function asDataURL(file) {

@@ -1,3 +1,5 @@
+import {validateLogbook,timeTotals} from './flight-times.js';
+import {validateAuditTrail} from './flight-audit.js';
 export const eventKeys = ["out", "off", "on", "in"];
 export const uid = () => globalThis.crypto.randomUUID();
 export function validDate(date) {
@@ -119,9 +121,11 @@ export function validateFlight(f) {
       f.picMinutes > minutes(f.actual?.out, f.actual?.in))
   )
     throw Error("PIC time phải nằm trong Block time");
+  validateLogbook(f);
+  validateAuditTrail(f.auditTrail);
   return f;
 }
-export function mergeRoster(existing, incoming) {
+export function mergeRoster(existing, incoming, { v14Enabled = false } = {}) {
   const flights = structuredClone(existing),
     changes = [];
   const scheduleFor = (f) => ({
@@ -140,19 +144,24 @@ export function mergeRoster(existing, incoming) {
         scheduled: scheduleFor(f),
         actual: {},
         confirmed: false,
+        ...(v14Enabled ? { logbook: { version: 1 } } : {}),
       });
       changes.push({ type: "new", flight: f });
     } else {
       const old = flights[i],
         before = scheduleFor(old),
         next = { ...scheduleFor(f), aircraft: f.aircraft || before.aircraft };
+      if (!v14Enabled && (old.logbook || old.auditTrail)) {
+        changes.push({ type: "unchanged", flight: f, protected: true });
+        continue;
+      }
       const changed = ["out", "in", "dep", "dest", "aircraft"].some(
         (k) => before[k] !== next[k],
       );
       flights[i] = {
         ...old,
         scheduled: next,
-        ...(!old.confirmed
+        ...(!old.confirmed && !old.auditTrail
           ? {
               dep: f.dep,
               dest: f.dest,
@@ -180,6 +189,9 @@ export function statistics(flights) {
     night: 0,
     pic: 0,
     sic: 0,
+    picus: 0, ifr: 0, vfr: 0, instrument: 0, crossCountry: 0,
+    unknownSIC: 0, legacySIC: 0,
+    takeoffDay: 0, takeoffNight: 0, landingDay: 0, landingNight: 0,
     aircraft: {},
     airports: {},
   };
@@ -190,11 +202,16 @@ export function statistics(flights) {
     s.airborne += a;
     s.sectors++;
     s[f.role === "PF" ? "pf" : "pm"]++;
-    s.takeoffs += f.takeoffBy === "self" ? 1 : 0;
-    s.landings += f.landingBy === "self" ? 1 : 0;
+    const l=f.logbook||{},totals=timeTotals(f);
+    s.takeoffs += l.takeoffDay!==undefined||l.takeoffNight!==undefined?(l.takeoffDay||0)+(l.takeoffNight||0):f.takeoffBy==='self'?1:0;
+    s.landings += l.landingDay!==undefined||l.landingNight!==undefined?(l.landingDay||0)+(l.landingNight||0):f.landingBy==='self'?1:0;
+    for(const k of ['takeoffDay','takeoffNight','landingDay','landingNight'])s[k]+=l[k]||0;
+    for(const k of ['picus','ifr','vfr','instrument','crossCountry'])s[k]+=totals[k]??0;
+    if(totals.sic===null)s.unknownSIC++;
+    if(totals.legacySIC)s.legacySIC++;
     s.night += f.nightMinutes || 0;
     s.pic += f.picMinutes || 0;
-    s.sic += b - (f.picMinutes || 0);
+    s.sic += totals.sic??0;
     s.aircraft[f.aircraft || "Unknown"] =
       (s.aircraft[f.aircraft || "Unknown"] || 0) + b;
     for (const p of [f.dep, f.dest]) s.airports[p] = (s.airports[p] || 0) + 1;
@@ -224,7 +241,7 @@ export function restoreBackup(data, existing) {
   for (const f of data.flights) {
     const i = flights.findIndex((x) => flightKey(x) === flightKey(f));
     if (i < 0) flights.push({ ...f, id: f.id || uid() });
-    else if (!flights[i].confirmed) flights[i] = { ...f, id: flights[i].id };
+    else if (!flights[i].confirmed && !flights[i].auditTrail && !(flights[i].logbook && !f.logbook)) flights[i] = { ...f, id: flights[i].id };
   }
   return { flights };
 }

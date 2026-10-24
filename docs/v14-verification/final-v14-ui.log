@@ -1,0 +1,37 @@
+PASS: Same-day VN/HVN alias opens existing flight, never creates a duplicate
+PASS: Existing exact-match registration is retained
+PASS: Historical route is a labelled suggestion, never automatically selected
+PASS: History suggestion fills DEP/DEST only
+PASS: Exact-match lookup does not discard an edited new-flight form
+PASS: Declining open-existing preserves unsaved user fields
+PASS: Explicit discard/open navigates to existing record
+PASS: Ambiguous same-day records require a selection
+PASS: Chosen ambiguous record keeps its own identity and route
+PASS: Extended categories initially blank instead of inferred zero
+PASS: Instrument greater than 82 minutes airborne is rejected
+PASS: Confirmed save persists exact UTC times and manual categories
+PASS: Blank SIC remains unknown and never copied from PF/PM
+PASS: First confirmation creates an audit entry
+PASS: Note-only FINAL edit retains timestamps and appends history
+PASS: Changing FINAL identity requires explicit permission
+PASS: Permission alone cannot revise FINAL without a reason
+PASS: Reasoned revision preserves old and new flight number
+PASS: Audit history is available inside Tools
+PASS: Scan comparison displays changes and unread values
+PASS: Scan opens as a draft even when source was FINAL
+PASS: FINAL from scan is blocked until all retained fields are reviewed
+PASS: Reviewed scan updates existing flight without duplicate
+PASS: Reviewed scan revision records a reason and before/after
+PASS: Cloud capability off displays compatibility notice and no new time inputs
+PASS: Capability off never strips existing extended records
+PASS: Expanded manual time fields fit 320px light
+PASS: Expanded manual time fields fit 320px dark
+PASS: Expanded manual time fields fit 390px light
+PASS: Expanded manual time fields fit 390px dark
+PASS: Expanded manual time fields fit 430px light
+PASS: Expanded manual time fields fit 430px dark
+PASS: Expanded manual time fields fit 820px light
+PASS: Expanded manual time fields fit 820px dark
+PASS: Scan comparison fits phone without horizontal overflow
+PASS: No unhandled JavaScript errors in V14 interactions
+V14 component checks: 36

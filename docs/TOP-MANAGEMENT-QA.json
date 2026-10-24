@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-22",
+  "feature": "Management moved to shared top toolbar",
+  "unit": {
+    "finalPass": 169,
+    "finalFail": 0,
+    "earlierRun": {
+      "pass": 168,
+      "fail": 1,
+      "name": "upload and explicit download share the same two-worker limit",
+      "observed": "max=1 rather than 2; passed full rerun; evidence/transfer production code unchanged"
+    }
+  },
+  "nativeMenu": {
+    "engines": [
+      "chromium",
+      "webkit"
+    ],
+    "widths": [
+      390,
+      1024,
+      1440
+    ],
+    "casesPassed": 6,
+    "coverage": [
+      "menu actions",
+      "viewport bounds",
+      "exclusive account/management popovers",
+      "weather drafts",
+      "outside dismissal",
+      "day/night",
+      "offline reload"
+    ]
+  },
+  "regressionsPassed": [
+    "verify-workspace-ui.cjs",
+    "verify-weather-ui.cjs",
+    "verify-workspace-upgrade.cjs",
+    "verify-utc-input.cjs"
+  ],
+  "originalAnswerAssetsUnchanged": true,
+  "sourceBanksAndMediaIncluded": true,
+  "serviceWorker": "avilog-shell-v10-top-management",
+  "webKitOfflineMethod": "Origin socket refusal; context offline simulation is unreliable in the pinned WebKit",
+  "physicalIPadTested": false,
+  "realGoogleOAuthTestedThisChange": false,
+  "productionDeployed": false,
+  "railwayStatus": "Builds and deployments paused; official Oct 21 18:45 UTC update.",
+  "handover": "Full source ZIP; excludes actual .env, node_modules, .git, personal browser data and tooling"
+}

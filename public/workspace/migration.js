@@ -12,7 +12,7 @@ export async function previewRecords({records,current,raw,images=[],selectedIds,
  const collisions=[],changes=[],sourceKeys=new Set();const byKey=new Map(current.records.map(r=>[key(r),r])),flights=new Map(current.records.filter(r=>r.kind==='flight'&&!r.archived).map(r=>[flightKey(r.data),r]));
  for(const incoming of valid){let next=clone(incoming),base=byKey.get(key(next))||null;
   if(next.kind==='flight'&&!next.archived){const incomingKey=flightKey(next.data);if(sourceKeys.has(incomingKey)){blockedRows.push({kind:next.kind,id:next.id,message:'Nguồn có chuyến trùng ngày/số hiệu.'});continue;}sourceKeys.add(incomingKey);const match=flights.get(flightKey(next.data));if(base&&flightKey(base.data)!==flightKey(next.data)){blockedRows.push({kind:next.kind,id:next.id,message:'ID trùng nhưng ngày/số chuyến khác.'});continue;}
-   if(match){base=match;next.id=base.id;next.data.id=base.id;collisions.push({kind:'flight',id:incoming.id,targetId:base.id,protected:base.data.confirmed===true});if(base.data.confirmed)next=clone(base);}
+   if(match){base=match;next.id=base.id;next.data.id=base.id;const protectedRecord=base.data.confirmed===true||Boolean(base.data.auditTrail)||Boolean(base.data.logbook&&!next.data.logbook);collisions.push({kind:'flight',id:incoming.id,targetId:base.id,protected:protectedRecord});if(protectedRecord)next=clone(base);}
    else flights.set(flightKey(next.data),next);
   }else if(base&&canonical({...base,revision:0})!==canonical({...next,revision:0}))collisions.push({kind:next.kind,id:next.id,protected:false});
   // Existing differing crew/duty/profile data gets a visible conflict; imports

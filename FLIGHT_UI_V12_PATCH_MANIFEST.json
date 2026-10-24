@@ -1,0 +1,165 @@
+{
+  "release": "AviLog Flight UI v12",
+  "date": "2026-10-23",
+  "cumulative": true,
+  "compatibleBases": [
+    "AviLog_Full_Source_2026-10-22.zip",
+    "AviLog_Smart_Scan_V2_FULL_2026-10-22.zip"
+  ],
+  "baseSha256": "448eb150a2129bea68091836735d6fab9ea72efa280cdd2b812c13c981095248",
+  "smartScanV2BaseSha256": "4f5f4f44553b15e72f8d07673198b749219520580f19d25525bc52a5ea97101d",
+  "instructions": "Merge AviLog/ contents at the project root; keep deployed .env and Railway Variables. Includes Smart Scan V2. No schema/dependency change. No deployment performed.",
+  "manifestSelfExcluded": true,
+  "files": [
+    {
+      "path": "FLIGHT_UI_V12_RELEASE.md",
+      "sha256": "3a61619ee4e2365f62b2704b0090ed367903087122b20ff9250edc49b4d52298",
+      "bytes": 6989
+    },
+    {
+      "path": "README.md",
+      "sha256": "edaa96e916fe1dbcec00ccf190e3eefba88903de0be6fb5fa49aff4c9e66c9da",
+      "bytes": 28488
+    },
+    {
+      "path": "SMART_SCAN_V2_RELEASE.md",
+      "sha256": "4a7dbee94001e265a7f9290411e40aae9f90d0f0f7a36603269eb40ad1270b7a",
+      "bytes": 2483
+    },
+    {
+      "path": "docs/FLIGHT-EDITOR-V12-QA.json",
+      "sha256": "e0211f4813bda4fb7e9b5bef187161d05e625f05997a114dab8cfd2178992a36",
+      "bytes": 9481
+    },
+    {
+      "path": "docs/FLIGHT-EDITOR-V12-component-tests.log",
+      "sha256": "62ea5155a037734c94bf94eb40a69c0e655bef5ccfc5da4e2c8fdbf21f4d9125",
+      "bytes": 2758
+    },
+    {
+      "path": "docs/FLIGHT-EDITOR-V12-unit-tests.log",
+      "sha256": "ebd71c76c060e1384541ce5a9b12e772828d91c4bf188758ef369c0b855fd19f",
+      "bytes": 48996
+    },
+    {
+      "path": "docs/flight-editor-v12/flight-390-dark-airports.png",
+      "sha256": "5ce76ac52563f09c49c3b2af25ff1b0c3125bc5687358e9646f2b508e9073548",
+      "bytes": 48842
+    },
+    {
+      "path": "docs/flight-editor-v12/flight-390-dark-log.png",
+      "sha256": "d763d4085296f3930bf8f83ca5fb3fb5887e80167e39ff2957bcdd078914ea5f",
+      "bytes": 51728
+    },
+    {
+      "path": "docs/flight-editor-v12/flight-390-dark-summary.png",
+      "sha256": "f552b6984d443fb56aa1df9da5289ba31c8c37d85405f4f66dbbcf34135244d5",
+      "bytes": 49041
+    },
+    {
+      "path": "docs/flight-editor-v12/flight-390-dark-tools.png",
+      "sha256": "b36054e2a45ad568c0b22e716e6c43f1e8de306c2117efd1ead325f64a2f8c93",
+      "bytes": 48895
+    },
+    {
+      "path": "docs/flight-editor-v12/flight-390-light-log.png",
+      "sha256": "08257de539db23021e5122c13a96835c64f5dafe6b82f817f9bde33017b913cc",
+      "bytes": 50478
+    },
+    {
+      "path": "docs/flight-editor-v12/flight-820-dark-log.png",
+      "sha256": "ba9360c8a1caee8c41d75c7907f38161225cba930ef607a8f06198680e68986d",
+      "bytes": 66749
+    },
+    {
+      "path": "public/app.js",
+      "sha256": "fc46379a4ce4887805b48bccf34fd7d6df98459766af0b534290f5f9f025f23e",
+      "bytes": 88934
+    },
+    {
+      "path": "public/lib/a320-scan.js",
+      "sha256": "4e94504f6fa76f7a0335a4b95510e9985ed31f37f6c84e55410f193aab414ab3",
+      "bytes": 7314
+    },
+    {
+      "path": "public/lib/flight-editor.js",
+      "sha256": "42de8756003a0e5ada33e1ff6bfabbb928b3a983e17e7fbaac8b2fc51ce8ba6f",
+      "bytes": 16766
+    },
+    {
+      "path": "public/lib/importers.js",
+      "sha256": "62b77b3b4f13b4d37334cf8ad36ce6098eb360a48c5a6bf501beff4809c3e53f",
+      "bytes": 8226
+    },
+    {
+      "path": "public/lib/parsers.js",
+      "sha256": "285413cb7ada583239ae62752bf394ae1d3fbeeb97999e815869c2b59bf85c07",
+      "bytes": 5579
+    },
+    {
+      "path": "public/lib/scan-screen.js",
+      "sha256": "957a5db5fd4363fd5ac0c215018fcf3b2fca81d77e856ebb3509891cf7e3fe7c",
+      "bytes": 2415
+    },
+    {
+      "path": "public/style.css",
+      "sha256": "c9929d47d59b7fe61e82dc08506982a700c04b586de44a9ec05f366db0885d7d",
+      "bytes": 66043
+    },
+    {
+      "path": "public/sw.js",
+      "sha256": "2559e8107c40b9da524cf67e34a3120533230e687fc74ed92fce34e13b985481",
+      "bytes": 5906
+    },
+    {
+      "path": "scripts/ui-controls.cjs",
+      "sha256": "4623fe8e0f3f16cbfca7397d2890fd6f79e13283b8bb56c49983473865cf8469",
+      "bytes": 2426
+    },
+    {
+      "path": "scripts/verify-e190-note.cjs",
+      "sha256": "26ee04a346272c1a38ed41dfff4a92996ba89f9db4df7644adfaec753a852172",
+      "bytes": 2005
+    },
+    {
+      "path": "scripts/verify-enhancements.cjs",
+      "sha256": "16ac0b8a9d111512ef62a9051403c85708910a17d49361086ca85132edab1183",
+      "bytes": 7615
+    },
+    {
+      "path": "scripts/verify-flight-editor.py",
+      "sha256": "929da50cc406a8cdcacbd8033745737c9dc7a038f024895bffa15a12502fef2a",
+      "bytes": 16286
+    },
+    {
+      "path": "scripts/verify-utc-input.cjs",
+      "sha256": "549bdf120d588685abab12c12de1bd235908e110a218ef540b96e552d2708b5b",
+      "bytes": 4742
+    },
+    {
+      "path": "scripts/workspace-ui-races.cjs",
+      "sha256": "86392123f1c7fba6e0ca61d254e4b9c14888feef2ff60b445f40d57b14af5f13",
+      "bytes": 4970
+    },
+    {
+      "path": "tests/a320-screen.test.js",
+      "sha256": "aed51ca2d30f32eaf81f1efabb7f818ca49ff2a43683190fad2b94e03305e5e3",
+      "bytes": 1330
+    },
+    {
+      "path": "tests/a320-smart-scan.test.js",
+      "sha256": "4846697431186b345b4d11438c7aae0cc86b9b6f384895752bb6e9587a3cc501",
+      "bytes": 3826
+    },
+    {
+      "path": "tests/flight-editor.test.js",
+      "sha256": "fc68b481c4ff3f7874aebb218ce1ff1db8e777b42b940c18a2a1fe70b62e6923",
+      "bytes": 3791
+    },
+    {
+      "path": "tests/workspace-service-worker.test.js",
+      "sha256": "f94db5ead09732a7f6e91ee53ece7294f346d77fac3d9f28c2b8b460586911b9",
+      "bytes": 6437
+    }
+  ]
+}

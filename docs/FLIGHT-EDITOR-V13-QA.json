@@ -1,0 +1,81 @@
+{
+  "release": "Flight Detail UI V13 — Medium Compact",
+  "date": "2026-10-23",
+  "base": "AviLog_Flight_UI_V12_FULL_2026-10-23.zip",
+  "deployed": false,
+  "schemaChanged": false,
+  "saveFlightChanged": false,
+  "layout390px": {
+    "headerPx": {
+      "v12": 70,
+      "v13": 60
+    },
+    "tabsPx": {
+      "v12": 55,
+      "v13": 49
+    },
+    "overviewPx": {
+      "v12": 217.1,
+      "v13": 188.4
+    },
+    "routeAndActualPx": {
+      "v12": 399.7,
+      "v13": 337.8
+    },
+    "cardGapPx": {
+      "v12": 12,
+      "v13": 8
+    }
+  },
+  "browserCompact": {
+    "passed": 5,
+    "layouts": [
+      "320 light",
+      "390 light",
+      "390 dark",
+      "430 light",
+      "820 light"
+    ],
+    "touchControlsMin44Px": true,
+    "clockHeightMin40Px": true
+  },
+  "browserComponent": {
+    "passed": 53,
+    "scope": "Isolated Chromium component using production renderer/edit/save with mocked memory commit, not a full app"
+  },
+  "targetedNodeTests": {
+    "passed": 12,
+    "failed": 0
+  },
+  "fullNodeTests": {
+    "passed": 180,
+    "failed": 5,
+    "sameAsV12": true,
+    "existingFailures": [
+      "tests/atpl-auth-device.test.js (missing Firebase dependency)",
+      "v4 -> v5 weather preferences migration (Git history absent)",
+      "v5 -> v6 weather preferences migration (Git history absent)",
+      "disabled workspace transport cloud authorisation (missing Firebase dependency)",
+      "ATPL published baseline byte comparison (Git history absent)"
+    ]
+  },
+  "nodeRuntime": "22.16.0 (package requires >=24.12.0)",
+  "unchangedChecks": [
+    "public/app.js",
+    "public/lib/flight-editor.js",
+    "public/lib/a320-scan.js",
+    "public/lib/parsers.js",
+    "firebase/firestore.rules",
+    "firebase/storage.rules",
+    "public/atpl/catalog.json",
+    "93 ATPL/media/Firebase files (CRC+size)"
+  ],
+  "notVerified": [
+    "iPhone/iPad physical",
+    "WebKit",
+    "real Firebase/OAuth",
+    "full PWA offline shell/browser",
+    "real OCR",
+    "Railway production"
+  ]
+}
