@@ -58,7 +58,7 @@ jobs:
           const log=readFileSync('test-results/flight-scan/unit.tap','utf8');
           const bad=[...log.matchAll(/^not ok \d+ - (.+)$/gm)].map(m=>m[1]);
           const known=['v4 rejects extended preferences without acknowledging pending edits; v5 replays the original reminder edit and keeps watchlist','v5 requires reload for grouped preferences while v6 still accepts flat v5 data'];
-          assert(bad.every(x=>known.includes(x)),JSON.stringify(bad));assert(bad.length<=2);assert(Number(log.match(/^# pass (\d+)/m)?.[1])>=258);
+          assert(bad.every(x=>known.includes(x)),JSON.stringify(bad));assert(bad.length<=2);assert(Number(log.match(/^# pass (\d+)/m)?.[1])>=262);
           console.log(JSON.stringify({existingFailures:bad,newFailures:0}));
           NODE
       - name: Browser engines
@@ -100,7 +100,7 @@ jobs:
           path: test-results/
           retention-days: 7
       - uses: actions/upload-artifact@v4
-        if: ${{ steps.package.outputs.ready == 'true' }}
+        if: ${{ !cancelled() && steps.package.outputs.ready == 'true' }}
         with:
           name: avilog-flight-scan-verified-source
           path: candidate/
