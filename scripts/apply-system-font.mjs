@@ -58,6 +58,15 @@ if(process.argv.includes('--package')){
    if(item.clock)assert(/monospace|SFMono/i.test(item.font),label+' time figures must be monospaced');
   }
   values.fontAudit=fontAudit;`);
+  // A DOMContentLoaded event does not guarantee an asynchronously served imported
+  // sheet has entered WebKit's CSSOM. Keep the exact assertion, await its real signal,
+  // and block external fonts so the offline case genuinely tests native fallbacks.
+  browser=replace(browser,"lastLabel=name+' offline';","lastLabel=name+' offline';\n     await context.route('**/*',route=>route.request().url().startsWith(origin+'/')?route.continue():route.abort());");
+  const cssAssert="assert.equal(await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()),'avilog-shared-v1');";
+  assert.equal(browser.split(cssAssert).length,3,'Two offline entrypoint assertions must remain');
+  browser=browser.replaceAll(cssAssert,"await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1',null,{timeout:10000});\n     "+cssAssert);
+  const offline="if(name==='chromium')await context.setOffline(true);else unavailable=true;";
+  browser=replace(browser,offline,offline+"\n     const refused=await p.evaluate(()=>fetch('/api/health',{cache:'no-store'}).then(()=>false).catch(()=>true));assert(refused,name+' offline origin probe must fail');");
   sources['scripts/verify-shared-ui.cjs']=browser;
   for(const [p,s]of Object.entries(sources))await writeFile(p,s);
   console.log('Applied typography-only changes to '+files.length+' files, with original-source fingerprint checks.');
