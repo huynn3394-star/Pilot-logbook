@@ -1,23 +1,24 @@
 # Per-flight Flight Log import implementation plan
 
-Goal: expose the existing image/OCR import directly inside each saved flight's Log tab, beside Actual times, without requiring navigation back to the global Logbook importer.
-Baseline: f65d73f467a10b4a6865ed8acefc12febf0577ae. Work isolated on feat/flight-log-per-flight-2026-10-25.
+Goal: expose the existing image/OCR import directly inside each saved flight's Log tab, beside Actual times, without returning to the global importer.
+Baseline: f65d73f467a10b4a6865ed8acefc12febf0577ae. Isolated branch: feat/flight-log-per-flight-2026-10-25.
 
 ## Design and constraints
-- Reuse the existing imageImport(targetId), Smart Scan V2, parseAircraft, prepareScanDraft and review/save flow. No new OCR provider, data schema or cloud permission.
-- Render one camera action in each saved flight (DRAFT or FINAL). New unsaved flights explain that the flight must be saved first. Preserve the global import entry.
-- Prefill the target flight's UTC date and aircraft family, and display its flight number/route/date prominently.
-- Block opening the importer from an edited or unsaved scan-review form; preserve all unsaved fields and any selected evidence image. The user explicitly saves first.
-- Bind preview and cancel to the selected saved record. Missing/deleted targets must never fall through to creating a new flight. Number/date mismatch remains an error; missing identifiers are not guessed.
-- Preserve the original form-capture/base across editor -> import -> review (or cancel), so existing conflict detection stays effective. No autosave; FINAL replacement still requires existing consent and reason.
-- Keep the original parser, confirmation logic, ATPL, weather, font/color/layout, Firebase and dependencies unchanged.
+- Reuse imageImport(targetId), Smart Scan V2, parseAircraft, prepareScanDraft and existing review/save. No new provider, schema or cloud permission.
+- One camera action in each saved DRAFT/FINAL; unsaved flights explain saving first. Preserve global import.
+- Prefill the saved UTC date and aircraft family and display number, route and date.
+- Protect edited forms, unsaved scan reviews and selected evidence: require explicit saving before opening another scan.
+- Bind preview/cancel to the selected saved record. Reject missing targets and number/date mismatches; do not guess absent identifiers or create a duplicate.
+- Preserve the original form-capture/base across editor, importer, review and cancel. Existing FINAL replacement consent and reason remain mandatory.
+- Preserve parser, stored data, ATPL, Weather, fonts, colors, layout, Firebase and dependencies.
 
-## Tasks and verification ledger
-- [x] Read relevant live source and create an isolated branch; add render contract and parser-preservation unit tests.
-- [ ] Observe those tests fail on the unchanged source (no action exists).
-- [ ] Apply narrow fingerprint-checked source edits to app.js and flight-editor.js; bump shell suffix and corresponding cache expectations.
-- [ ] Hosted Chromium/WebKit tests: 320/390/820px, both themes, target identity/date/family, dirty fields and evidence, cancel, mismatches, preview without save, correct record update, FINAL protection and global import.
-- [ ] Run full unit suite and regression scripts for shared interface, Flight Detail and Weather. Report the two known history-fixture failures rather than hiding them.
-- [ ] Review exact tested diff, package evidence, and promote with expected-head lease only after new feature/regression checks pass. Existing Railway project/service only.
+## Completion ledger
+- [x] Read live source; create isolated branch and render/parser-preservation tests.
+- [x] Add the target-bound action and guarded navigation, preserving capture and the existing scan/review/save flow.
+- [x] Hosted run 40174506767: four feature unit contracts pass; 262/264 full unit suite passes. Only the two known missing-history-commit tests fail.
+- [x] Twelve per-flight browser scenarios and 280 existing shared/flight/weather scenarios pass on Chromium/WebKit; no errors in the JSON reports.
+- [x] Verify protected-file diff, exact candidate hashes, and final source diff; inspect light/dark screenshots. Review inline, no independent reviewer available.
+- [x] Remove temporary transform and write-scoped CI candidate machinery; keep exact tested production bytes and document evidence in docs/PER-FLIGHT-SCAN.md.
+- [ ] Promote release with expected-head lease and verify the existing Railway deployment; report actual deployment status, not an assumed result.
 
-Execution note: the local terminal returns ClientError. Use the repository's hosted CI to run real tests. Temporary candidate generation may create Git objects for the allowlisted tested source only; it must not move any branch or deploy. Remove temporary write-scoped workflow machinery before release. No independent subagent reviewer is available; final review is inline and reported as such.
+Ruling: reuse the importer instead of embedding a second OCR engine or redesigning the editor. Flight Log camera/OCR accuracy and physical devices are outside the synthetic browser validation and must not be claimed as tested. No user records or live Firebase settings are changed by these tests.
