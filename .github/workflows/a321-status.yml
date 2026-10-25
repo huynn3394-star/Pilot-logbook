@@ -1,0 +1,82 @@
+name: A321 OOOI STATUS verification
+on:
+  push:
+    branches: ['feat/a321-oooi-status-2026-10-25']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: a321-status-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ATPL_ACCOUNTS_ENABLED: 'false'
+      AVILOG_WORKSPACE_SYNC_ENABLED: 'false'
+      AVILOG_EVIDENCE_SYNC_ENABLED: 'false'
+      AVILOG_LOGBOOK_V14_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+          cache: npm
+      - name: A321 STATUS and original FLT LOG contracts
+        id: contract
+        run: |
+          mkdir -p test-results/a321-status
+          node --test tests/a321-oooi-status.test.js tests/a320-screen.test.js tests/a320-smart-scan.test.js
+      - name: Locked install and unchanged SDK build
+        id: build
+        if: ${{ !cancelled() && steps.contract.outcome == 'success' }}
+        run: |
+          npm ci --ignore-scripts > test-results/a321-status/install.log 2>&1
+          npm run build:atpl-account
+      - name: Full unit regression suite
+        id: unit
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          code=0
+          node --test --test-reporter=tap tests/*.test.js > test-results/a321-status/unit.tap 2>&1 || code=$?
+          grep -E '^not ok|^# (tests|pass|fail)' test-results/a321-status/unit.tap || true
+          exit "$code"
+      - name: Reject any new unit failure
+        id: gate
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
+          const log=readFileSync('test-results/a321-status/unit.tap','utf8'),bad=[...log.matchAll(/^not ok \d+ - (.+)$/gm)].map(m=>m[1]);
+          const known=['v4 rejects extended preferences without acknowledging pending edits; v5 replays the original reminder edit and keeps watchlist','v5 requires reload for grouped preferences while v6 still accepts flat v5 data'];
+          assert(bad.every(x=>known.includes(x)),JSON.stringify(bad));assert(bad.length<=2);assert(Number(log.match(/^# pass (\d+)/m)?.[1])>=278);
+          console.log(JSON.stringify({existingFailures:bad,newFailures:0}));
+          NODE
+      - name: Browser engines
+        id: browsers
+        if: ${{ !cancelled() && steps.gate.outcome == 'success' }}
+        run: npx playwright install --with-deps chromium webkit > test-results/a321-status/browsers.log 2>&1
+      - name: STATUS target review and save in the real guest app
+        id: feature
+        if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
+        run: node scripts/verify-a321-status.cjs
+      - name: Existing Flight Log, FINAL, shared UI and Weather search regressions
+        id: regression
+        if: ${{ !cancelled() && steps.feature.outcome == 'success' }}
+        run: |
+          node scripts/verify-flight-scan.cjs
+          node scripts/verify-shared-ui.cjs
+          node scripts/verify-weather-view.cjs
+      - name: Provider, storage, UI, ATPL, matching and importer unchanged
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: git diff --exit-code 929152a101405f8d2093faacb068b8a6d98a9f38 -- public/app.js public/lib/importers.js public/lib/parsers.js public/lib/domain.js public/lib/flight-assist.js public/lib/flight-editor.js public/workspace public/account public/atpl public/ui public/style.css public/navy-teal.css data lib server.js firestore.rules storage.rules package.json package-lock.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: avilog-a321-status-checks
+          path: test-results/
+          retention-days: 7

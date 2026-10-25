@@ -1,5 +1,5 @@
 const BUNDLE_BUILD = "da75c65e901d";
-const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
+const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-a321-status" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
 const SHELL = [
   "/workspace/flight-conflict.js",
   "/workspace/capabilities.js",

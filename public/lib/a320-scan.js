@@ -1,7 +1,7 @@
-// Pure A320/A321 AOC FLT LOG reader. No cloud OCR, no automatic confirmation.
+// Pure A320/A321 AOC FLT LOG and OOOI STATUS reader. No cloud OCR, no automatic confirmation.
 // Reported FLIGHT/BLOCK durations are cross-checks, never replacements for OOOI.
 const headings = new Set([
-  'AOC', 'FLT', 'DATE', 'DEPT', 'DEST', 'TIME', 'DATA', 'FROM', 'FLTG',
+  'AOC', 'FLT', 'DATE', 'DEPT', 'DEST', 'ORIG', 'OOOI', 'TIME', 'DATA', 'FROM', 'FLTG',
   'FOBK', 'FOBS', 'CALL', 'SIGN', 'TYPE', 'BLOCK', 'PRINT', 'RETURN',
   'ACFT', 'CREW', 'PAGE', 'FUEL', 'TOTAL', 'ROUT', 'INFO', 'MCDU', 'MENU', 'PROG', 'INIT', 'PERF', 'ACAR', 'APPR',
 ]);
@@ -69,22 +69,53 @@ function readFlight(text, warnings) {
 }
 function readEvents(text, warnings) {
   const clocks = {}, repaired = new Set(), duplicates = new Set();
-  // Accept a common negative sign from OCR before a valid time, not arbitrary integers.
-  const clock = '([0-9OQD@IL|]{2}[.:]?[0-9OQD@IL|]{2})';
-  for (const key of [...expectedEvents,'flight','block']) {
-    const pattern = new RegExp('\\b'+key+'\\b[ \\t:=\\-]*'+clock+'\\b', 'gi');
-    const matches = [...text.matchAll(pattern)];
-    for (const match of matches) {
-      const result = parseClock(match[1]);
-      if (!result) {warnings.push(`${key.toUpperCase()}: giờ đọc được không hợp lệ (${match[1]}), cần sửa OCR.`);continue;}
-      if (clocks[key] && clocks[key] !== result.value) duplicates.add(key.toUpperCase());
-      else if (!clocks[key]) clocks[key] = result.value;
-      if (result.repaired) repaired.add(key.toUpperCase());
+  const keys = [...expectedEvents, 'flight', 'block'];
+  const statusHeader = /\b[O0]{3}[I1]\s+STATUS\b/.test(text);
+  const repairedSuffix = new Set();
+  const digits = '[0-9OQD@IL|]{2}[.:]?[0-9OQD@IL|]{2}';
+  const valuePattern = new RegExp('^(?:' + digits + '|----|--[.:]--|____)Z?$');
+  const placeholder = /^(?:----|--[.:]--|____)Z?$/;
+  const zAsTwo = new RegExp('^' + digits + '2$');
+  const isValue = (raw, key) => valuePattern.test(raw) || (statusHeader && expectedEvents.includes(key) && zAsTwo.test(raw));
+  function remember(key, raw) {
+    if (placeholder.test(raw)) return;
+    const suffixRepair = statusHeader && expectedEvents.includes(key) && zAsTwo.test(raw);
+    const result = parseClock(suffixRepair ? raw.slice(0, -1) : raw.replace(/Z$/, ''));
+    if (!result) {
+      warnings.push(`${key.toUpperCase()}: giờ đọc được không hợp lệ (${raw}), cần sửa OCR.`);
+      return;
     }
+    if (clocks[key] && clocks[key] !== result.value) duplicates.add(key.toUpperCase());
+    else if (!clocks[key]) clocks[key] = result.value;
+    if (result.repaired || suffixRepair) repaired.add(key.toUpperCase());
+    if (suffixRepair) repairedSuffix.add(key.toUpperCase());
   }
+  // Keep the original FLT LOG row reader. Z is an explicit UTC suffix, never
+  // an extra digit; no newline is allowed between an inline label and clock.
+  for (const key of keys) {
+    const pattern = new RegExp('\\b' + key + '\\b[ \\t:=\\-]*(' + digits + ')(?:[ \\t]*Z)?(?=$|[^A-Z0-9|])', 'gi');
+    for (const match of text.matchAll(pattern)) remember(key, match[1]);
+  }
+  const lines = text.split('\n').map(line => line.trim()).filter(Boolean);
+  const pairs = new Set(['out/off', 'off/out', 'in/on', 'on/in', 'block/flight', 'flight/block']);
+  for (let i = 0; i + 1 < lines.length; i++) {
+    // AOC OOOI STATUS: OUT/OFF then IN/ON, NOT chronological left-to-right.
+    // Read only immediate label/value rows, not UTC, DATE or RETURN fields.
+    const labels = lines[i].replace(/[←→<>¢‹›]/g, ' ').trim().toLowerCase().split(/\s+/);
+    const pair = pairs.has(labels.join('/'));
+    if (!pair && !(labels.length === 1 && keys.includes(labels[0]))) continue;
+    const values = lines[i + 1].replace(/([0-9OQD@IL|])[ \t]+Z\b/g, '$1Z').split(/[ \t]+/);
+    if (values.length !== labels.length || !values.every((v, column) => isValue(v, labels[column]))) {
+      if (pair) warnings.push(`${labels.join('/').toUpperCase()}: hai cột thiếu hoặc không rõ giờ; kiểm tra ảnh gốc, không tự ghép.`);
+      continue;
+    }
+    labels.forEach((key, column) => remember(key, values[column]));
+    i++; // A consumed value row cannot become a new label row.
+  }
+  if (repairedSuffix.size) warnings.push(`OCR có thể nhầm ký tự 2 cuối thành Z trong ${[...repairedSuffix].join(', ')}; giờ chỉ là gợi ý, đối chiếu ảnh trước khi lưu.`);
   if (duplicates.size) warnings.push(`Giờ xuất hiện mâu thuẫn: ${[...duplicates].join(', ')}; cần kiểm tra thủ công.`);
   if (repaired.size) warnings.push(`OCR đã sửa ký tự dễ nhầm trong giờ ${[...repaired].join(', ')}; hãy đối chiếu ảnh.`);
-  for(const key of expectedEvents) if(!clocks[key]) warnings.push(`Chưa có giờ ${key.toUpperCase()} hợp lệ.`);
+  for (const key of expectedEvents) if (!clocks[key]) warnings.push(`Chưa có giờ ${key.toUpperCase()} hợp lệ.`);
   return {clocks, repaired:repaired.size, conflicts:duplicates.size};
 }
 export function readA320Scan(raw) {
@@ -93,6 +124,7 @@ export function readA320Scan(raw) {
     .replace(/\r/g, '\n').replace(/[‐‑‒–—−]/g, '-').replace(/\\/g,'/')
     .replace(/\b0UT\b/g,'OUT').replace(/\b0FF\b/g,'OFF')
     .replace(/\b0N\b/g,'ON');
+  const layout=/\b[O0]{3}[I1]\s+STATUS\b/.test(text) || (/^OUT[ \t]+OFF$/m.test(text) && /^IN[ \t←<>]+ON$/m.test(text)) ? 'oooi-status' : 'flt-log';
   const flight=readFlight(text,warnings);
   const route=readRoute(text,flight.position,warnings);
   const times=readEvents(text,warnings);
@@ -113,5 +145,5 @@ export function readA320Scan(raw) {
   confidence -= (flight.repaired?10:0)+times.repaired*8+times.conflicts*20+mismatch*25;
   if(warnings.some(x=>x.includes('nhiều hành trình')))confidence-=20;
   confidence=Math.min(100,Math.max(0,Math.round(confidence)));
-  return {flightNo:flight.flightNo,...route,clocks,reported,computed,verified,mismatch,warnings,confidence};
+  return {layout,flightNo:flight.flightNo,...route,clocks,reported,computed,verified,mismatch,warnings,confidence};
 }

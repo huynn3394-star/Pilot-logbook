@@ -25,3 +25,22 @@ test('no green text or incomplete region never produces an imaginary screen',()=
  assert.equal(validScanCrop({x:.5,y:.5,width:.6,height:.4}),false);
  assert.equal(validScanCrop({x:0,y:0,width:.02,height:.3}),false);
 });
+
+test('night cockpit connected to dark surroundings uses multi-row green-text region',()=>{
+ const width=400,height=500,data=new Uint8ClampedArray(width*height*4);
+ for(let i=0;i<data.length;i+=4){data[i]=data[i+1]=data[i+2]=18;data[i+3]=255;}
+ for(const y0 of [165,205,245,285,325])for(const x0 of [100,250])for(let y=y0;y<y0+9;y++)for(let x=x0;x<x0+45;x++){
+  const p=(y*width+x)*4;data[p]=10;data[p+1]=200;data[p+2]=25;
+ }
+ const rect=findMCDUScreen(data,width,height);assert(validScanCrop(rect));
+ assert(rect.x<.25&&rect.y<.33);assert(rect.x+rect.width>.74&&rect.y+rect.height>.67);
+ assert(rect.width<.85&&rect.height<.8,'crop remains bounded to display text');
+});
+test('a single green lamp or large solid green surface is not a display fallback',()=>{
+ const width=240,height=180,data=new Uint8ClampedArray(width*height*4);
+ for(let i=0;i<data.length;i+=4){data[i]=data[i+1]=data[i+2]=18;data[i+3]=255;}
+ for(let y=80;y<88;y++)for(let x=100;x<130;x++){const p=(y*width+x)*4;data[p]=10;data[p+1]=200;data[p+2]=20;}
+ assert.equal(findMCDUScreen(data,width,height),null);
+ for(let i=0;i<data.length;i+=4){data[i]=10;data[i+1]=200;data[i+2]=20;}
+ assert.equal(findMCDUScreen(data,width,height),null);
+});
