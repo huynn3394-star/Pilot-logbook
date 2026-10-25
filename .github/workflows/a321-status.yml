@@ -37,9 +37,13 @@ jobs:
         run: |
           npm ci --ignore-scripts > test-results/a321-status/install.log 2>&1
           npm run build:atpl-account
+      - name: Source preservation and exact generated manifest
+        id: protected
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: node scripts/verify-a321-preservation.mjs
       - name: Full unit regression suite
         id: unit
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.protected.outcome == 'success' }}
         run: |
           code=0
           node --test --test-reporter=tap tests/*.test.js > test-results/a321-status/unit.tap 2>&1 || code=$?
@@ -47,7 +51,7 @@ jobs:
           exit "$code"
       - name: Reject any new unit failure
         id: gate
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.protected.outcome == 'success' }}
         run: |
           node --input-type=module <<'NODE'
           import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
@@ -71,9 +75,6 @@ jobs:
           node scripts/verify-flight-scan.cjs
           node scripts/verify-shared-ui.cjs
           node scripts/verify-weather-view.cjs
-      - name: Provider, storage, UI, ATPL, matching and importer unchanged
-        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
-        run: git diff --exit-code 929152a101405f8d2093faacb068b8a6d98a9f38 -- public/app.js public/lib/importers.js public/lib/parsers.js public/lib/domain.js public/lib/flight-assist.js public/lib/flight-editor.js public/workspace public/account public/atpl public/ui public/style.css public/navy-teal.css data lib server.js firestore.rules storage.rules package.json package-lock.json
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
