@@ -1,0 +1,67 @@
+name: Weather SPECI and keyword verification
+on:
+  push:
+    branches: ['feat/weather-speci-highlights-2026-10-25']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: weather-attention-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ATPL_ACCOUNTS_ENABLED: 'false'
+      AVILOG_WORKSPACE_SYNC_ENABLED: 'false'
+      AVILOG_EVIDENCE_SYNC_ENABLED: 'false'
+      AVILOG_LOGBOOK_V14_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+          cache: npm
+      - name: Locked install and SDK build
+        id: build
+        run: |
+          mkdir -p test-results/weather-attention
+          npm ci --ignore-scripts > test-results/weather-attention/install.log 2>&1
+          npm run build:atpl-account
+      - name: Unit regression suite
+        id: unit
+        run: |
+          code=0
+          npm test > test-results/weather-attention/unit.log 2>&1 || code=$?
+          grep -E '^[✖×]|^not ok|^ℹ (tests|pass|fail)|^# (tests|pass|fail)' test-results/weather-attention/unit.log || true
+          tail -15 test-results/weather-attention/unit.log
+          exit "$code"
+      - name: Browser engines
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        id: browsers
+        run: npx playwright install --with-deps chromium webkit > test-results/weather-attention/browsers.log 2>&1
+      - name: SPECI groups, keyword rendering, raw text and offline
+        if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
+        id: feature
+        run: node scripts/verify-weather-attention.cjs
+      - name: Existing Weather UI regression
+        if: ${{ !cancelled() && steps.feature.outcome == 'success' }}
+        run: node scripts/verify-weather-ui.cjs > test-results/weather-attention/weather-regression.log 2>&1 || { tail -55 test-results/weather-attention/weather-regression.log; exit 1; }
+      - name: Shared UI and flight editor regression
+        if: ${{ !cancelled() && steps.feature.outcome == 'success' }}
+        run: |
+          node scripts/verify-shared-ui.cjs
+          node scripts/verify-navy-teal.cjs
+      - name: Provider, stored-data and ATPL source preservation
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: git diff --exit-code 073ec63a763e5ef67936aad9f86d37164b1ab025 -- public/app.js public/lib public/account public/atpl public/workspace/schema.js public/workspace/model.js public/workspace/repository.js public/workspace/session.js public/workspace/weather-watch.js public/workspace/weather-report.js public/workspace/weather-groups.js public/ui/system.css public/ui/tokens.css data lib server.js firestore.rules storage.rules package.json package-lock.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: avilog-weather-attention-checks
+          path: test-results/
+          retention-days: 7
