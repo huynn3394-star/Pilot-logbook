@@ -189,6 +189,7 @@ async function commit(next, message, options={}) {
   }
 }
 function openModal(title, body, footer = "") {
+  modal._imageTarget=null;
   modal._flightEditor?.dispose();modal._flightEditor=null;
   try{modal._formCapture=workspaceSession?.captureForm();}catch{modal._formCapture=null;}
   modal.dataset.context=crypto.randomUUID();formDirty=false;
@@ -685,6 +686,16 @@ async function rescanSelectedImage(mode) {
   finally{if(asyncCurrent(capture)&&generation===imageScanGeneration)setImportBusy(false);}
 }
 function imageImport(targetId) {
+  const target=targetId?find(targetId):null;
+  if(targetId&&(!target||!workspaceSession.view().flights.some(f=>f.id===targetId)))throw Error('Chuyến bay không còn trong dữ liệu. Mở lại chuyến trước khi nhập ảnh.');
+  const editor=modal.open?modal.querySelector('#flight-form'):null;
+  if(editor&&(formDirty||editor._imported||editor._saving)){
+    modal._flightEditor?.show('log');
+    throw Error('Hãy lưu các thay đổi của chuyến bay trước khi nhập ảnh Flight Log. Nội dung đang nhập vẫn được giữ.');
+  }
+  const targetCapture=target?(editor?.dataset.id===targetId?modal._formCapture:workspaceSession.captureForm()):null;
+  if(target&&(!targetCapture||!coordinator.isCurrent(targetCapture.token)))throw Error('Phiên đã thay đổi; mở lại chuyến bay trước khi nhập ảnh.');
+  const family=target?.aircraft==='A321'?'A320':families[target?.aircraft]?target.aircraft:'A320';
   imageAttachment = null;
   imageIsSample = false;
   imageFile = null;
@@ -692,15 +703,20 @@ function imageImport(targetId) {
   imageScanGeneration++;
   redrawImageCrop = () => {};
   openModal(
-    "Nhập từ ảnh FLT LOG",
-    `<div class="modal-body"><div class="steps"><b>01 · Chọn ảnh</b><span>→</span><b>02 · OCR</b><span>→</span><span>03 · Xác nhận</span></div><p>Ảnh được đọc cục bộ. OCR có thể đọc sai chữ/số; không có dữ liệu nào tự lưu. Lần dùng đầu cần mạng để tải mô hình nhận dạng tiếng Anh.</p><div class="form-grid">${select(
+    target ? "Nhập ảnh Flight Log · " + e(target.flightNo) : "Nhập từ ảnh FLT LOG",
+    `<div class="modal-body">${target?`<div class="source-card" data-image-flight-target><strong>${e(target.flightNo)} · ${e(target.dep)} → ${e(target.dest)}</strong><p>${e(target.date)} · UTC · ${e(target.aircraft||'Chưa ghi loại tàu bay')}</p><p>Ảnh chỉ cập nhật chuyến này sau khi bạn kiểm tra và bấm Lưu.</p></div>`:''}<div class="steps"><b>01 · Chọn ảnh</b><span>→</span><b>02 · OCR</b><span>→</span><span>03 · Xác nhận</span></div><p>Ảnh được đọc cục bộ. OCR có thể đọc sai chữ/số; không có dữ liệu nào tự lưu. Lần dùng đầu cần mạng để tải mô hình nhận dạng tiếng Anh.</p><div class="form-grid">${select(
       "family",
       "Aircraft family",
-      "A320",
+      family,
       Object.entries(families).map(([k, v]) => [k, v.label]),
-    )}${input("image-date", "Ngày OUT · UTC", targetId ? find(targetId).date : todayInputDate(), "date", 'id="image-date" required')}</div><div class="file-zone">${icon("camera")}<strong>Chụp hoặc chọn MCDU / AOC / ACARS OOOI</strong><input type="file" id="image-file" accept="image/jpeg,image/png,image/webp" capture="environment"><span class="tiny muted">JPG / PNG / WebP · tối đa 6 MB</span></div><details class="source-card"><summary>Ảnh mẫu E190 · ACARS OOOI</summary><img class="image-preview" src="/examples/e190-oooi.png" alt="Mẫu màn hình E190: OUT/OFF và IN/ON theo hai cột"><p>Chọn E190 khi đọc mẫu này. Kiểm tra riêng số chuyến, sân bay, ngày OUT và bốn mốc giờ; thông tin chưa rõ có thể sửa tay.</p></details><div id="image-evidence"></div><details id="image-crop-tools" class="source-card" hidden><summary>Smart Scan V2 · khoanh vùng màn hình / đọc lại</summary><p>Khung viền là vùng AviLog tự tìm. Nếu thiếu chữ hoặc giờ, kéo trực tiếp lên ảnh từ góc trái trên đến góc phải dưới để chọn lại toàn bộ màn hình AOC (gồm FLT ID, DEP/DEST và các giờ).</p><canvas id="image-crop-canvas" class="image-crop-canvas" aria-label="Chạm kéo để chọn vùng AOC trên ảnh"></canvas><p id="image-crop-hint" class="tiny muted">Chạm kéo trên ảnh để chọn vùng muốn đọc lại.</p><div class="actions">${btn("image-ocr-crop", "Đọc lại vùng chọn", "camera", "small")}${btn("image-ocr-full", "Đọc lại toàn ảnh", "camera", "small ghost")}</div></details><div class="progress" id="import-progress"></div><div class="form-section"><span>Văn bản OCR · sửa khi cần</span>${btn("image-sample", "Dùng dữ liệu mẫu", null, "small ghost")}</div><textarea id="image-text" rows="8" placeholder="VN0506/-- VVNB/ZGGG&#10;OUT 06:00&#10;OFF 06:13&#10;ON 07:35&#10;IN 07:58"></textarea><div id="image-ocr-feedback" class="source-card" aria-live="polite" hidden></div><div class="error" data-error hidden></div></div>`,
-    `${btn("close", "Hủy", null, "ghost")}${btn("image-parse", "Xem trước Actual", "arrow", "primary", targetId ? `data-id="${e(targetId)}"` : "")}`,
+    )}${input("image-date", "Ngày OUT · UTC", target ? target.date : todayInputDate(), "date", 'id="image-date" required')}</div><div class="file-zone">${icon("camera")}<strong>Chụp hoặc chọn MCDU / AOC / ACARS OOOI</strong><input type="file" id="image-file" accept="image/jpeg,image/png,image/webp" capture="environment"><span class="tiny muted">JPG / PNG / WebP · tối đa 6 MB</span></div><details class="source-card"><summary>Ảnh mẫu E190 · ACARS OOOI</summary><img class="image-preview" src="/examples/e190-oooi.png" alt="Mẫu màn hình E190: OUT/OFF và IN/ON theo hai cột"><p>Chọn E190 khi đọc mẫu này. Kiểm tra riêng số chuyến, sân bay, ngày OUT và bốn mốc giờ; thông tin chưa rõ có thể sửa tay.</p></details><div id="image-evidence"></div><details id="image-crop-tools" class="source-card" hidden><summary>Smart Scan V2 · khoanh vùng màn hình / đọc lại</summary><p>Khung viền là vùng AviLog tự tìm. Nếu thiếu chữ hoặc giờ, kéo trực tiếp lên ảnh từ góc trái trên đến góc phải dưới để chọn lại toàn bộ màn hình AOC (gồm FLT ID, DEP/DEST và các giờ).</p><canvas id="image-crop-canvas" class="image-crop-canvas" aria-label="Chạm kéo để chọn vùng AOC trên ảnh"></canvas><p id="image-crop-hint" class="tiny muted">Chạm kéo trên ảnh để chọn vùng muốn đọc lại.</p><div class="actions">${btn("image-ocr-crop", "Đọc lại vùng chọn", "camera", "small")}${btn("image-ocr-full", "Đọc lại toàn ảnh", "camera", "small ghost")}</div></details><div class="progress" id="import-progress"></div><div class="form-section"><span>Văn bản OCR · sửa khi cần</span>${btn("image-sample", "Dùng dữ liệu mẫu", null, "small ghost")}</div><textarea id="image-text" rows="8" placeholder="VN0506/-- VVNB/ZGGG&#10;OUT 06:00&#10;OFF 06:13&#10;ON 07:35&#10;IN 07:58"></textarea><div id="image-ocr-feedback" class="source-card" aria-live="polite" hidden></div><div class="error" data-error hidden></div></div>`,
+    `${btn(target ? "image-cancel" : "close", target ? "Quay lại chuyến bay" : "Hủy", null, "ghost")}${btn("image-parse", "Xem trước Actual", "arrow", "primary", targetId ? `data-id="${e(targetId)}"` : "")}`,
   );
+  if(target){
+    modal._imageTarget={id:target.id,record:structuredClone(target),capture:targetCapture};
+    modal._formCapture=targetCapture;
+    modal.querySelector('.modal-head [data-action="close"]').dataset.action='image-cancel';
+  }
   modal.querySelector("#image-file").onchange = async (ev) => {
     const file = ev.target.files[0];
     if (!file) return;
@@ -726,6 +742,14 @@ function imageImport(targetId) {
   modal.querySelector('#image-text').addEventListener('input',ev=>scanFeedback(ev.target.value));
   modal.querySelector('[name="family"]').addEventListener('change',()=>scanFeedback(modal.querySelector('#image-text').value));
 }
+function cancelFlightImage(){
+  const target=modal._imageTarget;
+  if(!target){modal.close();return;}
+  if(!coordinator.isCurrent(target.capture.token))throw Error('Phiên đã thay đổi; mở lại chuyến bay.');
+  if(!workspaceSession.view().flights.some(f=>f.id===target.id))throw Error('Chuyến bay không còn trong dữ liệu. Đóng cửa sổ và mở lại danh sách.');
+  imageScanGeneration++;imageFile=null;imageAttachment=null;imageCropRect=null;
+  editFlight(target.record);modal._formCapture=target.capture;
+}
 function previewImage(targetId) {
   try {
     const f = parseAircraft(
@@ -734,15 +758,21 @@ function previewImage(targetId) {
       modal.querySelector("#image-date").value,
     );
     const found=lookupFlights(state.flights,{flightNo:f.flightNo,date:f.date});
-    const show=old=>{
+    const show=(old,targetCapture=null)=>{
       const imported=prepareScanDraft(old,f);
 
       imported.attachment=imageAttachment||old?.attachment;
       imported.source=imageIsSample?'sample text · '+f.aircraft:f.source;
       if(old&&scanComparison(old,f).some(row=>row.state==='missing'))imported.source=(imported.source+' + dữ liệu cũ cần kiểm tra').slice(0,120);
       editFlight(old,imported,f.note,f);
+      if(targetCapture)modal._formCapture=targetCapture;
     };
-    if(targetId){show(find(targetId));return;}
+    if(targetId){
+      const target=modal._imageTarget;
+      if(!target||target.id!==targetId||!coordinator.isCurrent(target.capture.token))throw Error('Phiên nhập ảnh đã thay đổi; mở lại đúng chuyến bay.');
+      if(!workspaceSession.view().flights.some(record=>record.id===targetId))throw Error('Chuyến bay không còn trong dữ liệu. Không tạo chuyến mới từ cửa sổ này.');
+      show(target.record,target.capture);return;
+    }
     if(found.kind==='ambiguous'){
       openModal('Chọn chuyến khớp ảnh',`<div class="modal-body"><p>Nhiều bản ghi cùng số hiệu/ngày. Chọn rõ chuyến cần ghi, không tự chọn kết quả đầu tiên.</p><div data-scan-match-list></div><div class="error" data-error hidden></div></div>`);
       const list=modal.querySelector('[data-scan-match-list]');
@@ -1200,6 +1230,9 @@ document.addEventListener("click", async (ev) => {
         break;
       case "image":
         imageImport(id);
+        break;
+      case "image-cancel":
+        cancelFlightImage();
         break;
       case "image-sample":
         modal.querySelector("#image-text").value = modal.querySelector('[name="family"]').value==='E190'?'FLIGHT NO DEP/DEST\nAT411M GMMX/GMMN\nOUT OFF\n1230Z 1307Z\nIN ON\n1337Z 1333Z':sampleAOC;
