@@ -1,0 +1,70 @@
+name: AviLog system typography verification
+on:
+  push:
+    branches: ['ui/system-font-facebook-2026-10-25']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: avilog-font-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ATPL_ACCOUNTS_ENABLED: 'false'
+      AVILOG_WORKSPACE_SYNC_ENABLED: 'false'
+      AVILOG_EVIDENCE_SYNC_ENABLED: 'false'
+      AVILOG_LOGBOOK_V14_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+          cache: npm
+      - name: Shared typography contract
+        id: contract
+        run: node --test tests/ui-font-contract.test.js
+      - name: Install locked dependencies and build unchanged account SDK
+        id: build
+        if: ${{ !cancelled() && steps.contract.outcome == 'success' }}
+        run: |
+          mkdir -p test-results/font-ui
+          npm ci --ignore-scripts > test-results/font-ui/install.log 2>&1
+          npm run build:atpl-account
+      - name: Full unit regression suite (existing failures remain visible)
+        id: unit
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          code=0
+          npm test > test-results/font-ui/unit.log 2>&1 || code=$?
+          grep -E '^[✖×]|^not ok|^ℹ (tests|pass|fail)|^# (tests|pass|fail)' test-results/font-ui/unit.log || true
+          tail -18 test-results/font-ui/unit.log
+          exit "$code"
+      - name: Install browsers
+        id: browsers
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: npx playwright install --with-deps chromium webkit > test-results/font-ui/browsers.log 2>&1
+      - name: Every tab, 12 ATPL banks, Flight Detail, both themes and offline
+        id: ui
+        if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
+        run: node scripts/verify-shared-ui.cjs
+      - name: Navy-teal and original Flight Detail regressions
+        if: ${{ !cancelled() && steps.ui.outcome == 'success' }}
+        run: node scripts/verify-navy-teal.cjs
+      - name: Weather SPECI and keyword regressions
+        if: ${{ !cancelled() && steps.ui.outcome == 'success' }}
+        run: node scripts/verify-weather-attention.cjs
+      - name: Source, sync, OCR and ATPL data unchanged
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: git diff --exit-code 5dfbd15b78fd81b7dc68ebb8f1b7a5feca9a05de -- public/app.js public/lib public/workspace public/account public/atpl/banks public/atpl/manifests public/atpl/catalog.json public/atpl/identities.json data lib server.js firestore.rules storage.rules package.json package-lock.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: avilog-font-ui-tests
+          path: test-results/
+          retention-days: 7
