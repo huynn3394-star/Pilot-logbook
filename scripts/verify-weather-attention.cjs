@@ -2,6 +2,7 @@
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const {weatherManage}=require('./ui-controls.cjs');
+const {weatherReady}=require('./weather-ready.cjs');
 const NOW='2026-10-25T03:00:00Z',out=path.resolve('test-results/weather-attention');
 const report={scope:'Local guest app with synthetic weather, Chromium/WebKit; not physical iOS or live provider validation',checks:[],errors:[],diagnostics:[]};
 let mode='speci',unavailable=false;
@@ -22,14 +23,17 @@ async function savedLabelGeometry(row){
    mode='speci';unavailable=false;const context=await browser.newContext({viewport:{width,height:1000}}),p=await context.newPage(),errors=[];p.setDefaultTimeout(15000);p.on('pageerror',e=>errors.push(e.message));
    try{
     await p.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());await p.clock.setFixedTime(new Date(NOW));
-    await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();await p.evaluate(async theme=>(await import('/lib/appearance.js')).setAppearance({theme}),theme);
+    await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();await weatherReady(p);await p.evaluate(async theme=>(await import('/lib/appearance.js')).setAppearance({theme}),theme);
     const add=async(station,group)=>{await weatherManage(p);if(group)await p.getByLabel('Nhóm sân bay',{exact:true}).selectOption({label:group});await p.getByLabel('Thêm sân bay (ICAO hoặc IATA)').fill(station);await p.getByRole('button',{name:'Thêm sân bay',exact:true}).click();await p.locator(`[data-weather-station=${station}]`).filter({hasText:'Q1010='}).first().waitFor({state:'attached'});};
     await add('VVTS');await add('VVNB');await weatherManage(p);await p.getByLabel('Tên nhóm mới',{exact:true}).fill('Quốc tế');await p.getByRole('button',{name:'Tạo nhóm',exact:true}).click();await p.locator('.weather-group-heading').filter({hasText:'Quốc tế'}).waitFor();await add('WSSS','Quốc tế');await add('VVTS','Quốc tế');
     await p.waitForFunction(()=>document.querySelectorAll('[data-weather-station=VVTS]').length===2);await p.waitForFunction(()=>!document.querySelector('[data-watch-refresh]').disabled);
     const menu=p.locator('[data-weather-manage]');if(await menu.evaluate(n=>n.open))await menu.locator(':scope>summary').click();
     const banner=p.locator('[data-weather-speci]');assert.equal(await banner.isVisible(),true);assert.equal(await banner.locator('[data-speci-open]').count(),2);assert.equal(await banner.locator('[data-speci-open=VVNB]').count(),0);
     assert.equal(await p.locator('.weather-row-saved').count(),0,'Fresh fixtures need no saved label');
-    for(const summary of await p.locator('.weather-group-heading').all())if(await summary.evaluate(n=>n.parentElement.open))await summary.click();
+    for(const summary of await p.locator('.weather-group-heading').all()){
+     if(await summary.evaluate(n=>n.parentElement.open))await summary.locator(':scope>span:first-of-type').click();
+     assert.equal(await summary.evaluate(n=>n.parentElement.open),false,'Click the folder label rather than its product controls');
+    }
     assert.equal(await banner.isVisible(),true,'Collapsed folders must not hide SPECI');assert(await p.evaluate(()=>document.querySelector('[data-weather-speci]').getBoundingClientRect().top<document.querySelector('.weather-watch-toolbar').getBoundingClientRect().top));
     await p.locator('[data-speci-open=VVTS]').click();const row=p.locator('[data-weather-station=VVTS]').first();assert(await row.evaluate(n=>n.open&&n.closest('[data-weather-group]').querySelector(':scope>details').open));assert(await row.getAttribute('class').then(v=>v.includes('weather-has-speci')));assert.equal(await row.locator('.weather-product h3').first().innerText(),'SPECI');
     assert.equal(await row.locator('pre.weather-report').nth(0).textContent(),observation('VVTS'));assert.equal(await row.locator('pre.weather-report').nth(1).textContent(),forecast('VVTS'));
@@ -39,7 +43,7 @@ async function savedLabelGeometry(row){
     const raw='METAR VVTS 250255Z +TSRA BKN020CB\n<img src=x onerror="window.__weatherXSS=1"> & CB=';
     await p.evaluate(raw=>{const d=document.querySelector('#modal'),pre=document.createElement('pre');pre.className='weather-report';pre.textContent=raw;d.replaceChildren(pre);d.showModal();},raw);
     await p.waitForFunction(()=>document.querySelectorAll('#modal .weather-attention-word').length===3);assert.equal(await p.locator('#modal pre').textContent(),raw);assert.equal(await p.locator('#modal img').count(),0);assert.equal(await p.evaluate(()=>window.__weatherXSS),undefined);await p.evaluate(()=>document.querySelector('#modal').close());
-    const refresh=async()=>{await p.getByRole('button',{name:'Cập nhật tất cả',exact:true}).click();await p.waitForFunction(()=>!document.querySelector('[data-watch-refresh]').disabled);};
+    const refresh=async()=>{await weatherReady(p);await p.getByRole('button',{name:'Cập nhật tất cả',exact:true}).click();await p.waitForFunction(()=>!document.querySelector('[data-watch-refresh]').disabled);};
     mode='error';await refresh();await banner.filter({hasText:'CHƯA CẬP NHẬT ĐƯỢC'}).waitFor();assert.equal(await banner.locator('[data-speci-open]').count(),2);
     await savedLabelGeometry(row);await savedLabelGeometry(p.locator('[data-weather-station=VVNB]'));
     if(width===390){await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:path.join(out,`${name}-${theme}.png`),fullPage:true});}
@@ -50,7 +54,7 @@ async function savedLabelGeometry(row){
     unavailable=true;
     if(name==='chromium'){await context.setOffline(true);await banner.filter({hasText:'OFFLINE'}).waitFor();}
     report.diagnostics.push({name,width,theme,phase:'before-offline-reload',online:await p.evaluate(()=>navigator.onLine),flags:await banner.innerText()});
-    await p.reload({waitUntil:'domcontentloaded'});await p.locator('[data-weather-speci]').waitFor();
+    await p.reload({waitUntil:'domcontentloaded'});await p.locator('[data-weather-speci]').waitFor();await weatherReady(p);
     const onlineAfterReload=await p.evaluate(()=>navigator.onLine);
     report.diagnostics.push({name,width,theme,phase:'after-offline-reload',online:onlineAfterReload,flags:await p.locator('[data-weather-speci]').innerText()});
     assert.equal(await p.locator('[data-weather-speci] [data-speci-open]').count(),2);
@@ -60,7 +64,7 @@ async function savedLabelGeometry(row){
      if(onlineAfterReload){await context.setOffline(false);await context.setOffline(true);}
      await p.waitForFunction(()=>navigator.onLine===false,undefined,{timeout:10000});
      await p.locator('[data-weather-speci]').filter({hasText:'OFFLINE'}).waitFor();
-    }else {await p.getByRole('button',{name:'Cập nhật tất cả',exact:true}).click();await p.locator('[data-weather-speci]').filter({hasText:'CHƯA CẬP NHẬT ĐƯỢC'}).waitFor();}
+    }else {await refresh();await p.locator('[data-weather-speci]').filter({hasText:'CHƯA CẬP NHẬT ĐƯỢC'}).waitFor();}
     assert(await p.evaluate(async()=>{try{await fetch('/api/health?offline-probe='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(4000)});return false;}catch{return true;}}),'An uncached API must be unreachable');
     await p.locator('[data-speci-open=VVTS]').click();await savedLabelGeometry(p.locator('[data-weather-station=VVTS]').first());
     assert(await p.locator('.weather-row-brief mark').count()>0);assert.deepEqual(errors,[]);report.checks.push(`${name} ${width}px ${theme}: groups, deduplication, top-only SPECI, saved-label geometry, raw text, modal XSS, replacement/error and offline`);
