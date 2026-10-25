@@ -64,6 +64,10 @@ jobs:
         id: feature
         if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
         run: node scripts/verify-weather-view.cjs
+      - name: Existing Weather group, offline and account regression
+        id: weather
+        if: ${{ !cancelled() && steps.feature.outcome == 'success' }}
+        run: node -r ./scripts/weather-regression-diagnostics.cjs scripts/verify-weather-ui.cjs > test-results/weather-view/weather-regression.log 2>&1 || { tail -65 test-results/weather-view/weather-regression.log; exit 1; }
       - name: Existing shared UI, Flight Log and Weather attention
         id: regression
         if: ${{ !cancelled() && steps.feature.outcome == 'success' }}
@@ -71,7 +75,6 @@ jobs:
           node scripts/verify-shared-ui.cjs
           node scripts/verify-flight-scan.cjs
           node scripts/verify-weather-attention.cjs
-          node scripts/verify-weather-ui.cjs > test-results/weather-view/weather-regression.log 2>&1 || { tail -60 test-results/weather-view/weather-regression.log; exit 1; }
       - name: Private data, parsers, font and provider code unchanged
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: git diff --exit-code 1624bc0ac166bda7c79de2397aed8f42374c60a1 -- public/app.js public/lib public/account public/atpl public/workspace/schema.js public/workspace/model.js public/workspace/repository.js public/workspace/session.js public/workspace/weather-watch.js public/workspace/weather-report.js public/workspace/weather-groups.js public/workspace/weather-attention.js public/ui/system.css public/ui/tokens.css public/style.css public/navy-teal.css data lib server.js firestore.rules storage.rules package.json package-lock.json
