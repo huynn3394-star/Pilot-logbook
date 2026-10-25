@@ -45,14 +45,24 @@ async function savedLabelGeometry(row){
     if(width===390){await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:path.join(out,`${name}-${theme}.png`),fullPage:true});}
     mode='regular';await refresh();await banner.waitFor({state:'hidden'});assert.equal(await p.locator('.weather-has-speci').count(),0);assert(await row.locator('mark').count()>0,'TSRA/CB still highlight without SPECI');assert.equal(await p.locator('.weather-row-saved').count(),0);
     mode='speci';await refresh();await banner.waitFor();await p.waitForFunction(()=>!!navigator.serviceWorker.controller);const shell=await p.evaluate(async()=>{const keys=await caches.keys(),k=keys.find(x=>x.includes('unified-weather-attention'));const c=k&&await caches.open(k);return !!c&&!!await c.match('/ui/weather-attention.css')&&!!await c.match('/workspace/weather-attention.js')&&!!await c.match('/ui/weather-report-highlights.js');});assert(shell);
-    if(name==='chromium')await context.setOffline(true);else unavailable=true;
+    await p.locator('[data-action=tab][data-tab=logbook]:visible').first().click();assert.equal(await p.locator('[data-weather-speci]').count(),0,'The SPECI panel is restricted to Weather');await p.locator('[data-action=tab][data-tab=weather]:visible').first().click();await banner.waitFor();
+    // Refuse real origin connections for both engines so cached reload cannot pass online.
+    unavailable=true;
+    if(name==='chromium'){await context.setOffline(true);await banner.filter({hasText:'OFFLINE'}).waitFor();}
     report.diagnostics.push({name,width,theme,phase:'before-offline-reload',online:await p.evaluate(()=>navigator.onLine),flags:await banner.innerText()});
     await p.reload({waitUntil:'domcontentloaded'});await p.locator('[data-weather-speci]').waitFor();
-    report.diagnostics.push({name,width,theme,phase:'after-offline-reload',online:await p.evaluate(()=>navigator.onLine),flags:await p.locator('[data-weather-speci]').innerText()});
+    const onlineAfterReload=await p.evaluate(()=>navigator.onLine);
+    report.diagnostics.push({name,width,theme,phase:'after-offline-reload',online:onlineAfterReload,flags:await p.locator('[data-weather-speci]').innerText()});
     assert.equal(await p.locator('[data-weather-speci] [data-speci-open]').count(),2);
-    if(name==='chromium'){await p.waitForFunction(()=>navigator.onLine===false,{},{timeout:10000});await p.locator('[data-weather-speci]').filter({hasText:'OFFLINE'}).waitFor();}
-    else {await p.getByRole('button',{name:'Cập nhật tất cả',exact:true}).click();await p.locator('[data-weather-speci]').filter({hasText:'CHƯA CẬP NHẬT ĐƯỢC'}).waitFor();}
-    await savedLabelGeometry(p.locator('[data-weather-station=VVTS]').first());
+    // Runner evidence: Chromium 151 restores navigator.onLine on SW reload. Reapply
+    // the browser emulation, not an application/mock override; origin stays stopped.
+    if(name==='chromium'){
+     if(onlineAfterReload){await context.setOffline(false);await context.setOffline(true);}
+     await p.waitForFunction(()=>navigator.onLine===false,undefined,{timeout:10000});
+     await p.locator('[data-weather-speci]').filter({hasText:'OFFLINE'}).waitFor();
+    }else {await p.getByRole('button',{name:'Cập nhật tất cả',exact:true}).click();await p.locator('[data-weather-speci]').filter({hasText:'CHƯA CẬP NHẬT ĐƯỢC'}).waitFor();}
+    assert(await p.evaluate(async()=>{try{await fetch('/api/health?offline-probe='+Date.now(),{cache:'no-store',signal:AbortSignal.timeout(4000)});return false;}catch{return true;}}),'An uncached API must be unreachable');
+    await p.locator('[data-speci-open=VVTS]').click();await savedLabelGeometry(p.locator('[data-weather-station=VVTS]').first());
     assert(await p.locator('.weather-row-brief mark').count()>0);assert.deepEqual(errors,[]);report.checks.push(`${name} ${width}px ${theme}: groups, deduplication, top-only SPECI, saved-label geometry, raw text, modal XSS, replacement/error and offline`);
    }finally{unavailable=false;await context.close();}
   }}finally{await browser.close();}

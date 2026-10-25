@@ -26,3 +26,7 @@ test('fresh or absent saved report has no empty status row, and label content is
  assert(!html.includes('weather-row-saved'));
  assert(!html.includes('weather-speci-badge'));
 });
+
+test('CB after vertical-visibility cloud height is highlighted without changing the group',()=>{
+ assert.equal(attention.highlightWeatherReport('VV005CB='),'VV005<mark class="weather-attention-word">CB</mark>=');
+});

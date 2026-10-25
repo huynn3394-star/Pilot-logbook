@@ -10,7 +10,7 @@ export function highlightWeatherReport(value){
   if(/^(?:RE|VC)?[+-]?TSRA(?:(?:DZ|SN|SG|IC|PL|GR|GS|UP)){0,3}$/i.test(token)){
    const part=token.match(/[+-]?TSRA/i);start=part.index;length=part[0].length;
   }else if(/^CB$/i.test(token)){start=0;length=2;}
-  else if(/^(?:FEW|SCT|BKN|OVC|\/\/\/)(?:\d{3}|\/\/\/)CB$/i.test(token)){start=token.length-2;length=2;}
+  else if(/^(?:FEW|SCT|BKN|OVC|VV|\/\/\/)(?:\d{3}|\/\/\/)CB$/i.test(token)){start=token.length-2;length=2;}
   if(start<0)continue;
   const from=match.index+start;
   html+=escapeHTML(raw.slice(cursor,from))+'<mark class="weather-attention-word">'+escapeHTML(raw.slice(from,from+length))+'</mark>';
