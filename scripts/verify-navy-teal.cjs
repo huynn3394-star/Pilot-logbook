@@ -110,6 +110,7 @@ function contrast(a, b) {
         // The final WebKit test stops the local server instead of using its broken
         // Playwright offline flag. An uncached API request proves network failure.
         const offlineContext = await browser.newContext();
+        await offlineContext.route('**/*', route => route.request().url().startsWith(origin + '/') ? route.continue() : route.abort());
         const offlinePage = await offlineContext.newPage();
         await offlinePage.goto(origin, { waitUntil: 'domcontentloaded' });
         await offlinePage.waitForFunction(() => !!navigator.serviceWorker.controller, null, { timeout: 30000 });
@@ -129,6 +130,8 @@ function contrast(a, b) {
         });
         assert(networkUnavailable, 'Uncached API must be unreachable in the offline test');
         await offlinePage.reload({ waitUntil: 'domcontentloaded' });
+        // Imported styles can enter WebKit's CSSOM after DOMContentLoaded. Wait for readiness, then retain the exact color assertion.
+        await offlinePage.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim() === 'avilog-shared-v1', null, { timeout: 10000 });
         assert.equal(await offlinePage.evaluate(() => localStorage.getItem('theme-test-sentinel')), 'keep');
         assert.equal(await offlinePage.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()), '#0f766e');
         report.checks.push({ name: `${name} offline stylesheet and local data`, method: name === 'webkit' ? 'local server stopped, uncached API rejected' : 'browser offline flag, uncached API rejected', cacheState });
