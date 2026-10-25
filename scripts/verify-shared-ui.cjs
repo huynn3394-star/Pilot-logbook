@@ -25,7 +25,14 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
   },cardSelector);
   assert.equal(values.brand,'#142744',label+' navy preserved');
   assert.equal(values.accent,theme==='dark'?'#2dd4bf':'#0f766e',label+' one accent');
-  assert(values.font.includes('DM Sans'),label+' common font');
+  assert(/-apple-system|BlinkMacSystemFont/.test(values.font)&&values.font.includes('Inter'),label+' common native/Inter stack');
+  const fontAudit=await p.evaluate(()=>[...document.querySelectorAll('h1,h2,h3,.brand,.mobile-brand,.airport,button,input,select,textarea,.metric-value,.fe-summary-grid strong')].filter(n=>n.getBoundingClientRect().width>0&&n.getBoundingClientRect().height>0).map(n=>({tag:n.tagName,cls:n.className,font:getComputedStyle(n).fontFamily,clock:n.matches('.fe-time-cell [data-utc-clock],.metric-value,.fe-summary-grid strong')})));
+  assert(fontAudit.length>0,label+' typography samples exist');
+  for(const item of fontAudit){
+   assert(!/DM Sans|Manrope/.test(item.font),label+' legacy family remains: '+JSON.stringify(item));
+   if(item.clock)assert(/monospace|SFMono/i.test(item.font),label+' time figures must be monospaced');
+  }
+  values.fontAudit=fontAudit;
   assert(!values.overflow,label+' horizontal overflow');
   assert(values.card,label+' representative surface exists');
   assert.equal(values.card.radius,'16px',label+' common card radius');
@@ -100,13 +107,17 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
     const context=await browser.newContext(),p=await context.newPage();
     try{
      lastLabel=name+' offline';
+     await context.route('**/*',route=>route.request().url().startsWith(origin+'/')?route.continue():route.abort());
      await p.goto(origin,{waitUntil:'domcontentloaded'});await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
      const state=await p.evaluate(async()=>{localStorage.setItem('shared-ui-sentinel','keep');const c=await caches.keys();const k=c.find(k=>k.includes('navy-teal-unified'));const cache=k&&await caches.open(k);return{key:k,css:!!(cache&&await cache.match('/ui/system.css')),tokens:!!(cache&&await cache.match('/ui/tokens.css'))}});
      assert(state.css&&state.tokens,'both shared sheets must be precached');
      if(name==='chromium')await context.setOffline(true);else unavailable=true;
+     const refused=await p.evaluate(()=>fetch('/api/health',{cache:'no-store'}).then(()=>false).catch(()=>true));assert(refused,name+' offline origin probe must fail');
      await p.reload({waitUntil:'domcontentloaded'});
+     await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1',null,{timeout:10000});
      assert.equal(await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()),'avilog-shared-v1');
      await p.goto(origin+'/atpl/',{waitUntil:'domcontentloaded'});await p.locator('[data-bank]').first().waitFor();
+     await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1',null,{timeout:10000});
      assert.equal(await p.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()),'avilog-shared-v1');
      assert.equal(await p.evaluate(()=>localStorage.getItem('shared-ui-sentinel')),'keep');
      report.checks.push({label:name+' main/library offline with shared stylesheet and retained local data'});

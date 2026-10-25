@@ -213,3 +213,6 @@ body { background:var(--ui-bg); color:var(--ui-ink); font-family:var(--ui-font);
   :is(#app,#modal,.app,.atpl-library,#dialog) :is(button,a,summary):focus-visible { outline-color:Highlight; }
   :is(#app,#modal,.app) :is([aria-selected=true],[aria-current=page],.answer-option.correct) { outline:2px solid Highlight; outline-offset:-2px; }
 }
+
+/* Shared fixed-width flight figures; all existing sizes and layout stay unchanged. */
+#app .metric-value, #modal .fe-summary-grid strong, #modal .fe-time-cell input[data-utc-clock] { font-family:var(--ui-mono); font-variant-numeric:tabular-nums; }
