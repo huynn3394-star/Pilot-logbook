@@ -12,6 +12,8 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    outputs:
+      ready: ${{ steps.package.outputs.ready }}
     env:
       ATPL_ACCOUNTS_ENABLED: 'false'
       AVILOG_WORKSPACE_SYNC_ENABLED: 'false'
@@ -26,6 +28,8 @@ jobs:
         with:
           node-version: 24.12.0
           cache: npm
+      - name: Apply fingerprint-checked typography change
+        run: node scripts/apply-system-font.mjs
       - name: Shared typography contract
         id: contract
         run: node --test tests/ui-font-contract.test.js
@@ -45,6 +49,19 @@ jobs:
           grep -E '^[✖×]|^not ok|^ℹ (tests|pass|fail)|^# (tests|pass|fail)' test-results/font-ui/unit.log || true
           tail -18 test-results/font-ui/unit.log
           exit "$code"
+      - name: Verify there are no new unit failures
+        id: baseline
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
+          const log=readFileSync('test-results/font-ui/unit.log','utf8');
+          const names=[...new Set([...log.matchAll(/^[✖×] (.*?) \([\d.]+ms\)/gm)].map(m=>m[1]))].sort();
+          const known=['v4 rejects extended preferences without acknowledging pending edits; v5 replays the original reminder edit and keeps watchlist','v5 requires reload for grouped preferences while v6 still accepts flat v5 data'].sort();
+          if(names.length){assert.deepEqual(names,known);assert.match(log,/fatal: invalid object name '15bb922'/);assert.match(log,/fatal: invalid object name '5a47d5a'/);assert.match(log,/ℹ fail 2\b/);}
+          else assert.match(log,/ℹ fail 0\b/);
+          console.log('Verified failure set: '+JSON.stringify(names));
+          NODE
       - name: Install browsers
         id: browsers
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
@@ -54,17 +71,63 @@ jobs:
         if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
         run: node scripts/verify-shared-ui.cjs
       - name: Navy-teal and original Flight Detail regressions
+        id: navy
         if: ${{ !cancelled() && steps.ui.outcome == 'success' }}
         run: node scripts/verify-navy-teal.cjs
       - name: Weather SPECI and keyword regressions
+        id: weather
         if: ${{ !cancelled() && steps.ui.outcome == 'success' }}
         run: node scripts/verify-weather-attention.cjs
       - name: Source, sync, OCR and ATPL data unchanged
+        id: preserved
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: git diff --exit-code 5dfbd15b78fd81b7dc68ebb8f1b7a5feca9a05de -- public/app.js public/lib public/workspace public/account public/atpl/banks public/atpl/manifests public/atpl/catalog.json public/atpl/identities.json data lib server.js firestore.rules storage.rules package.json package-lock.json
+      - name: Package exact verified source (does not deploy)
+        id: package
+        if: ${{ !cancelled() && steps.contract.outcome == 'success' && steps.baseline.outcome == 'success' && steps.ui.outcome == 'success' && steps.navy.outcome == 'success' && steps.weather.outcome == 'success' && steps.preserved.outcome == 'success' }}
+        run: |
+          node scripts/apply-system-font.mjs --package
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
           name: avilog-font-ui-tests
           path: test-results/
           retention-days: 7
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() && steps.package.outputs.ready == 'true' }}
+        with:
+          name: avilog-font-verified-source
+          path: test-results/font-ui/candidate.json
+          retention-days: 7
+  candidate:
+    needs: verify
+    if: ${{ !cancelled() && needs.verify.outputs.ready == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: avilog-font-verified-source
+          path: candidate
+      - name: Create candidate Git objects only (no ref changes)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EXPECTED_PARENT: ${{ github.sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';import {createHash} from 'node:crypto';import assert from 'node:assert/strict';
+          const p=JSON.parse(readFileSync('candidate/candidate.json','utf8'));
+          assert.equal(p.parent,process.env.EXPECTED_PARENT);assert.equal(p.base,'5dfbd15b78fd81b7dc68ebb8f1b7a5feca9a05de');
+          const allowed=['public/ui/tokens.css','public/style.css','public/ui/system.css','public/sw.js','tests/v14-build-cache.test.js','tests/workspace-service-worker.test.js','scripts/verify-shared-ui.cjs'];
+          assert.deepEqual(p.files.map(f=>f.path).sort(),allowed.sort());
+          const api=async(path,body)=>{const r=await fetch('https://api.github.com/repos/'+process.env.REPOSITORY+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+process.env.GH_TOKEN,Accept:'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'},...(body?{body:JSON.stringify(body)}:{})});if(!r.ok)throw Error('Git objects request failed: '+r.status);return r.json();};
+          const parent=await api('/git/commits/'+p.parent);const tree=[];
+          for(const f of p.files){assert.equal(Buffer.byteLength(f.content),f.bytes);assert.equal(createHash('sha256').update(f.content).digest('hex'),f.sha256);const b=await api('/git/blobs',{content:f.content,encoding:'utf-8'});tree.push({path:f.path,mode:'100644',type:'blob',sha:b.sha});}
+          const t=await api('/git/trees',{base_tree:parent.tree.sha,tree});
+          const c=await api('/git/commits',{message:'feat(ui): apply verified native Apple and Inter typography across AviLog',tree:t.sha,parents:[p.parent]});
+          console.log('VERIFIED_CANDIDATE_COMMIT='+c.sha);console.log('No branch references, deployments or user data were changed by this job.');
+          NODE
