@@ -38,3 +38,22 @@ html[data-theme=dark] #app .weather-station-row.weather-has-speci>summary { back
 html[data-theme=dark] #app .weather-station-row.weather-has-speci>summary .weather-station-identity>strong,
 html[data-theme=dark] #app .weather-speci-badge { color:#fda4af; }
 @media(forced-colors:active) { .weather-attention-word { color:LinkText; background:Canvas; text-decoration:underline; } #app .weather-speci-panel { border-color:CanvasText; } }
+
+/* Folder-wide preview selection and saved-airport filtering. */
+#app .weather-watch-toolbar { align-items:center; gap:8px; }
+#app .weather-quick-search { display:flex; align-items:center; flex:1 1 0; min-width:0; max-width:480px; margin-right:auto; gap:6px; padding-left:10px; border:1px solid var(--ui-line); border-radius:var(--ui-radius-control); background:var(--ui-surface); color:var(--ui-muted); }
+#app .weather-quick-search svg { width:16px; height:16px; flex-shrink:0; }
+#app .weather-quick-search input { width:100%; min-width:0; min-height:44px; border:0; border-radius:var(--ui-radius-control); background:transparent; padding:9px 4px; font:400 16px/1.4 var(--ui-font); color:var(--ui-ink); }
+#app .weather-quick-search input::-webkit-search-cancel-button { -webkit-appearance:none; }
+#app .weather-search-clear { display:grid; place-items:center; width:36px; min-width:36px; height:44px; padding:0; background:transparent; border:0; border-radius:var(--ui-radius-control); color:var(--ui-muted); font:400 22px var(--ui-font); }
+#app .weather-watch-toolbar>[data-watch-refresh] { min-height:44px; padding:9px 12px; font-size:12px; }
+#app .weather-search-status { margin:0 0 12px; color:var(--ui-muted); font-size:12px; line-height:1.5; }
+#app .weather-group-heading { gap:8px; flex-wrap:wrap; padding:10px 12px; }
+#app .weather-group-heading>span:first-of-type { flex:1 1 60px; min-width:0; }
+#app .weather-group-heading>small { margin-left:0; font-size:11px; }
+#app .weather-group-heading>.weather-group-products { display:inline-flex; flex:0 0 auto; gap:0; border:1px solid var(--ui-line); border-radius:var(--ui-radius-small); background:var(--ui-soft); overflow:visible; }
+#app .weather-group-products button { min-width:47px; min-height:44px; padding:7px 8px; border:0; border-radius:7px; color:var(--ui-muted); background:transparent; font:600 12px/1.4 var(--ui-font); }
+#app .weather-group-products button[aria-pressed=true] { color:var(--ui-accent); background:var(--ui-accent-soft); box-shadow:inset 0 -2px var(--ui-accent); }
+#app [data-weather-cards] [hidden], #app .weather-search-clear[hidden], #app .weather-search-status[hidden] { display:none!important; }
+@media(max-width:359px) { #app .weather-quick-search { gap:3px; padding-left:7px; } #app .weather-watch-toolbar>[data-watch-refresh] { padding-inline:8px; font-size:11px; } #app .weather-group-heading { gap:6px; } #app .weather-group-products button { padding-inline:6px; min-width:44px; } }
+@media(forced-colors:active) { #app .weather-group-products button[aria-pressed=true] { outline:2px solid Highlight; outline-offset:-2px; } }
