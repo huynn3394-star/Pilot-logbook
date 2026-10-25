@@ -18,13 +18,23 @@ html[data-theme=dark] .weather-attention-word { color:#fda4af; background:#3a273
 #app .weather-speci-item p { margin:5px 0 0; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
 #app .weather-speci-flags { font-weight:750; }
 #app .weather-speci-panel .btn { color:#b4233a; background:#fff; border-color:#b4233a; min-height:44px; }
+#app .weather-station-row { scroll-margin-top:120px; }
+#app .weather-station-row>summary>.weather-station-identity {
+  grid-column:1; grid-row:1; display:flex; flex-direction:column; align-items:flex-start;
+  gap:4px; min-width:0; align-self:start;
+}
+#app .weather-station-row>summary>.weather-row-brief { grid-column:2; grid-row:1; min-width:0; }
+#app .weather-station-identity>.weather-row-saved {
+  margin:0; font-size:11px; font-weight:400; line-height:1.35; white-space:nowrap;
+  color:var(--ui-muted,var(--muted));
+}
 #app .weather-station-row.weather-has-speci>summary { border-left:3px solid #b4233a; background:#fff1f3; }
-#app .weather-station-row.weather-has-speci>summary>strong { color:#b4233a; }
-#app .weather-speci-badge { display:inline-block; font-size:10px; font-weight:750; color:#b4233a; border:1px solid currentColor; border-radius:4px; padding:1px 3px; margin-top:3px; }
+#app .weather-station-row.weather-has-speci>summary .weather-station-identity>strong { color:#b4233a; }
+#app .weather-speci-badge { display:inline-block; font-size:10px; font-weight:750; color:#b4233a; border:1px solid currentColor; border-radius:4px; padding:1px 3px; }
 html[data-theme=dark] #app .weather-speci-panel { color:#fda4af; background:#3a273b; border-color:#fda4af; }
 html[data-theme=dark] #app .weather-speci-item { border-color:#fda4af44; }
 html[data-theme=dark] #app .weather-speci-panel .btn { color:#fda4af; background:#1b3152; border-color:#fda4af; }
 html[data-theme=dark] #app .weather-station-row.weather-has-speci>summary { background:#3a273b; border-color:#fda4af; }
-html[data-theme=dark] #app .weather-station-row.weather-has-speci>summary>strong,
+html[data-theme=dark] #app .weather-station-row.weather-has-speci>summary .weather-station-identity>strong,
 html[data-theme=dark] #app .weather-speci-badge { color:#fda4af; }
 @media(forced-colors:active) { .weather-attention-word { color:LinkText; background:Canvas; text-decoration:underline; } #app .weather-speci-panel { border-color:CanvasText; } }

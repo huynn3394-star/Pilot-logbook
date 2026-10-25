@@ -6,10 +6,11 @@ Architecture: pure escaped text renderer + pure saved-group SPECI projection; in
 Ruling: saved file means the saved airport groups/watchlist in the existing Weather tab. Keep manually arranged groups unchanged, duplicate eligible airports in a top summary only, deduplicated across groups. Do not reorder saved data.
 Ruling: SPECI note reflects the currently retained observation. An ordinary METAR replacement removes it; offline/stale/error states keep it with explicit UTC/age labels and a button opening the original report. This is attention styling, not a hazardous-weather or validity certification.
 Ruling: TSRA and CB each qualify on their own. Match intensity/recent/vicinity TSRA tokens and cloud suffix CB, not arbitrary station substrings. Preserve every original character and escape HTML.
+User confirmation: SPECI panel only at the top of the Weather tab. Move 'Bản lưu' below the airport identifier, leaving the report in the second column. A fresh or missing report has no empty saved-label row. Per-product retrieval age and failed refresh keep the saved label honest.
 
-- [x] RED: 13 local tests failed before the new module existed. The weather-report/UI files used locally were matched by Git blob hash to the current source, not published from an old archive.
-- [x] GREEN: 13 local tests passed for keyword boundaries, HTML escaping, whitespace, SPECI/COR header, saved groups, deduplication, stale/offline/old anchors, replacement and removal.
-- [ ] Hosted browser test real DOM interactions, all report views, red contrast, 320/390/820px light/dark, offline labels and raw-text equality; unit suite, shared-UI/flight regressions and protected-file diff.
-- [ ] Inline review and evidence report, recheck main before fast-forward; verify existing Railway deployment. No independent reviewer available.
+- [x] Original 13 local unit tests for highlighting/SPECI passed before this follow-up; hosted browser validation had an unresolved offline-label assertion, so the weather feature was not released.
+- [x] Follow-up RED/GREEN: 3 airport-label tests failed then passed on the exact GitHub module (blob verified locally), covering nested label, SPECI combination and escaping/no empty row.
+- [ ] Hosted browser checks: genuine offline state diagnostics, airport-column geometry for SPECI and ordinary reports, all widths/themes, stale/fresh transitions, feature and regressions.
+- [ ] Inline whole-diff review, protected-file comparison, recheck main before fast-forward and verify existing Railway deployment. No independent reviewer available.
 
-Reference verified 25 October 2026: NOAA Aviation Weather Center, https://aviationweather.gov/help/data/ (METAR/SPECI, TS/RA weather groups and CB cloud type). Highlighting is literal attention markup, not a replacement for the source briefing. Existing provider returns the latest retained observation, not a complete history of every SPECI between refreshes.
+Reference: NOAA Aviation Weather Center, https://aviationweather.gov/help/data/ . Existing provider returns the latest retained observation, not a complete history of every SPECI between refreshes.

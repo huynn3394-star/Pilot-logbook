@@ -54,3 +54,8 @@ export function renderSpeciAlerts(alerts){
  if(!alerts.length)return '';
  return '<h2>SPECI · '+alerts.length+' sân bay</h2><p class="weather-speci-hint">Bản tin đặc biệt trong danh sách đã lưu · kiểm tra giờ và nguồn.</p>'+alerts.map(a=>'<article class="weather-speci-item"><div class="weather-speci-head"><strong>'+escapeHTML(a.station)+' · SPECI</strong><button type="button" class="btn small" data-speci-open="'+escapeHTML(a.station)+'">Xem bản tin</button></div><p>Phát hành: '+escapeHTML(a.issuedAt?utc(a.issuedAt):a.issueCode+' · chưa xác định ngày đầy đủ')+'<br>Lấy dữ liệu: '+escapeHTML(utc(a.fetchedAt))+'</p><p class="weather-speci-groups">'+escapeHTML(a.groups.join(' · '))+'</p>'+(a.flags.length?'<p class="weather-speci-flags">'+escapeHTML(a.flags.join(' · '))+'</p>':'')+'</article>').join('');
 }
+
+// Keep status labels with the airport, not on an extra row below the report.
+export function renderWeatherStationIdentity(station,{saved=false,hasSpeci=false}={}){
+ return '<span class="weather-station-identity"><strong>'+escapeHTML(station)+'</strong>'+(hasSpeci?'<span class="weather-speci-badge">SPECI</span>':'')+(saved?'<span class="weather-row-saved">Bản lưu</span>':'')+'</span>';
+}
