@@ -1,0 +1,215 @@
+@import url("/ui/tokens.css");
+/* Shared components. Only presentation: no hidden-state, scoring or data changes. */
+html { font-size:14px; }
+body { background:var(--ui-bg); color:var(--ui-ink); font-family:var(--ui-font); font-size:var(--ui-body-size); line-height:1.5; }
+:where(#app,#modal,.atpl-library,.app,#dialog,#image-dialog,.dock) :is(button,input,select,textarea) { font-family:var(--ui-font); }
+:where(#app,#modal,.atpl-library,.app,#dialog,#image-dialog) :is(h1,h2,h3,h4) { font-family:var(--ui-heading-font); letter-spacing:-.025em; }
+#app .page-heading h1,.atpl-library h1,.app h1 { font-size:var(--ui-title-size); line-height:1.25; font-weight:750; }
+#app .page-heading { margin:0 0 16px; gap:var(--ui-gap); }
+.atpl-library h1 { margin:18px 0 12px; }
+:where(#app,.atpl-library,.app,#modal,#dialog) h2 { font-size:var(--ui-heading-size); line-height:1.4; }
+:where(#app,.atpl-library,.app,#modal,#dialog) h3 { font-size:15px; line-height:1.4; }
+:where(#app,#modal,.atpl-library,.app,#dialog) :is(.muted,.tiny,small) { color:var(--ui-muted); }
+:where(#app,#modal,.atpl-library,.app,#dialog) :is(.mono,.metric-value,.stat strong,.weather-report,.formula) { font-variant-numeric:tabular-nums; }
+:where(#app,#modal,.atpl-library,.app,#dialog) :is(.mono,.weather-report,.formula) { font-family:var(--ui-mono); }
+
+/* Standard controls: specialized calendar, quiz and UTC controls retain their geometry. */
+:is(#app,#modal,.atpl-library,.app,#dialog,.dock) .btn,
+:is(.app,#dialog,.dock) button:not(.answer-option):not(.mode):not(.qnum):not(.imagebutton):not(.linklike):not(.search-result):not(.result-item):not([data-qid]) {
+  min-height:var(--ui-control-height); padding:10px 14px; border:1px solid var(--ui-line);
+  border-radius:var(--ui-radius-control); background:var(--ui-surface); color:var(--ui-ink);
+  font-size:13px; font-weight:600; line-height:1.4; text-decoration:none;
+}
+:is(#app,#modal,.atpl-library,.app,#dialog,.dock) :is(.btn.primary,button.primary) {
+  background:var(--ui-accent); border-color:var(--ui-accent); color:var(--ui-on-accent);
+}
+:is(#app,#modal,.atpl-library,.app,#dialog,.dock) :is(.btn.ghost,button.quiet) { background:var(--ui-soft); color:var(--ui-ink); }
+:is(#app,#modal,.atpl-library,.app,#dialog,.dock) :is(.btn.danger,button.danger) { color:var(--ui-error); background:var(--ui-error-soft); }
+:is(#app,#modal,.atpl-library,.app,#dialog) .iconbtn { width:44px; height:44px; min-width:44px; border-radius:var(--ui-radius-control); }
+:is(#app,#modal,.atpl-library,.app,#dialog,.dock) :is(button,a,summary):focus-visible { outline:3px solid var(--ui-accent); outline-offset:3px; }
+:is(#app,#modal,.atpl-library,.app,#dialog) :is(input,select,textarea):focus { outline:2px solid var(--ui-accent); outline-offset:0; }
+:is(#app,#modal,.atpl-library,.app,#dialog) :is(input[type=checkbox],input[type=radio]) { accent-color:var(--ui-accent); }
+#app :is(input:not([type=checkbox]):not([type=radio]),select,textarea),
+#modal:not(.flight-editor-modal) :is(input:not([type=checkbox]):not([type=radio]),select,textarea),
+:is(.atpl-library,.app,#dialog) :is(input:not([type=checkbox]):not([type=radio]),select,textarea) {
+  border-radius:var(--ui-radius-control); border:1px solid var(--ui-line); background:var(--ui-surface);
+  color:var(--ui-ink); padding:10px 12px; min-height:44px; font-size:16px; max-width:100%; min-width:0;
+}
+:is(#app,#modal,.atpl-library,.app,#dialog) label { color:var(--ui-muted); font-size:var(--ui-label-size); }
+:is(#app,#modal,.atpl-library,.app,#dialog) :is(.text-button,.linklike,.workspace-text-link) { color:var(--ui-accent); }
+
+/* One surface, border, radius and padding scale for every screen. */
+#app :is(.panel,.metric,.crew-card,.settings-card,.import-card,.source-card),
+.atpl-library :is(.atpl-card,.atpl-help),
+.app :is(.hero,.card,.stat,.mode,.sourcebox,.language-block),
+#modal .fe-card {
+  border:1px solid var(--ui-line); border-radius:var(--ui-radius-card);
+  background:var(--ui-surface); color:var(--ui-ink); box-shadow:var(--ui-shadow);
+}
+#app :is(.metric,.crew-card,.import-card),
+.atpl-library .atpl-card,
+.app :is(.hero,.card,.stat,.mode,.language-block) { padding:var(--ui-pad); }
+#app .settings-section { padding:0; }
+#app .settings-section>summary { padding:var(--ui-pad); min-height:52px; font-size:14px; }
+#app .settings-section-content { padding:0 var(--ui-pad) var(--ui-pad); }
+#app :is(.panel-head,.calendar-toolbar,.day-route,.weather-watch-card) { padding:var(--ui-pad); }
+#app :is(.weather-group-heading,.weather-station-row>summary) { padding:12px var(--ui-pad); }
+#app .weather-station-detail { padding:0 var(--ui-pad) var(--ui-pad); }
+#app :is(.metrics,.crew-grid,.settings-grid,.two-columns,.schedule-grid),
+.atpl-grid,.app .grid { gap:var(--ui-gap); }
+#app .metrics { margin-bottom:16px; }
+#app .metric-value,.app .stat strong { font-size:28px; font-weight:700; line-height:1.25; color:var(--ui-accent); }
+#app .metric-top { color:var(--ui-muted); font-size:12px; margin-bottom:8px; }
+#app .metric-foot,.app .stat small { font-size:11px; color:var(--ui-muted); }
+#app .crew-card h3,.atpl-card h2,.app .mode strong { font-size:16px; line-height:1.4; }
+#app .crew-card p,.atpl-key-note,.app .mode small { font-size:12px; line-height:1.6; color:var(--ui-muted); }
+#app .main { max-width:var(--ui-content-width); width:100%; margin-inline:auto; padding-top:18px; padding-inline:var(--ui-gutter); }
+.atpl-library { max-width:var(--ui-content-width); padding:0 var(--ui-gutter) 48px; }
+.app { width:min(var(--ui-content-width),100%); padding-inline:var(--ui-gutter); }
+.app main { padding-top:18px; }
+.atpl-intro { font-size:14px; margin:0 0 16px; }
+
+/* Shared navy toolbar; neutral popovers stay distinct from their navy parent. */
+#app .topbar,.atpl-header,.app>.topbar {
+  background:var(--ui-brand); color:var(--ui-on-brand); border-bottom:1px solid #ffffff20;
+  min-height:var(--ui-header-height); position:sticky; top:0; z-index:30;
+}
+#app .topbar { padding-inline:var(--ui-gutter); }
+#app .topbar-main { min-height:60px; gap:8px; flex-wrap:wrap; padding-block:4px; }
+#app .topbar .top-actions { gap:6px; flex-wrap:wrap; justify-content:flex-end; min-width:0; }
+#app .topbar :is(.breadcrumbs,.breadcrumbs strong,.utc-clock,.mobile-brand) { color:var(--ui-on-brand); }
+#app .topbar .breadcrumbs>span { color:var(--ui-muted-on-brand); }
+#app .topbar .top-actions>.iconbtn,
+#app .topbar .workspace-account-menu>summary { color:var(--ui-on-brand); }
+#app .topbar :is(.page-management>summary,[data-weather-manage]>summary),
+.atpl-header>.ui-back,.atpl-header .library-management>summary,
+.app>.topbar #choose-subject,.app>.topbar .bank-management>summary {
+  min-height:44px; display:inline-flex; align-items:center; justify-content:center;
+  padding:9px 12px; border:1px solid #ffffff40; border-radius:var(--ui-radius-control);
+  background:#ffffff0d; color:var(--ui-on-brand); font:600 13px/1.4 var(--ui-font); white-space:nowrap;
+}
+.atpl-header,.app>.topbar { display:flex; align-items:center; gap:8px; padding:8px var(--ui-gutter); margin-inline:calc(-1 * var(--ui-gutter)); flex-wrap:wrap; }
+.atpl-header>.atpl-tag { color:var(--ui-muted-on-brand); margin-right:auto; }
+.atpl-header .ui-header-actions { display:flex; align-items:center; gap:6px; margin-left:auto; }
+.atpl-header .iconbtn,.atpl-header .library-account-menu>summary { color:var(--ui-on-brand); }
+.atpl-header .library-account-menu>summary { min-width:44px; height:44px; border-radius:var(--ui-radius-control); }
+.app>.topbar .brand { color:var(--ui-on-brand); }
+.app>.topbar .brand small { color:var(--ui-muted-on-brand); }
+.app>.topbar .version { color:var(--ui-accent-on-brand); }
+.app>.topbar .top-tools { gap:6px; align-items:center; flex-wrap:wrap; }
+#app .topbar :is(.iconbtn,summary):focus-visible,
+.atpl-header :is(button,a,summary):focus-visible,.app>.topbar :is(button,summary):focus-visible { outline-color:var(--ui-accent-on-brand); }
+:is(#app,.atpl-library,.app) :is(.page-management-content,.workspace-account-popover,.bank-management-content,.atpl-card-manage>div,.library-account-menu [data-account-content]) {
+  padding:var(--ui-pad); gap:8px; border:1px solid var(--ui-line); border-radius:var(--ui-radius-card);
+  background:var(--ui-surface); color:var(--ui-ink); box-shadow:var(--ui-menu-shadow);
+}
+.atpl-header .library-management { position:static; margin:0; }
+.atpl-header .library-management .atpl-help {
+  position:absolute; z-index:40; right:var(--ui-gutter); top:calc(100% + 8px); width:min(520px,calc(100vw - 32px));
+  max-height:70dvh; overflow:auto; margin:0; padding:var(--ui-pad); color:var(--ui-ink); background:var(--ui-surface); box-shadow:var(--ui-menu-shadow);
+}
+:is(.atpl-library,.app) :is(.atpl-card-manage>summary,.bank-management>summary) { min-height:44px; padding:9px 12px; border-radius:var(--ui-radius-control); font:600 13px/1.4 var(--ui-font); background:var(--ui-surface); color:var(--ui-ink); border:1px solid var(--ui-line); }
+:is(#app,.atpl-library,.app) :is(.page-management>summary,.library-management>summary,.bank-management>summary,.atpl-card-manage>summary) { list-style:none; cursor:pointer; }
+:is(#app,.atpl-library,.app) summary::-webkit-details-marker { display:none; }
+
+/* States share semantics, not just colors; labels and outlines remain. */
+:is(#app,#modal,.atpl-library,.app) .pill { font-size:11px; line-height:1.4; padding:4px 8px; border-radius:var(--ui-radius-small); }
+:is(#app,#modal,.atpl-library,.app) .pill.green { color:var(--ui-accent); background:var(--ui-accent-soft); border:1px solid var(--ui-accent-line); }
+:is(#app,#modal,.atpl-library,.app) :is(.pill.gray,.pill.amber) { color:var(--ui-muted); background:var(--ui-soft); }
+:is(#app,#modal,.atpl-library,.app) .pill.amber { border:1px dashed var(--ui-muted); }
+#app :is(.empty,.weather-watch-card),.app .empty { padding:24px var(--ui-pad); color:var(--ui-muted); font-size:14px; line-height:1.6; }
+#app :is(.wide-note,.source-card,.welcome,.storage-note),.app .callout { background:var(--ui-soft); color:var(--ui-muted); border:1px solid var(--ui-line); border-radius:var(--ui-radius-control); padding:12px var(--ui-pad); font-size:12px; line-height:1.6; }
+:is(#app,#modal,.app,#dialog) :is(.error,.callout.error) { color:var(--ui-error); background:var(--ui-error-soft); border-color:var(--ui-error); }
+.app .callout.warning { color:var(--ui-muted); background:var(--ui-soft); border:1px dashed var(--ui-muted); }
+#app .day.selected { outline:2px solid var(--ui-accent); outline-offset:-2px; background:var(--ui-accent-soft); }
+#app .day.today .day-number { background:var(--ui-accent); color:var(--ui-on-accent); }
+#app .cal-flight.confirmed { color:var(--ui-accent); border-color:var(--ui-accent); background:var(--ui-accent-soft); }
+#app .view-switch button.active,.app .lang-switch button[aria-pressed=true],.app .filterbar button.active { color:var(--ui-accent); background:var(--ui-accent-soft); box-shadow:inset 0 -2px var(--ui-accent); }
+#app .data-table :is(th,td) { border-color:var(--ui-line); }
+#app .data-table th { background:var(--ui-soft); color:var(--ui-muted); font-size:11px; }
+#app .data-table td { font-size:13px; }
+#app .table-wrap { overflow-x:auto; }
+#app .weather-report { font-size:13px; line-height:1.65; }
+
+/* Dialog treatment is shared; the specialist Flight editor keeps Compact sizing. */
+#modal:not(.flight-editor-modal),#dialog { border:1px solid var(--ui-line); border-radius:var(--ui-radius-card); background:var(--ui-surface); color:var(--ui-ink); }
+#modal:not(.flight-editor-modal) .modal-head,#dialog .dialog-header { padding:12px var(--ui-pad); min-height:60px; background:var(--ui-surface); border-bottom:1px solid var(--ui-line); }
+#modal:not(.flight-editor-modal) .modal-body,#dialog .dialog-body { padding:var(--ui-pad); }
+#modal:not(.flight-editor-modal) .modal-footer { padding:12px var(--ui-pad); border-top:1px solid var(--ui-line); background:var(--ui-surface); }
+#modal.flight-editor-modal,html[data-theme=dark] #modal.flight-editor-modal {
+  --fe-bg:var(--ui-bg); --fe-card:var(--ui-surface); --fe-line:var(--ui-line); --fe-soft:var(--ui-soft);
+  --fe-accent:var(--ui-accent); --fe-muted:var(--ui-muted); font-family:var(--ui-font);
+}
+#modal .fe-save,#modal .fe-tabs button[aria-selected=true] { color:var(--ui-accent); }
+#modal .fe-tabs button[aria-selected=true] { border-bottom-color:var(--ui-accent); }
+#modal .fe-summary-grid strong { color:var(--ui-accent); }
+#toast,.toast { background:var(--ui-brand); color:var(--ui-on-brand); border:1px solid #ffffff30; border-radius:var(--ui-radius-control); font-family:var(--ui-font); font-size:13px; }
+
+/* ATPL adapters target presentation around immutable source banks, never their bytes. */
+.atpl-card .atpl-code { background:var(--ui-accent-soft); color:var(--ui-accent); border:1px solid var(--ui-accent-line); border-radius:var(--ui-radius-small); }
+.atpl-card progress { accent-color:var(--ui-accent); }
+.atpl-card .atpl-ready { color:var(--ui-muted); font-size:12px; }
+.atpl-library .atpl-help strong { color:var(--ui-ink); }
+.atpl-library .atpl-account { background:var(--ui-surface); color:var(--ui-ink); }
+.app .hero { margin-bottom:16px; gap:var(--ui-gap); }
+.app .hero p { font-size:14px; color:var(--ui-muted); }
+.app .qcard { padding:20px; }
+.app .qtext { font-size:20px; line-height:1.6; }
+.app .answer-option { border-radius:var(--ui-radius-control); background:var(--ui-soft); color:var(--ui-ink); font-size:15px; }
+.app .answer-option.selected { border-color:var(--ui-accent); }
+.app .answer-option.correct { border:2px solid var(--ui-accent); background:var(--ui-accent-soft); padding:14px; }
+.app .answer-option.incorrect { border:2px dashed var(--ui-error); background:var(--ui-error-soft); padding:14px; }
+.app .answer-option.correct .letter:after { content:' ✓'; }
+.app .answer-option.incorrect .letter:after { content:' ×'; }
+.app .qnum.answered { border:1px solid var(--ui-accent); }
+.app .qnum.wrong,.app .qnum.answered.wrong { border:1px dashed var(--ui-muted); }
+.app .legend-swatch.wrong { height:0; background:transparent; border-top:2px dashed var(--ui-muted); }
+.app .qtext.original-red { color:var(--ui-ink); border-left:3px dashed var(--ui-error); }
+.app .sourcebox { padding:var(--ui-pad); }
+.app .sourcebox>summary { min-height:32px; color:var(--ui-accent); }
+.app .bank-edition { font-size:12px; color:var(--ui-muted); margin:10px 0; }
+.app .bank-edition>summary { cursor:pointer; font-weight:600; }
+.app .bank-edition .callout { font-size:13px; background:var(--ui-surface); border:1px solid var(--ui-line); margin:8px 0; }
+.app .bank-edition .callout p { margin:6px 0; }
+.app .bank-edition .mb-mode-link { color:var(--ui-accent); }
+#storage-line:not(.unsaved),.storage-line:empty { display:none; }
+.dock { background:var(--ui-surface); color:var(--ui-ink); border-top-color:var(--ui-line); }
+.dock-inner { width:min(calc(var(--ui-content-width) - 48px),100%); }
+.dock button.bookmarked { color:var(--ui-accent); background:var(--ui-accent-soft); border-color:var(--ui-accent); }
+.app :is(.source-links,.image-tools,.filterbar,.toolbar) { gap:8px; }
+/* Original illustrations/evidence remain on their unmodified white viewing surface. */
+:is(.figure .imagebutton,.figure img,.image-stage,.image-preview) { background:#fff; }
+
+@media(max-width:720px) {
+  #app .main { padding-top:16px; }
+  #app .topbar-main { align-items:center; }
+  #app .topbar .top-actions { flex:1 1 220px; }
+  #app .bottom-nav { padding-inline:4px; gap:0; }
+  #app .bottom-nav button { flex:1 1 0; min-width:0; min-height:48px; font-size:9px; line-height:1.25; border-radius:var(--ui-radius-small); }
+  #app .bottom-nav button>span { overflow-wrap:anywhere; }
+  #app .metric-value,.app .stat strong { font-size:26px; }
+  .atpl-grid { grid-template-columns:1fr; }
+  .atpl-header>.atpl-tag { display:none; }
+  .app>.topbar .brand { flex:1 1 130px; }
+  .app>.topbar .brand strong { font-size:15px; }
+  .app>.topbar .brand small { font-size:11px; }
+  .app .qcard { padding:16px; }
+  .app .qtext { font-size:18px; }
+  .app .answer-option.correct,.app .answer-option.incorrect { padding:12px; }
+  .app .hero { grid-template-columns:minmax(0,1fr); }
+  .app .hero button { min-width:0; width:100%; }
+}
+@media(min-width:721px) and (max-width:1100px) { .atpl-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:359px) {
+  #app .crew-grid { grid-template-columns:minmax(0,1fr); }
+  .atpl-header { gap:6px; }
+  .atpl-header>.ui-back { padding-inline:9px; }
+  .atpl-header .ui-header-actions { gap:4px; }
+  .app>.topbar .top-tools { margin-left:auto; }
+  .dock-inner { gap:4px; }
+  .dock button { padding-inline:4px; font-size:12px; }
+}
+@media(forced-colors:active) {
+  :is(#app,#modal,.app,.atpl-library,#dialog) :is(button,a,summary):focus-visible { outline-color:Highlight; }
+  :is(#app,#modal,.app) :is([aria-selected=true],[aria-current=page],.answer-option.correct) { outline:2px solid Highlight; outline-offset:-2px; }
+}

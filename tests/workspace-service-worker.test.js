@@ -20,7 +20,7 @@ test('all-bank status requires the authoritative bank list and stale selection c
 });
 
 test('installed versioned shell serves its own cached module without a network request or an offline HTTP 503',async()=>{const w=worker({saved:new Response('installed module')} );let response;w.handlers.fetch({request:new Request('https://app.test/workspace/session.js'),respondWith:p=>response=p,waitUntil(){}});assert.equal(await(await response).text(),'installed module');assert.equal(w.network.calls,0);});
-test('offline readiness can verify the controlling worker version instead of only seeing a new cache name',()=>{const w=worker();let version;w.handlers.message?.({data:{type:'avilog-shell-version'},ports:[{postMessage:value=>version=value.version}]});assert.match(version,/^avilog-shell-v14-fast-entry-navy-teal(?:-sdk-[a-f0-9]{12})?$/);});
+test('offline readiness can verify the controlling worker version instead of only seeing a new cache name',()=>{const w=worker();let version;w.handlers.message?.({data:{type:'avilog-shell-version'},ports:[{postMessage:value=>version=value.version}]});assert.match(version,/^avilog-shell-v14-fast-entry-navy-teal-unified(?:-sdk-[a-f0-9]{12})?$/);});
 
 test('a newer individual pending bank invalidates an earlier all-bank sync report',async()=>{
  const {requiredAtplCodes}=await import('../public/account/coordinator.js'),{c}=fixture();
