@@ -15,13 +15,15 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
    try{for(const width of [320,390,820,1440])for(const theme of ['light','dark']){
     const context=await browser.newContext({viewport:{width,height:1000}}),p=await context.newPage(),errors=[];
     p.setDefaultTimeout(15000);p.on('pageerror',e=>errors.push(e.message));
+    const nav=tab=>p.locator((width<=720?'.bottom-nav':'.sidebar')+' [data-tab="'+tab+'"]');
+    const ready=()=>p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1',null,{timeout:15000});
     try{
      await context.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());
      await p.route('**/api/weather**',r=>r.fulfill({status:503,contentType:'application/json',body:'{"error":"Synthetic UI check"}'}));
      await p.clock.setFixedTime(new Date('2026-10-26T12:00:00Z'));
-     await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();
+     await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();await ready();
      await p.evaluate(async theme=>(await import('/lib/appearance.js')).setAppearance({theme}),theme);
-     await p.locator('[data-tab=logbook]:visible').first().click();
+     await nav('logbook').click();
      const form=p.locator('#flight-form'),records=[];
      for(const [code,final]of [['VN9911',false],['VN9912',true]]){
       await pageManage(p);await p.locator('[data-action=add]:visible').click();await form.waitFor();
@@ -58,12 +60,12 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
       if(record.final){await flightTab(p,'tools');assert.equal(await form.locator('[name=replaceConfirmed]').isChecked(),false);}
       await close();return g;
      };
-     await p.locator('[data-tab=schedule]:visible').first().click();
+     await nav('schedule').click();
      await p.waitForFunction(()=>{const n=document.querySelector('[data-flight-scan-shortcut=schedule]');return n&&parseFloat(getComputedStyle(n).minHeight)===44});
      const geometry=[];
      for(const record of records)geometry.push(await inspect(p.locator(`[data-flight-scan-shortcut=schedule][data-id="${record.id}"]`),record));
      if(width===390)await p.screenshot({path:path.join(out,`${engineName}-${theme}-schedule.png`),fullPage:true});
-     await p.locator('[data-tab=logbook]:visible').first().click();await p.locator('[data-filter=search]').fill('VN99');
+     await nav('logbook').click();await p.locator('[data-filter=search]').fill('VN99');
      await p.locator('[data-flight-scan-shortcut=list]').first().waitFor();
      assert.equal(await p.locator('[data-flight-scan-shortcut=list]').count(),2);
      const count=await p.evaluate(async()=>{const m=await import('/ui/flight-scan-shortcuts.js');const h=m.mountFlightScanShortcuts(document.querySelector('#app'));h.refresh();h.refresh();return document.querySelectorAll('[data-flight-scan-shortcut=list]').length;});assert.equal(count,2,'no duplicate buttons or observers');
@@ -90,7 +92,7 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
       await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
       const cached=await p.evaluate(async()=>{const k=(await caches.keys()).find(k=>k.includes('scan-shortcuts'));if(!k)return false;const c=await caches.open(k);return !!(await c.match('/ui/flight-scan-shortcuts.js'))&&!!(await c.match('/ui/flight-scan-shortcuts.css'));});assert(cached);
       unavailable=true;assert(await p.evaluate(()=>fetch('/api/health',{cache:'no-store'}).then(()=>false).catch(()=>true)));
-      await p.reload({waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();await p.locator('[data-tab=logbook]:visible').first().click();
+      await p.reload({waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();await ready();await nav('logbook').click();
       await p.locator('[data-action=today]:visible').click();await p.locator('[data-filter=search]').fill('VN99');
       await p.locator(`[data-flight-scan-shortcut=list][data-id="${records[0].id}"]`).click();await p.locator('[data-image-flight-target]').waitFor();assert.match(await p.locator('[data-image-flight-target]').innerText(),/VN9911/);
       report.checks.push({label:`${engineName} offline shortcut opens correct saved flight; OCR not invoked`});unavailable=false;
