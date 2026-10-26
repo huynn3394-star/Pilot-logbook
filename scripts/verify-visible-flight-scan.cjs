@@ -77,8 +77,9 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
      // FINAL may be opened through the shortcut, but saving changes still requires consent.
      await p.locator(`[data-flight-scan-shortcut=list][data-id="${records[1].id}"]`).click();await p.locator('#image-text').fill(raw('VN9912','06:01'));await p.locator('[data-action=image-parse]').click();
      await form.locator('[name=scanReviewed]').check();await flightTab(p,'tools');await form.locator('[name=confirmed]').check();await p.locator('.fe-save').click();assert.match(await form.locator('[data-error]').innerText(),/bảo vệ|cho phép/i);await close();
-     await p.locator('[data-filter=status]').selectOption('confirmed');await p.locator('[data-flight-scan-shortcut=list]').waitFor();assert.equal(await p.locator('[data-flight-scan-shortcut=list]').count(),1);assert.equal(await p.locator('[data-flight-scan-shortcut=list]').getAttribute('data-id'),records[1].id);
-     await p.locator('[data-filter=status]').selectOption('all');
+     // The existing compact layout places the status filter in the management menu.
+     await pageManage(p);await p.locator('[data-filter=status]').selectOption('confirmed');await p.locator('[data-flight-scan-shortcut=list]').waitFor();assert.equal(await p.locator('[data-flight-scan-shortcut=list]').count(),1);assert.equal(await p.locator('[data-flight-scan-shortcut=list]').getAttribute('data-id'),records[1].id);
+     await pageManage(p);await p.locator('[data-filter=status]').selectOption('all');
      await p.locator('[data-filter=search]').fill('ZZ-NO-FLIGHT');assert.equal(await p.locator('[data-flight-scan-shortcut]').count(),0);
      await p.locator('[data-filter=search]').fill('VN99');await p.locator('[data-flight-scan-shortcut=list]').first().waitFor();
      // Global importer remains separate and unbound.
@@ -90,8 +91,7 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
       const cached=await p.evaluate(async()=>{const k=(await caches.keys()).find(k=>k.includes('scan-shortcuts'));if(!k)return false;const c=await caches.open(k);return !!(await c.match('/ui/flight-scan-shortcuts.js'))&&!!(await c.match('/ui/flight-scan-shortcuts.css'));});assert(cached);
       unavailable=true;assert(await p.evaluate(()=>fetch('/api/health',{cache:'no-store'}).then(()=>false).catch(()=>true)));
       await p.reload({waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();await p.locator('[data-tab=logbook]:visible').first().click();
-      // The app initializes the month independently of the previously selected one.
-      await p.locator('input[type=month]').fill('2026-10');await p.locator('[data-filter=search]').fill('VN99');
+      await p.locator('[data-action=today]:visible').click();await p.locator('[data-filter=search]').fill('VN99');
       await p.locator(`[data-flight-scan-shortcut=list][data-id="${records[0].id}"]`).click();await p.locator('[data-image-flight-target]').waitFor();assert.match(await p.locator('[data-image-flight-target]').innerText(),/VN9911/);
       report.checks.push({label:`${engineName} offline shortcut opens correct saved flight; OCR not invoked`});unavailable=false;
      }
