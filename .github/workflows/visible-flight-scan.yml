@@ -5,16 +5,76 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: visible-scan-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  contract:
+  verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 20
+    env:
+      ATPL_ACCOUNTS_ENABLED: 'false'
+      AVILOG_WORKSPACE_SYNC_ENABLED: 'false'
+      AVILOG_EVIDENCE_SYNC_ENABLED: 'false'
+      AVILOG_LOGBOOK_V14_ENABLED: 'false'
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
           persist-credentials: false
+          show-progress: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24.12.0
-      - run: node --test tests/flight-scan-shortcuts.test.js
+          cache: npm
+      - name: Shortcut contracts and syntax
+        id: contract
+        run: |
+          mkdir -p test-results/visible-flight-scan
+          node --check public/ui/flight-scan-shortcuts.js
+          node --test tests/flight-scan-shortcuts.test.js
+      - name: Locked install and SDK build
+        id: build
+        run: |
+          npm ci --ignore-scripts > test-results/visible-flight-scan/install.log 2>&1
+          npm run build:atpl-account
+      - name: Full unit suite (existing failures remain visible)
+        id: unit
+        run: |
+          code=0
+          node --test --test-reporter=tap tests/*.test.js > test-results/visible-flight-scan/unit.tap 2>&1 || code=$?
+          grep -E '^not ok|^# (tests|pass|fail)' test-results/visible-flight-scan/unit.tap || true
+          exit "$code"
+      - name: Check known baseline failures
+        id: gate
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
+          const log=readFileSync('test-results/visible-flight-scan/unit.tap','utf8'),bad=[...log.matchAll(/^not ok \d+ - (.+)$/gm)].map(m=>m[1]);
+          const known=['v4 rejects extended preferences without acknowledging pending edits; v5 replays the original reminder edit and keeps watchlist','v5 requires reload for grouped preferences while v6 still accepts flat v5 data'];
+          assert(bad.every(x=>known.includes(x)),JSON.stringify(bad));assert(bad.length<=2);assert(Number(log.match(/^# pass (\d+)/m)?.[1])>=269);console.log(JSON.stringify({existingFailures:bad,newFailures:0}));
+          NODE
+      - name: Browser engines
+        id: browsers
+        if: ${{ !cancelled() && steps.gate.outcome == 'success' }}
+        run: npx playwright install --with-deps chromium webkit > test-results/visible-flight-scan/browsers.log 2>&1
+      - name: Direct shortcuts, target validation, cancellation, FINAL and offline
+        id: feature
+        if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
+        run: node scripts/verify-visible-flight-scan.cjs
+      - name: Shared interface and weather regressions
+        if: ${{ !cancelled() && steps.feature.outcome == 'success' }}
+        run: |
+          node scripts/verify-shared-ui.cjs
+          node scripts/verify-weather-view.cjs
+          node scripts/verify-weather-attention.cjs
+      - name: Core app, source data and settings untouched
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: git diff --exit-code 929152a101405f8d2093faacb068b8a6d98a9f38 -- public/app.js public/lib public/workspace public/account public/atpl public/ui/system.css public/ui/tokens.css public/ui/weather-attention.css public/ui/weather-report-highlights.js public/style.css public/navy-teal.css data lib server.js firestore.rules storage.rules package.json package-lock.json
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: avilog-visible-scan-checks
+          path: test-results/
+          retention-days: 7

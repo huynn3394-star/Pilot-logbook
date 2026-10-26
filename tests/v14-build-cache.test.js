@@ -4,8 +4,8 @@ function version(source){let message;vm.runInNewContext(source,{self:{addEventLi
 test('each rebuilt SDK receives a separate shell cache and preserves the asset graph',async()=>{
  assert.equal(typeof buildCache.stampBundle,'function');const source=await readFile('public/sw.js','utf8');
  const first=buildCache.stampBundle(source,'a'.repeat(64)),second=buildCache.stampBundle(first,'b'.repeat(64));
- assert.equal(version(first),'avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-sdk-aaaaaaaaaaaa');
- assert.equal(version(second),'avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-sdk-bbbbbbbbbbbb');
+ assert.equal(version(first),'avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-sdk-aaaaaaaaaaaa');
+ assert.equal(version(second),'avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-sdk-bbbbbbbbbbbb');
  assert.notEqual(version(source),version(first));assert.match(second,/"\/workspace\/flight-conflict.js"/);
 });
 test('stamping fails on an invalid digest or a worker without the expected build marker',()=>{
