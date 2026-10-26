@@ -1,0 +1,20 @@
+name: Visible per-flight scan verification
+on:
+  push:
+    branches: ['fix/visible-flight-scan-2026-10-26']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+      - run: node --test tests/flight-scan-shortcuts.test.js
