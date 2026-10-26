@@ -31,11 +31,23 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
       if(final){for(const [name,value]of Object.entries({a_out:'06:00',a_off:'06:13',a_on:'07:35',a_in:'07:58'}))await form.locator(`[name=${name}]`).fill(value);await flightTab(p,'tools');await form.locator('[name=confirmed]').check();}
       const id=await form.getAttribute('data-id');records.push({id,code,final});await p.locator('.fe-save').click();await p.locator('#modal').waitFor({state:'hidden'});
      }
-     const close=async()=>{await p.locator('#modal [data-action=close]').first().click();await p.locator('#modal').waitFor({state:'hidden'});};
+     const close=async()=>{
+      await p.evaluate(()=>{window.__shortcutModalClosed=false;document.querySelector('#modal').addEventListener('close',()=>{window.__shortcutModalClosed=true},{once:true});});
+      await p.locator('#modal [data-action=close]').first().click();
+      await p.waitForFunction(()=>window.__shortcutModalClosed&&!document.querySelector('#modal').open);
+     };
      const inspect=async(button,record)=>{
       await button.waitFor();assert.equal(await button.innerText(),'Scan Flight Log');
-      const g=await button.evaluate(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n),ancestors=[];for(let a=n;a;a=a.parentElement){const s=getComputedStyle(a);ancestors.push({tag:a.tagName,class:a.className,display:s.display,zoom:s.zoom,transform:s.transform,height:s.height,minHeight:s.minHeight,animation:s.animationName});}return{left:r.left,right:r.right,height:r.height,cssHeight:c.height,minHeight:c.minHeight,color:c.color,background:c.backgroundColor,clipped:n.scrollWidth>n.clientWidth+1,ancestors}});
-      report.lastMeasurement={engineName,width,theme,flight:record.code,placement:await button.getAttribute('data-flight-scan-shortcut'),geometry:g};
+      const placement=await button.getAttribute('data-flight-scan-shortcut');
+      // Resolve and measure within one browser task; detached pre-close DOM is not a visible control.
+      const handle=await p.waitForFunction(({id,placement})=>{
+       const n=[...document.querySelectorAll('[data-flight-scan-shortcut]')].find(n=>n.dataset.id===id&&n.dataset.flightScanShortcut===placement);
+       if(!n?.isConnected)return null;const r=n.getBoundingClientRect(),c=getComputedStyle(n);
+       if(c.minHeight!=='44px')return null;
+       return {left:r.left,right:r.right,height:r.height,cssHeight:c.height,minHeight:c.minHeight,color:c.color,background:c.backgroundColor,clipped:n.scrollWidth>n.clientWidth+1};
+      },{id:record.id,placement},{timeout:15000});
+      const g=await handle.jsonValue();await handle.dispose();
+      report.lastMeasurement={engineName,width,theme,flight:record.code,placement,geometry:g};
       assert(g.height>=44,'touch height: '+JSON.stringify(report.lastMeasurement));assert(g.left>=0&&g.right<=width+1,'visible without horizontal scrolling: '+JSON.stringify(g));assert(!g.clipped);
       await button.focus();assert(await button.evaluate(n=>document.activeElement===n));await p.keyboard.press('Enter');
       await p.locator('[data-image-flight-target]').waitFor();assert.match(await p.locator('[data-image-flight-target]').innerText(),new RegExp(record.code));
@@ -88,5 +100,5 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
    }}finally{await browser.close();}
   }
  }catch(error){report.errors.push(error.stack||String(error));process.exitCode=1;}
- finally{await new Promise(r=>{server.close(r);server.closeAllConnections();});await fs.writeFile(path.join(out,'QA.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report,null,2));}
+ finally{await new Promise(r=>{server.close(r);server.closeAllConnections();});await fs.writeFile(path.join(out,'QA.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({scope:report.scope,passed:report.checks.length,labels:report.checks.map(c=>c.label),errors:report.errors,lastMeasurement:report.lastMeasurement},null,2));}
 })().catch(error=>{console.error(error);process.exitCode=1});
