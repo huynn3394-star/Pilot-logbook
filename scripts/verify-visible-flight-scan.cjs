@@ -34,8 +34,9 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
      const close=async()=>{await p.locator('#modal [data-action=close]').first().click();await p.locator('#modal').waitFor({state:'hidden'});};
      const inspect=async(button,record)=>{
       await button.waitFor();assert.equal(await button.innerText(),'Scan Flight Log');
-      const g=await button.evaluate(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n);return{left:r.left,right:r.right,height:r.height,color:c.color,background:c.backgroundColor,clipped:n.scrollWidth>n.clientWidth+1}});
-      assert(g.height>=44,'touch height');assert(g.left>=0&&g.right<=width+1,'visible without horizontal scrolling');assert(!g.clipped);
+      const g=await button.evaluate(n=>{const r=n.getBoundingClientRect(),c=getComputedStyle(n),ancestors=[];for(let a=n;a;a=a.parentElement){const s=getComputedStyle(a);ancestors.push({tag:a.tagName,class:a.className,display:s.display,zoom:s.zoom,transform:s.transform,height:s.height,minHeight:s.minHeight,animation:s.animationName});}return{left:r.left,right:r.right,height:r.height,cssHeight:c.height,minHeight:c.minHeight,color:c.color,background:c.backgroundColor,clipped:n.scrollWidth>n.clientWidth+1,ancestors}});
+      report.lastMeasurement={engineName,width,theme,flight:record.code,placement:await button.getAttribute('data-flight-scan-shortcut'),geometry:g};
+      assert(g.height>=44,'touch height: '+JSON.stringify(report.lastMeasurement));assert(g.left>=0&&g.right<=width+1,'visible without horizontal scrolling: '+JSON.stringify(g));assert(!g.clipped);
       await button.focus();assert(await button.evaluate(n=>document.activeElement===n));await p.keyboard.press('Enter');
       await p.locator('[data-image-flight-target]').waitFor();assert.match(await p.locator('[data-image-flight-target]').innerText(),new RegExp(record.code));
       assert.equal(await p.locator('#image-date').inputValue(),'2026-10-26');assert.equal(await p.locator('[name=family]').inputValue(),'A320');
