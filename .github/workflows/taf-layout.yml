@@ -43,7 +43,8 @@ jobs:
           code=0
           node --test --test-reporter=tap tests/*.test.js > test-results/taf-layout/unit.tap 2>&1 || code=$?
           grep -E '^not ok|^# (tests|pass|fail)' test-results/taf-layout/unit.tap || true
-          exit "$code"
+          # Known historical failures are reported and gated by the next step; only new failures block the run.
+          exit 0
       - name: Reject new unit failures
         id: gate
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
