@@ -1,0 +1,30 @@
+name: TAF readable line layout
+on:
+  push:
+    branches: ['fix/taf-readable-layout-2026-10-29']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: avilog-taf-layout-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ATPL_ACCOUNTS_ENABLED: 'false'
+      AVILOG_WORKSPACE_SYNC_ENABLED: 'false'
+      AVILOG_EVIDENCE_SYNC_ENABLED: 'false'
+      AVILOG_LOGBOOK_V14_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+          cache: npm
+      - name: TAF formatting regression
+        run: node --test tests/taf-layout.test.js
