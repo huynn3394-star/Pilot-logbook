@@ -26,5 +26,58 @@ jobs:
         with:
           node-version: 24.12.0
           cache: npm
-      - name: TAF formatting regression
-        run: node --test tests/taf-layout.test.js
+      - name: TAF formatting and highlight regression
+        id: taf
+        run: node --test tests/taf-layout.test.js tests/weather-attention.test.js
+      - name: Locked install and SDK build
+        id: build
+        if: ${{ !cancelled() && steps.taf.outcome == 'success' }}
+        run: |
+          mkdir -p test-results/taf-layout
+          npm ci --ignore-scripts > test-results/taf-layout/install.log 2>&1
+          npm run build:atpl-account
+      - name: Full unit regression (existing failures remain visible)
+        id: unit
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          code=0
+          node --test --test-reporter=tap tests/*.test.js > test-results/taf-layout/unit.tap 2>&1 || code=$?
+          grep -E '^not ok|^# (tests|pass|fail)' test-results/taf-layout/unit.tap || true
+          exit "$code"
+      - name: Reject new unit failures
+        id: gate
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
+          const log=readFileSync('test-results/taf-layout/unit.tap','utf8');
+          const bad=[...log.matchAll(/^not ok \\d+ - (.+)$/gm)].map(m=>m[1]);
+          const known=['v4 rejects extended preferences without acknowledging pending edits; v5 replays the original reminder edit and keeps watchlist','v5 requires reload for grouped preferences while v6 still accepts flat v5 data'];
+          assert(bad.every(x=>known.includes(x)),JSON.stringify(bad));assert(bad.length<=2);assert(Number(log.match(/^# pass (\\d+)/m)?.[1])>=269);
+          console.log(JSON.stringify({existingFailures:bad,newFailures:0}));
+          NODE
+      - name: Install browser engines
+        id: browsers
+        if: ${{ !cancelled() && steps.gate.outcome == 'success' }}
+        run: npx playwright install --with-deps chromium webkit > test-results/taf-layout/browsers.log 2>&1
+      - name: Weather TAF rendering, highlighting, source grouping and offline
+        id: weather
+        if: ${{ !cancelled() && steps.browsers.outcome == 'success' }}
+        run: |
+          node scripts/verify-weather-attention.cjs
+          node scripts/verify-weather-view.cjs
+          node scripts/verify-weather-ui.cjs
+      - name: Shared interface and scan shortcuts regression
+        if: ${{ !cancelled() && steps.weather.outcome == 'success' }}
+        run: |
+          node scripts/verify-shared-ui.cjs
+          node scripts/verify-flight-scan.cjs
+      - name: Preserve source, provider, data and ATPL logic
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: git diff --exit-code bbc62b42fb5be1265044779353f88d211a05e2c7 -- public/app.js public/lib public/workspace/weather-watch.js public/workspace/weather-groups.js public/workspace/schema.js public/workspace/model.js public/workspace/repository.js public/workspace/session.js public/account public/atpl data lib server.js firestore.rules storage.rules package.json package-lock.json public/ui/tokens.css public/ui/system.css public/style.css public/navy-teal.css
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: avilog-taf-layout-tests
+          path: test-results/
+          retention-days: 7

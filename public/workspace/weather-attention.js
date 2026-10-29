@@ -2,6 +2,19 @@ import {savedReportTiming,weatherSourceURL} from './weather-report.js';
 
 const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+// Add display-only line breaks before TAF change groups; the stored/provider report is never modified.
+export function formatTAFReport(value){
+ const raw=String(value??'').replace(/\r\n?/g,'\n').trim();
+ if(!raw)return '';
+ return raw.replace(/[ \t]+(?=(?:FM\d{6}\b|BECMG\b|TEMPO\b|PROB\d{2}\b))/g,(space,offset,full)=>{
+  // Keep source-provided line breaks and indentation exactly as supplied.
+  if(offset>0&&full[offset-1]==='\n')return space;
+  // PROB30/40 TEMPO is a single forecast group, not two separate groups.
+  if(/\bPROB\d{2}$/.test(full.slice(0,offset).trimEnd()))return space;
+  return '\n';
+ });
+}
+
 // Work on raw-text offsets, then escape every piece. Never regex-replace generated HTML.
 export function highlightWeatherReport(value){
  const raw=String(value??'');let html='',cursor=0;

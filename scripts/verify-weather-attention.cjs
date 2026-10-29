@@ -15,7 +15,7 @@ async function savedLabelGeometry(row){
  assert(result.ok,JSON.stringify(result));assert.equal(result.label,'Bản lưu');return result;
 }
 (async()=>{
- await fs.mkdir(out,{recursive:true});const{createServer}=await import('../server.js');
+ await fs.mkdir(out,{recursive:true});const{formatTAFReport}=await import('../public/workspace/weather-attention.js');const{createServer}=await import('../server.js');
  const server=createServer({firebaseConfig:{enabled:false},weather:{get:async station=>{if(mode==='error')throw Error('Synthetic unavailable');return fixture(station);}}});
  const handler=server.listeners('request')[0];server.removeAllListeners('request');server.on('request',(req,res)=>unavailable?req.socket.destroy():handler(req,res));await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
  try{for(const[name,engine]of Object.entries({chromium,webkit})){
@@ -36,7 +36,7 @@ async function savedLabelGeometry(row){
     }
     assert.equal(await banner.isVisible(),true,'Collapsed folders must not hide SPECI');assert(await p.evaluate(()=>document.querySelector('[data-weather-speci]').getBoundingClientRect().top<document.querySelector('.weather-watch-toolbar').getBoundingClientRect().top));
     await p.locator('[data-speci-open=VVTS]').click();const row=p.locator('[data-weather-station=VVTS]').first();assert(await row.evaluate(n=>n.open&&n.closest('[data-weather-group]').querySelector(':scope>details').open));assert(await row.getAttribute('class').then(v=>v.includes('weather-has-speci')));assert.equal(await row.locator('.weather-product h3').first().innerText(),'SPECI');
-    assert.equal(await row.locator('pre.weather-report').nth(0).textContent(),observation('VVTS'));assert.equal(await row.locator('pre.weather-report').nth(1).textContent(),forecast('VVTS'));
+    assert.equal(await row.locator('pre.weather-report').nth(0).textContent(),observation('VVTS'));const tafText=await row.locator('pre.weather-report').nth(1).textContent();assert.equal(tafText,formatTAFReport(forecast('VVTS')));assert.match(tafText,/\\nTEMPO 2503\\/2505/);assert.equal((tafText.match(/\\n/g)||[]).length,1);
     assert.deepEqual(await row.locator('pre.weather-report').nth(0).locator('mark').allTextContents(),['+TSRA','CB']);assert.deepEqual(await row.locator('pre.weather-report').nth(1).locator('mark').allTextContents(),['-TSRA','CB']);
     assert.equal(await row.locator('.weather-row-brief mark').count(),2);assert.equal(await p.locator('[data-weather-station=VVNB]').getAttribute('class').then(v=>v.includes('weather-has-speci')),false);
     const colors=await row.locator('mark').first().evaluate(n=>({fg:getComputedStyle(n).color,bg:getComputedStyle(n).backgroundColor}));assert(contrast(colors.fg,colors.bg)>=4.5);assert.equal(colors.fg,theme==='dark'?'rgb(253, 164, 175)':'rgb(180, 35, 58)');assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));
