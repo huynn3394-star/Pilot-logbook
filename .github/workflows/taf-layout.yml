@@ -51,9 +51,9 @@ jobs:
           node --input-type=module <<'NODE'
           import {readFileSync} from 'node:fs';import assert from 'node:assert/strict';
           const log=readFileSync('test-results/taf-layout/unit.tap','utf8');
-          const bad=[...log.matchAll(/^not ok \\d+ - (.+)$/gm)].map(m=>m[1]);
+          const bad=[...log.matchAll(/^not ok \d+ - (.+)$/gm)].map(m=>m[1]);
           const known=['v4 rejects extended preferences without acknowledging pending edits; v5 replays the original reminder edit and keeps watchlist','v5 requires reload for grouped preferences while v6 still accepts flat v5 data'];
-          assert(bad.every(x=>known.includes(x)),JSON.stringify(bad));assert(bad.length<=2);assert(Number(log.match(/^# pass (\\d+)/m)?.[1])>=269);
+          assert(bad.every(x=>known.includes(x)),JSON.stringify(bad));assert(bad.length<=2);assert(Number(log.match(/^# pass (\d+)/m)?.[1])>=269);
           console.log(JSON.stringify({existingFailures:bad,newFailures:0}));
           NODE
       - name: Install browser engines
