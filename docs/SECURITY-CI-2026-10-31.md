@@ -19,6 +19,8 @@ Base: `bbc62b42fb5be1265044779353f88d211a05e2c7` on `main`.
   fix branch, and manual dispatch. Unit/build/audit, Firebase emulator rules and
   browser regression jobs fail on errors. No baseline failure allowlist or
   `continue-on-error` is used in this workflow. It does not deploy anything.
+  The unit job fetches full history because the existing ATPL source-integrity
+  test compares the published original bank/catalog bytes to a reachable commit.
 - PDF.js updates from 5.6.205 to 6.4.299. Core text extraction remains local;
   eval/scripting are disabled, and the importer destroys the loading task in a
   `finally` block, including page-limit and load failures, for the new API.
