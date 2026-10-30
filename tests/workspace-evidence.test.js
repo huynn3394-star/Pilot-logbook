@@ -35,11 +35,13 @@ test('download all includes trash, reports missing/unuploaded, and refuses accou
  let changed;changed=await setup({count:1,download:async()=>{changed.change();return changed.blob;}});await changed.transfers.pump();changed.removeBytes();await changed.transfers.downloadAll();assert.equal(await changed.repository.getBlob(changed.ref.sha256),null);changed.transfers.stop();
 });
 
-test('upload and explicit download share the same two-worker limit',async()=>{
- let active=0,max=0;const releases=[];let unlocked=false;const work=async()=>{max=Math.max(max,++active);if(!unlocked)await new Promise(r=>releases.push(r));active--;};
+test('upload and explicit download share the same two-worker limit',{timeout:5000},async t=>{
+ const started=Promise.withResolvers();
+ let active=0,max=0;const releases=[];let unlocked=false;const work=async()=>{max=Math.max(max,++active);if(active===2)started.resolve();if(!unlocked)await new Promise(r=>releases.push(r));active--;};
  const s=await setup({count:4,upload:work,download:async ref=>{await work();return new Blob([png,new Uint8Array([Number.parseInt('0',10)])],{type:'image/png'});}});
  for(const r of s.records.slice(2)){r.evidence.cloudReady=true;s.removeBytes(r.evidence.sha256);}
- const running=Promise.all([s.transfers.pump(),s.transfers.downloadAll()]);for(let i=0;i<4;i++)await new Promise(r=>setImmediate(r));unlocked=true;for(const release of releases)release();await running;assert.equal(max,2);s.transfers.stop();
+ t.after(()=>{unlocked=true;for(const release of releases)release();s.transfers.stop();});
+ const running=Promise.all([s.transfers.pump(),s.transfers.downloadAll()]);await started.promise;unlocked=true;for(const release of releases)release();await running;assert.equal(max,2);
 });
 
 test('two flights sharing one digest use a single upload and both become cloud-ready',async()=>{

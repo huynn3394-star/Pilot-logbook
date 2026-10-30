@@ -1,0 +1,82 @@
+name: AviLog CI
+
+on:
+  push:
+    branches: [main, 'fix/security-ci-*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: avilog-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build:atpl-account
+      - run: npm test
+      - run: npm audit --audit-level=moderate
+
+  firebase-rules:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --ignore-scripts
+      - run: npm run build:atpl-account
+      - run: npm run test:rules
+      - run: npm run test:workspace-rules
+      - run: npm run test:evidence-rules
+
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ATPL_ACCOUNTS_ENABLED: 'false'
+      AVILOG_WORKSPACE_SYNC_ENABLED: 'false'
+      AVILOG_EVIDENCE_SYNC_ENABLED: 'false'
+      AVILOG_LOGBOOK_V14_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.12.0
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm run build:atpl-account
+      - run: npx playwright install --with-deps chromium webkit
+      - run: node scripts/verify-pdf-import.cjs
+      - run: node scripts/verify-visible-flight-scan.cjs
+      - run: node scripts/verify-shared-ui.cjs
+      - run: node scripts/verify-atpl-browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: avilog-browser-results
+          path: test-results/
+          retention-days: 7

@@ -55,27 +55,29 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
    try{
     for(const width of [320,390,820,1440]){
      const context=await browser.newContext({viewport:{width,height:1000}}),p=await context.newPage();
+     const nav=tab=>p.locator((width<=720?'.bottom-nav':'.sidebar')+' [data-tab="'+tab+'"]').first();
      p.setDefaultTimeout(12000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
      try{
       await p.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());
       await p.route('**/api/weather**',r=>r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Isolated UI test: no live weather feed'})}));
       await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();
       for(const theme of ['light','dark']){
+       await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1');
        await p.evaluate(async theme=>{const m=await import('/lib/appearance.js');m.setAppearance({theme})},theme);
        for(const tab of ['schedule','logbook','crew','statistics','weather','settings']){
-        await p.locator(`[data-action=tab][data-tab=${tab}]:visible`).first().click();
+        await nav(tab).click();
         const card={schedule:'.metric',logbook:'.metric',crew:'.crew-card',statistics:'.metric',weather:'.weather-group,.weather-watch-card',settings:'.settings-section'}[tab];
         await verify(p,`${name} ${width} ${tab}`,theme,card);
         if(width===390)await p.screenshot({path:path.join(root,`${name}-${theme}-${tab}.png`)});
        }
-       await p.locator('[data-action=tab][data-tab=logbook]:visible').first().click();
+       await nav('logbook').click();
        await require('./ui-controls.cjs').pageManage(p);await p.locator('[data-action=add]:visible').click();
        await p.locator('#flight-form [name=flightNo]').fill('VN9998');
        for(const tab of ['airports','tools','log'])await require('./ui-controls.cjs').flightTab(p,tab);
        assert.equal(await p.locator('#flight-form [name=flightNo]').inputValue(),'VN9998');
        await verify(p,`${name} ${width} flight editor`,theme,'.fe-card');
        await p.locator('#modal [data-action=close]').first().click();
-       await p.locator('[data-action=tab][data-tab=atpl]:visible').first().click();await p.waitForURL('**/atpl/');
+       await nav('atpl').click();await p.waitForURL('**/atpl/');
        await p.locator('[data-bank]').first().waitFor();await verify(p,`${name} ${width} ATPL library`,theme,'.atpl-card');
        const h1=await p.locator('h1').evaluate(n=>getComputedStyle(n).fontSize);assert.equal(h1,width<=720?'24px':'26px');
        if(width===390)await p.screenshot({path:path.join(root,`${name}-${theme}-library.png`)});
@@ -83,6 +85,7 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
        for(const bank of width===390?banks.banks:banks.banks.slice(0,1)){
         lastLabel=`${name} ${width} open bank ${bank.code}`;
         await p.goto(origin+bank.url,{waitUntil:'domcontentloaded'});
+        await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1');
         // The offline button is intentionally inside a collapsed management menu.
         await p.locator('#atpl-offline-button').waitFor({state:'attached'});
         await require('./ui-controls.cjs').bankManage(p);await p.locator('#atpl-offline-button').waitFor();

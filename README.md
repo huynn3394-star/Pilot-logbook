@@ -1,10 +1,12 @@
-# AviLog V14 — bản nguồn kiểm thử 24/10/2026
+# AviLog V14
+
+**Bản sửa bảo mật và CI 31/10/2026:** [thay đổi và kiểm chứng](docs/SECURITY-CI-2026-10-31.md). Unit/API: **275/275 đạt**; các bộ rules emulator: **34/34 đạt**; `npm audit` không còn cảnh báo tại thời điểm kiểm tra. Kết quả này là kiểm thử cục bộ, không xác nhận đã triển khai lên Railway.
 
 **Hướng dẫn phát hành V14:** [docs/V14-HUONG-DAN.md](docs/V14-HUONG-DAN.md). Giữ nền V13 Compact và Smart Scan V2. Bổ sung Quick Entry, đối chiếu scan, lịch sử FINAL và các trường giờ thủ công.
 
-**Quan trọng:** dùng Google cần build SDK mới + triển khai Firestore rules + bật `AVILOG_LOGBOOK_V14_ENABLED=true`. Dockerfile đã thêm bước build; bản SDK đính kèm nguồn chưa được build lại trong môi trường bàn giao. Khi khóa tắt, tài khoản vẫn ở chế độ tương thích V13; khách dùng V14 cục bộ. Không có dữ liệu bị reset. Chưa triển khai Railway.
+**Quan trọng:** dùng Google cần build SDK khớp mã nguồn + triển khai Firestore rules + bật `AVILOG_LOGBOOK_V14_ENABLED=true`. Dockerfile thực hiện bước build; SDK đính kèm cũng đã được build lại cho bản sửa 31/10. Khi khóa tắt, tài khoản vẫn ở chế độ tương thích V13; khách dùng V14 cục bộ. Không có dữ liệu bị reset. Bản sửa này chưa triển khai Railway.
 
-**Kiểm thử bàn giao:** 224 đạt / 5 lỗi có trước trong `npm test`; 89 kiểm tra Chromium component đạt. Chưa có kiểm chứng cloud/emulator/Docker/thiết bị vật lý. Xem báo cáo và giới hạn đầy đủ trong hướng dẫn.
+**Lịch sử bàn giao 24/10:** số liệu 224 đạt / 5 lỗi và 89 kiểm tra Chromium trong hướng dẫn là kết quả của bản bàn giao cũ; xem báo cáo 31/10 ở trên cho bản sửa hiện tại. Chưa có kiểm chứng mới trên cloud, Docker hoặc thiết bị vật lý.
 
 ---
 
@@ -121,7 +123,7 @@ Specs/plans and verification notes live under `docs/`. No uploaded company PDFs 
 
 Trong **Thời tiết**, thêm/bớt tối đa 40 sân bay bằng ICAO hoặc IATA có hỗ trợ (ví dụ SGN, HAN, BKK). Danh sách theo tài khoản Google đồng bộ như các cài đặt khác; chế độ khách lưu trên thiết bị. Mục theo dõi hiển thị đầy đủ METAR/SPECI, TAF/AMD/COR, giờ phát hành và hiệu lực UTC, liên kết nguồn, lỗi cập nhật và bản đã lưu. Tự cập nhật mỗi 5 phút khi đang mở, có nút cập nhật thủ công. Bản chữ gần nhất giữ trên máy để mở lại offline; trên máy mới cần mở mục này có mạng để tải bản tin. Backup tài khoản giữ danh sách sân bay; cache bản tin theo dõi là dữ liệu riêng từng thiết bị. Bản gắn chuyến bay vẫn chỉ gồm sân bay đi/đến của ngày UTC tương ứng.
 
-Nguồn ưu tiên: Tan Son Nhat MET Office tại `http://118.69.213.84`; METAR dùng `index.php?cat=1&sub=6`, TAF dùng `index.php?cat=2&sub=0`. Máy chủ đăng nhập bằng biến môi trường `MET_OFFICE_USERNAME` và `MET_OFFICE_PASSWORD`; không lưu mật khẩu/cookie trong repo, HTML, public config, backup hoặc log. Trang nguồn hiện dùng HTTP. Cookie chỉ giữ trong RAM của tiến trình máy chủ. Không tự gửi credential sang hostname khác khi có redirect.
+Nguồn ưu tiên, khi cấu hình credential: Tan Son Nhat MET Office tại `https://118.69.213.84`; METAR dùng `index.php?cat=1&sub=6`, TAF dùng `index.php?cat=2&sub=0`. Máy chủ đăng nhập bằng biến môi trường `MET_OFFICE_USERNAME` và `MET_OFFICE_PASSWORD`; không lưu mật khẩu/cookie trong repo, HTML, public config, backup hoặc log. Chỉ kết nối HTTPS có chứng chỉ hợp lệ; không hạ xuống HTTP, không bỏ kiểm tra TLS, không gửi credential sang origin khác khi redirect. Nếu nhà cung cấp không phục vụ HTTPS hợp lệ, ứng dụng dùng NOAA dự phòng. Cookie chỉ giữ trong RAM. Các URL HTTP trong bản tin/backup cũ vẫn đọc được như thông tin nguồn, không được dùng để đăng nhập hoặc tải bản tin mới.
 
 NOAA Aviation Weather Center là nguồn dự phòng theo từng sản phẩm khi nguồn ưu tiên lỗi, thiếu bản tin, METAR quá hai giờ hoặc TAF hết hạn. METAR và TAF có thể lấy từ hai nguồn, mỗi bản có liên kết nguồn thực tế. Giữ bản AMD/COR và SPECI mới nhất theo giờ phát hành. Bản NIL không được coi là bản tin đầy đủ. Đây là hiển thị theo dõi, không thay briefing chính thức.
 
