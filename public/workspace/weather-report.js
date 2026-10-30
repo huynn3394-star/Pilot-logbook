@@ -1,9 +1,11 @@
 export const MET_OFFICE='http://118.69.213.84';
 export const officeSources={metar:MET_OFFICE+'/index.php?cat=1&sub=6',taf:MET_OFFICE+'/index.php?cat=2&sub=0'};
+// HTTP URLs remain valid provenance for existing backups, never for new requests.
+export const secureOfficeSources=Object.fromEntries(Object.entries(officeSources).map(([product,url])=>[product,url.replace('http:','https:')]));
 export const noaaSource=(station,product)=>`https://aviationweather.gov/api/data/${product}?ids=${station}&format=raw`;
 export function weatherSourceURL(value,station,product){
  try{const u=new URL(value);if(u.username||u.password||u.hash)return false;
-  if(u.origin===MET_OFFICE)return Object.entries(officeSources).some(([p,url])=>(!product||p===product)&&u.href===url);
+  if(u.origin===MET_OFFICE||u.origin===new URL(secureOfficeSources.metar).origin)return [officeSources,secureOfficeSources].some(sources=>Object.entries(sources).some(([p,url])=>(!product||p===product)&&u.href===url));
   return u.origin==='https://aviationweather.gov'&&(!product?['/api/data/metar','/api/data/taf'].includes(u.pathname):u.pathname==='/api/data/'+product)&&u.searchParams.get('ids')===station&&u.searchParams.get('format')==='raw'&&[...u.searchParams.keys()].length===2;
  }catch{return false;}
 }

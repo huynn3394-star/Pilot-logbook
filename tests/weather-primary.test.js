@@ -8,7 +8,7 @@ function wire({expired=false,missingTAF=false}={}){
  let logged=false,expiredOnce=expired,posts=0;
  return {get posts(){return posts;},async fetch(url,options={}){
   const u=new URL(url);
-  assert.equal(u.origin,'http://118.69.213.84');
+  assert.equal(u.origin,'https://118.69.213.84');
   if(options.method==='POST'){
    const form=new URLSearchParams(options.body);assert.equal(form.get('act'),'login');assert.equal(form.get('txtUsername'),'qa-user');assert.equal(form.get('txtPassword'),'qa-password');posts++;logged=true;
    return new Response('<a>Logout</a>',{headers:{'Set-Cookie':'PHPSESSID=synthetic-session; Path=/; HttpOnly'}});
@@ -24,7 +24,7 @@ test('primary preserves full amended multiline TAF and reuses one authenticated 
  const net=wire(),provider=new weather.MetOfficeProvider({username:'qa-user',password:'qa-password',fetchImpl:net.fetch,now});
  const [a,b]=await Promise.all([provider.fetch('VVTS'),provider.fetch('VVNB')]);
  assert.equal(a.metar,metar);assert.equal(a.taf.replace(/\s+/g,' '),taf);assert.match(b.metar,/METAR VVNB/);assert.equal(net.posts,1);
- assert.equal(a.sources.metar,'http://118.69.213.84/index.php?cat=1&sub=6');assert.equal(a.sources.taf,'http://118.69.213.84/index.php?cat=2&sub=0');
+ assert.equal(a.sources.metar,'https://118.69.213.84/index.php?cat=1&sub=6');assert.equal(a.sources.taf,'https://118.69.213.84/index.php?cat=2&sub=0');
  assert.equal(JSON.stringify(a).includes('qa-password'),false);assert.equal(JSON.stringify(a).includes('synthetic-session'),false);
 });
 test('expired primary session is renewed once and does not produce a login page as a weather report',async()=>{
@@ -47,7 +47,7 @@ test('a newer SPECI takes precedence over an earlier METAR for the same station'
  assert.equal((await p.fetch('VVTS')).metar,speci);
 });
 test('implicit primary provenance never labels a primary bulletin as NOAA',async()=>{
- const p=new weather.PriorityWeatherProvider({primary:{name:'Primary',fetch:async()=>({metar,taf})},fallback:{name:'Fallback',fetch:async()=>{throw Error('must not fetch');}},now});assert.equal((await p.fetch('VVTS')).sources.metar,'http://118.69.213.84/index.php?cat=1&sub=6');
+ const p=new weather.PriorityWeatherProvider({primary:{name:'Primary',fetch:async()=>({metar,taf})},fallback:{name:'Fallback',fetch:async()=>{throw Error('must not fetch');}},now});assert.equal((await p.fetch('VVTS')).sources.metar,'https://118.69.213.84/index.php?cat=1&sub=6');
 });
 test('equal-time COR/AMD supersedes original independent of feed order',async()=>{
  const corrected=metar.replace('METAR ','METAR COR ').replace('VRB03KT','10010KT'),correctedTAF=taf.replace('TAF AMD','TAF COR').replace('05007KT','06012KT');

@@ -9,7 +9,9 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
  const report={date:new Date().toISOString(),browsers:{}};
  try{for(const [name,type]of Object.entries({chromium,webkit})){
   const browser=await type.launch({headless:true}),context=await browser.newContext({viewport:{width:1024,height:1366},hasTouch:true}),p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push({message:e.message,stack:e.stack,url:p.url()}));
-  await p.goto(base);await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  // Finish installing the shell before the first navigation can interrupt registration.
+  await p.goto(base);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   const catalog=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json());assert.equal(await p.locator('[data-bank]').count(),12);
   const state=await p.evaluate(async()=>{const m=await import('/lib/storage.js');return JSON.stringify(await m.readState())});assert(state.includes('flights'));
   // Cancel after two actual saved assets: no ready marker, then reuse partial cache.

@@ -4,16 +4,16 @@ export async function extractPDF(file, onProgress = () => {}) {
   if (file.size > 20 * 1024 * 1024) throw Error("PDF tối đa 20 MB");
   const pdfjs = await import("/vendor/pdfjs/build/pdf.mjs");
   pdfjs.GlobalWorkerOptions.workerSrc = "/vendor/pdfjs/build/pdf.worker.mjs";
-  const doc = await pdfjs.getDocument({
+  const task = pdfjs.getDocument({
     data: await file.arrayBuffer(),
     isEvalSupported: false,
-  }).promise;
-  if (doc.numPages > 60) {
-    await doc.destroy();
-    throw Error("PDF tối đa 60 trang. Chọn roster theo tháng.");
-  }
+    enableScripting: false,
+  });
   let text = "";
   try {
+    const doc = await task.promise;
+    if (doc.numPages > 60)
+      throw Error("PDF tối đa 60 trang. Chọn roster theo tháng.");
     for (let n = 1; n <= doc.numPages; n++) {
       onProgress(`Đang đọc trang ${n}/${doc.numPages}`);
       const p = await doc.getPage(n),
@@ -28,7 +28,7 @@ export async function extractPDF(file, onProgress = () => {}) {
       text += "\n";
     }
   } finally {
-    await doc.destroy();
+    await task.destroy();
   }
   if (!text.trim())
     throw Error("PDF dạng scan chưa có chữ. Hãy nhập văn bản roster thủ công.");
