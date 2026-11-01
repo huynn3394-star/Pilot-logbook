@@ -36,13 +36,18 @@ async function savedLabelGeometry(row){
     }
     assert.equal(await banner.isVisible(),true,'Collapsed folders must not hide SPECI');assert(await p.evaluate(()=>document.querySelector('[data-weather-speci]').getBoundingClientRect().top<document.querySelector('.weather-watch-toolbar').getBoundingClientRect().top));
     await p.locator('[data-speci-open=VVTS]').click();const row=p.locator('[data-weather-station=VVTS]').first();assert(await row.evaluate(n=>n.open&&n.closest('[data-weather-group]').querySelector(':scope>details').open));assert(await row.getAttribute('class').then(v=>v.includes('weather-has-speci')));assert.equal(await row.locator('.weather-product h3').first().innerText(),'SPECI');
-    assert.equal(await row.locator('pre.weather-report').nth(0).textContent(),observation('VVTS'));assert.equal(await row.locator('pre.weather-report').nth(1).textContent(),forecast('VVTS'));
+    assert.equal(await row.locator('pre.weather-report').nth(0).textContent(),observation('VVTS'));assert.equal(await row.locator('pre.weather-report').nth(1).textContent(),forecast('VVTS').replace(' TEMPO','\nTEMPO'));
     assert.deepEqual(await row.locator('pre.weather-report').nth(0).locator('mark').allTextContents(),['+TSRA','CB']);assert.deepEqual(await row.locator('pre.weather-report').nth(1).locator('mark').allTextContents(),['-TSRA','CB']);
     assert.equal(await row.locator('.weather-row-brief mark').count(),2);assert.equal(await p.locator('[data-weather-station=VVNB]').getAttribute('class').then(v=>v.includes('weather-has-speci')),false);
     const colors=await row.locator('mark').first().evaluate(n=>({fg:getComputedStyle(n).color,bg:getComputedStyle(n).backgroundColor}));assert(contrast(colors.fg,colors.bg)>=4.5);assert.equal(colors.fg,theme==='dark'?'rgb(253, 164, 175)':'rgb(180, 35, 58)');assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));
     const raw='METAR VVTS 250255Z +TSRA BKN020CB\n<img src=x onerror="window.__weatherXSS=1"> & CB=';
     await p.evaluate(raw=>{const d=document.querySelector('#modal'),pre=document.createElement('pre');pre.className='weather-report';pre.textContent=raw;d.replaceChildren(pre);d.showModal();},raw);
     await p.waitForFunction(()=>document.querySelectorAll('#modal .weather-attention-word').length===3);assert.equal(await p.locator('#modal pre').textContent(),raw);assert.equal(await p.locator('#modal img').count(),0);assert.equal(await p.evaluate(()=>window.__weatherXSS),undefined);await p.evaluate(()=>document.querySelector('#modal').close());
+    const tafRaw=forecast('VVTS');
+    await p.evaluate(raw=>{const d=document.querySelector('#modal');d.innerHTML='<h3>TAF</h3><pre class="weather-report"></pre>';d.querySelector('pre').textContent=raw;d.showModal();},tafRaw);
+    await p.waitForFunction(()=>document.querySelector('#modal pre').textContent.includes('\nTEMPO'));
+    assert.equal(await p.locator('#modal pre').textContent(),tafRaw.replace(' TEMPO','\nTEMPO'));
+    assert.deepEqual(await p.locator('#modal mark').allTextContents(),['-TSRA','CB']);await p.evaluate(()=>document.querySelector('#modal').close());
     const refresh=async()=>{await weatherReady(p);await p.getByRole('button',{name:'Cập nhật tất cả',exact:true}).click();await p.waitForFunction(()=>!document.querySelector('[data-watch-refresh]').disabled);};
     mode='error';await refresh();await banner.filter({hasText:'CHƯA CẬP NHẬT ĐƯỢC'}).waitFor();assert.equal(await banner.locator('[data-speci-open]').count(),2);
     await savedLabelGeometry(row);await savedLabelGeometry(p.locator('[data-weather-station=VVNB]'));

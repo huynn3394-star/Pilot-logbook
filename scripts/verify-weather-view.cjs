@@ -30,6 +30,10 @@ const NOW='2026-10-25T11:00:00.000Z';
     assert.match(await preview(dom,'VVTS').innerText(),/^SPECI/);assert.match(await preview(intl,'VTBS').innerText(),/Chưa có METAR/);assert.doesNotMatch(await preview(intl,'VTBS').innerText(),/TAF VTBS/);
     await select(intl,'taf');assert.match(await preview(intl,'VTBS').innerText(),/^TAF/);assert.match(await preview(intl,'WSSS').innerText(),/^TAF/);assert.equal(await preview(dom,'VVNB').getAttribute('data-weather-preview'),'metar');
     await select(dom,'taf');assert.match(await preview(dom,'VVCI').innerText(),/Chưa có TAF/);assert(await preview(dom,'VVTS').locator('mark').count()>0);assert.equal(await p.locator('[data-speci-open=VVTS]').count(),1);
+    const tafPreview=preview(dom,'VVTS');
+    assert.match(await tafPreview.textContent(),/\nTEMPO /,'TAF change group is a separate preview row');
+    const rows=await tafPreview.evaluate(n=>{const walker=document.createTreeWalker(n,NodeFilter.SHOW_TEXT);let t;while(t=walker.nextNode()){const i=t.textContent.indexOf('TEMPO');if(i>=0){const r=document.createRange();r.setStart(t,i);r.setEnd(t,i+5);return{first:n.getBoundingClientRect().top,change:r.getBoundingClientRect().top,whiteSpace:getComputedStyle(n).whiteSpace};}}});
+    assert(rows.change>rows.first+10&&rows.whiteSpace==='pre-wrap',JSON.stringify(rows));
     const toolbar=await p.evaluate(()=>{const a=document.querySelector('.weather-quick-search').getBoundingClientRect(),b=document.querySelector('[data-watch-refresh]').getBoundingClientRect();return{sameRow:Math.abs(a.y+a.height/2-b.y-b.height/2)<3,fit:Math.max(a.right,b.right)<=innerWidth+1};});assert(toolbar.sameRow&&toolbar.fit,'Search and update belong to one toolbar row');
     for(const g of [dom,intl]){const buttons=await g.locator('[data-weather-product]').evaluateAll(ns=>ns.map(n=>({height:n.getBoundingClientRect().height,pressed:n.getAttribute('aria-pressed')})));assert(buttons.every(x=>x.height>=44));assert.equal(buttons.filter(x=>x.pressed==='true').length,1);}
     if(width===390)await p.screenshot({path:path.join(out,`${name}-${theme}.png`),fullPage:true});

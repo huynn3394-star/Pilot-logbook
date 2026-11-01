@@ -2,6 +2,16 @@ import {savedReportTiming,weatherSourceURL} from './weather-report.js';
 
 const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
+// Presentation only: keep the report tokens, and put each forecast change group on its own line.
+export function formatTAFReport(value){
+ const raw=String(value??'').replace(/\r\n?/g,'\n').trim();
+ return raw.replace(/[ \t]+(?=(?:FM\d{6}\b|BECMG\b|TEMPO\b|PROB(?:30|40)\b))/g,(space,offset,full)=>{
+  if(offset>0&&full[offset-1]==='\n')return space;
+  if(/^TEMPO\b/.test(full.slice(offset+space.length))&&/\bPROB(?:30|40)$/.test(full.slice(0,offset).trimEnd()))return space;
+  return '\n';
+ });
+}
+
 // Work on raw-text offsets, then escape every piece. Never regex-replace generated HTML.
 export function highlightWeatherReport(value){
  const raw=String(value??'');let html='',cursor=0;
