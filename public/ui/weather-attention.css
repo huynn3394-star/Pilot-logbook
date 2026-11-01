@@ -57,3 +57,6 @@ html[data-theme=dark] #app .weather-speci-badge { color:#fda4af; }
 #app [data-weather-cards] [hidden], #app .weather-search-clear[hidden], #app .weather-search-status[hidden] { display:none!important; }
 @media(max-width:359px) { #app .weather-quick-search { gap:3px; padding-left:7px; } #app .weather-watch-toolbar>[data-watch-refresh] { padding-inline:8px; font-size:11px; } #app .weather-group-heading { gap:6px; } #app .weather-group-products button { padding-inline:6px; min-width:44px; } }
 @media(forced-colors:active) { #app .weather-group-products button[aria-pressed=true] { outline:2px solid Highlight; outline-offset:-2px; } }
+
+/* Preserve provider METAR lines and display-only TAF change-group rows in previews. */
+#app .weather-row-brief { white-space:pre-wrap; }
