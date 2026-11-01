@@ -4,9 +4,9 @@ const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<
 
 // Presentation only: keep the report tokens, and put each forecast change group on its own line.
 export function formatTAFReport(value){
- const raw=String(value??'').replace(/\r\n?/g,'\n').trim();
+ // Providers indent continuation lines by different amounts; align display rows consistently.
+ const raw=String(value??'').replace(/\r\n?/g,'\n').split('\n').map(line=>line.trim()).join('\n').trim();
  return raw.replace(/[ \t]+(?=(?:FM\d{6}\b|BECMG\b|TEMPO\b|PROB(?:30|40)\b))/g,(space,offset,full)=>{
-  if(offset>0&&full[offset-1]==='\n')return space;
   if(/^TEMPO\b/.test(full.slice(offset+space.length))&&/\bPROB(?:30|40)$/.test(full.slice(0,offset).trimEnd()))return space;
   return '\n';
  });
