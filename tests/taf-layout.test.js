@@ -12,12 +12,14 @@ test('TAF inline change groups render on separate lines without changing report 
  assert.equal(formatTAFReport(raw).replace(/\s+/g,' '),raw);
 });
 
-test('TAF source line breaks remain single lines and CRLF is normalized',async()=>{
+test('TAF source line breaks remain single lines while provider indentation is removed',async()=>{
  const {formatTAFReport}=await load();
- const raw='TAF VVTS 250230Z 2503/2603 23008KT 9999 SCT020\r\n  TEMPO 2503/2505 3000 TSRA\r\n FM251200 24012KT 5000 RA=';
+ const raw='TAF VVTS 250230Z 2503/2603 23008KT 9999 SCT020  \r\n               TEMPO 2503/2505 3000 TSRA\r\n\t FM251200 24012KT 5000 RA=  ';
  const result=formatTAFReport(raw);
- assert.equal(result,'TAF VVTS 250230Z 2503/2603 23008KT 9999 SCT020\n  TEMPO 2503/2505 3000 TSRA\n FM251200 24012KT 5000 RA=');
+ assert.equal(result,'TAF VVTS 250230Z 2503/2603 23008KT 9999 SCT020\nTEMPO 2503/2505 3000 TSRA\nFM251200 24012KT 5000 RA=');
  assert.equal((result.match(/\n/g)||[]).length,2);
+ assert.equal(result.replace(/\s+/g,' '),raw.replace(/\s+/g,' ').trim());
+ assert.equal(formatTAFReport(result),result);
 });
 
 test('TAF formatting preserves TSRA and CB highlights and the underlying source string',async()=>{
