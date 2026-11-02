@@ -1,13 +1,28 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 /* Single source of presentation values for AviLog, the library and quiz banks. */
 :root {
+  --navy-bg: #142744;
+  --navy-secondary: #1c3352;
+  --navy-card: #30435f;
+  --navy-raised: #3a4b65;
+  --accent-primary: #24b8a0;
+  --accent-muted: #214e5b;
+  --text-primary: #f2f5fa;
+  --text-secondary: #aab9cd;
+  --border-primary: #53647d;
+  --radius-card: 24px;
+  --radius-control: 16px;
+  --radius-pill: 999px;
+  --spacing-page: 16px;
+  --spacing-card: 16px;
+  --spacing-section: 28px;
   --ui-revision: avilog-shared-v1;
   --ui-brand: #142744;
   --ui-font: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --ui-heading-font: var(--ui-font);
   --ui-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --ui-radius-card: 16px;
-  --ui-radius-control: 10px;
+  --ui-radius-card: var(--radius-card);
+  --ui-radius-control: var(--radius-control);
   --ui-radius-small: 8px;
   --ui-control-height: 44px;
   --ui-gap: 12px;
@@ -37,23 +52,29 @@
   --ui-on-accent: #ffffff;
   --ui-error: #b4233a;
   --ui-error-soft: #fff1f3;
+  --ui-warning: #805300;
+  --ui-warning-soft: #fff4da;
+  --ui-success: #197047;
   --ui-shadow: 0 3px 14px #14274408;
   --ui-menu-shadow: 0 10px 28px #14274420;
 }
 html[data-theme="dark"] {
   color-scheme: dark;
-  --ui-bg: #142744;
-  --ui-surface: #1b3152;
-  --ui-soft: #243b5d;
-  --ui-ink: #ffffff;
-  --ui-muted: #bac9df;
-  --ui-line: #344960;
-  --ui-accent: #2dd4bf;
-  --ui-accent-soft: #183e46;
+  --ui-bg: var(--navy-bg);
+  --ui-surface: var(--navy-card);
+  --ui-soft: var(--navy-secondary);
+  --ui-ink: var(--text-primary);
+  --ui-muted: #c6d2e3;
+  --ui-line: var(--border-primary);
+  --ui-accent: #5eead4;
+  --ui-accent-soft: var(--accent-muted);
   --ui-accent-line: #368c88;
   --ui-on-accent: #142744;
   --ui-error: #fda4af;
   --ui-error-soft: #3a273b;
+  --ui-warning: #f5b544;
+  --ui-warning-soft: #443c2e;
+  --ui-success: #8de0ac;
   --ui-shadow: 0 3px 14px #00000018;
   --ui-menu-shadow: 0 10px 28px #00000030;
 }
@@ -66,7 +87,7 @@ html[data-theme="dark"] {
   --accent-contrast: var(--ui-on-accent); --accent-on-navy: var(--ui-accent-on-brand);
   --quiet-surface: var(--ui-soft); --green: var(--ui-accent); --good: var(--ui-accent);
   --good-bg: var(--ui-accent-soft); --bad: var(--ui-error); --bad-bg: var(--ui-error-soft);
-  --amber: var(--ui-muted); --warning: var(--ui-muted); --warning-bg: var(--ui-soft);
+  --amber: var(--ui-warning); --warning: var(--ui-warning); --warning-bg: var(--ui-warning-soft);
   --red: var(--ui-error); --radius: var(--ui-radius-card);
   --shadow: var(--ui-shadow); --surface-shadow: var(--ui-shadow);
 }

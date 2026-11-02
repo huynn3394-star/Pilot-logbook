@@ -2,6 +2,8 @@
 async function accountMenu(page){if(['/', '/atpl/', '/atpl/index.html'].includes(new URL(page.url()).pathname))await page.locator('[data-account-menu]').waitFor({state:'attached'});const menu=page.locator('[data-account-menu]');if(await menu.count()&&!await menu.evaluate(n=>n.open))await menu.locator(':scope>summary').click();}
 async function weatherManage(page){const menu=page.locator('[data-weather-manage]');if(await menu.count()&&!await menu.evaluate(n=>n.open))await menu.locator(':scope>summary').click();}
 module.exports={accountMenu,weatherManage};
+async function navigate(page,tab){const direct=page.locator('[data-action=tab][data-tab="'+tab+'"]:visible').first();if(await direct.count())await direct.click();else{await page.locator('.bottom-nav [data-action=navy-more]').click();await page.locator('#modal [data-tab="'+tab+'"]').click();}}
+module.exports.navigate=navigate;
 
 async function pageManage(page){const menu=page.locator('[data-page-manage]');if(await menu.count()&&!await menu.evaluate(n=>n.open))await menu.locator(':scope>summary').click();}
 async function settingsSection(page,index=0){const menu=page.locator('[data-settings-section]').nth(index);if(await menu.count()&&!await menu.evaluate(n=>n.open))await menu.locator(':scope>summary').click();}

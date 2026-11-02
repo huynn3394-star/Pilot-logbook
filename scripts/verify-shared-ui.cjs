@@ -24,7 +24,7 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
    return {accent:r.getPropertyValue('--accent').trim(),brand:r.getPropertyValue('--dark').trim(),text:r.getPropertyValue('--ink').trim(),paper:r.getPropertyValue('--paper').trim(),muted:r.getPropertyValue('--ui-muted').trim(),font:cs(document.body).fontFamily,overflow:document.documentElement.scrollWidth>innerWidth+2,card:card&&{radius:cs(card).borderRadius,background:cs(card).backgroundColor},header:header&&{background:cs(header).backgroundColor,height:header.getBoundingClientRect().height},token:r.getPropertyValue('--ui-radius-card').trim()};
   },cardSelector);
   assert.equal(values.brand,'#142744',label+' navy preserved');
-  assert.equal(values.accent,theme==='dark'?'#2dd4bf':'#0f766e',label+' one accent');
+  assert.equal(values.accent,theme==='dark'?'#5eead4':'#0f766e',label+' one accent');
   assert(/-apple-system|BlinkMacSystemFont/.test(values.font)&&values.font.includes('Inter'),label+' common native/Inter stack');
   const fontAudit=await p.evaluate(()=>[...document.querySelectorAll('h1,h2,h3,.brand,.mobile-brand,.airport,button,input,select,textarea,.metric-value,.fe-summary-grid strong')].filter(n=>n.getBoundingClientRect().width>0&&n.getBoundingClientRect().height>0).map(n=>({tag:n.tagName,cls:n.className,font:getComputedStyle(n).fontFamily,clock:n.matches('.fe-time-cell [data-utc-clock],.metric-value,.fe-summary-grid strong')})));
   assert(fontAudit.length>0,label+' typography samples exist');
@@ -35,7 +35,7 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
   values.fontAudit=fontAudit;
   assert(!values.overflow,label+' horizontal overflow');
   assert(values.card,label+' representative surface exists');
-  assert.equal(values.card.radius,'16px',label+' common card radius');
+  assert.equal(values.card.radius,'24px',label+' common card radius');
   const cssColor=await p.evaluate(v=>{const n=document.createElement('span');document.body.append(n);const out={};for(const[k,c]of Object.entries(v)){n.style.color=c;out[k]=getComputedStyle(n).color}n.remove();return out},{text:values.text,paper:values.paper,muted:values.muted,accent:values.accent,brand:values.brand});
   assert.equal(values.card.background,cssColor.paper,label+' common surface / no white leak');
   assert.equal(values.header?.background,cssColor.brand,label+' shared navy toolbar');
@@ -55,8 +55,8 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
    try{
     for(const width of [320,390,820,1440]){
      const context=await browser.newContext({viewport:{width,height:1000}}),p=await context.newPage();
-     const nav=tab=>p.locator((width<=720?'.bottom-nav':'.sidebar')+' [data-tab="'+tab+'"]').first();
-     p.setDefaultTimeout(12000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
+     const navigate=async tab=>{if(width<=720&&!['schedule','logbook','weather'].includes(tab)){await p.locator('.bottom-nav [data-action=navy-more]').click();await p.locator('#modal [data-tab="'+tab+'"]').click();}else await p.locator((width<=720?'.bottom-nav':'.sidebar')+' [data-tab="'+tab+'"]').first().click();};
+     p.on('dialog',dialog=>dialog.accept());p.setDefaultTimeout(12000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
      try{
       await p.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());
       await p.route('**/api/weather**',r=>r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Isolated UI test: no live weather feed'})}));
@@ -65,19 +65,19 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
        await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1');
        await p.evaluate(async theme=>{const m=await import('/lib/appearance.js');m.setAppearance({theme})},theme);
        for(const tab of ['schedule','logbook','crew','statistics','weather','settings']){
-        await nav(tab).click();
-        const card={schedule:'.metric',logbook:'.metric',crew:'.crew-card',statistics:'.metric',weather:'.weather-group,.weather-watch-card',settings:'.settings-section'}[tab];
+        await navigate(tab);
+        const card={schedule:'.metric',logbook:'.nv-flight-card',crew:'.crew-card',statistics:'.metric',weather:'.weather-group,.weather-watch-card',settings:'.settings-section'}[tab];
         await verify(p,`${name} ${width} ${tab}`,theme,card);
         if(width===390)await p.screenshot({path:path.join(root,`${name}-${theme}-${tab}.png`)});
        }
-       await nav('logbook').click();
-       await require('./ui-controls.cjs').pageManage(p);await p.locator('[data-action=add]:visible').click();
+       await navigate('logbook');
+       await require('./ui-controls.cjs').pageManage(p);await p.locator('[data-page-manage] [data-action=add]').click();
        await p.locator('#flight-form [name=flightNo]').fill('VN9998');
        for(const tab of ['airports','tools','log'])await require('./ui-controls.cjs').flightTab(p,tab);
        assert.equal(await p.locator('#flight-form [name=flightNo]').inputValue(),'VN9998');
        await verify(p,`${name} ${width} flight editor`,theme,'.fe-card');
        await p.locator('#modal [data-action=close]').first().click();
-       await nav('atpl').click();await p.waitForURL('**/atpl/');
+       await navigate('atpl');await p.waitForURL('**/atpl/');
        await p.locator('[data-bank]').first().waitFor();await verify(p,`${name} ${width} ATPL library`,theme,'.atpl-card');
        const h1=await p.locator('h1').evaluate(n=>getComputedStyle(n).fontSize);assert.equal(h1,width<=720?'24px':'26px');
        if(width===390)await p.screenshot({path:path.join(root,`${name}-${theme}-library.png`)});

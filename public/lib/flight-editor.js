@@ -62,12 +62,13 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
      </div>
      ${original?`<button type="button" class="fe-inline-button" data-action="image" data-id="${esc(original.id)}" data-flight-log-scan>${icon('camera')} Nhập ảnh Flight Log</button>`:'<p class="fe-help fe-inset">Lưu chuyến bay trước khi nhập ảnh Flight Log.</p>'}
      <div class="fe-time-caption"><span>${icon('clock')} Actual times</span><span>UTC · 24H</span></div>
-     <div class="fe-grid fe-actual-grid">
+     <div class="fe-departure-arrival"><strong>Departure</strong><strong>Arrival</strong></div><div class="fe-grid fe-actual-grid">
       ${time('a_out','OUT · Off blocks',actual.out)}${time('a_on','ON · Landing',actual.on)}
       ${time('a_off','OFF · Takeoff',actual.off)}${time('a_in','IN · On blocks',actual.in)}
      </div>
      <div class="fe-route-foot">${icon('info')} Mỗi mốc có ngày UTC riêng. Chỉnh ngày khi bay qua nửa đêm.</div>
     </section>
+    <section class="fe-card nv-primary-times" aria-label="Flight và Block"><div><span>FLIGHT</span><strong class="mono" data-nv-primary-time="airborne">—</strong></div><div><span>BLOCK</span><strong class="mono" data-nv-primary-time="block">—</strong></div></section>
     <details class="fe-card fe-scheduled" data-fe-scheduled${!Object.values(actual).some(Boolean)?' open':''}>
      <summary><span>${icon('calendar')} Scheduled · Giờ dự kiến</span><span aria-hidden="true">⌄</span></summary>
      <div class="fe-grid fe-scheduled-grid">${time('s_out','Scheduled OUT',scheduled.out)}${time('s_in','Scheduled IN',scheduled.in)}</div>
@@ -111,9 +112,12 @@ export function updateFlightEditor(form){
  let logbook;try{logbook=readLogbookFields(data,form._timeValues?.logbook);}catch{}
  const totals=timeTotals({actual,picMinutes:Number(data.get('picMinutes')),nightMinutes:Number(data.get('nightMinutes')),logbook});
  const time=value=>value===null?'—':duration(value);
+ for(const key of ['airborne','block']){const node=form.querySelector('[data-nv-primary-time="'+key+'"]');if(node)node.textContent=time(totals[key]);}
  const cell=(label,key,help)=>`<div><span>${label}${help?`<small>${help}</small>`:''}</span><strong class="mono" data-fe-total="${key}">${time(totals[key])}</strong></div>`;
  form.querySelector('#actual-summary').innerHTML=`<div class="fe-summary-grid">${cell('Flight','airborne','OFF → ON')}${cell('Block','block','OUT → IN')}${cell('PIC','pic','Nhập thủ công')}${cell('SIC','sic',totals.legacySIC?'Cũ: Block − PIC · cần kiểm tra':'Nhập thủ công')}${cell('Day','day','Block − Night')}${cell('Night','night','Nhập thủ công')}${logbook?cell('PICUS','picus','Nhập thủ công')+cell('IFR','ifr','Nhập thủ công')+cell('VFR','vfr','Nhập thủ công')+cell('Instrument','instrument','Nhập thủ công')+cell('Cross-country','crossCountry','Nhập thủ công'):''}</div><p class="fe-help fe-inset">Tạm tính từ biểu mẫu. Thống kê chỉ nhận Actual đã lưu và xác nhận.</p>`;
  const complete=['out','off','on','in'].every(key=>actual[key])&&totals.airborne!==null&&totals.block!==null;
+ const save=form.closest('dialog')?.querySelector('.fe-save');
+ if(save&&!form._saving)save.disabled=[...form.elements].some(input=>input.willValidate&&!input.validity.valid);
  const requested=data.has('confirmed');
  form.querySelector('[data-fe-status]').textContent=form._original?.confirmed?'FINAL · Bản đã lưu được bảo vệ':requested&&complete?'Đã chọn xác nhận · Chưa lưu':'DRAFT · Chưa xác nhận';
  for(const key of ['dep','dest']){
@@ -144,5 +148,19 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
  // Field values remain in the same form for native FormData and the existing saveFlight().
  form.addEventListener('click',click);form.addEventListener('keydown',keydown);form.addEventListener('invalid',invalid,true);
  show('log');
- return{show,dispose(){form.removeEventListener('click',click);form.removeEventListener('keydown',keydown);form.removeEventListener('invalid',invalid,true);modal.classList.remove('flight-editor-modal');modal.removeAttribute('aria-labelledby');}};
+ for(const input of form.querySelectorAll('input[name^="log_takeoff"],input[name^="log_landing"]')){
+  const wrapper=document.createElement('span');wrapper.className='nv-counter';input.before(wrapper);wrapper.append(input);
+  for(const [delta,label]of [[-1,'Giảm'],[1,'Tăng']]){
+   const button=document.createElement('button');button.type='button';button.textContent=delta<0?'−':'+';button.setAttribute('aria-label',label+' '+input.closest('label').querySelector('span')?.textContent);
+   button.disabled=input.disabled;button.onclick=()=>{if(!input.validity.valid&&input.value!=='')return;input.value=String(Math.max(0,Math.min(20,Number(input.value||0)+delta)));input.dispatchEvent(new Event('input',{bubbles:true}));};
+   if(delta<0)wrapper.prepend(button);else wrapper.append(button);
+  }
+ }
+ const countFields=['takeoffDay','landingDay','takeoffNight','landingNight'].map(key=>form.elements.namedItem('log_'+key)?.closest('label'));
+ if(countFields.every(Boolean)){
+  const card=document.createElement('section');card.className='fe-card nv-count-card';card.setAttribute('aria-label','Takeoffs và Landings');card.innerHTML='<div class="nv-count-heading"><h3>Takeoffs</h3><h3>Landings</h3></div><div class="fe-grid fe-v14-fields nv-count-grid"></div>';
+  card.querySelector('.nv-count-grid').append(...countFields);form.querySelector('.nv-primary-times').after(card);
+ }
+ const setSaveState=state=>{const save=head.querySelector('.fe-save');save.disabled=state==='saving'||[...form.elements].some(input=>input.willValidate&&!input.validity.valid);save.setAttribute('aria-busy',String(state==='saving'));save.textContent=({saving:'Đang lưu…',saved:'Đã lưu',error:'Thử lưu lại'})[state]||'Lưu ✓';};
+ return{show,setSaveState,dispose(){form.removeEventListener('click',click);form.removeEventListener('keydown',keydown);form.removeEventListener('invalid',invalid,true);modal.classList.remove('flight-editor-modal');modal.removeAttribute('aria-labelledby');}};
 }

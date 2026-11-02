@@ -44,14 +44,14 @@ function contrast(a, b) {
         for (const width of [320, 390, 820, 1440]) {
           const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
           const page = await context.newPage();
-          const pageErrors = [];
+          page.on('dialog',d=>d.accept());const pageErrors = [];
           page.on('pageerror', error => pageErrors.push(error.message));
           // Do not contact weather, fonts or identity providers during visual checks.
           await page.route('**/*', route => route.request().url().startsWith(origin + '/') ? route.continue() : route.abort());
           await page.goto(origin, { waitUntil: 'domcontentloaded' });
           await page.locator('[data-tab="logbook"]:visible').first().click();
           await page.locator('.page-management>summary').click();
-          await page.locator('[data-action="add"]:visible').click();
+          await page.locator('[data-page-manage] [data-action="add"]').click();
           await page.locator('#modal.flight-editor-modal[open]').waitFor();
           await page.locator('#flight-form [name="flightNo"]').fill('VN9999');
           await page.locator('#flight-form [name="date"]').fill('2026-10-24');
@@ -76,6 +76,7 @@ function contrast(a, b) {
                 ink: css(field).color,
                 muted: css(label).color,
                 save: css(save).color,
+                saveBackground: css(save).backgroundColor,
                 tab: css(active).color,
                 idle: css(idle).color,
                 tabBackground: css(modal.querySelector('.fe-tabs')).backgroundColor,
@@ -86,11 +87,11 @@ function contrast(a, b) {
               };
             });
             assert.equal(colors.brand.toLowerCase(), '#142744', 'Existing navy brand must remain unchanged');
-            assert.equal(colors.accent.toLowerCase(), theme === 'dark' ? '#2dd4bf' : '#0f766e', 'One teal accent, with readable light/dark shades');
+            assert.equal(colors.accent.toLowerCase(), theme === 'dark' ? '#5eead4' : '#0f766e', 'One teal accent, with readable light/dark shades');
             assert.notEqual(colors.tab, colors.idle, 'Selected tab must be visibly distinct');
             assert.equal(colors.tab, colors.underline, 'Active tab keeps a non-color underline cue');
-            assert.equal(colors.save, colors.tab, 'Save and active tab share the single accent');
-            assert(contrast(colors.save, colors.tabBackground) >= 4.5, 'Save text contrast');
+            assert.equal(colors.saveBackground, colors.tab, 'Filled Save and active tab share the accent');
+            assert(contrast(colors.save, colors.saveBackground) >= 4.5, 'Save text contrast on its filled button');
             assert(contrast(colors.ink, colors.card) >= 4.5, 'Primary field text contrast');
             assert(contrast(colors.muted, colors.card) >= 4.5, 'Secondary label contrast');
             assert(!colors.overflow, 'No horizontal overflow');
@@ -133,7 +134,7 @@ function contrast(a, b) {
         // Imported styles can enter WebKit's CSSOM after DOMContentLoaded. Wait for readiness, then retain the exact color assertion.
         await offlinePage.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim() === 'avilog-shared-v1', null, { timeout: 10000 });
         assert.equal(await offlinePage.evaluate(() => localStorage.getItem('theme-test-sentinel')), 'keep');
-        assert.equal(await offlinePage.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()), '#0f766e');
+        assert.equal(await offlinePage.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()), '#5eead4');
         report.checks.push({ name: `${name} offline stylesheet and local data`, method: name === 'webkit' ? 'local server stopped, uncached API rejected' : 'browser offline flag, uncached API rejected', cacheState });
         await offlineContext.close();
       } finally { await browser.close(); }
