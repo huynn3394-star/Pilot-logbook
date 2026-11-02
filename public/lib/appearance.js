@@ -1,4 +1,5 @@
 // Device-local display preferences, isolated from flight/quiz data and per account.
+import './usage.js';
 import {getCoordinator} from '../account/coordinator.js';
 const coordinator=getCoordinator(),key=()=>`avilog_appearance_v1:${coordinator.capture().uid||'guest'}`;
 const memory=new Map();
