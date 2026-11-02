@@ -72,6 +72,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run build:atpl-account
       - run: npx playwright install --with-deps chromium webkit
+      - run: node scripts/verify-admin.cjs
       - run: node scripts/verify-weather-view.cjs
       - run: node scripts/verify-weather-attention.cjs
       - run: node scripts/verify-pdf-import.cjs
@@ -84,3 +85,12 @@ jobs:
           name: avilog-browser-results
           path: test-results/
           retention-days: 7
+
+  admin-container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - run: bash scripts/verify-admin-container.sh

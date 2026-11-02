@@ -16,6 +16,5 @@ COPY lib ./lib
 COPY data ./data
 COPY server.js ./server.js
 ENV NODE_ENV=production
-USER node
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node", "lib/start.cjs"]
