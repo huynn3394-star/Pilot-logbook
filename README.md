@@ -94,7 +94,7 @@ Trong **Settings → Dữ liệu tài khoản & ảnh offline**, chọn **Tải 
 
 ### Cấu hình cho chủ ứng dụng
 
-Trang quản trị riêng tại `/admin/` xem thống kê truy cập, mức sử dụng tính năng và tình trạng ứng dụng. Mặc định khóa; cần email Google của chủ ứng dụng, volume riêng bền vững và `AVILOG_ADMIN_ENABLED=true`. Quyền xem được kiểm tra ở máy chủ cho từng yêu cầu. Hướng dẫn và giới hạn số liệu: [Private admin](docs/PRIVATE-ADMIN.md).
+Trang quản trị riêng tại `/admin/` xem thống kê truy cập, mức sử dụng tính năng và tình trạng ứng dụng. Mặc định khóa; cần email Google của chủ ứng dụng, `AVILOG_ADMIN_ENABLED=true` và `AVILOG_ADMIN_MEMORY_ONLY=true`. Theo lựa chọn của chủ ứng dụng, dùng bộ nhớ tạm, không tạo ổ lưu trữ mới; thống kê mất khi máy chủ khởi động/triển khai lại. Quyền xem được kiểm tra ở máy chủ cho từng yêu cầu. Hướng dẫn và giới hạn số liệu: [Private admin](docs/PRIVATE-ADMIN.md).
 
 Dùng đúng dự án chủ ứng dụng `avilog-atpl`, Google provider và Firestore Standard `(default)` tại `asia-southeast1`; không tạo dự án thay thế. Thêm hostname Railway đang thực sự sở hữu vào Firebase Authorized domains, OAuth JavaScript origins và `https://<hostname>/__/auth/handler`. Đồng bộ ảnh cần Blaze và bucket riêng tư cùng vùng Singapore; không bật Analytics/Gemini/Functions hoặc public sharing. Chọn billing account và cảnh báo ngân sách do chủ ứng dụng xác nhận; cảnh báo không tự giới hạn chi phí. Cấu hình phát hành thực tế nằm trong `docs/WORKSPACE-Account-QA.json` khi có.
 

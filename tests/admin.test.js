@@ -20,6 +20,7 @@ async function fixture(run,{account=owner,lookupStatus=200}={}){
 
 test('admin defaults locked and Railway requires a private persistent volume and owner',()=>{
  assert.deepEqual(readAdminConfig({}),{enabled:false});
+ assert.deepEqual(readAdminConfig({AVILOG_ADMIN_ENABLED:'true',AVILOG_ADMIN_EMAILS:'OWNER@example.test',AVILOG_ADMIN_MEMORY_ONLY:'true'}),{enabled:true,emails:['owner@example.test'],memoryOnly:true});
  assert.throws(()=>readAdminConfig({AVILOG_ADMIN_ENABLED:'true'}));
  assert.throws(()=>readAdminConfig({AVILOG_ADMIN_ENABLED:'true',AVILOG_ADMIN_EMAILS:'owner@example.test',AVILOG_ADMIN_DATA_DIR:'/tmp/data',RAILWAY_ENVIRONMENT_ID:'production'}));
  assert.throws(()=>readAdminConfig({AVILOG_ADMIN_ENABLED:'true',AVILOG_ADMIN_EMAILS:'owner@example.test',AVILOG_ADMIN_DATA_DIR:'/app/public/admin'}));
@@ -63,4 +64,9 @@ test('public event collection accepts only bounded anonymous fields and never ex
 test('admin landing is index-excluded and uncached; an unconfigured deployment stays locked',async()=>{
  const server=createServer({firebaseConfig:{enabled:false},adminService:createAdminService({config:{enabled:false}})});await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
  try{const landing=await fetch(base+'/admin/');assert.equal(landing.status,200);assert.match(landing.headers.get('cache-control'),/no-store/);assert.match(landing.headers.get('x-robots-tag'),/noindex/);assert.equal((await fetch(base+'/api/admin/overview')).status,503);assert.deepEqual(await(await fetch(base+'/api/usage/config')).json(),{enabled:false,heartbeatMs:60000});assert.equal((await fetch(base+'/api/health')).status,200);}finally{await new Promise(r=>{server.close(r);server.closeAllConnections();});}
+});
+
+test('memory mode uses no volume and explicitly starts empty after restart',()=>{
+ let store=createUsageStore({memoryOnly:true});try{store.record(event());assert.equal(store.overview().summary.today,1);}finally{store.close();}
+ store=createUsageStore({memoryOnly:true});try{const report=store.overview();assert.equal(report.summary.today,0);assert.equal(report.daily.filter(d=>d.available).length,1);assert(report.daily.some(d=>!d.available));}finally{store.close();}
 });

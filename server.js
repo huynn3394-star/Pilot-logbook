@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { WeatherService } from "./lib/weather.js";
 import {createFirebaseAuthHandler,readFirebaseConfig} from "./lib/firebase-auth.js";
 import { readATPLImage } from "./lib/atpl-media.js";
+import {createAdminService} from './lib/admin.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -21,10 +22,11 @@ const types = {
   ".wasm": "application/wasm",
   ".gz": "application/gzip",
 };
-export function createServer({ weather = new WeatherService(), firebaseConfig=readFirebaseConfig(), firebaseFetch=fetch } = {}) {
+export function createServer({ weather = new WeatherService(), firebaseConfig=readFirebaseConfig(), firebaseFetch=fetch, adminService } = {}) {
   assertV14Bundle(here,firebaseConfig);
   const authHandler=createFirebaseAuthHandler({config:firebaseConfig,fetchImpl:firebaseFetch});
-  return http.createServer(async (req, res) => {
+  const admin=adminService||createAdminService({firebaseConfig});
+  const server=http.createServer(async (req, res) => {
     const security = {
       "X-Content-Type-Options": "nosniff",
       "Referrer-Policy": "no-referrer",
@@ -37,6 +39,8 @@ export function createServer({ weather = new WeatherService(), firebaseConfig=re
     };
     try {
       const url = new URL(req.url, "http://localhost");
+      res.once('finish',()=>admin.observe(url.pathname,res.statusCode));
+      if(await admin.handle(req,res,url))return;
       if(await authHandler(req,res,url))return;
       if (!["GET", "HEAD"].includes(req.method))
         return send(405, "Method not allowed");
@@ -60,6 +64,7 @@ export function createServer({ weather = new WeatherService(), firebaseConfig=re
           "Cache-Control": "no-store",
         });
       }
+      if(url.pathname==='/admin')return send(302,null,{'Location':'/admin/','Cache-Control':'no-store','X-Robots-Tag':'noindex, nofollow'});
       if (url.pathname.startsWith("/atpl/media/")) {
         const filename = url.pathname.slice("/atpl/media/".length);
         const bytes = await readATPLImage(filename);
@@ -103,7 +108,8 @@ export function createServer({ weather = new WeatherService(), firebaseConfig=re
       send(200, req.method === "HEAD" ? null : data, {
         "Content-Type": types[path.extname(file)] || "application/octet-stream",
         "Cache-Control":
-          rel === "sw.js" ? "no-cache" : "public, max-age=0, must-revalidate",
+          rel.startsWith('admin/')?'no-store, max-age=0':rel === "sw.js" ? "no-cache" : "public, max-age=0, must-revalidate",
+        ...(rel.startsWith('admin/')?{'X-Robots-Tag':'noindex, nofollow','Content-Security-Policy':"frame-ancestors 'none'"}:{}),
       });
     } catch (e) {
       const status =
@@ -115,6 +121,8 @@ export function createServer({ weather = new WeatherService(), firebaseConfig=re
       );
     }
   });
+  server.once('close',()=>admin.close());
+  return server;
 }
 if (
   process.argv[1] &&
