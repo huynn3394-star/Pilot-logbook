@@ -1,4 +1,5 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+/* Native fonts first; installed Inter remains a fallback. No remote font import
+   on the critical offline stylesheet path. */
 /* Single source of presentation values for AviLog, the library and quiz banks. */
 :root {
   --navy-bg: #142744;
