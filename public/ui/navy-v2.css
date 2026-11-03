@@ -1,0 +1,191 @@
+/* Navy V2 adapters. All records, time fields and account actions keep their owners. */
+#app .nv-avatar { display:flex; align-items:center; justify-content:center; border:1px solid var(--ui-accent-line); background:var(--ui-accent-soft); color:var(--ui-accent); border-radius:var(--radius-pill); font-weight:750; }
+#app .nv-avatar:hover { background:var(--ui-soft); }
+#app .workspace-account { display:flex; align-items:center; gap:6px; flex:0 1 auto; min-width:44px; }
+.nv-sync-status { font-size:12px; max-width:170px; overflow-wrap:anywhere; color:var(--ui-muted-on-brand); }
+.nv-sync-status[data-kind=error],.nv-sync-status[data-kind=conflict] { color:var(--ui-on-brand); text-decoration:underline wavy; }
+#app .workspace-account-menu>summary { display:grid; place-items:center; min-width:44px; min-height:44px; font-size:24px; }
+#app .workspace-account-popover { width:min(420px,calc(100vw - 32px)); max-height:75dvh; overflow:auto; }
+#app .workspace-account-actions { flex-wrap:wrap; }
+#app .nv-logbook { max-width:880px; margin-inline:auto; }
+.nv-demo-note { color:var(--ui-muted); font-size:12px; line-height:1.6; margin:0 0 8px; }
+.nv-demo-note .text-button { min-height:44px; }
+#app .nv-logbook-tools { display:flex; align-items:center; gap:12px; position:sticky; top:70px; z-index:10; background:var(--ui-bg); padding:8px 0 12px; }
+#app .nv-search { display:flex; align-items:center; gap:10px; flex:1; min-width:0; background:var(--ui-surface); border:1px solid var(--ui-line); padding-inline:16px; border-radius:var(--radius-pill); }
+#app .nv-search svg { width:20px; height:20px; flex-shrink:0; }
+#app .nv-search input { border:0; background:transparent; min-width:0; width:100%; border-radius:var(--radius-pill); min-height:52px; }
+#app .nv-logbook .nv-search input { border:0; background:transparent; box-shadow:none; }
+#app .nv-filter-button { position:relative; flex-shrink:0; width:52px; height:52px; border:1px solid var(--ui-line); border-radius:var(--radius-pill); background:var(--ui-surface); color:var(--ui-accent); }
+.nv-filter-button b { position:absolute; right:0; top:-3px; background:var(--ui-accent); color:var(--ui-on-accent); font:700 11px var(--ui-font); border-radius:var(--radius-pill); width:20px; height:20px; display:grid; place-items:center; }
+.nv-month-navigator { display:grid; grid-template-columns:44px minmax(0,1fr) 44px auto; gap:6px; align-items:center; margin-block:4px 16px; }
+.nv-month-navigator>.btn { max-width:96px; font-size:12px; white-space:normal; }
+.nv-month-navigator label { position:relative; min-width:0; text-align:center; min-height:44px; padding:4px; border:1px solid var(--ui-line); border-radius:var(--radius-control); background:var(--ui-surface); }
+.nv-month-navigator label>span { display:block; font-size:11px; margin-bottom:4px; }
+#app .nv-month-navigator input { position:absolute; inset:0; opacity:0; width:100%; height:100%; min-width:0; cursor:pointer; }
+.nv-month-name { font-size:14px; font-weight:600; color:var(--ui-accent); }
+.nv-month-navigator label:focus-within { outline:2px solid var(--ui-accent); }
+.nv-list-status { display:flex; justify-content:space-between; gap:12px; color:var(--ui-muted); font-size:12px; flex-wrap:wrap; margin:8px 0; }
+.nv-list-status strong,.nv-month-header strong { color:var(--ui-accent); font-size:16px; }
+.nv-month-group { margin-bottom:var(--spacing-section); }
+.nv-month-header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 2px; flex-wrap:wrap; }
+.nv-month-header h2 { margin:0; font-size:18px; }
+.nv-month-header>span { font-size:10px; color:var(--ui-muted); }
+.nv-flight-list { display:grid; gap:16px; }
+.nv-flight-card { position:relative; overflow:hidden; border:1px solid var(--ui-line); border-left:4px solid var(--ui-accent); border-radius:var(--radius-card); background:var(--ui-surface); box-shadow:var(--ui-shadow); }
+.nv-flight-card:focus-within { outline:2px solid var(--ui-accent); outline-offset:3px; }
+.nv-flight-open { display:block; width:100%; border:0; background:transparent; color:var(--ui-ink); text-align:left; padding:16px 18px 10px; font:inherit; cursor:pointer; }
+.nv-card-heading { display:flex; align-items:center; gap:16px; margin-bottom:16px; }
+.nv-flight-date { display:flex; align-items:baseline; gap:6px; }
+.nv-flight-date strong { font-size:24px; }
+.nv-flight-date small { color:var(--ui-muted); font-size:12px; }
+.nv-flight-number { display:flex; gap:6px; align-items:baseline; min-width:0; overflow-wrap:anywhere; }
+.nv-flight-number small { font-size:10px; color:var(--ui-muted); }
+.nv-flight-number strong { font-size:16px; }
+.nv-flight-state { margin-left:auto; color:var(--ui-muted); font-size:10px; text-align:right; }
+.nv-card-route { display:grid; grid-template-columns:minmax(0,1fr) auto minmax(0,1fr); gap:8px; align-items:center; margin-bottom:8px; }
+.nv-card-route>strong { font-size:34px; letter-spacing:-.04em; overflow-wrap:anywhere; }
+.nv-card-route>strong:last-child { text-align:right; }
+.nv-card-route>span { display:grid; text-align:center; color:var(--ui-accent); font-size:17px; gap:2px; }
+.nv-card-route small { font-size:9px; color:var(--ui-muted); letter-spacing:.1em; }
+.nv-card-times { display:grid; grid-template-columns:auto minmax(40px,1fr) auto; gap:12px; align-items:center; }
+.nv-card-times>span:not(.nv-timeline) { display:grid; gap:3px; font-size:16px; }
+.nv-card-times>span:last-child { text-align:right; }
+.nv-card-times small { color:var(--ui-muted); font-size:11px; }
+.nv-timeline { display:flex; align-items:center; gap:6px; color:var(--ui-muted); font-size:9px; }
+.nv-timeline>span { display:flex; justify-content:space-between; gap:8px; flex:1; border-bottom:1px solid var(--ui-line); padding-bottom:3px; }
+.nv-timeline i { width:5px; height:5px; background:var(--ui-accent); border-radius:var(--radius-pill); }
+.nv-card-foot { display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; padding-block:14px 8px; margin-top:12px; border-top:1px solid var(--ui-line); font-size:11px; color:var(--ui-muted); overflow-wrap:anywhere; }
+.nv-card-caption { display:block; font-size:10px; color:var(--ui-muted); line-height:1.6; }
+.nv-card-scan { border:0; background:transparent; color:var(--ui-accent); min-height:44px; padding:8px 18px; font:600 12px var(--ui-font); cursor:pointer; }
+.nv-total-note { color:var(--ui-muted); font-size:12px; line-height:1.65; margin-top:20px; }
+.nv-load-more { width:100%; margin-block:12px; }
+.nv-flight-card { background-image:linear-gradient(110deg,var(--ui-surface),var(--ui-soft)); }
+.nv-flight-open { padding:12px 14px 10px; }
+.nv-card-heading { gap:8px; margin-bottom:6px; min-height:22px; }
+.nv-flight-date strong { font-size:17px; }
+.nv-flight-number strong { font-size:14px; }
+.nv-flight-number small { color:var(--ui-accent); }
+.nv-flight-function { color:var(--ui-ink); font-size:11px; border-left:1px solid var(--ui-line); padding-left:8px; }
+.nv-flight-state { font-size:9px; }
+.nv-card-route { margin-bottom:4px; }
+.nv-card-route>strong { font-size:29px; font-weight:500; }
+.nv-card-route>span { font-size:19px; }
+.nv-card-times { gap:8px; }
+.nv-card-times>span:not(.nv-timeline) { display:flex; gap:4px; align-items:center; flex-wrap:wrap; font-size:13px; }
+.nv-card-times>span:last-child { justify-content:flex-end; }
+.nv-card-times>span:last-child small { order:-1; }
+.nv-timeline { display:grid; gap:2px; }
+.nv-timeline-track { display:flex; justify-content:space-between; align-items:center; position:relative; color:var(--ui-accent); height:16px; }
+.nv-timeline-track:before { content:''; position:absolute; left:3px; right:6px; height:2px; background:var(--ui-accent); }
+.nv-timeline-track>i { width:6px; height:6px; border-radius:var(--radius-pill); background:var(--ui-accent); position:relative; }
+.nv-timeline-track>b { background:var(--ui-surface); z-index:1; font-size:18px; font-weight:400; }
+.nv-timeline-labels { display:flex; justify-content:space-between; color:var(--ui-accent); }
+.nv-timeline-labels small { font-size:9px; }
+.nv-timeline>.nv-timeline-track,.nv-timeline>.nv-timeline-labels { border:0; padding:0; }
+.nv-card-operation { display:flex; justify-content:space-between; font-size:10px; color:var(--ui-muted); margin-top:4px; }
+.nv-card-foot { padding:8px 106px 2px 0; margin-top:8px; font-size:10px; min-height:24px; }
+.nv-card-caption { padding-right:98px; font-size:9px; }
+.nv-card-scan.flight-scan-shortcut { position:absolute; bottom:4px; right:6px; padding-inline:6px; font-size:10px; }
+.nv-empty { border:1px dashed var(--ui-line); border-radius:var(--radius-card); text-align:center; }
+.nv-empty>.btn { margin:4px; }
+
+/* Sheets use the existing dialog, so focus stays modal and auth drafts stay guarded. */
+#modal.nv-sheet { width:min(560px,100%); max-width:100%; max-height:86dvh; margin:auto auto 0; border-radius:24px 24px 0 0; padding:0; overflow:auto; padding-bottom:env(safe-area-inset-bottom); }
+#modal.nv-sheet::backdrop,#modal.nv-filter-modal::backdrop { background:#071322b8; }
+.nv-sheet-handle { display:block; min-height:32px; width:100%; border:0; background:transparent; cursor:grab; touch-action:none; }
+.nv-sheet-handle:before { content:''; display:block; margin:auto; width:44px; height:4px; border-radius:var(--radius-pill); background:var(--ui-accent); }
+.nv-sheet-list { display:grid; gap:8px; }
+.nv-sheet-list .btn { justify-content:flex-start; min-height:52px; width:100%; }
+.nv-sheet-list .btn svg { width:20px; height:20px; }
+#modal .nv-sheet-list { margin:8px 16px 16px; padding:0; gap:0; border:1px solid var(--ui-line); border-radius:var(--radius-card); background:var(--ui-surface); overflow:hidden; }
+#modal .nv-sheet-list .btn { border:0; border-bottom:1px solid var(--ui-line); border-radius:0; min-height:62px; background:transparent; font-size:16px; padding:10px 16px; gap:12px; }
+#modal .nv-sheet-list .btn:last-child { border-bottom:0; }
+#modal .nv-sheet-list .btn:after { content:'›'; margin-left:auto; font-size:24px; color:var(--ui-muted); }
+#modal .nv-sheet-list .btn svg { width:36px; height:36px; padding:8px; border-radius:var(--radius-pill); background:var(--ui-accent-soft); color:var(--ui-accent); }
+#modal.nv-filter-modal { width:min(680px,100%); max-width:100%; height:100dvh; max-height:100dvh; padding:0; margin:0 auto; border-radius:0; overflow:auto; background:var(--ui-bg); }
+#modal.nv-filter-modal>.modal-head { position:sticky; top:0; z-index:3; background:var(--ui-bg); }
+#modal.nv-filter-modal>.modal-head [data-action=close] { order:-1; }
+#modal.nv-filter-modal>.modal-head h2 { flex:1; font-size:16px; }
+#modal.nv-filter-modal>.modal-footer { display:none; }
+.nv-filter-form { padding:16px 16px calc(110px + env(safe-area-inset-bottom)); }
+.nv-filter-card { border:1px solid var(--ui-line); border-radius:var(--radius-card); padding:16px; margin-bottom:16px; display:grid; gap:12px; background:var(--ui-soft); }
+.nv-filter-card h3 { margin:0 0 4px; }
+.nv-field-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+.nv-filter-card label { display:grid; gap:6px; min-width:0; }
+#modal .nv-filter-card :is(input,select) { width:100%; min-width:0; }
+.nv-filter-footer { position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:min(680px,100%); padding:12px 16px calc(12px + env(safe-area-inset-bottom)); border-top:1px solid var(--ui-line); background:var(--ui-surface); display:flex; gap:8px; z-index:4; }
+.nv-filter-footer .primary { flex:1; }
+.nv-filter-form [data-filter-error] { color:var(--ui-error); }
+#modal .nv-filter-card { padding:0; gap:0; margin-bottom:24px; overflow:hidden; background:var(--ui-surface); }
+#modal .nv-filter-row { display:grid; grid-template-columns:minmax(100px,1fr) minmax(0,1fr); align-items:center; gap:8px; padding:8px 16px; border-bottom:1px solid var(--ui-line); min-height:58px; color:var(--ui-ink); font-size:16px; font-weight:400; }
+#modal .nv-filter-row:last-child { border-bottom:0; }
+#modal.nv-filter-modal .nv-filter-card .nv-filter-row>select,#modal.nv-filter-modal .nv-filter-card .nv-filter-row>input { border:0; background:transparent; color:var(--ui-accent); padding:6px 0; font-size:16px; text-align:right; margin:0; font-weight:500; }
+#modal .nv-filter-card h3,#modal .nv-filter-card>p { margin:0; padding:12px 16px; font-size:12px; }
+.nv-collection-actions { display:flex; gap:8px; margin-block:12px; }
+.nv-logbook-summary { margin-block:20px; }
+.nv-logbook-summary>summary { cursor:pointer; min-height:44px; padding-block:12px; color:var(--ui-muted); }
+.nv-collection-actions>.btn { flex:1; min-width:0; white-space:normal; }
+
+/* Flight editor adapts existing fields; no supplementary storage schema. */
+#modal .fe-route-inputs { padding:16px; }
+#modal .fe-actual-grid { gap:0; }
+#modal .fe-time-cell { min-width:0; padding:12px 16px; }
+#modal .fe-time-cell :is(input,select) { max-width:100%; min-width:0; }
+#modal .fe-card { border-radius:var(--radius-card); }
+#modal .fe-save { min-height:44px; min-width:68px; border-radius:var(--radius-control); background:var(--ui-accent); color:var(--ui-on-accent); padding-inline:12px; }
+#modal .fe-save:disabled { opacity:.65; cursor:wait; }
+#modal .nv-counter { display:flex; align-items:center; gap:4px; min-width:0; }
+#modal .nv-counter button { min-width:44px; min-height:44px; border:1px solid var(--ui-line); border-radius:var(--radius-control); background:var(--ui-soft); color:var(--ui-ink); font-size:20px; }
+#modal .nv-counter input { width:100%; min-width:0; text-align:center; }
+#modal .fe-departure-arrival { display:flex; justify-content:space-around; color:var(--ui-muted); font-size:12px; padding-top:12px; }
+#modal .nv-primary-times { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); padding:16px; text-align:center; }
+#modal .nv-primary-times>div { display:grid; gap:4px; }
+#modal .nv-primary-times>div+div { border-left:1px solid var(--ui-line); }
+#modal .nv-primary-times span { font-size:11px; color:var(--ui-muted); letter-spacing:.1em; }
+#modal .nv-primary-times strong { color:var(--ui-accent); font-size:32px; }
+#modal .nv-count-heading { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); text-align:center; border-bottom:1px solid var(--ui-line); padding:12px; }
+#modal .nv-count-heading h3 { margin:0; font-size:14px; }
+#app .pill.amber { background:var(--ui-warning-soft); color:var(--ui-warning); border-color:var(--ui-warning); }
+
+@media(max-width:720px) {
+ #app .topbar-main { flex-wrap:nowrap; }
+ #app .mobile-brand,#app .notification-btn,#app .utc-clock { display:none; }
+ #app .topbar .top-actions { flex:1; flex-wrap:nowrap; }
+ #app .topbar { padding-inline:12px; }
+ #app .nv-sync-status { max-width:94px; font-size:10px; }
+ #app .workspace-account { flex-wrap:nowrap; }
+ #app .workspace-account-popover { position:fixed; left:16px; right:16px; top:74px; width:auto; }
+ #app .page-management-content { position:fixed; left:16px; right:16px; top:74px; width:auto; max-width:none; }
+ #app .main { padding-bottom:128px; }
+ #app .bottom-nav { position:fixed; inset:auto 12px calc(10px + env(safe-area-inset-bottom)); width:auto; padding:0; display:flex; gap:10px; border:0; background:transparent; box-shadow:none; z-index:25; }
+ #app .nv-nav-pill { display:flex; flex:1; min-width:0; padding:5px; border:1px solid var(--ui-line); border-radius:var(--radius-pill); background:var(--ui-surface); box-shadow:var(--ui-menu-shadow); }
+ #app .bottom-nav button { min-height:54px; font-size:11px; padding:6px 3px; border:0; background:transparent; color:var(--ui-muted); border-radius:20px; }
+ #app .bottom-nav button.active { color:var(--ui-accent); background:var(--ui-accent-soft); }
+ #app .bottom-nav .nv-floating-add { flex:0 0 58px; width:58px; min-height:58px; align-self:center; border-radius:var(--radius-pill); border:1px solid var(--ui-line); background:var(--ui-surface); color:var(--ui-accent); box-shadow:var(--ui-menu-shadow); }
+ #app .bottom-nav button>svg { width:22px; height:22px; }
+ #app .page-heading p { font-size:12px; }
+ #app .nv-logbook-tools { top:68px; }
+ .nv-card-heading { gap:10px; }
+ .nv-flight-number strong { font-size:14px; }
+ .nv-flight-state { font-size:9px; }
+ .nv-flight-open { padding-inline:14px; }
+}
+@media(min-width:721px) {
+ .nv-flight-list { grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; }
+ .nv-flight-card { min-width:0; }
+ #app .bottom-nav { display:none; }
+}
+@media(max-width:359px) {
+ .nv-card-route>strong { font-size:29px; }
+ .nv-card-heading { gap:7px; flex-wrap:wrap; }
+ .nv-field-grid { gap:8px; }
+ #modal .nv-counter { gap:2px; }
+ #modal .fe-v14-fields .fe-field:has(.nv-counter) { grid-column:1/-1; }
+ #app .topbar .top-actions { gap:2px; }
+ #app .nv-sync-status { width:16px; min-width:16px; font-size:0; }
+ #app .nv-sync-status:before { content:'☁'; font-size:16px; }
+ .nv-month-navigator>.btn { width:100%; }
+}
+@media(prefers-reduced-motion:reduce) {
+ *,*::before,*::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; }
+}

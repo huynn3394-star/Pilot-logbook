@@ -1,0 +1,80 @@
+{
+  "checks": [
+    {
+      "browser": "chromium",
+      "width": 320,
+      "sharedNavigation": true,
+      "themeRoundTrip": true,
+      "correctAnswerAndProgressRetained": true,
+      "overflow": false
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "sharedNavigation": true,
+      "themeRoundTrip": true,
+      "correctAnswerAndProgressRetained": true,
+      "overflow": false
+    },
+    {
+      "browser": "chromium",
+      "offlineStudyAndReturnToLogbook": true,
+      "progressRetained": true
+    },
+    {
+      "browser": "chromium",
+      "width": 820,
+      "sharedNavigation": true,
+      "themeRoundTrip": true,
+      "correctAnswerAndProgressRetained": true,
+      "overflow": false
+    },
+    {
+      "browser": "chromium",
+      "width": 1440,
+      "sharedNavigation": true,
+      "themeRoundTrip": true,
+      "correctAnswerAndProgressRetained": true,
+      "overflow": false
+    },
+    {
+      "browser": "webkit",
+      "width": 320,
+      "sharedNavigation": true,
+      "themeRoundTrip": true,
+      "correctAnswerAndProgressRetained": true,
+      "overflow": false
+    },
+    {
+      "browser": "webkit",
+      "width": 390,
+      "sharedNavigation": true,
+      "themeRoundTrip": true,
+      "correctAnswerAndProgressRetained": true,
+      "overflow": false
+    },
+    {
+      "browser": "webkit",
+      "offlineStudyAndReturnToLogbook": true,
+      "progressRetained": true
+    },
+    {
+      "browser": "webkit",
+      "width": 820,
+      "sharedNavigation": true,
+      "themeRoundTrip": true,
+      "correctAnswerAndProgressRetained": true,
+      "overflow": false
+    },
+    {
+      "browser": "webkit",
+      "width": 1440,
+      "sharedNavigation": true,
+      "themeRoundTrip": true,
+      "correctAnswerAndProgressRetained": true,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "scope": "Local guest UI/quiz/offline; source-bank integrity checked by unit and existing all-bank suite"
+}

@@ -24,3 +24,10 @@ test('WebKit cancelled Firestore channel diagnostics require the same session, d
  assert.equal(knownProviderCancellation({...event,message:'TypeError in app'},proof),false);
  assert.equal(knownProviderCancellation(event,[]),false);
 });
+
+test('worker offline diagnostic needs exact localhost request, device and recent refusal proof',()=>{
+ const {knownWorkerRefusal}=require('../scripts/qa-network.cjs'),origin='http://127.0.0.1:1234',event={id:'a',at:10000,message:'/127.0.0.1:1234/sw.js due to access control checks.'},proof=new Map([['a:/sw.js',[9900]]]);
+ assert.equal(knownWorkerRefusal(event,origin,proof),true);
+ for(const change of [{id:'b'},{at:15000},{message:'/127.0.0.1:1234/app.js due to access control checks.'},{message:'TypeError in app'}])assert.equal(knownWorkerRefusal({...event,...change},origin,proof),false);
+ assert.equal(knownWorkerRefusal(event,origin,new Map()),false);assert.equal(knownWorkerRefusal(event,'https://example.com',proof),false);
+});

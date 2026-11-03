@@ -1,3 +1,4 @@
 /* Existing bank bridge loads this after immutable source-bank styles. */
 @import url("/ui/system.css");
+@import url("/ui/study-shell.css");
 /* All bank presentation, including source/correctness cues, now lives in the shared system. */

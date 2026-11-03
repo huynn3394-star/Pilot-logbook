@@ -12,7 +12,7 @@ test('system font prefers native Apple UI with Inter as a cross-platform fallbac
   assert.match(tokens,/--ui-font:\s*-apple-system,\s*BlinkMacSystemFont,\s*"Inter"/);
   assert.match(tokens,/--ui-heading-font:\s*var\(--ui-font\)/);
   assert.match(tokens,/--ui-mono:.*(?:ui-monospace|SFMono-Regular)/);
-  assert.match(tokens,/family=Inter/);
+  assert.doesNotMatch(tokens,/fonts\.googleapis\.com|fonts\.gstatic\.com/,'offline tokens must not wait for a third-party font stylesheet');
   assert.doesNotMatch(tokens,/DM\+Sans|Manrope|font-face/);
 });
 test('legacy stylesheet no longer loads or explicitly paints DM Sans or Manrope',()=>{

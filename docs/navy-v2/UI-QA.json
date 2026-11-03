@@ -1,0 +1,138 @@
+{
+  "scope": "Local guest E2E and performance; real-account emulator tests run separately; no production or physical iOS writes",
+  "checks": [
+    {
+      "browser": "chromium",
+      "width": 320,
+      "search": true,
+      "filters": true,
+      "month": true,
+      "accountBackup": true,
+      "sheetKeyboardAndSwipe": true,
+      "saveReloadPreservesActual": true,
+      "midnightUTC": true,
+      "counters": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "width": 390,
+      "search": true,
+      "filters": true,
+      "month": true,
+      "accountBackup": true,
+      "sheetKeyboardAndSwipe": true,
+      "saveReloadPreservesActual": true,
+      "midnightUTC": true,
+      "counters": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "width": 820,
+      "search": true,
+      "filters": true,
+      "month": true,
+      "accountBackup": true,
+      "sheetKeyboardAndSwipe": true,
+      "saveReloadPreservesActual": true,
+      "midnightUTC": true,
+      "counters": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "width": 1440,
+      "search": true,
+      "filters": true,
+      "month": true,
+      "accountBackup": true,
+      "sheetKeyboardAndSwipe": true,
+      "saveReloadPreservesActual": true,
+      "midnightUTC": true,
+      "counters": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "width": 320,
+      "search": true,
+      "filters": true,
+      "month": true,
+      "accountBackup": true,
+      "sheetKeyboardAndSwipe": true,
+      "saveReloadPreservesActual": true,
+      "midnightUTC": true,
+      "counters": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "width": 390,
+      "search": true,
+      "filters": true,
+      "month": true,
+      "accountBackup": true,
+      "sheetKeyboardAndSwipe": true,
+      "saveReloadPreservesActual": true,
+      "midnightUTC": true,
+      "counters": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "width": 820,
+      "search": true,
+      "filters": true,
+      "month": true,
+      "accountBackup": true,
+      "sheetKeyboardAndSwipe": true,
+      "saveReloadPreservesActual": true,
+      "midnightUTC": true,
+      "counters": true,
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "width": 1440,
+      "search": true,
+      "filters": true,
+      "month": true,
+      "accountBackup": true,
+      "sheetKeyboardAndSwipe": true,
+      "saveReloadPreservesActual": true,
+      "midnightUTC": true,
+      "counters": true,
+      "overflow": false,
+      "errors": []
+    }
+  ],
+  "performance": [
+    {
+      "records": 100,
+      "initialCards": 80,
+      "loadMs": 95,
+      "searchMs": 9
+    },
+    {
+      "records": 1000,
+      "initialCards": 80,
+      "loadMs": 109,
+      "searchMs": 10
+    },
+    {
+      "records": 10000,
+      "initialCards": 80,
+      "loadMs": 182,
+      "searchMs": 30
+    }
+  ],
+  "errors": []
+}

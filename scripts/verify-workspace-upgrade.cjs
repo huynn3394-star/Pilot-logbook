@@ -1,13 +1,14 @@
 /* Actual v5 worker/flat data -> current shell lifecycle. Cached UID proves offline isolation, not OAuth. */
 const {chromium,webkit}=require('playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const {execFileSync}=require('node:child_process'),{pathToFileURL}=require('node:url');
+const {pathToFileURL}=require('node:url');
 (async()=>{
  const root=path.resolve(__dirname,'..');
- const old=execFileSync('git',['show','5a47d5a:public/sw.js'],{cwd:root,encoding:'utf8'});
+ const previous=process.env.AVILOG_UPGRADE_FROM==='pre-navy-v2'?'pre-navy-v2':'v5';
+ const old=fs.readFileSync(path.join(root,'tests/fixtures/workers/'+(previous==='v5'?'v5-sw.js':'pre-navy-v2-sw.js')),'utf8');
  const next=fs.readFileSync(path.join(root,'public/sw.js'),'utf8');
  const manifest=JSON.parse(fs.readFileSync(path.join(root,'public/atpl/vendor/manifest.json'),'utf8'));
- const expectedShell='avilog-shell-v14-fast-entry-sdk-'+manifest.assets.find(a=>a.url==='/atpl/vendor/firebase-client.js').sha256.slice(0,12);
+ const expectedShell=next.match(/^const CACHE = "([^"]+)"/m)[1]+'-sdk-'+manifest.assets.find(a=>a.url==='/atpl/vendor/firebase-client.js').sha256.slice(0,12);
  const {createServer}=await import(pathToFileURL(path.join(root,'server.js')));let worker=old,originUnavailable=false;
  const server=createServer({firebaseConfig:{enabled:false}}),original=server.listeners('request')[0];
  server.removeAllListeners('request');server.on('request',(req,res)=>{
@@ -55,7 +56,7 @@ const {execFileSync}=require('node:child_process'),{pathToFileURL}=require('node
    await page.locator('[data-action=study]').first().click();await page.evaluate(()=>{const button=document.createElement('button');button.dataset.action='jump';button.dataset.qid='1';document.body.append(button);button.click();button.remove();});
    const key=await page.evaluate(()=>Object.values(JSON.parse(document.getElementById('bank-data').textContent))[0].questions.find(q=>q.id===1).answer);await page.locator(`[data-action=answer][data-key="${key}"]`).click();
    const image=page.locator('[data-action=image],[data-action=source]').first();await image.evaluate(el=>{for(let p=el.parentElement;p;p=p.parentElement)if(p.tagName==='DETAILS')p.open=true;});await image.click();await page.locator('#image-dialog img').evaluate(img=>img.decode());assert.ok(await page.locator('#image-dialog img').evaluate(img=>img.naturalWidth>500));
-   assert.deepEqual(errors,[]);console.log(name+': controlling V14 SDK worker verified; v5 flat-data upgrade preserves account bookmark, MB and source image; cold main opens offline with provider disabled');
+   assert.deepEqual(errors,[]);console.log(name+': controlling Navy V2 SDK worker verified; '+previous+' flat-data upgrade preserves account bookmark, MB and source image; cold main opens offline with provider disabled');
   }catch(error){console.error('UPGRADE',name,page.url(),(await page.locator('body').innerText()).slice(0,1500),errors);throw error;}
   finally{await context.close();await browser.close();}
  }}finally{await new Promise(r=>server.close(r));}

@@ -1,4 +1,7 @@
 @import url("/ui/tokens.css");
+@media(prefers-reduced-motion:reduce) {
+ *,*::before,*::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; }
+}
 /* Shared components. Only presentation: no hidden-state, scoring or data changes. */
 html { font-size:14px; }
 body { background:var(--ui-bg); color:var(--ui-ink); font-family:var(--ui-font); font-size:var(--ui-body-size); line-height:1.5; }
@@ -161,8 +164,8 @@ body { background:var(--ui-bg); color:var(--ui-ink); font-family:var(--ui-font);
 .app .answer-option.incorrect { border:2px dashed var(--ui-error); background:var(--ui-error-soft); padding:14px; }
 .app .answer-option.correct .letter:after { content:' ✓'; }
 .app .answer-option.incorrect .letter:after { content:' ×'; }
-.app .qnum.answered { border:1px solid var(--ui-accent); }
-.app .qnum.wrong,.app .qnum.answered.wrong { border:1px dashed var(--ui-muted); }
+:is(.app,#dialog) .qnum.answered { border:1px solid var(--ui-accent); }
+:is(.app,#dialog) .qnum.wrong,:is(.app,#dialog) .qnum.answered.wrong { border:1px dashed var(--ui-muted); }
 .app .legend-swatch.wrong { height:0; background:transparent; border-top:2px dashed var(--ui-muted); }
 .app .qtext.original-red { color:var(--ui-ink); border-left:3px dashed var(--ui-error); }
 .app .sourcebox { padding:var(--ui-pad); }

@@ -1,0 +1,87 @@
+{
+  "at": "2026-11-02T16:57:53.032Z",
+  "commit": "4e93e03446b15d866155e7a16da8927a32163df5",
+  "realGoogleOAuth": false,
+  "physicalIPad": false,
+  "sourceQuestionCount": 6426,
+  "sourceSHA256": "28fbacae42e5b05023c89b077d977e62184a2e916da0dc7d14bd521acd89239f",
+  "engineSHA256": "d2500d598ca2c997459d1c2f10b6ce72e78eee7a2ea5b93e137dc1d540625872",
+  "browsers": {
+    "chromium": {
+      "version": "151.0.7922.34",
+      "sameUID": true,
+      "differentUID": true,
+      "serviceWorkerMode": "disabled for controlled provider cuts; native cold-start verified separately",
+      "offlineMode": "context offline",
+      "originalImageHash": "3307fda1b5b022a3110b3feb603463be378fe97f17334684fad658033ec1b861",
+      "independentFields": true,
+      "actualConflict": true,
+      "lostReplyAndIDBAbort": true,
+      "backupIntegrity": true,
+      "guestPreserved": true,
+      "uiRaces": {
+        "pdf": true,
+        "ocr": true,
+        "attachment": true
+      },
+      "asyncRaces": {
+        "pendingImageGuard": true,
+        "backupEmissionGuard": true,
+        "committedAckGuard": true
+      },
+      "scale": {
+        "flights": 10000,
+        "rootReads": 4,
+        "pageQueries": 202,
+        "documentReads": 20004,
+        "rootRaceInjected": true,
+        "milliseconds": 55233,
+        "snapshotJSONBytes": 5768352,
+        "returnedRecords": 10002,
+        "finalRevision": 100001,
+        "browserPullAndIDBMilliseconds": 13078
+      },
+      "verifiedProviderAbortDiagnostics": 0,
+      "errors": []
+    },
+    "webkit": {
+      "version": "26.5",
+      "sameUID": true,
+      "differentUID": true,
+      "serviceWorkerMode": "disabled for controlled provider cuts; native cold-start verified separately",
+      "offlineMode": "origin refusal plus preinstalled Auth/Firestore/Storage cuts, each probed",
+      "originalImageHash": "06d446893576d50240b867aea5450e3a9d9e47d4193706a99915f0c8641e999e",
+      "independentFields": true,
+      "actualConflict": true,
+      "lostReplyAndIDBAbort": true,
+      "backupIntegrity": true,
+      "guestPreserved": true,
+      "uiRaces": {
+        "pdf": true,
+        "ocr": true,
+        "attachment": true
+      },
+      "asyncRaces": {
+        "pendingImageGuard": true,
+        "backupEmissionGuard": true,
+        "committedAckGuard": true
+      },
+      "scale": {
+        "flights": 10000,
+        "rootReads": 4,
+        "pageQueries": 202,
+        "documentReads": 20004,
+        "rootRaceInjected": true,
+        "milliseconds": 60528,
+        "snapshotJSONBytes": 5768352,
+        "returnedRecords": 10002,
+        "finalRevision": 100001,
+        "browserPullAndIDBMilliseconds": 14374
+      },
+      "verifiedProviderAbortDiagnostics": 8,
+      "errors": []
+    }
+  },
+  "failures": [],
+  "blockedOriginRequests": 0
+}

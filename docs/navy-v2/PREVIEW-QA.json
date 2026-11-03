@@ -1,0 +1,28 @@
+{
+  "origin": "http://127.0.0.1:4173",
+  "health": true,
+  "accountsEnabled": false,
+  "productionDeployed": false,
+  "assets": [
+    {
+      "route": "/app.js",
+      "sha256": "8813bb42c087d4890af8e9798649b2cca6e690cb9bae9a1b4d91c137934f8ceb"
+    },
+    {
+      "route": "/lib/flight-editor.js",
+      "sha256": "89f4545b82529cb864a4af6916abd767523ef43681a27725eab961c0bccc6e56"
+    },
+    {
+      "route": "/ui/navy-v2.js",
+      "sha256": "86f452d1aa015dc344abfe9bebac8c9202a5a89dd19a07400d14ed2170b342e1"
+    },
+    {
+      "route": "/ui/navy-v2.css",
+      "sha256": "eb4c5911eaf8a1307ef7257dab3c0067758fefec3562e3080f1b16faf241d303"
+    },
+    {
+      "route": "/sw.js",
+      "sha256": "2dd04bf7e7e205b3071bd59760161ee171d10629074d41b6d3d5524ffe0c6b67"
+    }
+  ]
+}
