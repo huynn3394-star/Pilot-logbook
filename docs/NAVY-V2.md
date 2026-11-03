@@ -124,3 +124,7 @@ Không đọc/copy database production, không có production record-count/PITR 
 Chỉ phát hành sau khi visual review, security/tooling gates, staging và phê duyệt hoàn tất. Xác nhận Railway project/service/environment, nhánh deploy, origin `https://avilog.up.railway.app`, Firebase project `avilog-atpl` và backup/PITR do chủ hệ thống quản lý. Không thay Firebase rules/flags chỉ để phát hành UI. Build theo Dockerfile hiện có; kiểm tra health, shell/assets và đúng commit sau deploy. Người dùng đóng/mở PWA online, không xóa site data.
 
 Nếu cần rollback UI sau một lần deploy đã được phê duyệt: chọn lại artifact/commit nền `4e93e03446b15d866155e7a16da8927a32163df5` trên cùng Railway service/environment; xác minh fingerprint/assets/health và mở lại PWA online. Không revert database, reset UID, xóa IndexedDB/outbox hoặc nhập đè backup. Schema/SDK bundle không đổi trong PR này; nếu có dữ liệu chờ gửi, giữ nguyên để controller xử lý sau cập nhật.
+
+## Follow-up: Ôn thi đồng bộ với Avilog
+
+Thư viện và từng môn dùng chung navigation, sidebar/mobile More, header, theme và menu tài khoản; xem [thay đổi và bằng chứng kiểm thử](STUDY-SHELL.md). Bộ đề, key, tiến độ và các định dạng lưu trữ giữ nguyên. UI mở lại theo generation mới nhất nếu tài khoản đổi trong lúc boot; không nới quyền ghi của phiên cũ.

@@ -17,3 +17,6 @@ exports.knownProviderCancellation=function(event,failures){
  if(!/^\/google\.firestore\.v1\.Firestore\/(Listen|Write)\/channel$/.test(diagnostic.pathname)||!diagnostic.searchParams.get('SID')||!diagnostic.searchParams.get('database'))return false;
  return failures.some(item=>{let request;try{request=new URL(item.url);}catch{return false;}return item.id===event.id&&Math.abs(item.at-event.at)<=2000&&/^(cancelled|canceled|aborted)$/i.test(item.error||'')&&request.origin===diagnostic.origin&&request.pathname===diagnostic.pathname&&request.searchParams.get('SID')===diagnostic.searchParams.get('SID')&&request.searchParams.get('database')===diagnostic.searchParams.get('database');});
 };
+
+// A worker update probe may hit the deliberately refused local origin during Safari offline QA.
+exports.knownWorkerRefusal=function(event,origin,refusals){let url;try{url=new URL(origin);}catch{return false;}if(!['127.0.0.1','localhost'].includes(url.hostname)||event.message!=='/'+url.host+'/sw.js due to access control checks.')return false;return(refusals.get(event.id+':/sw.js')||[]).some(at=>Math.abs(at-event.at)<=2000);};

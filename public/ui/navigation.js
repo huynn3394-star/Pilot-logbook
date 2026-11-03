@@ -1,0 +1,13 @@
+/** Shared Avilog destinations. No account, quiz or logbook persistence. */
+export const navigationItems=[['schedule','calendar','Lịch bay'],['logbook','book','Logbook'],['atpl','book','Ôn thi'],['weather','cloud','Thời tiết'],['crew','people','Crew Book'],['statistics','stats','Statistics'],['settings','settings','Settings']];
+const paths={plane:'m22 2-7 20-4-9-9-4Z M22 2 11 13',calendar:'M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z',book:'M3 3h7a3 3 0 0 1 3 3v15a4 4 0 0 0-4-2H3Z M13 6a3 3 0 0 1 3-3h5v16h-5',cloud:'M5 17a5 5 0 0 1 0-10 7 7 0 0 1 13-1 5 5 0 0 1 1 11H5',people:'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M16 3a4 4 0 0 1 0 8 M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0',stats:'M3 3v18h18 M7 14v3 M12 9v8 M17 5v12',settings:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8 M12 2v3 M12 19v3 M2 12h3 M19 12h3 M5 5l2 2 M17 17l2 2 M5 19l2-2 M17 7l2-2',plus:'M12 5v14 M5 12h14'};
+export const navigationIcon=name=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name]||paths.plane}"/></svg>`;
+export function destinationURL(tab){if(!navigationItems.some(([id])=>id===tab))throw Error('Unknown Avilog destination');return tab==='atpl'?'/atpl/':'/?tab='+tab;}
+export function renderNavigation({active,icon=navigationIcon,links=false,count}={}){return navigationItems.map(([id,ico,title])=>{
+ const tag=links?'a':'button',action=links?`href="${destinationURL(id)}"`:`data-action="tab"`;
+ return `<${tag} ${action} data-tab="${id}" title="${title}" class="${active===id?'active':''}" ${active===id?'aria-current="page"':''}>${icon(ico)}<span>${title}</span>${id==='schedule'&&count!==undefined?`<span class="num">${String(count).padStart(2,'0')}</span>`:''}</${tag}>`;
+}).join('');}
+export function renderBottomNavigation({active,icon=navigationIcon,links=false}={}){
+ const tag=links?'a':'button';
+ return `<nav class="bottom-nav" aria-label="Điều hướng mobile"><div class="nv-nav-pill">${navigationItems.filter(([id])=>['schedule','logbook','weather'].includes(id)).map(([id,ico,title])=>`<${tag} ${links?`href="${destinationURL(id)}"`:'data-action="tab"'} data-tab="${id}" class="${active===id?'active':''}" ${active===id?'aria-current="page"':''}>${icon(ico)}<span>${title}</span></${tag}>`).join('')}<button type="button" ${links?'data-study-more':'data-action="navy-more"'} class="${['atpl','crew','statistics','settings'].includes(active)?'active':''}" aria-label="More · Điều hướng">${icon('settings')}<span>More</span></button></div><${tag} class="nv-floating-add" ${links?'href="/?tab=logbook&compose=flight"':'data-action="add"'} aria-label="Thêm chuyến bay">${icon('plus')}</${tag}></nav>`;
+}

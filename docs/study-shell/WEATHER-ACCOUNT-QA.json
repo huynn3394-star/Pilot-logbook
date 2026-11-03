@@ -1,0 +1,16 @@
+{
+  "command": "node scripts/workspace-emulators.cjs weather",
+  "environment": "localhost demo-atpl-sync Auth/Firestore/Storage emulators, synthetic users only",
+  "browsers": {
+    "chromium": "passed",
+    "webkit": "passed"
+  },
+  "checks": [
+    "watchlist sync and removal",
+    "group offline edit and replication",
+    "private UID isolation",
+    "automatic bank answer and bookmark sync",
+    "reviewed cloud recovery in library"
+  ],
+  "productionWrites": false
+}

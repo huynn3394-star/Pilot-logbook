@@ -1,0 +1,82 @@
+/* Shared frame around immutable ATPL sources. All selectors stay outside the engine. */
+body.avilog-study-page { --study-rail:156px; margin:0; background:var(--ui-bg); color:var(--ui-ink); }
+.study-shell { display:grid; grid-template-columns:var(--study-rail) minmax(0,1fr); min-height:100dvh; }
+.study-shell .study-workspace { min-width:0; background:var(--ui-bg); }
+.study-sidebar { position:sticky; top:0; height:100dvh; width:auto; display:flex; flex-direction:column; padding:22px 10px 14px; background:var(--ui-brand); color:var(--ui-on-brand); border-right:1px solid var(--ui-line); font-family:var(--ui-font); }
+.study-sidebar .brand { display:flex; align-items:center; gap:5px; font-size:21px; font-weight:750; color:var(--ui-on-brand); text-decoration:none; padding:0 3px 20px; flex:0 0 auto; }
+.study-sidebar .brandmark { display:grid; place-items:center; width:28px; height:28px; border-radius:50%; background:var(--ui-on-brand); color:var(--ui-brand); }
+.study-sidebar svg { width:20px; height:20px; flex-shrink:0; }
+.study-sidebar .nav-caption { font-size:8px; color:var(--ui-muted-on-brand); padding:0 5px 16px; }
+.study-sidebar .sidebar-toggle { min-height:44px; width:44px; padding:8px; margin-bottom:12px; border:1px solid #ffffff30; border-radius:var(--ui-radius-control); background:#ffffff0d; color:var(--ui-on-brand); cursor:pointer; }
+.study-sidebar .nav { display:grid; gap:4px; }
+.study-sidebar .nav a { display:flex; align-items:center; gap:8px; padding:10px 8px; min-height:44px; color:var(--ui-muted-on-brand); font:600 11px/1.4 var(--ui-font); text-decoration:none; border-radius:var(--ui-radius-control); }
+.study-sidebar .nav a.active { color:var(--ui-accent-on-brand); background:#ffffff14; box-shadow:inset 0 0 0 1px #ffffff20; }
+.study-sidebar-note { margin-top:auto; padding:12px; color:var(--ui-on-brand); border:1px solid #ffffff20; border-radius:var(--ui-radius-card); font-size:12px; }
+.study-sidebar-note small { display:block; margin-top:6px; color:var(--ui-muted-on-brand); font-size:11px; line-height:1.6; }
+.study-shell .study-header { min-height:68px; background:var(--ui-brand); color:var(--ui-on-brand); position:sticky; top:0; z-index:30; border-bottom:1px solid #ffffff20; }
+.study-shell .atpl-header { margin:0; padding:8px var(--ui-gutter); gap:8px; }
+.study-shell .atpl-header .ui-back { border:0; font-weight:750; background:transparent; color:var(--ui-on-brand); padding-inline:0; }
+.study-shell .atpl-header .atpl-tag { text-transform:none; font-size:12px; letter-spacing:0; }
+.study-shell .atpl-library { width:100%; max-width:var(--ui-content-width); padding:0 var(--ui-gutter) 110px; }
+.study-shell .atpl-library h1 { margin-top:20px; }
+.study-shell .atpl-card { background-image:linear-gradient(110deg,var(--ui-surface),var(--ui-soft)); }
+.study-shell .atpl-card .atpl-key-note { margin:0; font-size:12px; }
+.study-shell .app { width:100%; max-width:var(--ui-content-width); padding-inline:var(--ui-gutter); margin:0 auto; }
+.study-shell .app>.topbar { margin-inline:calc(-1 * var(--ui-gutter)); padding:8px var(--ui-gutter); flex-wrap:wrap; }
+.study-shell .app>.topbar .brand { min-width:120px; }
+.study-shell .app>.topbar .brand strong { font-size:16px; letter-spacing:0; }
+.study-shell .app>.topbar .brand small { font-size:12px; color:var(--ui-muted-on-brand); }
+.study-shell .top-tools { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.study-shell .study-theme { min-width:44px; min-height:44px; color:var(--ui-on-brand); background:transparent; border:0; font-size:18px; }
+.study-shell .app>.topbar #choose-subject { min-width:82px; flex-shrink:0; white-space:nowrap; }
+.study-shell .app>.topbar .bank-management>summary { min-width:92px; white-space:nowrap; }
+.study-shell .app>.topbar .study-theme,.study-shell .app>.topbar .study-account-menu { flex:0 0 44px; }
+.study-shell .library-account-menu { position:relative; padding:0; margin:0; border:0; background:transparent; color:var(--ui-ink); }
+.study-shell .library-account-menu>summary { width:44px; min-height:44px; display:grid; place-items:center; cursor:pointer; list-style:none; font-size:24px; color:var(--ui-on-brand); }
+.study-shell .library-account-menu>summary::-webkit-details-marker { display:none; }
+.study-shell .library-account-menu [data-account-content] { position:absolute; right:0; top:100%; width:min(380px,calc(100vw - 32px)); max-height:75dvh; overflow:auto; padding:16px; border:1px solid var(--ui-line); border-radius:var(--ui-radius-card); box-shadow:var(--ui-menu-shadow); background:var(--ui-surface); color:var(--ui-ink); font:14px/1.6 var(--ui-font); }
+.study-shell .library-account-menu .atpl-account-actions { display:grid; gap:8px; }
+.study-shell .library-account-menu .atpl-account-actions .btn { width:100%; text-align:left; white-space:normal; }
+body.avilog-study-page .dock { left:var(--study-rail); right:0; width:auto; }
+.study-shell>.bottom-nav { display:none; }
+.study-more-sheet { width:min(520px,100%); max-height:85dvh; margin:auto auto 0; padding:16px 16px calc(16px + env(safe-area-inset-bottom)); border:1px solid var(--ui-line); border-radius:24px 24px 0 0; background:var(--ui-surface); color:var(--ui-ink); }
+.study-more-sheet::backdrop { background:#071322b8; }
+.study-more-sheet header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.study-more-sheet h2 { font:700 18px var(--ui-font); }
+.study-more-sheet nav { display:grid; border:1px solid var(--ui-line); border-radius:var(--ui-radius-card); overflow:hidden; margin-top:12px; }
+.study-more-sheet nav a { display:flex; align-items:center; gap:12px; padding:14px; min-height:52px; text-decoration:none; color:var(--ui-ink); border-bottom:1px solid var(--ui-line); font:500 15px var(--ui-font); }
+.study-more-sheet nav a:last-child { border:0; }
+.study-more-sheet nav a.active { color:var(--ui-accent); background:var(--ui-accent-soft); }
+.study-more-sheet svg { width:22px; height:22px; }
+.study-shell :is(a,button,summary):focus-visible,.study-more-sheet :is(a,button):focus-visible { outline:2px solid var(--ui-accent); outline-offset:3px; }
+@media(min-width:721px) and (max-width:1180px) { body.avilog-study-page { --study-rail:140px; } }
+@media(min-width:721px) {
+ html[data-sidebar=collapsed] body.avilog-study-page { --study-rail:68px; }
+ html[data-sidebar=collapsed] .study-sidebar :is(.nav-caption,.study-sidebar-note,.nav a>span) { display:none; }
+ html[data-sidebar=collapsed] .study-sidebar .brand { font-size:0; }
+ html[data-sidebar=collapsed] .study-sidebar .nav a { justify-content:center; padding-inline:8px; }
+}
+@media(max-width:720px) {
+ .study-shell { display:block; }
+ .study-sidebar { display:none; }
+ .study-shell .atpl-header { padding-inline:12px; flex-wrap:nowrap; }
+ .study-shell .atpl-header>.atpl-tag { display:none; }
+ .study-shell .atpl-header .ui-header-actions { gap:4px; }
+ .study-shell .app>.topbar .brand { flex:1 1 130px; }
+ .study-shell .app>.topbar { display:grid; grid-template-columns:minmax(0,1fr); gap:6px; }
+ .study-shell .app>.topbar .top-tools { display:flex; flex-wrap:nowrap; width:100%; margin-left:0; justify-content:space-between; }
+ .study-shell .app { padding-bottom:130px; }
+ .study-shell .library-account-menu [data-account-content] { position:fixed; top:74px; left:16px; right:16px; width:auto; }
+ .study-shell>.bottom-nav { position:fixed; inset:auto 12px calc(10px + env(safe-area-inset-bottom)); z-index:35; display:flex; gap:10px; border:0; background:transparent; padding:0; width:auto; }
+ .study-shell .nv-nav-pill { display:flex; flex:1; min-width:0; padding:5px; border:1px solid var(--ui-line); border-radius:999px; background:var(--ui-surface); box-shadow:var(--ui-menu-shadow); }
+ .study-shell .bottom-nav :is(a,button) { display:flex; flex:1 1 0; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-width:0; min-height:54px; padding:6px 3px; border:0; border-radius:20px; background:transparent; color:var(--ui-muted); text-decoration:none; font:500 11px/1.25 var(--ui-font); }
+ .study-shell .bottom-nav .active { background:var(--ui-accent-soft); color:var(--ui-accent); }
+ .study-shell .bottom-nav svg { width:22px; height:22px; }
+ .study-shell .bottom-nav .nv-floating-add { flex:0 0 58px; min-height:58px; width:58px; align-self:center; border:1px solid var(--ui-line); border-radius:999px; background:var(--ui-surface); color:var(--ui-accent); box-shadow:var(--ui-menu-shadow); }
+ body.avilog-study-page .dock { left:0; }
+ body.study-question-active .study-shell>.bottom-nav { display:none; }
+}
+@media(max-width:359px) {
+ .study-shell .app>.topbar .brand { flex-basis:100%; }
+ .study-shell .app>.topbar .top-tools { width:100%; justify-content:space-between; }
+}

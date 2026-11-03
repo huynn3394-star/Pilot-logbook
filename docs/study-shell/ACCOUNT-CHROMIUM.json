@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-03T01:14:40.382Z",
+  "project": "demo-atpl-sync",
+  "realGoogleOAuth": false,
+  "browsers": {
+    "chromium": {
+      "version": "151.0.7922.34",
+      "mode": "context offline",
+      "sameGoogleUID": true,
+      "mainGoogleLogin": true,
+      "bankLogoutUpdatesMain": true,
+      "differentUIDIsolated": true,
+      "offlineSourceImage": true,
+      "attemptsAfterLostAckAndTail": 5,
+      "concurrentTabs": true,
+      "unsupportedLocksReadOnly": true,
+      "logoutReloadsOtherTab": true,
+      "lateGuestBootIsolation": true,
+      "disabledLogoutPersists": true,
+      "rawImportValidation": true,
+      "libraryPersistedLifecycle": true,
+      "desktopIPadRedirect": true,
+      "mobileRedirect": true,
+      "mobileRedirectMode": "same-origin Auth emulator relay; SW disabled for this separate helper test",
+      "resetRecovery": true,
+      "freshDeviceAfterReset": true,
+      "revokedTokenNoFalseSync": true,
+      "logbookUnchanged": true,
+      "networkDiagnostics": [],
+      "errors": []
+    }
+  },
+  "refusedOriginRequests": 0
+}

@@ -1,7 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';import vm from 'node:vm';import {readFile} from 'node:fs/promises';import path from 'node:path';
 import {createCoordinator} from '../public/account/coordinator.js';
 const source=await readFile('public/sw.js','utf8');
-function worker({saved}={}){const handlers={},shell=[],puts=[],deleted=[],network={calls:0},cache={addAll:async urls=>shell.push(...urls),put:async key=>puts.push(String(key)),match:async()=>saved};vm.runInNewContext(source,{self:{location:{origin:'https://app.test'},addEventListener:(type,fn)=>handlers[type]=fn,skipWaiting:async()=>{},clients:{claim:async()=>{}}},caches:{open:async()=>cache,keys:async()=>['avilog-shell-v3-shared-account','avilog-atpl-v1'],delete:async key=>deleted.push(key),match:async()=>undefined},fetch:async()=>{network.calls++;return new Response('offline gateway',{status:503});},URL,Response,Request,AbortSignal,console});return{handlers,shell,puts,deleted,network};}
+function worker({saved}={}){const handlers={},shell=[],puts=[],deleted=[],matches=[],network={calls:0},cache={addAll:async urls=>shell.push(...urls),put:async key=>puts.push(String(key)),match:async request=>{matches.push(typeof request==='string'?request:request.url);return saved;}};vm.runInNewContext(source,{self:{location:{origin:'https://app.test'},addEventListener:(type,fn)=>handlers[type]=fn,skipWaiting:async()=>{},clients:{claim:async()=>{}}},caches:{open:async()=>cache,keys:async()=>['avilog-shell-v3-shared-account','avilog-atpl-v1'],delete:async key=>deleted.push(key),match:async()=>undefined},fetch:async()=>{network.calls++;return new Response('offline gateway',{status:503});},URL,Response,Request,AbortSignal,console});return{handlers,shell,puts,deleted,matches,network};}
 test('v4 precaches the complete native main module graph even when provider config is down; upgrade preserves source cache',async()=>{
  const w=worker();let done;w.handlers.install({waitUntil:p=>done=p});await done;assert.match(source,/avilog-shell-v14-fast-entry/);
  const queue=['/app.js'],seen=new Set();while(queue.length){const url=queue.pop();if(seen.has(url))continue;seen.add(url);assert.ok(w.shell.includes(url),url);if(url.includes('/vendor/'))continue;const body=await readFile('public'+url,'utf8');for(const match of body.matchAll(/\b(?:from\s*|import\s*\()\s*['"]([^'"]+)['"]/g)){if(!match[1].startsWith('.'))continue;const child=path.posix.normalize(path.posix.join(path.posix.dirname(url),match[1]));queue.push(child);}}
@@ -20,10 +20,22 @@ test('all-bank status requires the authoritative bank list and stale selection c
 });
 
 test('installed versioned shell serves its own cached module without a network request or an offline HTTP 503',async()=>{const w=worker({saved:new Response('installed module')} );let response;w.handlers.fetch({request:new Request('https://app.test/workspace/session.js'),respondWith:p=>response=p,waitUntil(){}});assert.equal(await(await response).text(),'installed module');assert.equal(w.network.calls,0);});
-test('offline readiness can verify the controlling worker version instead of only seeing a new cache name',()=>{const w=worker();let version;w.handlers.message?.({data:{type:'avilog-shell-version'},ports:[{postMessage:value=>version=value.version}]});assert.match(version,/^avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts(?:-sdk-[a-f0-9]{12})?$/);});
+test('offline readiness can verify the controlling worker version instead of only seeing a new cache name',()=>{const w=worker();let version;w.handlers.message?.({data:{type:'avilog-shell-version'},ports:[{postMessage:value=>version=value.version}]});assert.match(version,/^avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r3(?:-sdk-[a-f0-9]{12})?$/);});
 
 test('a newer individual pending bank invalidates an earlier all-bank sync report',async()=>{
  const {requiredAtplCodes}=await import('../public/account/coordinator.js'),{c}=fixture();
  c.publishAreaStatus({uid:'alice',area:'workspace',status:{kind:'synced'}});c.publishAreaStatus({uid:'alice',area:'evidence',status:{kind:'ready',pending:0}});c.publishAreaStatus({uid:'alice',area:'atpl',code:'ALL',status:{kind:'synced',checkedCodes:requiredAtplCodes}});assert.equal(c.readAreaStatus('alice').kind,'synced');
  c.publishAreaStatus({uid:'alice',area:'atpl',code:'MB',status:{kind:'pending'}});assert.equal(c.readAreaStatus('alice').kind,'partial');assert.equal(c.readAreaStatus('alice').atplVerified,false);c.dispose();
+});
+
+
+test('only whitelisted public app navigation queries use the installed root offline',async()=>{
+ for(const route of ['/?tab=logbook','/?tab=settings','/?tab=logbook&compose=flight']){
+  const w=worker({saved:new Response('public root')} );let response;
+  w.handlers.fetch({request:{url:'https://app.test'+route,method:'GET',headers:new Headers(),mode:'navigate'},respondWith:p=>response=p,waitUntil(){}});
+  assert.equal(await(await response).text(),'public root');assert.deepEqual(w.matches,['https://app.test/']);assert.equal(w.network.calls,0);
+ }
+ for(const route of ['/?tab=logbook&token=private','/?compose=delete','/?tab=unknown','/?account=alice','/atpl/?token=private']){
+  const w=worker();let intercepted=false;w.handlers.fetch({request:{url:'https://app.test'+route,method:'GET',headers:new Headers(),mode:'navigate'},respondWith:()=>intercepted=true,waitUntil(){}});assert.equal(intercepted,false,route);
+ }
 });
