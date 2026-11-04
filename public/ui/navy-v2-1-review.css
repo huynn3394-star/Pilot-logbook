@@ -14,7 +14,7 @@
 #app .nv-month-header{padding:14px 2px 8px;border-bottom:1px solid var(--ui-line);margin-bottom:14px}
 #app .nv-month-header h2{font:500 20px/1.3 var(--nv21-display);letter-spacing:-.02em}
 #app .nv-flight-list{gap:16px}
-#app .nv-flight-card{border-radius:24px;border-left-width:4px;background:linear-gradient(115deg,var(--ui-surface),var(--ui-soft));box-shadow:0 9px 28px #04102029}
+#app .nv-flight-card{border-radius:24px;border-left-width:4px;background-color:var(--ui-surface);background-image:linear-gradient(115deg,var(--ui-surface),var(--ui-soft));box-shadow:0 9px 28px #04102029}
 #app .nv-flight-open{padding:11px 13px 8px}
 #app .nv-card-heading{display:flex;align-items:baseline;gap:7px;margin:0 0 7px;min-height:19px}
 #app .nv-flight-date{white-space:nowrap}
