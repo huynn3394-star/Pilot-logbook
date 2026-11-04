@@ -330,7 +330,7 @@
    border:1px solid var(--ui-line);
    border-radius:24px;
    box-shadow:0 6px 22px #07172c20;
-   z-index:24;
+   z-index:1000;
    overflow:hidden;
  }
  #modal.nv21-ipad-inline-editor::backdrop{background:transparent!important}
