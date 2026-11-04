@@ -229,3 +229,31 @@ html[data-theme="dark"] #modal.flight-editor-modal {
    max-width:none !important;
  }
 }
+
+/* Preserve the existing Import/Add management control for keyboard and browser tests.
+   Present it as an icon-size circle instead of an oversized header label. */
+@media(max-width:720px) {
+ #app .nv-logbook-shell .topbar [data-page-tools] {
+   display:flex !important; flex:0 0 44px; width:44px;min-width:44px;max-width:44px;
+ }
+ #app .nv-logbook-shell .page-management {position:relative;width:44px;min-width:44px;}
+ #app .nv-logbook-shell .page-management>summary {
+   display:grid;place-items:center;box-sizing:border-box;
+   width:44px;min-width:44px;max-width:44px;height:44px;min-height:44px;
+   border:1px solid var(--ui-line);border-radius:999px;
+   padding:0;font-size:0;overflow:hidden;white-space:nowrap;
+ }
+ #app .nv-logbook-shell .page-management>summary::before {
+   content:'+';font-size:25px;line-height:1;color:var(--ui-accent);
+ }
+ #app .nv-logbook-shell .page-management:not([open]) .page-management-content,
+ #app .nv-logbook-shell .workspace-account-menu:not([open]) .workspace-account-popover {
+   display:none !important;
+ }
+ #app .nv-logbook-shell .page-management-content {
+   position:fixed;left:12px;right:12px;top:74px;
+   box-sizing:border-box;max-width:calc(100vw - 24px);
+ }
+ #app .nv-logbook-shell .topbar {padding-right:8px;box-sizing:border-box;}
+ #app .nv-logbook-shell .topbar-main {box-sizing:border-box;max-width:100%;}
+}
