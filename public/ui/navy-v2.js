@@ -41,16 +41,35 @@ export function monthLabel(month){return new Date(month+'-01T12:00:00Z').toLocal
 export function renderFlightCard(f){
  const totals=timeTotals(f),date=new Date(f.date+'T12:00:00Z'),actual=Boolean(f.actual?.out||f.actual?.in),times=actual?f.actual:f.scheduled||{};
  const allocation=[f.picMinutes>0?'PIC':'',f.logbook?.sicMinutes>0?'SIC':''].filter(Boolean).join('/')||'—';
- const weekday=date.toLocaleDateString('en-GB',{weekday:'short',timeZone:'UTC'}),day=date.getUTCDate();
- const time=n=>n===null?'—':duration(n);
- return `<article class="nv-flight-card" data-flight-card="${e(f.id)}"><button type="button" class="nv-flight-open" data-action="edit" data-id="${e(f.id)}" aria-label="Chi tiết ${e(f.flightNo)} · ${e(f.date)} · ${e(f.dep)} đến ${e(f.dest)}">
-  <span class="nv-card-heading"><span class="nv-flight-date"><small>${e(weekday)}</small><strong>${day}</strong></span><span class="nv-flight-number"><small>✈ FLT</small><strong>${e(f.flightNo)}</strong></span><span class="nv-flight-function">${allocation}</span><span class="nv-flight-state">${f.confirmed?'✓ FINAL':actual?'◷ DRAFT':'◷ SCHEDULED'}</span></span>
-  <span class="nv-card-route"><strong>${e(f.dep)}</strong><span><small>BLOCK</small><b class="mono">${time(totals.block)}</b></span><strong>${e(f.dest)}</strong></span>
-  <span class="nv-card-times"><span><b class="mono">${clock(times.out)}</b><small>${e(icaoFor(f.dep)||'—')}</small></span><span class="nv-timeline" aria-label="Sơ đồ OUT / OFF / ON, không theo tỷ lệ"><span class="nv-timeline-track"><i></i><i></i><b aria-hidden="true">✈</b></span><span class="nv-timeline-labels"><small>Init</small><small>Dep</small><small>Arr</small></span></span><span><b class="mono">${clock(times.in)}</b><small>${e(icaoFor(f.dest)||'—')}</small></span></span>
-  <span class="nv-card-operation"><span>${e(f.role||'—')}</span><span>FLIGHT <b class="mono">${time(totals.airborne)}</b></span></span>
-  <span class="nv-card-foot"><span>${e(f.reg||'Registration —')} · ${e(f.aircraft||'Aircraft —')}</span></span>
-  <span class="nv-card-caption">${actual?'Actual':'Scheduled'} OUT / IN · UTC${times.in?.slice(0,10)>f.date?' · IN '+e(times.in.slice(0,10)):''}${f.confirmed?'':' · Chưa tính vào tổng Actual'}</span>
- </button><button type="button" class="nv-card-scan flight-scan-shortcut" data-flight-scan-shortcut="list" data-action="image" data-id="${e(f.id)}" aria-label="Scan Flight Log · ${e(f.flightNo)}">Scan Flight Log</button></article>`;
+ const weekday=date.toLocaleDateString('en-GB',{weekday:'short',timeZone:'UTC'}),day=String(date.getUTCDate()).padStart(2,'0');
+ const block=totals.block===null?'—':duration(totals.block)+'h';
+ const airborne=totals.airborne===null?'—':duration(totals.airborne)+'h';
+ const status=f.confirmed?'✓ FINAL':actual?'◷ DRAFT':'◷ SCHEDULED';
+ const airport=(code)=>e(icaoFor(code)||'—');
+ const op=['PF','PM'].includes(f.role)?f.role:'—';
+ return `<article class="nv-flight-card nv-v215-card" data-flight-card="${e(f.id)}">
+  <button type="button" class="nv-flight-open" data-action="edit" data-id="${e(f.id)}" aria-label="Chi tiết ${e(f.flightNo)} · ${e(f.date)} · ${e(f.dep)} đến ${e(f.dest)}">
+   <span class="nv-card-heading">
+    <span class="nv-flight-date"><small>${e(weekday.toUpperCase())}</small><strong>${day}</strong></span>
+    <span class="nv-card-separator" aria-hidden="true">|</span>
+    <span class="nv-flight-number"><small>✈ FLT</small><strong>${e(f.flightNo)}</strong></span>
+    <span class="nv-flight-function">${allocation}</span>
+    <span class="nv-flight-state" aria-label="Trạng thái chuyến bay">${status}</span>
+   </span>
+   <span class="nv-card-route"><strong>${e(f.dep)}</strong><span><b class="mono">${block}</b></span><strong>${e(f.dest)}</strong></span>
+   <span class="nv-card-times nv-v215-times">
+    <span class="nv-station"><span class="nv-station-main"><b class="mono">${clock(times.out)}</b><small>${airport(f.dep)}</small></span><span class="nv-station-role">✈ ${e(op)}</span></span>
+    <span class="nv-timeline" aria-label="Timeline minh họa Init / Dep / Arr, không theo tỷ lệ thời gian">
+     <span class="nv-timeline-track"><i></i><i></i><b aria-hidden="true">✈</b></span>
+     <span class="nv-timeline-labels"><small>Init</small><small>Dep</small><small>Arr</small></span>
+    </span>
+    <span class="nv-station nv-station-dest"><span class="nv-station-main"><small>${airport(f.dest)}</small><b class="mono">${clock(times.in)}</b></span><span class="nv-station-role">${e(op)} ✈</span></span>
+   </span>
+   <span class="nv-card-foot"><span>${e(f.reg||'Registration —')} · ${e(f.aircraft||'Aircraft —')}</span></span>
+   <span class="nv-card-caption">${actual?'Actual':'Scheduled'} OUT / IN · UTC · FLIGHT ${airborne}${times.in?.slice(0,10)>f.date?' · IN '+e(times.in.slice(0,10)):''}${f.confirmed?'':' · Chưa tính vào tổng Actual'}</span>
+  </button>
+  <button type="button" class="nv-card-scan flight-scan-shortcut" data-flight-scan-shortcut="list" data-action="image" data-id="${e(f.id)}" aria-label="Scan Flight Log · ${e(f.flightNo)}">Scan Flight Log</button>
+ </article>`;
 }
 export function renderLogbook({flights,people,month,query,filters,limit=80,icon=()=>''}){
  const selected=selectFlights(flights,{month,query,filters,people}),shown=selected.slice(0,limit),visibleIds=new Set(shown.map(f=>f.id)),groups=flightGroups(selected),total=statistics(selected);
