@@ -74,7 +74,7 @@ html[data-theme="dark"] #modal.flight-editor-modal {
   border-radius:22px;
   background:linear-gradient(135deg,var(--fe-card),#34445f);
   border:1px solid var(--fe-line);
-  overflow:hidden;
+  overflow:visible;
   margin-bottom:14px;
 }
 #modal.flight-editor-modal .fe-card .fe-field {padding:10px 12px}
