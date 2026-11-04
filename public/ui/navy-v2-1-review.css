@@ -100,3 +100,8 @@
 #app .weather-main .weather-report{font-family:var(--ui-mono);font-size:13px;line-height:1.65;
  white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;max-width:100%}
 #app .weather-main .weather-speci-panel{border-radius:24px}
+
+/* Owner-approved branding: compact monochrome white AVL logo. */
+#app .sidebar .brand .nv21-brand-img{width:104px;height:42px;filter:brightness(0) invert(1)}
+#app .mobile-brand .nv21-brand-img{width:86px!important;height:35px!important;filter:brightness(0) invert(1)}
+@media(min-width:721px){html[data-sidebar=collapsed] #app .sidebar .brand .nv21-brand-img{width:45px;height:31px;object-position:left center}}
