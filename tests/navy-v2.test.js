@@ -37,8 +37,8 @@ test('Navy cards distinguish flight and block, next-day IN, FINAL and draft valu
 });
 test('Navy card text and IDs cannot inject markup or nested interactive controls',()=>{
  const html=renderFlightCard({...flight,id:'"><img src=x onerror=bad()>',flightNo:'<script>bad()</script>',reg:'" onclick="bad'});
- assert.doesNotMatch(html,/<script>|<img/);assert.match(html,/&lt;script&gt;/);assert.equal((html.match(/<button/g)||[]).length,2);
- assert(!/<button[^>]*>[\s\S]*<button[\s\S]*<\/button>[\s\S]*<\/button>/.test(html));
+ assert.doesNotMatch(html,/<script>|<img/);assert.match(html,/&lt;script&gt;/);assert.equal((html.match(/<button/g)||[]).length,3);
+ let depth=0,maxDepth=0;for(const tag of html.match(/<\/?button\b[^>]*>/g)||[]){depth+=tag.startsWith('</')?-1:1;maxDepth=Math.max(maxDepth,depth);assert(depth>=0);}assert.equal(depth,0);assert.equal(maxDepth,1,'Interactive buttons must be siblings, not nested');
 });
 test('Navy 10,000-record results bound the initial DOM and totals include unloaded matching records',()=>{
  const flights=Array.from({length:10000},(_,i)=>({...flight,id:'scale-'+String(i).padStart(5,'0')}));

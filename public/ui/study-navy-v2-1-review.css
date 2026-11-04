@@ -1,0 +1,52 @@
+/* Navy V2.1.4: visual-only ATPL refinement, no bank/answer-key changes */
+.study-shell,.atpl-library,.study-shell .app,
+.study-shell :is(button,input,select,textarea),.study-more-sheet{
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+ font-synthesis:none;font-variant-numeric:tabular-nums;
+}
+.study-shell :is(.atpl-library h1,.atpl-card h2,.app h1,.app h2){
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;letter-spacing:-.025em;
+}
+.study-shell .atpl-library h1{font-size:clamp(27px,4vw,36px);font-weight:670;line-height:1.18}
+.study-shell .atpl-intro{max-width:62ch;line-height:1.6;font-size:13px}
+.study-shell .atpl-grid{gap:12px;align-items:stretch}
+.study-shell .atpl-card{background-color:var(--ui-surface);background-image:linear-gradient(135deg,var(--ui-surface),var(--ui-soft));border:1px solid var(--ui-line);border-radius:24px;padding:17px;box-shadow:var(--ui-shadow);gap:8px}
+.study-shell .atpl-code{border:1px solid var(--ui-accent-line);border-radius:11px;padding:7px 12px;background:var(--ui-accent-soft);color:var(--ui-accent);font-weight:760;font-size:12px}
+.study-shell .atpl-card h2{font-size:17px;line-height:1.35;font-weight:630;margin:8px 0 0}
+.study-shell .atpl-card p{font-size:12px;line-height:1.6}
+.study-shell .atpl-card .atpl-ready{font-weight:650;color:var(--ui-ink)}
+.study-shell .atpl-actions .btn.primary{border-radius:16px;font-weight:700}
+.study-shell .atpl-card-manage>summary,.study-shell .library-management>summary{background:var(--ui-soft);color:var(--ui-ink);border:1px solid var(--ui-line);border-radius:16px;min-height:44px}
+.study-shell .atpl-card progress{accent-color:var(--ui-accent)}
+
+/* Same AVL visual identity throughout ATPL library and individual subject shells. */
+.study-sidebar .brand .nv21-brand-img{display:block;width:128px;height:62px;object-fit:contain}
+.nv21-library-logo{display:block;width:125px;height:58px;object-fit:contain}
+.study-shell .app>.topbar .brand .nv21-study-subject-logo{width:77px;height:36px;object-fit:contain;flex:0 0 auto}
+.study-shell .app>.topbar .brand{display:flex;align-items:center;gap:8px}
+.study-shell .app>.topbar .brand small{margin-left:2px}
+@media(max-width:720px){
+ .study-shell .atpl-header .nv21-library-logo{width:92px;height:44px}
+ .study-shell .atpl-header>.atpl-tag{display:none}
+ .study-shell .app>.topbar .brand .nv21-study-subject-logo{width:60px;height:29px}
+}
+
+/* 320px ATPL header uses two accessible rows instead of clipping account actions. */
+@media(max-width:359px){
+ .study-shell .atpl-header{display:grid!important;grid-template-columns:auto minmax(0,1fr);row-gap:4px;column-gap:8px;align-items:center}
+ .study-shell .atpl-header .ui-back{grid-column:1;grid-row:1;justify-self:start}
+ .study-shell .atpl-header .nv21-library-logo{grid-column:2;grid-row:1;justify-self:end;width:86px;height:38px}
+ .study-shell .atpl-header .ui-header-actions{grid-column:1/-1;grid-row:2;display:flex;justify-content:flex-end;max-width:100%;min-width:0;flex-wrap:wrap}
+ .study-shell .atpl-header .library-management .atpl-help{position:fixed;left:8px;right:8px;top:100px;
+  width:auto;max-width:calc(100vw - 16px);max-height:75dvh;overflow:auto;box-sizing:border-box}
+}
+
+@media(max-width:359px){.study-shell .atpl-header .ui-header-actions{min-width:0;width:100%;justify-content:flex-end}.study-shell .atpl-header .library-account-menu{max-width:44px}.study-shell .atpl-header .library-account-menu [data-account-content]{position:fixed;left:8px;right:8px;top:108px;width:auto;max-width:calc(100vw - 16px);box-sizing:border-box;overflow:auto}.study-shell .atpl-header .library-management .atpl-help{max-width:calc(100vw - 16px)}}
+
+/* Owner-approved compact white AVL logo on every ATPL header. */
+.study-sidebar .brand .nv21-brand-img{width:99px;height:42px;filter:brightness(0) invert(1)}
+.study-shell .atpl-header .nv21-library-logo{width:87px;height:38px;filter:brightness(0) invert(1)}
+.study-shell .app>.topbar .brand .nv21-study-subject-logo{width:55px;height:26px;filter:brightness(0) invert(1)}
+/* Retain the application-wide heading scale verified by shared UI tests. */
+.study-shell .atpl-library h1{font-size:var(--ui-title-size);line-height:1.25;font-weight:750}
+@media(max-width:720px){.study-shell .atpl-library h1{font-size:24px}}

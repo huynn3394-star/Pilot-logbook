@@ -1,0 +1,352 @@
+/* Avilog Navy V2.1.4 visual refinement — presentation only.
+   Load AFTER navy-v2.css. No changes to persisted data or time calculations. */
+:root {
+  --nv21-font: -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  --nv21-display: -apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+}
+#app,#modal,#app :is(button,input,select,textarea),#modal :is(button,input,select,textarea) {
+  font-family:var(--nv21-font);font-synthesis:none;
+}
+#app :is(.nv-flight-card,.nv-month-header),#modal :is(.nv-primary-times,.nv-counter) { font-variant-numeric:tabular-nums lining-nums; }
+#app .nv-logbook-tools{gap:10px;padding-bottom:14px}
+#app .nv-search{border-radius:999px}
+#app .nv-filter-button{border-radius:50%}
+#app .nv-month-header{padding:14px 2px 8px;border-bottom:1px solid var(--ui-line);margin-bottom:14px}
+#app .nv-month-header h2{font:500 20px/1.3 var(--nv21-display);letter-spacing:-.02em}
+#app .nv-flight-list{gap:16px}
+#app .nv-flight-card{border-radius:24px;border-left-width:4px;background-color:var(--ui-surface);background-image:linear-gradient(115deg,var(--ui-surface),var(--ui-soft));box-shadow:0 9px 28px #04102029}
+#app .nv-flight-open{padding:11px 13px 8px}
+#app .nv-card-heading{display:flex;align-items:baseline;gap:7px;margin:0 0 7px;min-height:19px}
+#app .nv-flight-date{white-space:nowrap}
+#app .nv-flight-date strong{font-size:16px}
+#app .nv-flight-number strong{font-size:16px;font-weight:550;letter-spacing:-.01em}
+#app .nv-flight-function{font-size:12px;white-space:nowrap}
+#app .nv-flight-state{font-size:9px;white-space:nowrap}
+#app .nv-card-route{grid-template-columns:minmax(0,1fr) minmax(110px,1.14fr) minmax(0,1fr);gap:4px;margin:2px 0 4px}
+#app .nv-card-route>strong{font:350 30px/1.15 var(--nv21-display);letter-spacing:-.02em}
+#app .nv-card-route>span{font-size:19px;font-weight:650}
+#app .nv-card-route small{font-size:9px}
+#app .nv-card-times{grid-template-columns:minmax(0,1fr) minmax(116px,1.16fr) minmax(0,1fr);gap:5px;align-items:start}
+#app .nv-card-times>span:not(.nv-timeline){display:flex;flex-wrap:wrap;gap:4px;align-items:baseline;font-size:13px}
+#app .nv-card-times small{font-size:10px}
+#app .nv-timeline{padding-top:2px}
+#app .nv-timeline-labels small{font-size:10px}
+#app .nv-card-operation{margin-top:2px;gap:10px;font-size:10px}
+#app .nv-card-foot{border-top:1px solid var(--ui-line);margin-top:8px;padding:7px 90px 0 0;min-height:auto;font-size:10px}
+#app .nv-card-caption{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#app .nv-card-scan.flight-scan-shortcut{right:6px;bottom:4px}
+#app .nv-month-navigator label,#app .nv-month-navigator>.btn{border-radius:999px}
+#modal .fe-overview,#modal .fe-route-card,#modal .fe-summary-card{border-radius:24px}
+#modal .fe-time-cell{padding:11px 14px}
+#modal .nv-primary-times strong{font:500 30px/1.2 var(--nv21-display);letter-spacing:-.02em}
+#modal.nv-filter-modal .nv-filter-card{border-radius:24px;margin-bottom:24px}
+#modal.nv-filter-modal .nv-filter-row{min-height:60px}
+#modal.nv-filter-modal .nv-filter-footer{background:linear-gradient(transparent,var(--ui-bg) 30%);border:0}
+#modal.nv-filter-modal .nv-filter-footer .primary{border-radius:999px;min-height:54px}
+@media(max-width:720px){
+ #app .nv-logbook-tools{top:66px}
+ #app .bottom-nav .nv-floating-add{width:62px;flex-basis:62px;min-height:62px}
+ #app .nv-card-route>strong{font-size:28px}
+}
+@media(max-width:359px){
+ #app .nv-card-route{grid-template-columns:minmax(0,1fr) minmax(95px,1.2fr) minmax(0,1fr)}
+ #app .nv-card-route>strong{font-size:25px}
+ #app .nv-card-heading{flex-wrap:wrap;gap:5px}
+ #app .nv-card-times{grid-template-columns:minmax(0,1fr) minmax(100px,1.2fr) minmax(0,1fr)}
+}
+@media(prefers-reduced-motion:reduce){#app .nv-flight-card{transition:none}}
+
+/* Approved AVL brand mark, cropped transparently from the user-supplied logo. */
+#app .brand .nv21-brand-img{display:block;width:145px;max-width:100%;height:62px;object-fit:contain;object-position:left center}
+#app .mobile-brand .nv21-brand-img{display:block;width:128px;height:58px;object-fit:contain}
+@media(max-width:720px){
+ #app .topbar .breadcrumbs{display:none}
+ #app .mobile-brand{display:flex!important;flex:1 1 auto;align-items:center;justify-content:center;min-width:80px}
+ #app .mobile-brand .nv21-brand-img{width:105px;height:48px}
+ #app .topbar-main{gap:4px}
+}
+
+/* Native continuous Flight Editor: all existing input nodes and save behavior remain intact. */
+#modal #flight-form.nv21-continuous .fe-tabs{display:flex!important;position:sticky;top:0;z-index:3;background:var(--ui-bg)}
+#modal #flight-form.nv21-continuous [data-flight-panel]{display:block!important;scroll-margin-top:90px}
+#modal #flight-form.nv21-continuous .fe-body{display:block;overflow:visible}
+#modal #flight-form.nv21-continuous .fe-main-fields,
+#modal #flight-form.nv21-continuous .fe-aircraft-fields,
+#modal #flight-form.nv21-continuous .fe-actual-grid{gap:0}
+#modal #flight-form.nv21-continuous [data-flight-panel="airports"],
+#modal #flight-form.nv21-continuous [data-flight-panel="tools"]{border-top:1px solid var(--ui-line);padding-top:14px;margin-top:20px}
+#modal #flight-form.nv21-continuous .fe-review-button{display:none}
+
+/* Smallest iPhone width: toolbar and its popovers must not exceed the viewport. */
+@media(max-width:359px){
+ #app .topbar-main{flex-wrap:wrap!important;max-width:100%}
+ #app .topbar .mobile-brand{display:none!important}
+ #app .topbar .top-actions{flex:1 1 100%;width:100%;max-width:100%;min-width:0;justify-content:flex-end;flex-wrap:wrap}
+ #app .topbar [data-page-tools]{min-width:0;max-width:100%}
+ #app .topbar .page-management-content,
+ #app .topbar .workspace-account-popover{position:fixed!important;left:8px!important;right:8px!important;width:auto!important;max-width:calc(100vw - 16px)!important;box-sizing:border-box}
+ #app .topbar .page-management-content .btn{max-width:100%;white-space:normal}
+}
+
+/* Live Weather presentation: preserve existing METAR/SPECI/TAF provider content and alerts. */
+#app .weather-main .weather-quick-search{border-radius:999px}
+#app .weather-main .weather-group{border-radius:24px;border:1px solid var(--ui-line);
+ background-color:var(--ui-surface);background-image:linear-gradient(110deg,var(--ui-surface),var(--ui-soft))}
+#app .weather-main .weather-group-products{border-radius:999px;overflow:hidden}
+#app .weather-main .weather-group-products button{border-radius:999px}
+#app .weather-main .weather-station-detail{padding-bottom:14px}
+#app .weather-main .weather-product{border-top:1px solid var(--ui-line);padding:12px 2px}
+#app .weather-main .weather-product h3{font-size:13px;letter-spacing:.05em;color:var(--ui-accent)}
+#app .weather-main .weather-report{font-family:var(--ui-mono);font-size:13px;line-height:1.65;
+ white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;max-width:100%}
+#app .weather-main .weather-speci-panel{border-radius:24px}
+
+/* Owner-approved branding: compact monochrome white AVL logo. */
+#app .sidebar .brand .nv21-brand-img{width:104px;height:42px;filter:brightness(0) invert(1)}
+#app .mobile-brand .nv21-brand-img{width:86px!important;height:35px!important;filter:brightness(0) invert(1)}
+@media(min-width:721px){html[data-sidebar=collapsed] #app .sidebar .brand .nv21-brand-img{width:45px;height:31px;object-position:left center}}
+
+/* More: grouped destinations mirroring Navy reference while reusing real actions. */
+#modal.nv-sheet .nv21-more-group{margin:0 0 20px}
+#modal.nv-sheet .nv21-more-group>h3{font:500 16px/1.4 var(--nv21-display);letter-spacing:.01em;margin:4px 5px 9px;color:var(--ui-ink)}
+#modal.nv-sheet .nv21-more-group>.btn{display:flex;align-items:center;gap:12px;min-height:54px;width:100%;text-align:left;
+ margin:0;border-radius:0;border-bottom:1px solid var(--ui-line);background:var(--ui-surface);font-weight:500}
+#modal.nv-sheet .nv21-more-group>.btn:first-of-type{border-radius:20px 20px 0 0}
+#modal.nv-sheet .nv21-more-group>.btn:last-of-type{border-bottom:0;border-radius:0 0 20px 20px}
+#modal.nv-sheet .nv21-more-group>.btn:only-of-type{border-radius:20px}
+
+/* iPad Navy V2.1 two-pane Logbook: presentation only; source records and edit flow untouched. */
+#app .nv21-tablet-select{display:none}
+#app .nv21-tablet-detail{display:none}
+@media(min-width:768px) and (max-width:1199px){
+ #app .main:has(.nv21-tablet-layout){max-width:none;padding-left:12px;padding-right:12px}
+ #app .nv21-tablet-layout{display:grid;grid-template-columns:minmax(280px,.97fr) minmax(290px,1.03fr);
+  gap:14px;align-items:start;max-width:100%;min-width:0}
+ #app .nv21-tablet-list{min-width:0;min-height:0}
+ #app .nv21-tablet-list .nv-logbook{max-width:100%;min-width:0}
+ #app .nv21-tablet-list .nv-flight-list{grid-template-columns:minmax(0,1fr)}
+ #app .nv21-tablet-list .nv-flight-card{min-width:0}
+ #app .nv21-tablet-list .nv-flight-open{padding-bottom:30px}
+ #app .nv21-tablet-list .nv-card-heading{gap:4px}
+ #app .nv21-tablet-list .nv-flight-state{font-size:8px}
+ #app .nv21-tablet-list .nv-card-route>strong{font-size:25px}
+ #app .nv21-tablet-list .nv-card-route>span{font-size:16px}
+ #app .nv21-tablet-list .nv-card-times{grid-template-columns:minmax(0,1fr) minmax(90px,1.15fr) minmax(0,1fr)}
+ #app .nv21-tablet-select{position:absolute;display:block;right:8px;bottom:3px;z-index:2;
+   border:0;background:transparent;color:var(--ui-accent);font:600 12px/1.3 var(--nv21-font);
+   min-height:38px;padding:6px 10px;border-radius:999px;cursor:pointer}
+ #app .nv21-tablet-select:focus-visible{outline:2px solid var(--ui-accent);outline-offset:1px}
+ #app .nv21-tablet-selected{box-shadow:inset 0 0 0 2px var(--ui-accent),var(--ui-shadow)}
+ #app .nv21-tablet-detail{display:block;position:sticky;top:75px;max-height:calc(100dvh - 91px);
+   overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;min-width:0;
+   background-color:var(--ui-surface);border:1px solid var(--ui-line);border-radius:24px;
+   padding:16px;box-shadow:var(--ui-shadow)}
+ #app .nv21-preview-title{display:flex;justify-content:space-between;align-items:start;gap:8px}
+ #app .nv21-preview-eyebrow{font-size:10px;color:var(--ui-accent);font-weight:650;letter-spacing:.07em}
+ #app .nv21-preview-title h3{margin:6px 0;font:650 19px/1.3 var(--nv21-display)}
+ #app .nv21-preview-title h3 small{display:block;margin-top:3px;font:400 11px/1.5 var(--nv21-font)}
+ #app .nv21-preview-state{font-size:9px;white-space:nowrap;padding:5px 7px;border-radius:999px;
+   background:var(--ui-accent-soft);color:var(--ui-accent);font-weight:700}
+ #app .nv21-preview-route{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;
+   margin:12px 0;border-top:1px solid var(--ui-line);border-bottom:1px solid var(--ui-line);padding:13px 0}
+ #app .nv21-preview-route>div{min-width:0;display:flex;flex-direction:column}
+ #app .nv21-preview-route>div:last-child{text-align:right}
+ #app .nv21-preview-route strong{font:400 29px/1.1 var(--nv21-display)}
+ #app .nv21-preview-route small,.nv21-preview-aircraft{color:var(--ui-muted);font-size:11px}
+ #app .nv21-preview-route>span{color:var(--ui-accent)}
+ #app .nv21-preview-times,.nv21-preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ #app .nv21-preview-times{margin-top:14px}
+ #app .nv21-preview-times>div,#app .nv21-preview-grid>div{min-width:0;display:grid;gap:4px;padding:10px;
+   border-radius:12px;background:var(--ui-soft)}
+ #app .nv21-preview-times span,.nv21-preview-grid span,.nv21-preview-total span{font-size:10px;color:var(--ui-muted)}
+ #app .nv21-preview-times strong,.nv21-preview-grid strong{font-size:15px;color:var(--ui-accent);font-variant-numeric:tabular-nums}
+ #app .nv21-preview-total{margin:15px 0;background:var(--ui-accent-soft);border-radius:16px;
+   padding:12px;display:grid;gap:4px}
+ #app .nv21-preview-total strong{font-size:27px;font-weight:700;color:var(--ui-accent);font-variant-numeric:tabular-nums}
+ #app .nv21-preview-total small{font-size:10px;color:var(--ui-muted)}
+ #app .nv21-preview-edit{width:100%;margin-top:16px}
+ #app .nv21-preview-footnote{font-size:11px;color:var(--ui-muted);line-height:1.5}
+ #app .nv21-tablet-empty{min-height:220px;display:grid;align-content:center;justify-items:center;
+   text-align:center;gap:8px;color:var(--ui-muted)}
+ #app .nv21-tablet-empty>span{font-size:34px;color:var(--ui-accent)}
+ #app .nv21-tablet-empty p{font-size:12px;line-height:1.5}
+}
+@media(min-width:768px) and (max-width:930px){
+ #app .nv21-tablet-layout{grid-template-columns:minmax(235px,.95fr) minmax(270px,1.05fr);gap:10px}
+ #app .nv21-tablet-detail{padding:11px}
+ #app .nv21-tablet-list .nv-card-heading{flex-wrap:wrap}
+ #app .nv21-tablet-list .nv-month-navigator{grid-template-columns:36px minmax(0,1fr) 36px}
+ #app .nv21-tablet-list .nv-month-navigator>.btn{grid-column:1/-1;justify-self:end}
+}
+
+/* iPad tablet refinement: separate scroll containers, grouped details and tactile sidebar.
+   iPhone (<768px) and desktop mouse layouts remain unchanged. */
+@media(min-width:768px) and (max-width:1199px) {
+ #app .sidebar{position:sticky;top:8px;height:calc(100dvh - 16px);min-height:0;
+   margin:8px 0 8px 8px;border-radius:25px;overflow-y:auto;overscroll-behavior:contain;
+   background-image:linear-gradient(155deg,#142744,#0c223b 85%);box-shadow:0 12px 40px #09162925}
+ #app .sidebar .nav button{border-radius:15px;min-height:47px}
+ #app .sidebar .nav button.active{background:var(--ui-accent);color:var(--ui-on-accent)}
+ #app .workspace{min-width:0}
+ #app .nv21-tablet-layout{min-height:0;align-items:stretch}
+ #app .nv21-tablet-list{height:calc(100dvh - 92px);overflow-y:auto;overscroll-behavior:contain;
+   scrollbar-gutter:stable;scroll-padding-top:0;min-height:0;padding:0 6px 12px 0}
+ #app .nv21-tablet-list .nv-logbook-tools{position:sticky;top:0;z-index:12;
+   padding-top:4px;border-bottom:1px solid var(--ui-line);backdrop-filter:blur(10px)}
+ #app .nv21-tablet-detail{height:calc(100dvh - 92px);max-height:none;position:sticky;top:76px}
+ #app .nv21-tablet-list .nv-flight-open{cursor:pointer}
+ #app .nv21-tablet-list .nv-flight-card{background-color:var(--ui-surface)}
+ #app .nv21-tablet-selected{border-left-color:var(--ui-accent)}
+ #app .nv21-preview-section{border-top:1px solid var(--ui-line);padding-top:11px;margin-top:13px}
+ #app .nv21-preview-section h4{margin:0 0 9px;color:var(--ui-accent);font-size:10px;font-weight:750;letter-spacing:.1em}
+ #app .nv21-preview-keyvalues{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ #app .nv21-preview-keyvalues>div{display:flex;min-width:0;flex-direction:column;gap:5px;
+   background:var(--ui-soft);border-radius:11px;padding:10px;overflow-wrap:anywhere}
+ #app .nv21-preview-keyvalues span{font-size:10px;color:var(--ui-muted)}
+ #app .nv21-preview-keyvalues strong{font-size:12px;color:var(--ui-ink);font-weight:600;font-variant-numeric:tabular-nums}
+ #app .nv21-preview-remarks{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.6}
+ #app .nv21-tablet-select{min-height:44px}
+ #app .nv21-tablet-select[aria-pressed=true]{background:var(--ui-accent-soft)}
+ #app .nv21-tablet-detail .nv21-preview-edit{min-height:50px;border-radius:15px}
+ #modal.flight-editor-modal[open]{
+   position:fixed;inset:12px 12px 12px auto;margin:0;width:min(50vw,640px);
+   height:calc(100dvh - 24px);max-height:calc(100dvh - 24px);max-width:none;
+   border-radius:24px;box-shadow:0 8px 35px #07172c50;
+ }
+ #modal.flight-editor-modal::backdrop{background:rgba(6,17,32,.32)}
+ #modal.flight-editor-modal .fe-body{padding:12px}
+}
+@media(min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #app .sidebar{position:sticky;top:8px;height:calc(100dvh - 16px);margin:8px 0 8px 8px;border-radius:25px;
+   overflow-y:auto;background-image:linear-gradient(155deg,#142744,#0c223b 85%)}
+ #app .sidebar .nav button.active{background:var(--ui-accent);color:var(--ui-on-accent)}
+ #app .main:has(.nv21-tablet-layout){max-width:none;padding-inline:16px}
+ #app .nv21-tablet-layout{display:grid;grid-template-columns:minmax(360px,.9fr) minmax(400px,1.1fr);gap:16px;min-width:0;align-items:stretch}
+ #app .nv21-tablet-list{height:calc(100dvh - 92px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;min-width:0}
+ #app .nv21-tablet-list .nv-flight-list{grid-template-columns:1fr}
+ #app .nv21-tablet-list .nv-logbook{max-width:none}
+ #app .nv21-tablet-list .nv-flight-card{min-width:0}
+ #app .nv21-tablet-select{display:block;position:absolute;right:10px;bottom:3px;min-height:44px;
+   border:0;border-radius:999px;background:transparent;color:var(--ui-accent);padding:8px 12px;z-index:2}
+ #app .nv21-tablet-list .nv-flight-open{padding-bottom:32px}
+ #app .nv21-tablet-selected{box-shadow:inset 0 0 0 2px var(--ui-accent),var(--ui-shadow)}
+ #app .nv21-tablet-detail{display:block;position:sticky;top:75px;height:calc(100dvh - 92px);overflow-y:auto;min-width:0;
+   padding:20px;border:1px solid var(--ui-line);background:var(--ui-surface);border-radius:24px;box-shadow:var(--ui-shadow)}
+ #app .nv21-preview-title{display:flex;justify-content:space-between;gap:10px}
+ #app .nv21-preview-eyebrow{font-size:10px;color:var(--ui-accent)}
+ #app .nv21-preview-title h3{font-size:22px;margin:4px 0}
+ #app .nv21-preview-title small{display:block}
+ #app .nv21-preview-route{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:16px 0;margin:12px 0;
+   border-block:1px solid var(--ui-line);text-align:center}
+ #app .nv21-preview-route>div{display:flex;flex-direction:column}
+ #app .nv21-preview-route strong{font-size:32px}
+ #app .nv21-preview-route small,#app .nv21-preview-aircraft{font-size:11px;color:var(--ui-muted)}
+ #app .nv21-preview-section{margin-top:14px;padding-top:12px;border-top:1px solid var(--ui-line)}
+ #app .nv21-preview-section h4{font-size:11px;letter-spacing:.09em;color:var(--ui-accent)}
+ #app .nv21-preview-keyvalues,#app .nv21-preview-grid,#app .nv21-preview-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ #app .nv21-preview-keyvalues>div,#app .nv21-preview-grid>div,#app .nv21-preview-times>div{display:grid;min-width:0;gap:5px;
+   border-radius:12px;background:var(--ui-soft);padding:10px}
+ #app .nv21-preview-keyvalues span,#app .nv21-preview-grid span,#app .nv21-preview-times span,#app .nv21-preview-total span{font-size:11px;color:var(--ui-muted)}
+ #app .nv21-preview-keyvalues strong,#app .nv21-preview-grid strong,#app .nv21-preview-times strong{font-size:15px;font-weight:650;color:var(--ui-ink)}
+ #app .nv21-preview-total{display:grid;gap:4px;margin:15px 0;padding:15px;border-radius:16px;background:var(--ui-accent-soft)}
+ #app .nv21-preview-total strong{font-size:28px;color:var(--ui-accent)}
+ #app .nv21-preview-edit{width:100%;margin-top:16px}
+ #app .nv21-preview-footnote,#app .nv21-preview-remarks{font-size:12px;color:var(--ui-muted)}
+ #modal.flight-editor-modal[open]{position:fixed;inset:12px 12px 12px auto;margin:0;width:min(51vw,720px);
+   height:calc(100dvh - 24px);max-height:calc(100dvh - 24px)}
+}
+
+/* Tablet-only sidebar quick action and compact brand banner. */
+#app .nv21-ipad-add,#app .nv21-tablet-banner{display:none}
+@media(min-width:768px) and (max-width:1199px){
+ #app .sidebar .nv21-ipad-add{display:grid;place-items:center;margin:10px auto 18px;
+   width:49px;height:49px;border-radius:50%;border:1px solid #ffffff35;background:#ffffff14;
+   color:#ffffff;box-shadow:0 5px 20px #04132335;cursor:pointer}
+ #app .sidebar .nv21-ipad-add svg{width:23px;height:23px}
+ #app .sidebar .nv21-ipad-add:hover,#app .sidebar .nv21-ipad-add:focus-visible{background:var(--ui-accent)}
+ #app .nv21-tablet-list .nv21-tablet-banner{display:flex;align-items:center;justify-content:space-between;
+   flex-wrap:wrap;gap:8px;padding:9px 14px;margin:0 0 14px;border-radius:13px;
+   background:linear-gradient(105deg,#142744,#1c4855);color:white}
+ #app .nv21-tablet-banner span{font-size:10px;font-weight:700;letter-spacing:.08em}
+ #app .nv21-tablet-banner small{font-size:9px;color:#deedf3}
+}
+@media(min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #app .sidebar .nv21-ipad-add{display:grid;place-items:center;margin:10px auto 18px;
+   width:49px;height:49px;border-radius:50%;border:1px solid #ffffff35;background:#ffffff14;color:#fff}
+ #app .sidebar .nv21-ipad-add svg{width:23px;height:23px}
+ #app .nv21-tablet-list .nv21-tablet-banner{display:flex;align-items:center;justify-content:space-between;
+   padding:10px 15px;margin-bottom:14px;border-radius:13px;
+   background:linear-gradient(105deg,#142744,#1c4855);color:white}
+ #app .nv21-tablet-banner small{font-size:10px;color:#deedf3}
+}
+
+/* Tablet reference places Search directly below the Navy topbar, not under a large page title. */
+@media(min-width:768px) and (max-width:1199px){
+ #app .main:has(.nv21-tablet-layout)>.page-heading{display:none}
+ #app .main:has(.nv21-tablet-layout){padding-top:9px;padding-bottom:0}
+}
+@media(min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #app .main:has(.nv21-tablet-layout)>.page-heading{display:none}
+ #app .main:has(.nv21-tablet-layout){padding-top:9px;padding-bottom:0}
+}
+
+/* iPad regression: scan and view buttons must not overlap or intercept clicks.
+   Each action has its own half of the bottom row. */
+@media(min-width:768px) and (max-width:1199px){
+ #app .nv21-tablet-list .nv-flight-card{padding-bottom:40px}
+ #app .nv21-tablet-list .nv-flight-open{padding-bottom:10px}
+ #app .nv21-tablet-list .nv21-tablet-select{
+   left:8px;right:auto;bottom:5px;max-width:calc(50% - 12px);min-width:0;
+   font-size:11px;text-align:left;white-space:normal;line-height:1.2;
+ }
+ #app .nv21-tablet-list .nv-card-scan.flight-scan-shortcut{
+   left:auto;right:6px;bottom:5px;max-width:calc(50% - 10px);min-width:0;
+   font-size:11px;text-align:right;white-space:normal;line-height:1.2;
+ }
+}
+@media(min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #app .nv21-tablet-list .nv-flight-card{padding-bottom:40px}
+ #app .nv21-tablet-list .nv-flight-open{padding-bottom:10px}
+ #app .nv21-tablet-list .nv21-tablet-select{left:8px;right:auto;bottom:5px;max-width:calc(50% - 12px)}
+ #app .nv21-tablet-list .nv-card-scan.flight-scan-shortcut{right:6px;bottom:5px;max-width:calc(50% - 10px)}
+}
+
+/* iPad inline editor: the ONE native flight form occupies the right detail pane,
+   while left flight list remains interactive and unshaded. Never use modal backdrop.
+   Position is taken from the real detail pane, so no invented split dimensions. */
+@media(min-width:768px) and (max-width:1199px),
+      (min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #modal.flight-editor-modal.nv21-ipad-inline-editor[open]{
+   position:fixed!important;
+   inset:auto!important;
+   top:var(--nv21-ipad-top)!important;
+   left:var(--nv21-ipad-left)!important;
+   width:var(--nv21-ipad-width)!important;
+   height:var(--nv21-ipad-height)!important;
+   max-width:none!important;
+   max-height:none!important;
+   margin:0!important;
+   padding:0!important;
+   border:1px solid var(--ui-line);
+   border-radius:24px;
+   box-shadow:0 6px 22px #07172c20;
+   z-index:1000;
+   overflow:hidden;
+ }
+ #modal.nv21-ipad-inline-editor::backdrop{background:transparent!important}
+ #modal.nv21-ipad-inline-editor .modal-head{
+   grid-template-columns:43px minmax(0,1fr) 82px;
+   min-height:60px;padding:7px 11px;
+ }
+ #modal.nv21-ipad-inline-editor .fe-title>span{font-size:14px}
+ #modal.nv21-ipad-inline-editor .fe-title h2{font-size:10px}
+ #modal.nv21-ipad-inline-editor .fe-back,
+ #modal.nv21-ipad-inline-editor .fe-save{font-size:12px;min-height:40px;min-width:40px}
+ #modal.nv21-ipad-inline-editor .flight-editor-form{min-height:0;overflow:auto}
+ #modal.nv21-ipad-inline-editor .fe-tabs button{min-height:43px;font-size:11px;padding:6px 3px}
+ #modal.nv21-ipad-inline-editor .fe-body{padding:10px}
+ #modal.nv21-ipad-inline-editor .fe-field{padding:9px}
+ #modal.nv21-ipad-inline-editor .fe-field>span{font-size:10px}
+ #modal.nv21-ipad-inline-editor .fe-field>input,
+ #modal.nv21-ipad-inline-editor .fe-field>select{font-size:14px;min-height:31px}
+}

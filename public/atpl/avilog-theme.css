@@ -2,3 +2,5 @@
 @import url("/ui/system.css");
 @import url("/ui/study-shell.css");
 /* All bank presentation, including source/correctness cues, now lives in the shared system. */
+
+@import url("/ui/study-navy-v2-1-review.css");

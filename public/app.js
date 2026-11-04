@@ -8,6 +8,7 @@ import {todayInputDate,flightTimeInput,readUTCInput,bindUTCInputs} from './lib/u
 import {applyAppearance} from './lib/appearance.js';
 import {mountCrewEntry,resolveFlightPeople} from './lib/crew-entry.js';
 import {defaultFilters,selectFlights,renderLogbook,renderFilters,mountSheet} from './ui/navy-v2.js';
+import {renderTabletFlightPreview} from './ui/tablet-v2-1.js';
 import {readWeatherGroups,saveWeatherGroups} from './workspace/weather-groups.js';
 import {
   uid,
@@ -105,7 +106,7 @@ let state,
   redrawImageCrop = () => {},
   notificationShown = new Set();
 const coordinator=getCoordinator();
-let navyFilters=defaultFilters(),navyLimit=80;
+let navyFilters=defaultFilters(),navyLimit=80,tabletSelectedFlightId=null;
 let workspaceSession=null,account=null,workspaceController=null,evidenceTransfers=null,accountUI=null,backupUI=null,renderCapture=null,formDirty=false,pendingRemote=false,transitioning=false,draftPrepared=false,bootVersion=0,weatherCollector=null,weatherWatch=null,weatherWatchUI=null,weatherViewState={},accountViewState={},pageViewState={};
 const busyForm=()=>modal.open||formDirty;
 function asyncCapture(){return{session:workspaceSession,token:workspaceSession.token,context:modal.dataset.context};}
@@ -118,7 +119,7 @@ async function transitionAccount(){if(transitioning||!workspaceSession)return;tr
 function connectWorkspaceServices(){if(!workspaceSession?.isCurrent())return;workspaceController?.stop();evidenceTransfers?.stop();workspaceController=null;evidenceTransfers=null;if(account&&workspaceSession.uid){const current=workspaceSession;const update=area=>status=>{if(workspaceSession===current&&current.isCurrent()){coordinator.publishAreaStatus({uid:current.uid,area,status});accountUI?.render();}};workspaceController=createWorkspaceController({account,repository:current.repository,coordinator,onStatus:update('workspace')});evidenceTransfers=createTransfers({account,repository:current.repository,coordinator,onStatus:update('evidence')});account.ready.then(()=>{if(workspaceSession===current&&current.isCurrent()){workspaceController.schedule();evidenceTransfers.pump();}});}mountWorkspaceControls();}
 function mountWorkspaceControls(){accountUI?.dispose();backupUI?.dispose();if(!workspaceSession||!state)return;const host=document.querySelector('[data-workspace-account]');if(host)accountUI=mountWorkspaceUI({element:host,viewState:accountViewState,session:workspaceSession,account,coordinator,controller:workspaceController,transfers:evidenceTransfers,beforeSwitch:beforeAccountSwitch,openDialog:(title,body)=>{openModal(title,body);return modal;},onError:error,onChanged:()=>{},onBackup:navyBackup,onLegacyImport:()=>{tab="settings";render();document.querySelector('[data-workspace-backup="import"]')?.click();}});const backups=document.querySelector('[data-workspace-backups]');if(backups)backupUI=mountBackupUI({element:backups,session:workspaceSession,v14Enabled:()=>account?.config?.logbookV14Enabled===true,transfers:evidenceTransfers,openDialog:(title,body)=>{openModal(title,body);return modal;},onChanged:()=>{workspaceController?.schedule();evidenceTransfers?.pump();}});}
 // Auth can advance again while a new session opens; discard that stale opening and use the latest generation.
-async function bootWorkspace(){const previousUID=workspaceSession?.uid,version=++bootVersion;workspaceController?.stop();evidenceTransfers?.stop();workspaceSession?.release();weatherCollector?.clear();weatherWatchUI?.dispose();weatherWatch?.dispose();let candidate;const openingToken=coordinator.capture();try{candidate=await openWorkspaceSession({coordinator,v14Enabled:()=>account?.config?.logbookV14Enabled===true,onLocalChange:()=>{if(workspaceSession===candidate&&candidate.isCurrent()){workspaceController?.schedule();evidenceTransfers?.pump();}},onView:next=>{if(workspaceSession!==candidate)return;if(busyForm()){pendingRemote=true;accountUI?.render();}else{state=next;render();}},onTransition:()=>{transitionAccount();}});}catch(err){if(version===bootVersion&&!coordinator.isCurrent(openingToken))return bootWorkspace();throw err;}if(version!==bootVersion){candidate.release();return;}workspaceSession=candidate;state=candidate.view();if(previousUID!==candidate.uid){weatherViewState={};accountViewState={};pageViewState={};navyFilters=defaultFilters();navyLimit=80;query='';logFilter='all';}weatherWatch=createWeatherWatch({uid:candidate.uid,airports:state.settings.weatherAirports||[],isCurrent:()=>workspaceSession===candidate&&candidate.isCurrent()});formDirty=false;pendingRemote=false;render();connectWorkspaceServices();weatherCollector=createWeatherCollector({isCurrent:token=>candidate.isCurrent()&&coordinator.isCurrent(token)});collectTodayWeather().catch(()=>{});}
+async function bootWorkspace(){const previousUID=workspaceSession?.uid,version=++bootVersion;workspaceController?.stop();evidenceTransfers?.stop();workspaceSession?.release();weatherCollector?.clear();weatherWatchUI?.dispose();weatherWatch?.dispose();let candidate;const openingToken=coordinator.capture();try{candidate=await openWorkspaceSession({coordinator,v14Enabled:()=>account?.config?.logbookV14Enabled===true,onLocalChange:()=>{if(workspaceSession===candidate&&candidate.isCurrent()){workspaceController?.schedule();evidenceTransfers?.pump();}},onView:next=>{if(workspaceSession!==candidate)return;if(busyForm()){pendingRemote=true;accountUI?.render();}else{state=next;render();}},onTransition:()=>{transitionAccount();}});}catch(err){if(version===bootVersion&&!coordinator.isCurrent(openingToken))return bootWorkspace();throw err;}if(version!==bootVersion){candidate.release();return;}workspaceSession=candidate;state=candidate.view();if(previousUID!==candidate.uid){weatherViewState={};accountViewState={};pageViewState={};navyFilters=defaultFilters();navyLimit=80;tabletSelectedFlightId=null;query='';logFilter='all';}weatherWatch=createWeatherWatch({uid:candidate.uid,airports:state.settings.weatherAirports||[],isCurrent:()=>workspaceSession===candidate&&candidate.isCurrent()});formDirty=false;pendingRemote=false;render();connectWorkspaceServices();weatherCollector=createWeatherCollector({isCurrent:token=>candidate.isCurrent()&&coordinator.isCurrent(token)});collectTodayWeather().catch(()=>{});}
 async function collectTodayWeather({id,refresh=false}={}){const current=workspaceSession,outcomes=[];if(!current?.writable||!weatherCollector||!navigator.onLine)return outcomes;for(const flight of current.view().flights.filter(f=>f.date===new Date().toISOString().slice(0,10)&&(!id||f.id===id))){const token=current.token,result=await weatherCollector.collect(flight,{token,refresh});outcomes.push(result);if(current!==workspaceSession||!current.isCurrent())return outcomes;if(result.weather&&JSON.stringify(result.weather)!==JSON.stringify(flight.weather)){const form=current.captureForm(),next=current.view(),latest=next.flights.find(f=>f.id===flight.id);if(!latest||latest.date!==flight.date||latest.dep!==flight.dep||latest.dest!==flight.dest)continue;latest.weather=result.weather;await current.saveView({...form,next});}}return outcomes;}
 window.addEventListener('offline',()=>{workspaceController?.syncNow();accountUI?.render();});
 window.addEventListener('online',()=>{workspaceController?.schedule();evidenceTransfers?.pump();collectTodayWeather().catch(()=>{});});window.addEventListener('focus',()=>workspaceController?.schedule());
@@ -185,14 +186,25 @@ async function commit(next, message, options={}) {
     saving = false;
   }
 }
-function openModal(title, body, footer = "") {
+function tabletEditorBounds(){
+ if(!modal.classList.contains('nv21-ipad-inline-editor'))return;
+ const pane=app.querySelector('[data-tablet-preview]');if(!pane)return;
+ const r=pane.getBoundingClientRect();
+ for(const [key,value] of Object.entries({'--nv21-ipad-left':r.left+'px','--nv21-ipad-top':Math.max(0,r.top)+'px','--nv21-ipad-width':r.width+'px','--nv21-ipad-height':Math.min(r.height,innerHeight-Math.max(0,r.top))+'px'}))modal.style.setProperty(key,value);
+}
+window.addEventListener('resize',tabletEditorBounds,{passive:true});
+window.addEventListener('scroll',tabletEditorBounds,{passive:true});
+const tabletEditingAllowed=()=>tab==='logbook'&&matchMedia('(min-width:768px) and (max-width:1199px), (min-width:1200px) and (max-width:1439px) and (pointer:coarse)').matches&&Boolean(app.querySelector('[data-tablet-preview]'));
+function openModal(title, body, footer = "", {tabletEditor=false}={}) {
   modal._navySheet?.dispose();modal._navySheet=null;
   modal._imageTarget=null;
   modal._flightEditor?.dispose();modal._flightEditor=null;
   try{modal._formCapture=workspaceSession?.captureForm();}catch{modal._formCapture=null;}
   modal.dataset.context=crypto.randomUUID();formDirty=false;
+  modal.classList.toggle('nv21-ipad-inline-editor',Boolean(tabletEditor&&tabletEditingAllowed()));
   modal.innerHTML = `<div class="modal-head"><h2>${title}</h2><button class="iconbtn" data-action="close" aria-label="Đóng">${icon("close")}</button></div>${body}<div class="modal-footer">${footer || btn("close", "Đóng", null, "ghost")}</div>`;
-  if (!modal.open) modal.showModal();
+  if(modal.classList.contains('nv21-ipad-inline-editor')){tabletEditorBounds();if(!modal.open)modal.show();}
+  else if(!modal.open)modal.showModal();
 }
 const input = (name, label, value = "", type = "text", extra = "") =>
   `<label>${label}<input name="${name}" type="${type}" value="${e(value)}" ${extra}></label>`;
@@ -210,8 +222,9 @@ function render() {
   const fs = getFlights(),
     s = statistics(fs);
   const nav=renderNavigation({active:tab,icon,count:fs.length});
-  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><div class="brand"><span class="brandmark">${icon("plane")}</span>AviLog<span style="color:#ffffff">.</span></div><button type="button" class="sidebar-toggle" data-action="appearance-sidebar" aria-label="Thu gọn hoặc mở rộng thanh điều hướng">☰</button><div class="nav-caption">YOUR FLIGHT COMPANION</div><nav class="nav" aria-label="Điều hướng">${nav}</nav><div class="sidebar-bottom"><div class="plan-card"><strong>${icon("shield")} Your logbook, your story.</strong><p>Lịch bay, giờ bay và những người đồng hành. Gọn trong một nơi.</p>${btn("plan", "Free preview ↗", null, "small")}</div><button class="profile iconbtn" style="width:100%;height:auto;text-align:left;display:flex" data-action="tab" data-tab="settings"><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span><span><strong>${e(state.settings.name || "Pilot")}</strong><small>Personal workspace</small></span>${icon("settings")}</button></div></aside><section class="workspace"><header class="topbar"><div class="topbar-main"><button type="button" class="iconbtn nv-avatar" data-action="navy-account" aria-label="Mở tài khoản và đồng bộ">${e((state.settings.name||"P").slice(0,2).toUpperCase())}</button><div class="breadcrumbs">Workspace <span>/</span> <strong>${titles[tab]}</strong></div><div class="mobile-brand"><span class="brandmark">${icon("plane")}</span>AviLog.</div><div class="top-actions"><button type="button" class="iconbtn" data-action="appearance-theme" aria-label="Chuyển sang ban đêm">☾</button><span class="utc-clock mono" id="utc-clock">${new Date().toISOString().slice(11, 16)} <b>UTC</b></span><button class="iconbtn notification-btn" data-action="reminders" aria-label="Thông báo">${icon("bell")}</button><div data-page-tools></div><section class="workspace-account" data-workspace-account aria-label="Tài khoản AviLog"></section></div></div></header><main class="main${tab === "weather" ? " weather-main" : ""}"><div class="page-heading"><div><div style="display:flex;gap:10px;align-items:center"><h1>${titles[tab]}</h1><span class="badge-preview">PREVIEW</span></div><p>${{ schedule: "Mỗi hành trình, một câu chuyện. Sẵn sàng cho chuyến bay tiếp theo.", logbook: "Ghi lại hành trình. Giữ trọn từng phút bay.", crew: "Những người đồng hành trên mỗi chuyến bay.", statistics: "Một góc nhìn rõ hơn về hành trình của bạn.", weather: "Theo dõi METAR / SPECI và TAF nguyên văn của các sân bay bạn chọn.", settings: "Thiết lập không gian bay của riêng bạn." }[tab]}</p></div><div class="actions">${["schedule", "logbook"].includes(tab) ? `${btn("import", "Import roster", "upload")}${btn("add", "Thêm chuyến bay", "plus", "primary")}` : tab === "crew" ? btn("add-person", "Thêm người", "plus", "primary") : tab === "statistics" ? btn("csv", "Xuất CSV", "download") : ""}</div></div>${tab === "schedule" ? schedule(fs, s) : tab === "logbook" ? logbook(fs, s) : tab === "crew" ? crew() : tab === "statistics" ? statsPage(fs, s) : tab === "weather" ? '<div data-weather-watch></div>' : settingsPage()}<footer class="footer"><span>${icon("shield")} Lưu offline theo không gian đang chọn · All times in UTC · AviLog</span><span>Made for the journey, logged for you.</span></footer></main></section>${renderBottomNavigation({active:tab,icon})}</div>`;
+  app.innerHTML = `<div class="app-shell"><aside class="sidebar"><div class="brand"><img class="nv21-brand-img" src="/brand/avl-logo.svg" alt="AVL AVILOG"></div><button type="button" class="sidebar-toggle" data-action="appearance-sidebar" aria-label="Thu gọn hoặc mở rộng thanh điều hướng">☰</button><div class="nav-caption">YOUR FLIGHT COMPANION</div><nav class="nav" aria-label="Điều hướng">${nav}</nav><button type="button" class="nv21-ipad-add" data-action="add" aria-label="Thêm chuyến bay trên iPad">${icon("plus")}</button><div class="sidebar-bottom"><div class="plan-card"><strong>${icon("shield")} Your logbook, your story.</strong><p>Lịch bay, giờ bay và những người đồng hành. Gọn trong một nơi.</p>${btn("plan", "Free preview ↗", null, "small")}</div><button class="profile iconbtn" style="width:100%;height:auto;text-align:left;display:flex" data-action="tab" data-tab="settings"><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span><span><strong>${e(state.settings.name || "Pilot")}</strong><small>Personal workspace</small></span>${icon("settings")}</button></div></aside><section class="workspace"><header class="topbar"><div class="topbar-main"><button type="button" class="iconbtn nv-avatar" data-action="navy-account" aria-label="Mở tài khoản và đồng bộ">${e((state.settings.name||"P").slice(0,2).toUpperCase())}</button><div class="breadcrumbs">Workspace <span>/</span> <strong>${titles[tab]}</strong></div><div class="mobile-brand"><img class="nv21-brand-img" src="/brand/avl-logo.svg" alt="AVL AVILOG"></div><div class="top-actions"><button type="button" class="iconbtn" data-action="appearance-theme" aria-label="Chuyển sang ban đêm">☾</button><span class="utc-clock mono" id="utc-clock">${new Date().toISOString().slice(11, 16)} <b>UTC</b></span><button class="iconbtn notification-btn" data-action="reminders" aria-label="Thông báo">${icon("bell")}</button><div data-page-tools></div><section class="workspace-account" data-workspace-account aria-label="Tài khoản AviLog"></section></div></div></header><main class="main${tab === "weather" ? " weather-main" : ""}"><div class="page-heading"><div><div style="display:flex;gap:10px;align-items:center"><h1>${titles[tab]}</h1><span class="badge-preview">PREVIEW</span></div><p>${{ schedule: "Mỗi hành trình, một câu chuyện. Sẵn sàng cho chuyến bay tiếp theo.", logbook: "Ghi lại hành trình. Giữ trọn từng phút bay.", crew: "Những người đồng hành trên mỗi chuyến bay.", statistics: "Một góc nhìn rõ hơn về hành trình của bạn.", weather: "Theo dõi METAR / SPECI và TAF nguyên văn của các sân bay bạn chọn.", settings: "Thiết lập không gian bay của riêng bạn." }[tab]}</p></div><div class="actions">${["schedule", "logbook"].includes(tab) ? `${btn("import", "Import roster", "upload")}${btn("add", "Thêm chuyến bay", "plus", "primary")}` : tab === "crew" ? btn("add-person", "Thêm người", "plus", "primary") : tab === "statistics" ? btn("csv", "Xuất CSV", "download") : ""}</div></div>${tab === "schedule" ? schedule(fs, s) : tab === "logbook" ? logbook(fs, s) : tab === "crew" ? crew() : tab === "statistics" ? statsPage(fs, s) : tab === "weather" ? '<div data-weather-watch></div>' : settingsPage()}<footer class="footer"><span>${icon("shield")} Lưu offline theo không gian đang chọn · All times in UTC · AviLog</span><span>Made for the journey, logged for you.</span></footer></main></section>${renderBottomNavigation({active:tab,icon})}</div>`;
   mountPageLayout();applyAppearance();mountWorkspaceControls();
+  if(tab==='logbook'){for(const card of app.querySelectorAll('[data-flight-card]')){const active=card.dataset.flightCard===tabletSelectedFlightId;card.classList.toggle('nv21-tablet-selected',active);const button=card.querySelector('[data-action=tablet-preview]');if(button)button.setAttribute('aria-pressed',String(active));}}
   if(tab==='weather'&&weatherWatch){
     const current=workspaceSession;weatherWatch.setAirports(state.settings.weatherAirports||[]);
     weatherWatchUI=mountWeatherWatch({element:app.querySelector('[data-weather-watch]'),watch:weatherWatch,getGroups:()=>readWeatherGroups(current.view().settings),viewState:weatherViewState,isCurrent:()=>workspaceSession===current&&current.isCurrent(),onError:error,onGroups:async groups=>{
@@ -331,13 +344,29 @@ function flightTable(fs) {
     ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Ngày / Flight</th><th>Hành trình</th><th>Scheduled · UTC</th><th>Actual · UTC</th><th>Block / Air</th><th>Trạng thái</th><th></th></tr></thead><tbody>${filtered.map((f) => `<tr><td><span class="tiny muted">${shortDate(f.date)}</span><br><strong>${e(f.flightNo)}</strong></td><td class="route-col">${e(f.dep)} <span class="muted">→</span> ${e(f.dest)}<br><span class="tiny muted">${e(f.aircraft)} · ${e(f.reg || "Reg chưa ghi")}</span></td><td class="mono">${clock(f.scheduled?.out)}–${clock(f.scheduled?.in)}${(f.scheduled?.dep && f.scheduled.dep !== f.dep) || (f.scheduled?.dest && f.scheduled.dest !== f.dest) ? '<br><span class="tiny">' + e(f.scheduled.dep) + " → " + e(f.scheduled.dest) + "</span>" : ""}${f.scheduled?.in?.slice(0, 10) > f.date ? " +1d" : ""}</td><td class="mono">${clock(f.actual?.out)}–${clock(f.actual?.in)}${f.actual?.in?.slice(0, 10) > f.date ? " +1d" : ""}</td><td class="mono">${f.confirmed ? duration(minutes(f.actual.out, f.actual.in)) + " / " + duration(minutes(f.actual.off, f.actual.on)) : "—"}</td><td>${statusPill(f)}</td><td><button class="iconbtn" data-action="edit" data-id="${e(f.id)}" aria-label="Sửa ${e(f.flightNo)}">${icon("edit")}</button></td></tr>`).join("")}</tbody></table></div>`
     : `<div class="empty">${icon("book")}<p>Không có chuyến bay phù hợp.</p></div>`;
 }
-function logbook(fs, s) {
-  return `${state.demo?'<p class="nv-demo-note" role="note">Dữ liệu mẫu · chỉ trong kho khách trên thiết bị. <button type="button" class="text-button" data-action="fresh">Bắt đầu logbook riêng</button></p>':''}${renderLogbook({flights:state.flights,people:state.people,month,query,filters:navyFilters,limit:navyLimit,icon})}<details class="nv-logbook-summary"><summary>Thống kê các chuyến đang lọc</summary><div data-navy-metrics>${metrics(statistics(selectFlights(state.flights,{month,query,filters:navyFilters,people:state.people})))}</div></details><div class="nv-collection-actions">${btn('navy-management','Quản lý Logbook','settings')}${btn('add','Thêm chuyến bay','plus','primary')}</div>`;
+function tabletVisibleFlights(){
+ return selectFlights(state.flights,{month,query,filters:navyFilters,people:state.people}).slice(0,navyLimit);
 }
-
+function currentTabletFlight(){
+ const visible=tabletVisibleFlights();
+ if(!visible.some(f=>f.id===tabletSelectedFlightId))tabletSelectedFlightId=visible[0]?.id||null;
+ return visible.find(f=>f.id===tabletSelectedFlightId)||null;
+}
+function tabletPane(){
+ return '<aside class="nv21-tablet-detail" aria-label="Chi tiết chuyến bay trên iPad" data-tablet-preview>'+renderTabletFlightPreview(currentTabletFlight(),state.people)+'</aside>';
+}
+function logbook(fs, s) {
+ const demo=state.demo?'<p class="nv-demo-note" role="note">Dữ liệu mẫu · chỉ trong kho khách trên thiết bị. <button type="button" class="text-button" data-action="fresh">Bắt đầu logbook riêng</button></p>':'';
+ const list=renderLogbook({flights:state.flights,people:state.people,month,query,filters:navyFilters,limit:navyLimit,icon});
+ const summary='<details class="nv-logbook-summary"><summary>Thống kê các chuyến đang lọc</summary><div data-navy-metrics>'+metrics(statistics(selectFlights(state.flights,{month,query,filters:navyFilters,people:state.people})))+'</div></details>';
+ const actions='<div class="nv-collection-actions">'+btn('navy-management','Quản lý Logbook','settings')+btn('add','Thêm chuyến bay','plus','primary')+'</div>';
+ return demo+'<div class="nv21-tablet-layout"><div class="nv21-tablet-list" role="region" aria-label="Danh sách chuyến bay" tabindex="0">'+list+summary+actions+'</div>'+tabletPane()+'</div>';
+}
 function refreshLogbook(){
  const host=app.querySelector('[data-navy-logbook]');if(!host)return;
  host.outerHTML=renderLogbook({flights:state.flights,people:state.people,month,query,filters:navyFilters,limit:navyLimit,icon});
+ const detail=app.querySelector('[data-tablet-preview]');if(detail)detail.innerHTML=renderTabletFlightPreview(currentTabletFlight(),state.people);
+ for(const card of app.querySelectorAll('[data-flight-card]')){const active=card.dataset.flightCard===tabletSelectedFlightId;card.classList.toggle('nv21-tablet-selected',active);const button=card.querySelector('[data-action=tablet-preview]');if(button)button.setAttribute('aria-pressed',String(active));}
  const summary=app.querySelector('[data-navy-metrics]');if(summary)summary.innerHTML=metrics(statistics(selectFlights(state.flights,{month,query,filters:navyFilters,people:state.people})));
 }
 function canLeaveDraft(){return !saving&&(!formDirty||confirm('Bạn còn thay đổi chưa lưu. Bỏ thay đổi để tiếp tục?'));}
@@ -345,7 +374,16 @@ modal.addEventListener('cancel',event=>{if(!canLeaveDraft())event.preventDefault
 window.addEventListener('beforeunload',event=>{if(formDirty){event.preventDefault();event.returnValue='';}});
 function navySheet(kind){
  const navigation=kind==='more',title=navigation?'More · Điều hướng':'Quản lý Logbook';
- const entries=navigation?tabs.map(([id,ico,label])=>btn('tab',label,ico,'',`data-tab="${id}"`)).join(''):
+ const entries=navigation?(
+  '<section class="nv21-more-group"><h3>Account & Settings</h3>'+
+   ['settings','crew'].map(id=>{const t=tabs.find(x=>x[0]===id);return t?btn('tab',t[2],t[1],'',`data-tab="${id}"`):''}).join('')+
+  '</section><section class="nv21-more-group"><h3>Logbook Management</h3>'+
+   ['logbook','statistics'].map(id=>{const t=tabs.find(x=>x[0]===id);return t?btn('tab',t[2],t[1],'',`data-tab="${id}"`):''}).join('')+
+   btn('csv','Export CSV','download')+btn('import','Import roster','upload')+btn('navy-backup','Backup / Restore','shield')+
+  '</section><section class="nv21-more-group"><h3>Tools</h3>'+
+   ['schedule','weather','atpl'].map(id=>{const t=tabs.find(x=>x[0]===id);return t?btn('tab',t[2],t[1],'',`data-tab="${id}"`):''}).join('')+
+  '</section>'
+ ):
   `${btn('tab','Statistics','stats','', 'data-tab="statistics"')}${btn('csv','Export CSV','download')}${btn('import','Import roster','upload')}${btn('image','Nhập từ ảnh Flight Log','camera')}${btn('navy-backup','Backup / Restore','shield')}${btn('tab','Preferences · Settings','settings','','data-tab="settings"')}`;
  openModal(title,`<button type="button" class="nv-sheet-handle" data-sheet-handle aria-label="Đóng menu" data-action="close"></button><div class="modal-body nv-sheet-list">${entries}</div>`);
  modal.classList.add('nv-sheet');modal._navySheet=mountSheet(modal);
@@ -463,7 +501,7 @@ function editFlight(original, imported, ocrWarning, scanReading=null) {
   if(v14Enabled&&!old&&!f.logbook)f.logbook={version:1};
   const title=imported ? "Kiểm tra Actual từ ảnh" : old ? "Chi tiết chuyến bay" : "Thêm chuyến bay";
   const body=renderFlightEditor(f,{original:old,imported,warning:ocrWarning||'',icon,scan:scanReading,v14Enabled});
-  openModal(title,body);
+  openModal(title,body,'',{tabletEditor:!imported&&!scanReading});
   modal._flightEditor=mountFlightEditor(modal,{title,icon});
   const form = modal.querySelector("form");
   form._timeValues=f;
@@ -1230,6 +1268,10 @@ document.addEventListener("click", async (ev) => {
       case "navy-clear": navyFilters=defaultFilters();query="";navyLimit=80;refreshLogbook();break;
       case "navy-period": navyFilters={...navyFilters,period:navyFilters.period==="all"?"month":"all"};navyLimit=80;refreshLogbook();break;
       case "navy-more-records": navyLimit+=80;refreshLogbook();break;
+      case "tablet-preview": {const visible=tabletVisibleFlights();if(visible.some(f=>f.id===id)){
+       const inlineOpen=modal.open&&modal.classList.contains('nv21-ipad-inline-editor');
+       if(inlineOpen&&!canLeaveDraft())break;
+       tabletSelectedFlightId=id;const panel=app.querySelector("[data-tablet-preview]");if(panel){panel.innerHTML=renderTabletFlightPreview(currentTabletFlight(),state.people);panel.scrollTop=0;}for(const card of app.querySelectorAll("[data-flight-card]")){const active=card.dataset.flightCard===id;card.classList.toggle("nv21-tablet-selected",active);const select=card.querySelector("[data-action=tablet-preview]");if(select)select.setAttribute("aria-pressed",String(active));}if(inlineOpen)editFlight(find(id));}break;}
       case "tab":
         if(!canLeaveDraft())break;
         if (b.dataset.tab === "atpl") { if(await beforeAccountSwitch())location.assign("/atpl/"); break; }

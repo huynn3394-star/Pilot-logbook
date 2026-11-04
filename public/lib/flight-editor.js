@@ -134,13 +134,21 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
  modal.setAttribute('aria-labelledby','flight-editor-title');
  footer.replaceChildren();
  const tabs=[...form.querySelectorAll('[data-flight-tab]')],panels=[...form.querySelectorAll('[data-flight-panel]')];
+ // Navy V2.1 continuous editor: reuse the SAME form controls and Save handler.
+ // No duplicated inputs, storage changes, calculated fields or synthetic controls.
+ form.classList.add('nv21-continuous');
+ const tabbar=form.querySelector('.fe-tabs'); // Keep accessible section shortcuts for keyboard/browser compatibility.
+ const sectionLabels={log:'Thông tin và giờ bay',airports:'Sân bay và hành trình',tools:'Nguồn và xác nhận'};
+ for(const panel of panels){panel.hidden=false;panel.setAttribute('role','region');panel.removeAttribute('aria-labelledby');panel.setAttribute('aria-label',sectionLabels[panel.dataset.flightPanel]||'Chi tiết chuyến bay');}
  let selected='log';const positions=new Map();
  function show(key,{focus=false,restore=true}={}){
   if(!tabs.some(tab=>tab.dataset.flightTab===key))return;
   positions.set(selected,form.scrollTop);selected=key;
   for(const tab of tabs){const active=tab.dataset.flightTab===key;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;if(active&&focus)tab.focus();}
-  for(const panel of panels)panel.hidden=panel.dataset.flightPanel!==key;
-  if(restore)form.scrollTop=positions.get(key)||0;
+  // Panels remain visible in one continuous scroll; link buttons jump to a section.
+  const target=panels.find(panel=>panel.dataset.flightPanel===key);
+  if(restore&&target&&key!=='log')target.scrollIntoView({block:'start',behavior:'instant'});
+  else if(restore&&key==='log'&&selected==='log')form.scrollTop=0;
  }
  const click=event=>{const tab=event.target.closest('[data-flight-tab]'),link=event.target.closest('[data-fe-open]');if(tab)show(tab.dataset.flightTab);else if(link)show(link.dataset.feOpen,{focus:true});};
  const keydown=event=>{const tab=event.target.closest('[data-flight-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();let i=tabs.indexOf(tab);if(event.key==='Home')i=0;else if(event.key==='End')i=tabs.length-1;else i=(i+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;show(tabs[i].dataset.flightTab,{focus:true});};
@@ -162,5 +170,5 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
   card.querySelector('.nv-count-grid').append(...countFields);form.querySelector('.nv-primary-times').after(card);
  }
  const setSaveState=state=>{const save=head.querySelector('.fe-save');save.disabled=state==='saving'||[...form.elements].some(input=>input.willValidate&&!input.validity.valid);save.setAttribute('aria-busy',String(state==='saving'));save.textContent=({saving:'Đang lưu…',saved:'Đã lưu',error:'Thử lưu lại'})[state]||'Lưu ✓';};
- return{show,setSaveState,dispose(){form.removeEventListener('click',click);form.removeEventListener('keydown',keydown);form.removeEventListener('invalid',invalid,true);modal.classList.remove('flight-editor-modal');modal.removeAttribute('aria-labelledby');}};
+ return{show,setSaveState,dispose(){form.removeEventListener('click',click);form.removeEventListener('keydown',keydown);form.removeEventListener('invalid',invalid,true);form.classList.remove('nv21-continuous');modal.classList.remove('flight-editor-modal');modal.removeAttribute('aria-labelledby');}};
 }
