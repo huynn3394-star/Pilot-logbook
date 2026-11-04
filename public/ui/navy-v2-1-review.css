@@ -87,3 +87,16 @@
  #app .topbar .workspace-account-popover{position:fixed!important;left:8px!important;right:8px!important;width:auto!important;max-width:calc(100vw - 16px)!important;box-sizing:border-box}
  #app .topbar .page-management-content .btn{max-width:100%;white-space:normal}
 }
+
+/* Live Weather presentation: preserve existing METAR/SPECI/TAF provider content and alerts. */
+#app .weather-main .weather-quick-search{border-radius:999px}
+#app .weather-main .weather-group{border-radius:24px;border:1px solid var(--ui-line);
+ background-color:var(--ui-surface);background-image:linear-gradient(110deg,var(--ui-surface),var(--ui-soft))}
+#app .weather-main .weather-group-products{border-radius:999px;overflow:hidden}
+#app .weather-main .weather-group-products button{border-radius:999px}
+#app .weather-main .weather-station-detail{padding-bottom:14px}
+#app .weather-main .weather-product{border-top:1px solid var(--ui-line);padding:12px 2px}
+#app .weather-main .weather-product h3{font-size:13px;letter-spacing:.05em;color:var(--ui-accent)}
+#app .weather-main .weather-report{font-family:var(--ui-mono);font-size:13px;line-height:1.65;
+ white-space:pre-wrap;overflow-wrap:anywhere;word-break:normal;max-width:100%}
+#app .weather-main .weather-speci-panel{border-radius:24px}
