@@ -55,3 +55,13 @@
  #app .nv-card-times{grid-template-columns:minmax(0,1fr) minmax(100px,1.2fr) minmax(0,1fr)}
 }
 @media(prefers-reduced-motion:reduce){#app .nv-flight-card{transition:none}}
+
+/* Approved AVL brand mark, cropped transparently from the user-supplied logo. */
+#app .brand .nv21-brand-img{display:block;width:145px;max-width:100%;height:62px;object-fit:contain;object-position:left center}
+#app .mobile-brand .nv21-brand-img{display:block;width:128px;height:58px;object-fit:contain}
+@media(max-width:720px){
+ #app .topbar .breadcrumbs{display:none}
+ #app .mobile-brand{display:flex!important;flex:1 1 auto;align-items:center;justify-content:center;min-width:80px}
+ #app .mobile-brand .nv21-brand-img{width:105px;height:48px}
+ #app .topbar-main{gap:4px}
+}
