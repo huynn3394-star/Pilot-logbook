@@ -1257,7 +1257,7 @@ document.addEventListener("click", async (ev) => {
       case "navy-clear": navyFilters=defaultFilters();query="";navyLimit=80;refreshLogbook();break;
       case "navy-period": navyFilters={...navyFilters,period:navyFilters.period==="all"?"month":"all"};navyLimit=80;refreshLogbook();break;
       case "navy-more-records": navyLimit+=80;refreshLogbook();break;
-      case "tablet-preview": {const visible=tabletVisibleFlights();if(visible.some(f=>f.id===id)){tabletSelectedFlightId=id;const panel=app.querySelector("[data-tablet-preview]");if(panel){panel.innerHTML=renderTabletFlightPreview(currentTabletFlight(),state.people);panel.scrollTop=0;}for(const card of app.querySelectorAll("[data-flight-card]"))card.classList.toggle("nv21-tablet-selected",card.dataset.flightCard===id);}break;}
+      case "tablet-preview": {const visible=tabletVisibleFlights();if(visible.some(f=>f.id===id)){tabletSelectedFlightId=id;const panel=app.querySelector("[data-tablet-preview]");if(panel){panel.innerHTML=renderTabletFlightPreview(currentTabletFlight(),state.people);panel.scrollTop=0;}for(const card of app.querySelectorAll("[data-flight-card]")){const active=card.dataset.flightCard===id;card.classList.toggle("nv21-tablet-selected",active);const select=card.querySelector("[data-action=tablet-preview]");if(select)select.setAttribute("aria-pressed",String(active));}}break;}
       case "tab":
         if(!canLeaveDraft())break;
         if (b.dataset.tab === "atpl") { if(await beforeAccountSwitch())location.assign("/atpl/"); break; }
