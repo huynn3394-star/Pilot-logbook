@@ -186,14 +186,25 @@ async function commit(next, message, options={}) {
     saving = false;
   }
 }
-function openModal(title, body, footer = "") {
+function tabletEditorBounds(){
+ if(!modal.classList.contains('nv21-ipad-inline-editor'))return;
+ const pane=app.querySelector('[data-tablet-preview]');if(!pane)return;
+ const r=pane.getBoundingClientRect();
+ for(const [key,value] of Object.entries({'--nv21-ipad-left':r.left+'px','--nv21-ipad-top':Math.max(0,r.top)+'px','--nv21-ipad-width':r.width+'px','--nv21-ipad-height':Math.min(r.height,innerHeight-Math.max(0,r.top))+'px'}))modal.style.setProperty(key,value);
+}
+window.addEventListener('resize',tabletEditorBounds,{passive:true});
+window.addEventListener('scroll',tabletEditorBounds,{passive:true});
+const tabletEditingAllowed=()=>tab==='logbook'&&matchMedia('(min-width:768px) and (max-width:1199px), (min-width:1200px) and (max-width:1439px) and (pointer:coarse)').matches&&Boolean(app.querySelector('[data-tablet-preview]'));
+function openModal(title, body, footer = "", {tabletEditor=false}={}) {
   modal._navySheet?.dispose();modal._navySheet=null;
   modal._imageTarget=null;
   modal._flightEditor?.dispose();modal._flightEditor=null;
   try{modal._formCapture=workspaceSession?.captureForm();}catch{modal._formCapture=null;}
   modal.dataset.context=crypto.randomUUID();formDirty=false;
+  modal.classList.toggle('nv21-ipad-inline-editor',Boolean(tabletEditor&&tabletEditingAllowed()));
   modal.innerHTML = `<div class="modal-head"><h2>${title}</h2><button class="iconbtn" data-action="close" aria-label="Đóng">${icon("close")}</button></div>${body}<div class="modal-footer">${footer || btn("close", "Đóng", null, "ghost")}</div>`;
-  if (!modal.open) modal.showModal();
+  if(modal.classList.contains('nv21-ipad-inline-editor')){tabletEditorBounds();if(!modal.open)modal.show();}
+  else if(!modal.open)modal.showModal();
 }
 const input = (name, label, value = "", type = "text", extra = "") =>
   `<label>${label}<input name="${name}" type="${type}" value="${e(value)}" ${extra}></label>`;
@@ -490,7 +501,7 @@ function editFlight(original, imported, ocrWarning, scanReading=null) {
   if(v14Enabled&&!old&&!f.logbook)f.logbook={version:1};
   const title=imported ? "Kiểm tra Actual từ ảnh" : old ? "Chi tiết chuyến bay" : "Thêm chuyến bay";
   const body=renderFlightEditor(f,{original:old,imported,warning:ocrWarning||'',icon,scan:scanReading,v14Enabled});
-  openModal(title,body);
+  openModal(title,body,'',{tabletEditor:!imported&&!scanReading});
   modal._flightEditor=mountFlightEditor(modal,{title,icon});
   const form = modal.querySelector("form");
   form._timeValues=f;
@@ -1257,7 +1268,10 @@ document.addEventListener("click", async (ev) => {
       case "navy-clear": navyFilters=defaultFilters();query="";navyLimit=80;refreshLogbook();break;
       case "navy-period": navyFilters={...navyFilters,period:navyFilters.period==="all"?"month":"all"};navyLimit=80;refreshLogbook();break;
       case "navy-more-records": navyLimit+=80;refreshLogbook();break;
-      case "tablet-preview": {const visible=tabletVisibleFlights();if(visible.some(f=>f.id===id)){tabletSelectedFlightId=id;const panel=app.querySelector("[data-tablet-preview]");if(panel){panel.innerHTML=renderTabletFlightPreview(currentTabletFlight(),state.people);panel.scrollTop=0;}for(const card of app.querySelectorAll("[data-flight-card]")){const active=card.dataset.flightCard===id;card.classList.toggle("nv21-tablet-selected",active);const select=card.querySelector("[data-action=tablet-preview]");if(select)select.setAttribute("aria-pressed",String(active));}}break;}
+      case "tablet-preview": {const visible=tabletVisibleFlights();if(visible.some(f=>f.id===id)){
+       const inlineOpen=modal.open&&modal.classList.contains('nv21-ipad-inline-editor');
+       if(inlineOpen&&!canLeaveDraft())break;
+       tabletSelectedFlightId=id;const panel=app.querySelector("[data-tablet-preview]");if(panel){panel.innerHTML=renderTabletFlightPreview(currentTabletFlight(),state.people);panel.scrollTop=0;}for(const card of app.querySelectorAll("[data-flight-card]")){const active=card.dataset.flightCard===id;card.classList.toggle("nv21-tablet-selected",active);const select=card.querySelector("[data-action=tablet-preview]");if(select)select.setAttribute("aria-pressed",String(active));}if(inlineOpen)editFlight(find(id));}break;}
       case "tab":
         if(!canLeaveDraft())break;
         if (b.dataset.tab === "atpl") { if(await beforeAccountSwitch())location.assign("/atpl/"); break; }
