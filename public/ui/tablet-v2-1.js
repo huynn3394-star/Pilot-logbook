@@ -6,7 +6,7 @@ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const fmt=n=>n===null||n===undefined?'—':duration(n);
 export function renderTabletFlightPreview(f,people=[]){
  if(!f)return '<div class="nv21-tablet-empty"><span aria-hidden="true">✈</span><h3>Chọn chuyến bay</h3><p>Chọn “Xem chi tiết” từ danh sách bên trái để xem tại đây.</p></div>';
- const t=timeTotals(f),actual=Boolean(f.actual?.out||f.actual?.in),times=actual?f.actual:(f.scheduled||{});
+ const t=timeTotals(f),actual=Object.values(f.actual||{}).some(Boolean),times=actual?f.actual:(f.scheduled||{});
  const timesList=[['OUT',times.out],['OFF',times.off],['ON',times.on],['IN',times.in]];
  const fields=[['FLIGHT',t.airborne],['PIC',t.pic],['SIC',t.sic],['IFR',t.ifr],['VFR',t.vfr],['DAY',t.day],['NIGHT',t.night],['INSTRUMENT',t.instrument]];
  const name=id=>people.find(p=>p.id===id)?.name||(id?'Đã lưu trong Crew Book':'—');
@@ -18,7 +18,7 @@ export function renderTabletFlightPreview(f,people=[]){
  <div class="nv21-preview-aircraft">${esc(f.reg||'Registration —')} · ${esc(f.aircraft||'Aircraft —')} · ${esc(f.role||'—')}</div>
  <section class="nv21-preview-section" aria-label="Flight and crew"><h4>FLIGHT INFORMATION</h4><div class="nv21-preview-keyvalues"><div><span>FLIGHT NO.</span><strong>${esc(f.flightNo||'—')}</strong></div><div><span>DATE · UTC</span><strong>${esc(f.date||'—')}</strong></div><div><span>AIRCRAFT</span><strong>${esc(f.aircraft||'—')}</strong></div><div><span>REGISTRATION</span><strong>${esc(f.reg||'—')}</strong></div></div></section>
  <section class="nv21-preview-section" aria-label="Crew"><h4>CREW</h4><div class="nv21-preview-keyvalues">${crew.map(([label,id])=>`<div><span>${label}</span><strong>${esc(name(id))}</strong></div>`).join('')}</div></section>
- <section class="nv21-preview-section" aria-label="Times"><h4>ACTUAL TIMES · UTC</h4>
+ <section class="nv21-preview-section" aria-label="Times"><h4>${actual?'ACTUAL TIMES':'SCHEDULED TIMES'} · UTC</h4>
  <div class="nv21-preview-times">${timesList.map(([label,v])=>`<div><span>${label} · UTC</span><strong>${esc(clock(v))}</strong></div>`).join('')}</div></section>
  <div class="nv21-preview-total"><span>BLOCK TIME</span><strong>${fmt(t.block)}</strong><small>OUT → IN · UTC</small></div>
  <section class="nv21-preview-section" aria-label="Flight allocation"><h4>FLIGHT ALLOCATION</h4><div class="nv21-preview-grid">${fields.map(([label,value])=>`<div><span>${label}</span><strong>${fmt(value)}</strong></div>`).join('')}</div></section>
