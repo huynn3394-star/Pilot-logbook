@@ -289,3 +289,24 @@
  #app .main:has(.nv21-tablet-layout)>.page-heading{display:none}
  #app .main:has(.nv21-tablet-layout){padding-top:9px;padding-bottom:0}
 }
+
+/* iPad regression: scan and view buttons must not overlap or intercept clicks.
+   Each action has its own half of the bottom row. */
+@media(min-width:768px) and (max-width:1199px){
+ #app .nv21-tablet-list .nv-flight-card{padding-bottom:40px}
+ #app .nv21-tablet-list .nv-flight-open{padding-bottom:10px}
+ #app .nv21-tablet-list .nv21-tablet-select{
+   left:8px;right:auto;bottom:5px;max-width:calc(50% - 12px);min-width:0;
+   font-size:11px;text-align:left;white-space:normal;line-height:1.2;
+ }
+ #app .nv21-tablet-list .nv-card-scan.flight-scan-shortcut{
+   left:auto;right:6px;bottom:5px;max-width:calc(50% - 10px);min-width:0;
+   font-size:11px;text-align:right;white-space:normal;line-height:1.2;
+ }
+}
+@media(min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #app .nv21-tablet-list .nv-flight-card{padding-bottom:40px}
+ #app .nv21-tablet-list .nv-flight-open{padding-bottom:10px}
+ #app .nv21-tablet-list .nv21-tablet-select{left:8px;right:auto;bottom:5px;max-width:calc(50% - 12px)}
+ #app .nv21-tablet-list .nv-card-scan.flight-scan-shortcut{right:6px;bottom:5px;max-width:calc(50% - 10px)}
+}
