@@ -56,7 +56,7 @@ export function renderFlightCard(f){
     <span class="nv-flight-function">${allocation}</span>
     <span class="nv-flight-state" aria-label="Trạng thái chuyến bay">${status}</span>
    </span>
-   <span class="nv-card-route"><strong>${e(f.dep)}</strong><span><b class="mono">${block}</b></span><strong>${e(f.dest)}</strong></span>
+   <span class="nv-card-route"><strong>${e(f.dep)}</strong><span><small>BLOCK</small><b class="mono">${block}</b></span><strong>${e(f.dest)}</strong></span>
    <span class="nv-card-times nv-v215-times">
     <span class="nv-station"><span class="nv-station-main"><b class="mono">${clock(times.out)}</b><small>${airport(f.dep)}</small></span><span class="nv-station-role">✈ ${e(op)}</span></span>
     <span class="nv-timeline" aria-label="Timeline minh họa Init / Dep / Arr, không theo tỷ lệ thời gian">
