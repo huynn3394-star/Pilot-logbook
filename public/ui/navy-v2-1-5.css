@@ -1,0 +1,90 @@
+/* Avilog Navy V2.1.5 — approved Wader-inspired visual refinement.
+   Deliberately presentation-only: no data, storage, flight-time or auth changes.
+   The source-of-truth interactive mockup is docs/previews/Avilog_Navy_V2_1_Interactive.html. */
+html[data-theme="dark"] {
+  --navy-bg:#142744;
+  --navy-secondary:#1c3352;
+  --navy-card:#30415d;
+  --navy-raised:#34445f;
+  --border-primary:#52617b;
+  --text-primary:#edf2fa;
+  --text-secondary:#abb8ce;
+  --accent-primary:#27bea6;
+  --ui-bg:#142744;
+  --ui-surface:#30415d;
+  --ui-soft:#1c3352;
+  --ui-line:#52617b;
+  --ui-accent:#58e1cf;
+  --ui-accent-soft:#214e5b;
+  --ui-ink:#edf2fa;
+  --ui-muted:#abb8ce;
+  --ui-on-accent:#142744;
+}
+html[data-theme="dark"] #app .nv-logbook,
+html[data-theme="dark"] #modal.flight-editor-modal,
+html[data-theme="dark"] #modal.nv-sheet,
+html[data-theme="dark"] #modal.nv-filter-modal { color:var(--ui-ink); font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Arial,sans-serif; }
+html[data-theme="dark"] #app .nv-logbook-tools { background:linear-gradient(180deg,#142744 85%,#142744ee); }
+html[data-theme="dark"] #app .nv-search,
+html[data-theme="dark"] #app .nv-filter-button { background:#30415d; border-color:#52617b; box-shadow:0 3px 16px #0713221c; }
+html[data-theme="dark"] #app .nv-search { border-radius:999px; }
+html[data-theme="dark"] #app .nv-search input::placeholder { color:#abb8ce; opacity:1; }
+html[data-theme="dark"] #app .nv-filter-button { color:#58e1cf; border-radius:999px; }
+html[data-theme="dark"] #app .nv-month-navigator label { background:#30415d; border-color:#52617b; }
+html[data-theme="dark"] #app .nv-month-header { border-bottom:1px solid #52617b55; margin-bottom:12px; padding:14px 2px; }
+html[data-theme="dark"] #app .nv-month-header h2 { font-size:22px; font-weight:680; letter-spacing:-.035em; color:#edf2fa; }
+html[data-theme="dark"] #app .nv-month-header strong,
+html[data-theme="dark"] #app .nv-list-status strong { color:#58e1cf; font-variant-numeric:tabular-nums; }
+html[data-theme="dark"] #app .nv-flight-card { background:linear-gradient(125deg,#30415d 0%,#34445f 100%); border-color:#52617b; border-left:3px solid #27bea6; border-radius:24px; box-shadow:0 6px 22px #0813242b; }
+html[data-theme="dark"] #app .nv-flight-open { color:#edf2fa; }
+html[data-theme="dark"] #app .nv-flight-number small,
+html[data-theme="dark"] #app .nv-card-route b,
+html[data-theme="dark"] #app .nv-timeline,
+html[data-theme="dark"] #app .nv-timeline-labels,
+html[data-theme="dark"] #app .nv-card-scan { color:#58e1cf; }
+html[data-theme="dark"] #app .nv-flight-date small,
+html[data-theme="dark"] #app .nv-card-times small,
+html[data-theme="dark"] #app .nv-card-foot,
+html[data-theme="dark"] #app .nv-card-caption { color:#abb8ce; }
+html[data-theme="dark"] #app .nv-timeline-track:before { background:#27bea6; }
+html[data-theme="dark"] #app .nv-timeline-track>i { background:#27bea6; }
+html[data-theme="dark"] #app .nv-flight-card:focus-within { outline:2px solid #58e1cf; outline-offset:3px; }
+html[data-theme="dark"] #app .nv-card-route>strong { font-size:clamp(25px,7vw,32px); letter-spacing:-.045em; }
+html[data-theme="dark"] #app .nv-card-route b,
+html[data-theme="dark"] #app .nv-card-times b { font-variant-numeric:tabular-nums; }
+html[data-theme="dark"] #app .nv-month-group { margin-bottom:28px; }
+html[data-theme="dark"] #app .nv-flight-list { gap:14px; }
+html[data-theme="dark"] #modal.nv-sheet { background:#142744; border:1px solid #52617b; border-bottom:0; }
+html[data-theme="dark"] #modal .nv-sheet-list { background:#30415d; border-color:#52617b; }
+html[data-theme="dark"] #modal .nv-sheet-list .btn { color:#edf2fa; border-bottom-color:#52617b; }
+html[data-theme="dark"] #modal .nv-sheet-list .btn svg { background:#214e5b; color:#58e1cf; }
+html[data-theme="dark"] #modal.nv-filter-modal { background:#142744; }
+html[data-theme="dark"] #modal.nv-filter-modal>.modal-head { background:#142744; }
+html[data-theme="dark"] #modal .nv-filter-card { background:#30415d; border-color:#52617b; border-radius:22px; }
+html[data-theme="dark"] #modal .nv-filter-row { border-bottom-color:#52617b; color:#edf2fa; }
+html[data-theme="dark"] #modal .nv-filter-row :is(input,select) { color:#58e1cf; }
+html[data-theme="dark"] #modal .nv-filter-footer { background:#1c3352; border-top-color:#52617b; }
+html[data-theme="dark"] #modal .nv-filter-footer .primary,
+html[data-theme="dark"] #modal .fe-save { background:#27bea6; color:#142744; border-color:#27bea6; font-weight:700; }
+html[data-theme="dark"] #modal.flight-editor-modal .fe-card { border-color:#52617b; background:#30415d; }
+html[data-theme="dark"] #modal.flight-editor-modal .nv-primary-times strong { color:#58e1cf; font-variant-numeric:tabular-nums; }
+html[data-theme="dark"] #modal.flight-editor-modal .nv-counter button { background:#34445f; color:#edf2fa; border-color:#52617b; }
+@media(max-width:720px) {
+  html[data-theme="dark"] #app .nv-logbook { width:100%; }
+  html[data-theme="dark"] #app .nv-logbook-tools { gap:10px; }
+  html[data-theme="dark"] #app .nv-flight-open { padding:13px 13px 9px; }
+  html[data-theme="dark"] #app .nv-card-heading { column-gap:8px; }
+  html[data-theme="dark"] #app .nv-card-foot { border-top-color:#52617b77; }
+  html[data-theme="dark"] #app .bottom-nav .nv-nav-pill { background:#30415d; border-color:#52617b; box-shadow:0 6px 24px #07132240; }
+  html[data-theme="dark"] #app .bottom-nav button.active { background:#214e5b; color:#58e1cf; }
+  html[data-theme="dark"] #app .bottom-nav .nv-floating-add { background:#30415d; color:#58e1cf; border-color:#52617b; }
+  html[data-theme="dark"] #app .main { padding-bottom:calc(126px + env(safe-area-inset-bottom)); }
+}
+@media(max-width:359px) {
+  html[data-theme="dark"] #app .nv-flight-state { font-size:9px; }
+  html[data-theme="dark"] #app .nv-card-route>strong { font-size:25px; }
+  html[data-theme="dark"] #app .nv-search input { font-size:14px; }
+}
+@media(prefers-reduced-motion:reduce) {
+ html[data-theme="dark"] #app .nv-flight-card { transition:none; }
+}
