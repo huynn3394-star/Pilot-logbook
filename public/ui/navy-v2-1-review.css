@@ -1,0 +1,57 @@
+/* Avilog Navy V2.1.4 visual refinement — presentation only.
+   Load AFTER navy-v2.css. No changes to persisted data or time calculations. */
+:root {
+  --nv21-font: -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+  --nv21-display: -apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;
+}
+#app,#modal,#app :is(button,input,select,textarea),#modal :is(button,input,select,textarea) {
+  font-family:var(--nv21-font);font-synthesis:none;
+}
+#app :is(.nv-flight-card,.nv-month-header),#modal :is(.nv-primary-times,.nv-counter) { font-variant-numeric:tabular-nums lining-nums; }
+#app .nv-logbook-tools{gap:10px;padding-bottom:14px}
+#app .nv-search{border-radius:999px}
+#app .nv-filter-button{border-radius:50%}
+#app .nv-month-header{padding:14px 2px 8px;border-bottom:1px solid var(--ui-line);margin-bottom:14px}
+#app .nv-month-header h2{font:500 20px/1.3 var(--nv21-display);letter-spacing:-.02em}
+#app .nv-flight-list{gap:16px}
+#app .nv-flight-card{border-radius:24px;border-left-width:4px;background:linear-gradient(115deg,var(--ui-surface),var(--ui-soft));box-shadow:0 9px 28px #04102029}
+#app .nv-flight-open{padding:11px 13px 8px}
+#app .nv-card-heading{display:flex;align-items:baseline;gap:7px;margin:0 0 7px;min-height:19px}
+#app .nv-flight-date{white-space:nowrap}
+#app .nv-flight-date strong{font-size:16px}
+#app .nv-flight-number strong{font-size:16px;font-weight:550;letter-spacing:-.01em}
+#app .nv-flight-function{font-size:12px;white-space:nowrap}
+#app .nv-flight-state{font-size:9px;white-space:nowrap}
+#app .nv-card-route{grid-template-columns:minmax(0,1fr) minmax(110px,1.14fr) minmax(0,1fr);gap:4px;margin:2px 0 4px}
+#app .nv-card-route>strong{font:350 30px/1.15 var(--nv21-display);letter-spacing:-.02em}
+#app .nv-card-route>span{font-size:19px;font-weight:650}
+#app .nv-card-route small{font-size:9px}
+#app .nv-card-times{grid-template-columns:minmax(0,1fr) minmax(116px,1.16fr) minmax(0,1fr);gap:5px;align-items:start}
+#app .nv-card-times>span:not(.nv-timeline){display:flex;flex-wrap:wrap;gap:4px;align-items:baseline;font-size:13px}
+#app .nv-card-times small{font-size:10px}
+#app .nv-timeline{padding-top:2px}
+#app .nv-timeline-labels small{font-size:10px}
+#app .nv-card-operation{margin-top:2px;gap:10px;font-size:10px}
+#app .nv-card-foot{border-top:1px solid var(--ui-line);margin-top:8px;padding:7px 90px 0 0;min-height:auto;font-size:10px}
+#app .nv-card-caption{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+#app .nv-card-scan.flight-scan-shortcut{right:6px;bottom:4px}
+#app .nv-month-navigator label,#app .nv-month-navigator>.btn{border-radius:999px}
+#modal .fe-overview,#modal .fe-route-card,#modal .fe-summary-card{border-radius:24px}
+#modal .fe-time-cell{padding:11px 14px}
+#modal .nv-primary-times strong{font:500 30px/1.2 var(--nv21-display);letter-spacing:-.02em}
+#modal.nv-filter-modal .nv-filter-card{border-radius:24px;margin-bottom:24px}
+#modal.nv-filter-modal .nv-filter-row{min-height:60px}
+#modal.nv-filter-modal .nv-filter-footer{background:linear-gradient(transparent,var(--ui-bg) 30%);border:0}
+#modal.nv-filter-modal .nv-filter-footer .primary{border-radius:999px;min-height:54px}
+@media(max-width:720px){
+ #app .nv-logbook-tools{top:66px}
+ #app .bottom-nav .nv-floating-add{width:62px;flex-basis:62px;min-height:62px}
+ #app .nv-card-route>strong{font-size:28px}
+}
+@media(max-width:359px){
+ #app .nv-card-route{grid-template-columns:minmax(0,1fr) minmax(95px,1.2fr) minmax(0,1fr)}
+ #app .nv-card-route>strong{font-size:25px}
+ #app .nv-card-heading{flex-wrap:wrap;gap:5px}
+ #app .nv-card-times{grid-template-columns:minmax(0,1fr) minmax(100px,1.2fr) minmax(0,1fr)}
+}
+@media(prefers-reduced-motion:reduce){#app .nv-flight-card{transition:none}}
