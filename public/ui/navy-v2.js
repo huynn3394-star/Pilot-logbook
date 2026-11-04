@@ -50,7 +50,7 @@ export function renderFlightCard(f){
   <span class="nv-card-operation"><span>${e(f.role||'—')}</span><span>FLIGHT <b class="mono">${time(totals.airborne)}</b></span></span>
   <span class="nv-card-foot"><span>${e(f.reg||'Registration —')} · ${e(f.aircraft||'Aircraft —')}</span></span>
   <span class="nv-card-caption">${actual?'Actual':'Scheduled'} OUT / IN · UTC${times.in?.slice(0,10)>f.date?' · IN '+e(times.in.slice(0,10)):''}${f.confirmed?'':' · Chưa tính vào tổng Actual'}</span>
- </button><button type="button" class="nv-card-scan flight-scan-shortcut" data-flight-scan-shortcut="list" data-action="image" data-id="${e(f.id)}" aria-label="Scan Flight Log · ${e(f.flightNo)}">Scan Flight Log</button></article>`;
+ </button><button type="button" class="nv-card-scan flight-scan-shortcut" data-flight-scan-shortcut="list" data-action="image" data-id="${e(f.id)}" aria-label="Scan Flight Log · ${e(f.flightNo)}">Scan Flight Log</button><button type="button" class="nv21-tablet-select" data-action="tablet-preview" data-id="${e(f.id)}" aria-label="Xem chi tiết ${e(f.flightNo)} trên iPad">Xem chi tiết</button></article>`;
 }
 export function renderLogbook({flights,people,month,query,filters,limit=80,icon=()=>''}){
  const selected=selectFlights(flights,{month,query,filters,people}),shown=selected.slice(0,limit),visibleIds=new Set(shown.map(f=>f.id)),groups=flightGroups(selected),total=statistics(selected);
