@@ -279,3 +279,13 @@
    background:linear-gradient(105deg,#142744,#1c4855);color:white}
  #app .nv21-tablet-banner small{font-size:10px;color:#deedf3}
 }
+
+/* Tablet reference places Search directly below the Navy topbar, not under a large page title. */
+@media(min-width:768px) and (max-width:1199px){
+ #app .main:has(.nv21-tablet-layout)>.page-heading{display:none}
+ #app .main:has(.nv21-tablet-layout){padding-top:9px;padding-bottom:0}
+}
+@media(min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #app .main:has(.nv21-tablet-layout)>.page-heading{display:none}
+ #app .main:has(.nv21-tablet-layout){padding-top:9px;padding-bottom:0}
+}
