@@ -197,3 +197,18 @@ html[data-theme="dark"] #modal.flight-editor-modal {
  html[data-theme="dark"] #app .nv-logbook-shell .nv-top-management {width:44px;min-width:44px;}
  html[data-theme="dark"] #app .nv-logbook-shell .nv-flight-open {padding-inline:9px;}
 }
+
+/* Avoid duplicate topbar management controls on the compact mobile Logbook. 
+   Import remains accessible through the existing Navy management sheet. */
+@media(max-width:720px) {
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar [data-page-tools] {display:none !important;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar-main {width:100%;min-width:0;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .top-actions {min-width:0;gap:4px;justify-content:flex-end;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar [data-action="appearance-theme"] {display:none;}
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account {flex:0 0 44px;min-width:44px;max-width:44px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account-menu {max-width:44px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account-popover {
+    position:fixed !important;left:12px !important;right:12px !important;
+    width:auto !important;max-width:none !important;z-index:100;
+ }
+}
