@@ -51,6 +51,16 @@ const {chromium,webkit}=require('playwright');
      assert.equal(await p.locator('[data-fe-total=block]').innerText(),'01:20');assert.equal(await p.locator('[data-fe-total=airborne]').innerText(),'01:00');
      await p.locator('[data-v14-times]>summary').click();await p.locator('[name=log_instrumentMinutes]').fill('25');await p.locator('[name=log_sicMinutes]').fill('80');
      const plus=p.getByRole('button',{name:'Tăng Takeoff ngày · số lần',exact:true});await plus.click();assert.equal(await p.locator('[name=log_takeoffDay]').inputValue(),'1');await fits(p,'#modal');
+     const countGeometry=await p.locator('.nv-v216-count-card').evaluate(card=>{
+      const field=card.querySelector('[name=log_takeoffDay]').closest('.nv-counter');
+      const [minus,value,plus]=field.children;
+      const rect=n=>n.getBoundingClientRect();
+      return {minus:rect(minus),value:rect(value),plus:rect(plus),card:rect(card)};
+     });
+     assert(countGeometry.minus.right<=countGeometry.value.left+2,'Minus must precede value horizontally');
+     assert(countGeometry.value.right<=countGeometry.plus.left+2,'Plus must follow value horizontally');
+     assert(Math.abs(countGeometry.minus.top-countGeometry.value.top)<3,'Counter controls must share same row');
+     assert(countGeometry.plus.right<=countGeometry.card.right+2,'Counter must fit inside editor card');
      await p.locator('[data-flight-tab=tools]').click();await p.locator('[name=confirmed]').check();await p.locator('#flight-form').evaluate(f=>{f.requestSubmit();f.requestSubmit();});await p.waitForFunction(()=>!document.querySelector('#modal').open);
      const saved=JSON.parse(await read(p)).flights.filter(f=>f.flightNo==='VN9988');assert.equal(saved.length,1);assert.equal(saved[0].actual.out,'2026-10-31T23:50:00.000Z');assert.equal(saved[0].actual.in,'2026-11-01T01:10:00.000Z');assert.equal(saved[0].logbook.instrumentMinutes,25);assert.equal(saved[0].logbook.takeoffDay,1);
      await p.screenshot({path:path.join(root,name+'-'+width+'-logbook.png'),fullPage:true});
