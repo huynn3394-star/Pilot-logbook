@@ -1,0 +1,20 @@
+/* Navy V2.1.4: visual-only ATPL refinement, no bank/answer-key changes */
+.study-shell,.atpl-library,.study-shell .app,
+.study-shell :is(button,input,select,textarea),.study-more-sheet{
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+ font-synthesis:none;font-variant-numeric:tabular-nums;
+}
+.study-shell :is(.atpl-library h1,.atpl-card h2,.app h1,.app h2){
+ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;letter-spacing:-.025em;
+}
+.study-shell .atpl-library h1{font-size:clamp(27px,4vw,36px);font-weight:670;line-height:1.18}
+.study-shell .atpl-intro{max-width:62ch;line-height:1.6;font-size:13px}
+.study-shell .atpl-grid{gap:12px;align-items:stretch}
+.study-shell .atpl-card{background:linear-gradient(135deg,var(--ui-surface),var(--ui-soft));border:1px solid var(--ui-line);border-radius:22px;padding:17px;box-shadow:var(--ui-shadow);gap:8px}
+.study-shell .atpl-code{border:1px solid var(--ui-accent-line);border-radius:11px;padding:7px 12px;background:var(--ui-accent-soft);color:var(--ui-accent);font-weight:760;font-size:12px}
+.study-shell .atpl-card h2{font-size:17px;line-height:1.35;font-weight:630;margin:8px 0 0}
+.study-shell .atpl-card p{font-size:12px;line-height:1.6}
+.study-shell .atpl-card .atpl-ready{font-weight:650;color:var(--ui-ink)}
+.study-shell .atpl-actions .btn.primary{border-radius:16px;font-weight:700}
+.study-shell .atpl-card-manage>summary,.study-shell .library-management>summary{background:var(--ui-soft);color:var(--ui-ink);border:1px solid var(--ui-line);border-radius:16px;min-height:44px}
+.study-shell .atpl-card progress{accent-color:var(--ui-accent)}
