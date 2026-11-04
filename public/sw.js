@@ -16,6 +16,7 @@ const SHELL = [
   "/ui/study-shell.css",
   "/ui/navy-v2.css",
   "/ui/navy-v2.js",
+  "/ui/tablet-v2-1.js",
   "/ui/navy-v2-1-review.css",
   "/ui/study-navy-v2-1-review.css",
   "/brand/avl-logo.svg",
