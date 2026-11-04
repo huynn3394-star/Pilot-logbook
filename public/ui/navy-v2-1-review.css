@@ -65,3 +65,14 @@
  #app .mobile-brand .nv21-brand-img{width:105px;height:48px}
  #app .topbar-main{gap:4px}
 }
+
+/* Native continuous Flight Editor: all existing input nodes and save behavior remain intact. */
+#modal #flight-form.nv21-continuous .fe-tabs{display:none!important}
+#modal #flight-form.nv21-continuous [data-flight-panel]{display:block!important;scroll-margin-top:90px}
+#modal #flight-form.nv21-continuous .fe-body{display:block;overflow:visible}
+#modal #flight-form.nv21-continuous .fe-main-fields,
+#modal #flight-form.nv21-continuous .fe-aircraft-fields,
+#modal #flight-form.nv21-continuous .fe-actual-grid{gap:0}
+#modal #flight-form.nv21-continuous [data-flight-panel="airports"],
+#modal #flight-form.nv21-continuous [data-flight-panel="tools"]{border-top:1px solid var(--ui-line);padding-top:14px;margin-top:20px}
+#modal #flight-form.nv21-continuous .fe-review-button{display:none}
