@@ -18,3 +18,15 @@
 .study-shell .atpl-actions .btn.primary{border-radius:16px;font-weight:700}
 .study-shell .atpl-card-manage>summary,.study-shell .library-management>summary{background:var(--ui-soft);color:var(--ui-ink);border:1px solid var(--ui-line);border-radius:16px;min-height:44px}
 .study-shell .atpl-card progress{accent-color:var(--ui-accent)}
+
+/* Same AVL visual identity throughout ATPL library and individual subject shells. */
+.study-sidebar .brand .nv21-brand-img{display:block;width:128px;height:62px;object-fit:contain}
+.nv21-library-logo{display:block;width:125px;height:58px;object-fit:contain}
+.study-shell .app>.topbar .brand .nv21-study-subject-logo{width:77px;height:36px;object-fit:contain;flex:0 0 auto}
+.study-shell .app>.topbar .brand{display:flex;align-items:center;gap:8px}
+.study-shell .app>.topbar .brand small{margin-left:2px}
+@media(max-width:720px){
+ .study-shell .atpl-header .nv21-library-logo{width:92px;height:44px}
+ .study-shell .atpl-header>.atpl-tag{display:none}
+ .study-shell .app>.topbar .brand .nv21-study-subject-logo{width:60px;height:29px}
+}
