@@ -25,6 +25,15 @@ const {chromium,webkit}=require('playwright');
      assert(await p.locator('[data-action=backup]').isVisible());
      await navigate(p,width,'logbook');await p.locator('[data-flight-card]').first().waitFor();await fits(p);
      const before=await read(p),count=await p.locator('[data-flight-card]').count();assert(count>0);
+     if(width===820){
+      const pane=p.locator('[data-tablet-preview]');
+      assert(await pane.isVisible(),'iPad right pane is visible');
+      const layout=await p.evaluate(()=>{const left=document.querySelector('.nv21-tablet-list'),right=document.querySelector('.nv21-tablet-detail');const a=left.getBoundingClientRect(),b=right.getBoundingClientRect();return{separate:a.right<b.left,scrollLeft:getComputedStyle(left).overflowY,scrollRight:getComputedStyle(right).overflowY};});
+      assert(layout.separate,'iPad flight list and detail are separate columns');assert.equal(layout.scrollLeft,'auto');assert.equal(layout.scrollRight,'auto');
+      if(count>1){const card=p.locator('[data-flight-card]').nth(1),id=await card.getAttribute('data-flight-card');await card.locator('[data-action=tablet-preview]').click();assert.equal(await card.locator('[data-action=tablet-preview]').getAttribute('aria-pressed'),'true');assert(await pane.locator('[data-action=edit]').getAttribute('data-id')===id);}
+      assert.equal(await read(p),before,'iPad selection is read-only');await fits(p);
+      await p.screenshot({path:path.join(root,name+'-820-tablet-split.png')});
+     }
      await p.locator('[data-filter=search]').fill('VN0605');assert.equal(await p.locator('[data-flight-card]').count(),1);
      assert.match(await p.locator('.nv-list-status').innerText(),/1 chuyến/);
      await p.locator('[data-action=navy-filters]').click();await p.locator('[name=status]').selectOption('confirmed');
