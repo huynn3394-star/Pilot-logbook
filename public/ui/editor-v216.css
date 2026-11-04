@@ -257,3 +257,8 @@ html[data-theme="dark"] #modal.flight-editor-modal {
  #app .nv-logbook-shell .topbar {padding-right:8px;box-sizing:border-box;}
  #app .nv-logbook-shell .topbar-main {box-sizing:border-box;max-width:100%;}
 }
+
+/* iPhone 320px: keep the last account control fully within the visual viewport. */
+@media(max-width:359px) {
+ #app .nv-logbook-shell .topbar .top-actions {position:relative;right:16px;}
+}
