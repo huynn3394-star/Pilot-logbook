@@ -70,6 +70,16 @@ const report={scope:'Real local app; synthetic guest flights and OCR text; exter
      assert.equal(await p.locator('[data-flight-scan-shortcut=list]').count(),2);
      const count=await p.evaluate(async()=>{const m=await import('/ui/flight-scan-shortcuts.js');const h=m.mountFlightScanShortcuts(document.querySelector('#app'));h.refresh();h.refresh();return document.querySelectorAll('[data-flight-scan-shortcut=list]').length;});assert.equal(count,2,'no duplicate buttons or observers');
      for(const record of records){const button=p.locator(`[data-flight-scan-shortcut=list][data-id="${record.id}"]`);assert(await button.evaluate(n=>!!n.closest('[data-flight-card]')));geometry.push(await inspect(button,record));}
+     if(width===820){
+      for(const record of records){
+       const rects=await p.locator(`[data-flight-card]:has([data-id="${record.id}"][data-action="tablet-preview"])`).evaluate(card=>{
+        const a=card.querySelector('[data-action="tablet-preview"]').getBoundingClientRect(),b=card.querySelector('[data-flight-scan-shortcut="list"]').getBoundingClientRect();
+        return{a:{left:a.left,right:a.right,top:a.top,bottom:a.bottom},b:{left:b.left,right:b.right,top:b.top,bottom:b.bottom}};
+       });
+       assert(rects.a.right<=rects.b.left||rects.b.right<=rects.a.left||rects.a.bottom<=rects.b.top||rects.b.bottom<=rects.a.top,'iPad View and Scan controls must never overlap');
+      }
+      await p.screenshot({path:path.join(out,`${engineName}-${theme}-ipad-820-actions.png`),fullPage:true});
+     }
      if(width===390)await p.screenshot({path:path.join(out,`${engineName}-${theme}-logbook.png`),fullPage:true});
      const raw=(code,time='06:00')=>`AOC FLT LOG\nFLT ID/DATE DEPT/DEST\n${code}/-- VVNB/ZGGG\nOUT ${time}\nOFF 06:13\nON 07:35\nIN 07:58`;
      await p.locator(`[data-flight-scan-shortcut=list][data-id="${records[0].id}"]`).click();
