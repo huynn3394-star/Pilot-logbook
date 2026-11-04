@@ -1,0 +1,188 @@
+/* Avilog Navy V2.1.6: actual Flight Editor layout, built on existing fields.
+   Visual-only, except moving existing unmodified counters into a compact grid. */
+html[data-theme="dark"] #modal.flight-editor-modal {
+  --fe-bg:#142744;
+  --fe-card:#30415d;
+  --fe-soft:#34445f;
+  --fe-line:#52617b;
+  --fe-accent:#5eead4;
+  --fe-muted:#abb8ce;
+  background:#142744;
+}
+#modal.flight-editor-modal .modal-head {
+  background:var(--fe-bg);
+  border-bottom:1px solid var(--fe-line);
+  grid-template-columns:48px minmax(0,1fr) 95px;
+  gap:6px;
+  padding:12px 16px;
+  min-height:72px;
+}
+#modal.flight-editor-modal .fe-title>span {
+  font-size:18px;
+  letter-spacing:0;
+  font-weight:700;
+  color:var(--ui-ink);
+}
+#modal.flight-editor-modal .fe-title h2 {font-size:12px;color:var(--fe-muted)}
+#modal.flight-editor-modal .fe-back {
+  border:1px solid var(--fe-line);
+  border-radius:999px;
+  width:44px;
+  height:44px;
+}
+#modal.flight-editor-modal .fe-save {
+  border-radius:999px;
+  min-width:90px;
+  background:#27bea6;
+  color:#142744;
+  border:0;
+  font-size:15px;
+}
+#modal.flight-editor-modal .fe-save:disabled {opacity:.48}
+#modal.flight-editor-modal .flight-editor-form {scroll-padding-top:75px}
+#modal.flight-editor-modal .fe-tabs {
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  padding:8px 16px;
+  background:#142744;
+  border-bottom:0;
+}
+#modal.flight-editor-modal .fe-tabs button {
+  min-height:44px;
+  border:1px solid var(--fe-line);
+  background:var(--fe-card);
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+  gap:5px;
+  color:var(--fe-muted);
+  padding:8px 5px;
+}
+#modal.flight-editor-modal .fe-tabs button[aria-selected="true"] {
+  background:#214e5b;
+  border:1px solid #27bea6;
+  color:#5eead4;
+  box-shadow:inset 0 0 0 1px #27bea620;
+}
+#modal.flight-editor-modal .fe-body {padding:10px 16px calc(36px + env(safe-area-inset-bottom))}
+#modal.flight-editor-modal .fe-status-row {margin:0 4px 11px}
+#modal.flight-editor-modal .fe-card {
+  border-radius:22px;
+  background:linear-gradient(135deg,var(--fe-card),#34445f);
+  border:1px solid var(--fe-line);
+  overflow:hidden;
+  margin-bottom:14px;
+}
+#modal.flight-editor-modal .fe-card .fe-field {padding:10px 12px}
+#modal.flight-editor-modal .fe-field>span {font-size:11px;color:#abb8ce}
+#modal.flight-editor-modal .fe-main-fields [name="flightNo"] {font-size:22px}
+#modal.flight-editor-modal .fe-route-inputs input {font-size:25px}
+#modal.flight-editor-modal .fe-time-cell {padding:10px 11px}
+#modal.flight-editor-modal .fe-time-cell input[data-utc-clock] {
+  font-size:clamp(20px,5.6vw,27px);
+  min-width:0;
+}
+#modal.flight-editor-modal .fe-time-cell input[type="date"] {font-size:12px;max-width:100%}
+#modal.flight-editor-modal .fe-route-foot {padding:7px 12px}
+#modal.flight-editor-modal .nv-primary-times {padding:13px 8px}
+#modal.flight-editor-modal .nv-primary-times strong {font-size:30px;color:#5eead4}
+#modal.flight-editor-modal .nv-v216-count-card {padding:0;overflow:hidden}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-heading {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  padding:13px 8px 11px;
+  border-bottom:1px solid var(--fe-line);
+  gap:8px;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-heading h3 {
+  font-size:14px;font-weight:650;margin:0;text-align:center;color:var(--ui-ink);
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:0;
+  padding:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field {
+  display:flex !important;
+  flex-direction:column;
+  gap:6px;
+  padding:12px 8px !important;
+  min-width:0;
+  align-items:stretch;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field:nth-child(even) {
+  border-left:1px solid var(--fe-line);
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field:nth-child(n+3) {
+  border-top:1px solid var(--fe-line);
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field>span:first-child {
+  min-height:18px;
+  white-space:normal;
+  font-size:clamp(10px,2.8vw,12px);
+  line-height:1.25;
+  text-align:center;
+  letter-spacing:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter {
+  display:grid !important;
+  grid-template-columns:38px minmax(0,1fr) 38px;
+  grid-template-rows:44px;
+  gap:4px;
+  align-items:stretch;
+  width:100%;
+  min-width:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter button {
+  display:grid !important;place-items:center;
+  width:38px !important;
+  min-width:38px !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0;
+  border:1px solid var(--fe-line);
+  border-radius:12px;
+  background:#243958;
+  color:#5eead4;
+  font-size:23px;
+  padding:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter input {
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0 !important;
+  text-align:center !important;
+  padding:2px 0 !important;
+  border-radius:12px;
+  border:1px solid #52617b;
+  background:#203653;
+  color:#edf2fa;
+  font-size:17px !important;
+  font-variant-numeric:tabular-nums;
+  -moz-appearance:textfield;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter input::-webkit-inner-spin-button,
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter input::-webkit-outer-spin-button {
+  -webkit-appearance:none;margin:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter input::placeholder {font-size:10px;color:#abb8ce}
+#modal.flight-editor-modal .fe-scheduled {margin-top:16px}
+#modal.flight-editor-modal .fe-scheduled>summary {padding:10px 14px;min-height:46px}
+#modal.flight-editor-modal .fe-card-heading {padding:12px 14px}
+#modal.flight-editor-modal .fe-summary-grid {gap:0}
+#modal.flight-editor-modal .fe-summary-grid strong {color:#5eead4;font-variant-numeric:tabular-nums}
+#modal.flight-editor-modal .fe-remarks textarea {min-height:78px}
+@media (max-width:359px) {
+ #modal.flight-editor-modal .fe-body {padding-inline:10px}
+ #modal.flight-editor-modal .fe-tabs {padding-inline:10px}
+ #modal.flight-editor-modal .nv-v216-count-card .nv-counter {grid-template-columns:34px minmax(0,1fr) 34px;gap:2px}
+ #modal.flight-editor-modal .nv-v216-count-card .nv-counter button {min-width:34px !important;width:34px !important}
+ #modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field {padding:10px 5px !important}
+}
