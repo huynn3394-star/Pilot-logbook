@@ -114,3 +114,67 @@
 #modal.nv-sheet .nv21-more-group>.btn:first-of-type{border-radius:20px 20px 0 0}
 #modal.nv-sheet .nv21-more-group>.btn:last-of-type{border-bottom:0;border-radius:0 0 20px 20px}
 #modal.nv-sheet .nv21-more-group>.btn:only-of-type{border-radius:20px}
+
+/* iPad Navy V2.1 two-pane Logbook: presentation only; source records and edit flow untouched. */
+#app .nv21-tablet-select{display:none}
+#app .nv21-tablet-detail{display:none}
+@media(min-width:768px) and (max-width:1199px){
+ #app .main:has(.nv21-tablet-layout){max-width:none;padding-left:12px;padding-right:12px}
+ #app .nv21-tablet-layout{display:grid;grid-template-columns:minmax(280px,.97fr) minmax(290px,1.03fr);
+  gap:14px;align-items:start;max-width:100%;min-width:0}
+ #app .nv21-tablet-list{min-width:0;min-height:0}
+ #app .nv21-tablet-list .nv-logbook{max-width:100%;min-width:0}
+ #app .nv21-tablet-list .nv-flight-list{grid-template-columns:minmax(0,1fr)}
+ #app .nv21-tablet-list .nv-flight-card{min-width:0}
+ #app .nv21-tablet-list .nv-flight-open{padding-bottom:30px}
+ #app .nv21-tablet-list .nv-card-heading{gap:4px}
+ #app .nv21-tablet-list .nv-flight-state{font-size:8px}
+ #app .nv21-tablet-list .nv-card-route>strong{font-size:25px}
+ #app .nv21-tablet-list .nv-card-route>span{font-size:16px}
+ #app .nv21-tablet-list .nv-card-times{grid-template-columns:minmax(0,1fr) minmax(90px,1.15fr) minmax(0,1fr)}
+ #app .nv21-tablet-select{position:absolute;display:block;right:8px;bottom:3px;z-index:2;
+   border:0;background:transparent;color:var(--ui-accent);font:600 12px/1.3 var(--nv21-font);
+   min-height:38px;padding:6px 10px;border-radius:999px;cursor:pointer}
+ #app .nv21-tablet-select:focus-visible{outline:2px solid var(--ui-accent);outline-offset:1px}
+ #app .nv21-tablet-selected{box-shadow:inset 0 0 0 2px var(--ui-accent),var(--ui-shadow)}
+ #app .nv21-tablet-detail{display:block;position:sticky;top:75px;max-height:calc(100dvh - 91px);
+   overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;min-width:0;
+   background-color:var(--ui-surface);border:1px solid var(--ui-line);border-radius:24px;
+   padding:16px;box-shadow:var(--ui-shadow)}
+ #app .nv21-preview-title{display:flex;justify-content:space-between;align-items:start;gap:8px}
+ #app .nv21-preview-eyebrow{font-size:10px;color:var(--ui-accent);font-weight:650;letter-spacing:.07em}
+ #app .nv21-preview-title h3{margin:6px 0;font:650 19px/1.3 var(--nv21-display)}
+ #app .nv21-preview-title h3 small{display:block;margin-top:3px;font:400 11px/1.5 var(--nv21-font)}
+ #app .nv21-preview-state{font-size:9px;white-space:nowrap;padding:5px 7px;border-radius:999px;
+   background:var(--ui-accent-soft);color:var(--ui-accent);font-weight:700}
+ #app .nv21-preview-route{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;
+   margin:12px 0;border-top:1px solid var(--ui-line);border-bottom:1px solid var(--ui-line);padding:13px 0}
+ #app .nv21-preview-route>div{min-width:0;display:flex;flex-direction:column}
+ #app .nv21-preview-route>div:last-child{text-align:right}
+ #app .nv21-preview-route strong{font:400 29px/1.1 var(--nv21-display)}
+ #app .nv21-preview-route small,.nv21-preview-aircraft{color:var(--ui-muted);font-size:11px}
+ #app .nv21-preview-route>span{color:var(--ui-accent)}
+ #app .nv21-preview-times,.nv21-preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+ #app .nv21-preview-times{margin-top:14px}
+ #app .nv21-preview-times>div,#app .nv21-preview-grid>div{min-width:0;display:grid;gap:4px;padding:10px;
+   border-radius:12px;background:var(--ui-soft)}
+ #app .nv21-preview-times span,.nv21-preview-grid span,.nv21-preview-total span{font-size:10px;color:var(--ui-muted)}
+ #app .nv21-preview-times strong,.nv21-preview-grid strong{font-size:15px;color:var(--ui-accent);font-variant-numeric:tabular-nums}
+ #app .nv21-preview-total{margin:15px 0;background:var(--ui-accent-soft);border-radius:16px;
+   padding:12px;display:grid;gap:4px}
+ #app .nv21-preview-total strong{font-size:27px;font-weight:700;color:var(--ui-accent);font-variant-numeric:tabular-nums}
+ #app .nv21-preview-total small{font-size:10px;color:var(--ui-muted)}
+ #app .nv21-preview-edit{width:100%;margin-top:16px}
+ #app .nv21-preview-footnote{font-size:11px;color:var(--ui-muted);line-height:1.5}
+ #app .nv21-tablet-empty{min-height:220px;display:grid;align-content:center;justify-items:center;
+   text-align:center;gap:8px;color:var(--ui-muted)}
+ #app .nv21-tablet-empty>span{font-size:34px;color:var(--ui-accent)}
+ #app .nv21-tablet-empty p{font-size:12px;line-height:1.5}
+}
+@media(min-width:768px) and (max-width:930px){
+ #app .nv21-tablet-layout{grid-template-columns:minmax(235px,.95fr) minmax(270px,1.05fr);gap:10px}
+ #app .nv21-tablet-detail{padding:11px}
+ #app .nv21-tablet-list .nv-card-heading{flex-wrap:wrap}
+ #app .nv21-tablet-list .nv-month-navigator{grid-template-columns:36px minmax(0,1fr) 36px}
+ #app .nv21-tablet-list .nv-month-navigator>.btn{grid-column:1/-1;justify-self:end}
+}
