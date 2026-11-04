@@ -67,7 +67,7 @@
 }
 
 /* Native continuous Flight Editor: all existing input nodes and save behavior remain intact. */
-#modal #flight-form.nv21-continuous .fe-tabs{display:none!important}
+#modal #flight-form.nv21-continuous .fe-tabs{display:flex!important;position:sticky;top:0;z-index:3;background:var(--ui-bg)}
 #modal #flight-form.nv21-continuous [data-flight-panel]{display:block!important;scroll-margin-top:90px}
 #modal #flight-form.nv21-continuous .fe-body{display:block;overflow:visible}
 #modal #flight-form.nv21-continuous .fe-main-fields,
