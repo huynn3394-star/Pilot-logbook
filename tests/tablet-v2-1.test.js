@@ -33,7 +33,7 @@ test('tablet split view only appears on tablet and uses current filtered flights
  const css=read('public/ui/navy-v2-1-review.css');
  assert.match(css,/@media\(min-width:768px\) and \(max-width:1199px\)/);
  const app=read('public/app.js');
- assert.match(app,/renderTabletFlightPreview\(currentTabletFlight\(\)\)/);
+ assert.match(app,/renderTabletFlightPreview\(currentTabletFlight\(\),state\.people\)/);
  assert.match(app,/selectFlights\(state.flights,\{month,query,filters:navyFilters,people:state.people\}\)\.slice\(0,navyLimit\)/);
  assert.match(app,/tabletSelectedFlightId=null/);
 });
