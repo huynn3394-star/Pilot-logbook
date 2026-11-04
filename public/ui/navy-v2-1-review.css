@@ -105,3 +105,12 @@
 #app .sidebar .brand .nv21-brand-img{width:104px;height:42px;filter:brightness(0) invert(1)}
 #app .mobile-brand .nv21-brand-img{width:86px!important;height:35px!important;filter:brightness(0) invert(1)}
 @media(min-width:721px){html[data-sidebar=collapsed] #app .sidebar .brand .nv21-brand-img{width:45px;height:31px;object-position:left center}}
+
+/* More: grouped destinations mirroring Navy reference while reusing real actions. */
+#modal.nv-sheet .nv21-more-group{margin:0 0 20px}
+#modal.nv-sheet .nv21-more-group>h3{font:500 16px/1.4 var(--nv21-display);letter-spacing:.01em;margin:4px 5px 9px;color:var(--ui-ink)}
+#modal.nv-sheet .nv21-more-group>.btn{display:flex;align-items:center;gap:12px;min-height:54px;width:100%;text-align:left;
+ margin:0;border-radius:0;border-bottom:1px solid var(--ui-line);background:var(--ui-surface);font-weight:500}
+#modal.nv-sheet .nv21-more-group>.btn:first-of-type{border-radius:20px 20px 0 0}
+#modal.nv-sheet .nv21-more-group>.btn:last-of-type{border-bottom:0;border-radius:0 0 20px 20px}
+#modal.nv-sheet .nv21-more-group>.btn:only-of-type{border-radius:20px}
