@@ -32,3 +32,19 @@ test('New PWA shell caches Navy V2.1 visuals, not user data',()=>{
  for(const asset of ['/brand/avl-logo.svg','/ui/navy-v2-1-review.css','/ui/study-navy-v2-1-review.css'])assert.ok(sw.includes('"'+asset+'"'),asset);
  assert.match(sw,/study-shell-r3-navy-v21-review/);
 });
+
+test('Compact white logo is applied in main and ATPL shells',()=>{
+ const main=file('public/ui/navy-v2-1-review.css');
+ const study=file('public/ui/study-navy-v2-1-review.css');
+ for(const css of [main,study])assert.match(css,/filter:brightness\(0\) invert\(1\)/);
+ assert.match(main,/\.mobile-brand \.nv21-brand-img\{width:86px/);
+ assert.match(study,/\.nv21-library-logo\{width:87px/);
+});
+test('More groups use real Avilog destination routes and existing operations',()=>{
+ const app=file('public/app.js');
+ for(const heading of ['Account & Settings','Logbook Management','Tools'])assert.ok(app.includes(heading),heading);
+ for(const action of ['csv','import','navy-backup'])assert.ok(app.includes("btn('"+action+"'"),action);
+ const nav=file('public/ui/navigation.js');
+ assert.match(nav,/\['atpl','book','Ôn thi'\]/);
+ assert.match(nav,/\['weather','cloud','Thời tiết'\]/);
+});
