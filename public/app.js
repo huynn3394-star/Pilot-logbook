@@ -341,19 +341,20 @@ function currentTabletFlight(){
  return visible.find(f=>f.id===tabletSelectedFlightId)||null;
 }
 function tabletPane(){
- return '<aside class="nv21-tablet-detail" aria-label="Chi tiết chuyến bay trên iPad" data-tablet-preview>'+renderTabletFlightPreview(currentTabletFlight())+'</aside>';
+ return '<aside class="nv21-tablet-detail" aria-label="Chi tiết chuyến bay trên iPad" data-tablet-preview>'+renderTabletFlightPreview(currentTabletFlight(),state.people)+'</aside>';
 }
 function logbook(fs, s) {
  const demo=state.demo?'<p class="nv-demo-note" role="note">Dữ liệu mẫu · chỉ trong kho khách trên thiết bị. <button type="button" class="text-button" data-action="fresh">Bắt đầu logbook riêng</button></p>':'';
  const list=renderLogbook({flights:state.flights,people:state.people,month,query,filters:navyFilters,limit:navyLimit,icon});
  const summary='<details class="nv-logbook-summary"><summary>Thống kê các chuyến đang lọc</summary><div data-navy-metrics>'+metrics(statistics(selectFlights(state.flights,{month,query,filters:navyFilters,people:state.people})))+'</div></details>';
  const actions='<div class="nv-collection-actions">'+btn('navy-management','Quản lý Logbook','settings')+btn('add','Thêm chuyến bay','plus','primary')+'</div>';
- return demo+'<div class="nv21-tablet-layout"><div class="nv21-tablet-list">'+list+summary+actions+'</div>'+tabletPane()+'</div>';
+ return demo+'<div class="nv21-tablet-layout"><div class="nv21-tablet-list" role="region" aria-label="Danh sách chuyến bay" tabindex="0">'+list+summary+actions+'</div>'+tabletPane()+'</div>';
 }
 function refreshLogbook(){
  const host=app.querySelector('[data-navy-logbook]');if(!host)return;
  host.outerHTML=renderLogbook({flights:state.flights,people:state.people,month,query,filters:navyFilters,limit:navyLimit,icon});
- const detail=app.querySelector('[data-tablet-preview]');if(detail)detail.innerHTML=renderTabletFlightPreview(currentTabletFlight());
+ const detail=app.querySelector('[data-tablet-preview]');if(detail)detail.innerHTML=renderTabletFlightPreview(currentTabletFlight(),state.people);
+ for(const card of app.querySelectorAll('[data-flight-card]')){const active=card.dataset.flightCard===tabletSelectedFlightId;card.classList.toggle('nv21-tablet-selected',active);const button=card.querySelector('[data-action=tablet-preview]');if(button)button.setAttribute('aria-pressed',String(active));}
  const summary=app.querySelector('[data-navy-metrics]');if(summary)summary.innerHTML=metrics(statistics(selectFlights(state.flights,{month,query,filters:navyFilters,people:state.people})));
 }
 function canLeaveDraft(){return !saving&&(!formDirty||confirm('Bạn còn thay đổi chưa lưu. Bỏ thay đổi để tiếp tục?'));}
@@ -1255,7 +1256,7 @@ document.addEventListener("click", async (ev) => {
       case "navy-clear": navyFilters=defaultFilters();query="";navyLimit=80;refreshLogbook();break;
       case "navy-period": navyFilters={...navyFilters,period:navyFilters.period==="all"?"month":"all"};navyLimit=80;refreshLogbook();break;
       case "navy-more-records": navyLimit+=80;refreshLogbook();break;
-      case "tablet-preview": {const visible=tabletVisibleFlights();if(visible.some(f=>f.id===id)){tabletSelectedFlightId=id;const panel=app.querySelector("[data-tablet-preview]");if(panel)panel.innerHTML=renderTabletFlightPreview(currentTabletFlight());for(const card of app.querySelectorAll("[data-flight-card]"))card.classList.toggle("nv21-tablet-selected",card.dataset.flightCard===id);}break;}
+      case "tablet-preview": {const visible=tabletVisibleFlights();if(visible.some(f=>f.id===id)){tabletSelectedFlightId=id;const panel=app.querySelector("[data-tablet-preview]");if(panel)panel.innerHTML=renderTabletFlightPreview(currentTabletFlight(),state.people);for(const card of app.querySelectorAll("[data-flight-card]"))card.classList.toggle("nv21-tablet-selected",card.dataset.flightCard===id);}break;}
       case "tab":
         if(!canLeaveDraft())break;
         if (b.dataset.tab === "atpl") { if(await beforeAccountSwitch())location.assign("/atpl/"); break; }
