@@ -345,7 +345,16 @@ modal.addEventListener('cancel',event=>{if(!canLeaveDraft())event.preventDefault
 window.addEventListener('beforeunload',event=>{if(formDirty){event.preventDefault();event.returnValue='';}});
 function navySheet(kind){
  const navigation=kind==='more',title=navigation?'More · Điều hướng':'Quản lý Logbook';
- const entries=navigation?tabs.map(([id,ico,label])=>btn('tab',label,ico,'',`data-tab="${id}"`)).join(''):
+ const entries=navigation?(
+  '<section class="nv21-more-group"><h3>Account & Settings</h3>'+
+   ['settings','crew'].map(id=>{const t=tabs.find(x=>x[0]===id);return t?btn('tab',t[2],t[1],'',`data-tab="${id}"`):''}).join('')+
+  '</section><section class="nv21-more-group"><h3>Logbook Management</h3>'+
+   ['logbook','statistics'].map(id=>{const t=tabs.find(x=>x[0]===id);return t?btn('tab',t[2],t[1],'',`data-tab="${id}"`):''}).join('')+
+   btn('csv','Export CSV','download')+btn('import','Import roster','upload')+btn('navy-backup','Backup / Restore','shield')+
+  '</section><section class="nv21-more-group"><h3>Tools</h3>'+
+   ['schedule','weather','atpl'].map(id=>{const t=tabs.find(x=>x[0]===id);return t?btn('tab',t[2],t[1],'',`data-tab="${id}"`):''}).join('')+
+  '</section>'
+ ):
   `${btn('tab','Statistics','stats','', 'data-tab="statistics"')}${btn('csv','Export CSV','download')}${btn('import','Import roster','upload')}${btn('image','Nhập từ ảnh Flight Log','camera')}${btn('navy-backup','Backup / Restore','shield')}${btn('tab','Preferences · Settings','settings','','data-tab="settings"')}`;
  openModal(title,`<button type="button" class="nv-sheet-handle" data-sheet-handle aria-label="Đóng menu" data-action="close"></button><div class="modal-body nv-sheet-list">${entries}</div>`);
  modal.classList.add('nv-sheet');modal._navySheet=mountSheet(modal);
