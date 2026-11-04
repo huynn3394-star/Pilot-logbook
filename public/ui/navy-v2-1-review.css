@@ -310,3 +310,43 @@
  #app .nv21-tablet-list .nv21-tablet-select{left:8px;right:auto;bottom:5px;max-width:calc(50% - 12px)}
  #app .nv21-tablet-list .nv-card-scan.flight-scan-shortcut{right:6px;bottom:5px;max-width:calc(50% - 10px)}
 }
+
+/* iPad inline editor: the ONE native flight form occupies the right detail pane,
+   while left flight list remains interactive and unshaded. Never use modal backdrop.
+   Position is taken from the real detail pane, so no invented split dimensions. */
+@media(min-width:768px) and (max-width:1199px),
+      (min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #modal.flight-editor-modal.nv21-ipad-inline-editor[open]{
+   position:fixed!important;
+   inset:auto!important;
+   top:var(--nv21-ipad-top)!important;
+   left:var(--nv21-ipad-left)!important;
+   width:var(--nv21-ipad-width)!important;
+   height:var(--nv21-ipad-height)!important;
+   max-width:none!important;
+   max-height:none!important;
+   margin:0!important;
+   padding:0!important;
+   border:1px solid var(--ui-line);
+   border-radius:24px;
+   box-shadow:0 6px 22px #07172c20;
+   z-index:24;
+   overflow:hidden;
+ }
+ #modal.nv21-ipad-inline-editor::backdrop{background:transparent!important}
+ #modal.nv21-ipad-inline-editor .modal-head{
+   grid-template-columns:43px minmax(0,1fr) 82px;
+   min-height:60px;padding:7px 11px;
+ }
+ #modal.nv21-ipad-inline-editor .fe-title>span{font-size:14px}
+ #modal.nv21-ipad-inline-editor .fe-title h2{font-size:10px}
+ #modal.nv21-ipad-inline-editor .fe-back,
+ #modal.nv21-ipad-inline-editor .fe-save{font-size:12px;min-height:40px;min-width:40px}
+ #modal.nv21-ipad-inline-editor .flight-editor-form{min-height:0;overflow:auto}
+ #modal.nv21-ipad-inline-editor .fe-tabs button{min-height:43px;font-size:11px;padding:6px 3px}
+ #modal.nv21-ipad-inline-editor .fe-body{padding:10px}
+ #modal.nv21-ipad-inline-editor .fe-field{padding:9px}
+ #modal.nv21-ipad-inline-editor .fe-field>span{font-size:10px}
+ #modal.nv21-ipad-inline-editor .fe-field>input,
+ #modal.nv21-ipad-inline-editor .fe-field>select{font-size:14px;min-height:31px}
+}
