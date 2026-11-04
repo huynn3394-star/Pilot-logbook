@@ -14,7 +14,7 @@ html[data-theme="dark"] {
   --ui-surface:#30415d;
   --ui-soft:#1c3352;
   --ui-line:#52617b;
-  --ui-accent:#58e1cf;
+  --ui-accent:#5eead4;
   --ui-accent-soft:#214e5b;
   --ui-ink:#edf2fa;
   --ui-muted:#abb8ce;
@@ -29,26 +29,26 @@ html[data-theme="dark"] #app .nv-search,
 html[data-theme="dark"] #app .nv-filter-button { background:#30415d; border-color:#52617b; box-shadow:0 3px 16px #0713221c; }
 html[data-theme="dark"] #app .nv-search { border-radius:999px; }
 html[data-theme="dark"] #app .nv-search input::placeholder { color:#abb8ce; opacity:1; }
-html[data-theme="dark"] #app .nv-filter-button { color:#58e1cf; border-radius:999px; }
+html[data-theme="dark"] #app .nv-filter-button { color:#5eead4; border-radius:999px; }
 html[data-theme="dark"] #app .nv-month-navigator label { background:#30415d; border-color:#52617b; }
 html[data-theme="dark"] #app .nv-month-header { border-bottom:1px solid #52617b55; margin-bottom:12px; padding:14px 2px; }
 html[data-theme="dark"] #app .nv-month-header h2 { font-size:22px; font-weight:680; letter-spacing:-.035em; color:#edf2fa; }
 html[data-theme="dark"] #app .nv-month-header strong,
-html[data-theme="dark"] #app .nv-list-status strong { color:#58e1cf; font-variant-numeric:tabular-nums; }
+html[data-theme="dark"] #app .nv-list-status strong { color:#5eead4; font-variant-numeric:tabular-nums; }
 html[data-theme="dark"] #app .nv-flight-card { background:linear-gradient(125deg,#30415d 0%,#34445f 100%); border-color:#52617b; border-left:3px solid #27bea6; border-radius:24px; box-shadow:0 6px 22px #0813242b; }
 html[data-theme="dark"] #app .nv-flight-open { color:#edf2fa; }
 html[data-theme="dark"] #app .nv-flight-number small,
 html[data-theme="dark"] #app .nv-card-route b,
 html[data-theme="dark"] #app .nv-timeline,
 html[data-theme="dark"] #app .nv-timeline-labels,
-html[data-theme="dark"] #app .nv-card-scan { color:#58e1cf; }
+html[data-theme="dark"] #app .nv-card-scan { color:#5eead4; }
 html[data-theme="dark"] #app .nv-flight-date small,
 html[data-theme="dark"] #app .nv-card-times small,
 html[data-theme="dark"] #app .nv-card-foot,
 html[data-theme="dark"] #app .nv-card-caption { color:#abb8ce; }
 html[data-theme="dark"] #app .nv-timeline-track:before { background:#27bea6; }
 html[data-theme="dark"] #app .nv-timeline-track>i { background:#27bea6; }
-html[data-theme="dark"] #app .nv-flight-card:focus-within { outline:2px solid #58e1cf; outline-offset:3px; }
+html[data-theme="dark"] #app .nv-flight-card:focus-within { outline:2px solid #5eead4; outline-offset:3px; }
 html[data-theme="dark"] #app .nv-card-route>strong { font-size:clamp(25px,7vw,32px); letter-spacing:-.045em; }
 html[data-theme="dark"] #app .nv-card-route b,
 html[data-theme="dark"] #app .nv-card-times b { font-variant-numeric:tabular-nums; }
@@ -57,17 +57,17 @@ html[data-theme="dark"] #app .nv-flight-list { gap:14px; }
 html[data-theme="dark"] #modal.nv-sheet { background:#142744; border:1px solid #52617b; border-bottom:0; }
 html[data-theme="dark"] #modal .nv-sheet-list { background:#30415d; border-color:#52617b; }
 html[data-theme="dark"] #modal .nv-sheet-list .btn { color:#edf2fa; border-bottom-color:#52617b; }
-html[data-theme="dark"] #modal .nv-sheet-list .btn svg { background:#214e5b; color:#58e1cf; }
+html[data-theme="dark"] #modal .nv-sheet-list .btn svg { background:#214e5b; color:#5eead4; }
 html[data-theme="dark"] #modal.nv-filter-modal { background:#142744; }
 html[data-theme="dark"] #modal.nv-filter-modal>.modal-head { background:#142744; }
 html[data-theme="dark"] #modal .nv-filter-card { background:#30415d; border-color:#52617b; border-radius:22px; }
 html[data-theme="dark"] #modal .nv-filter-row { border-bottom-color:#52617b; color:#edf2fa; }
-html[data-theme="dark"] #modal .nv-filter-row :is(input,select) { color:#58e1cf; }
+html[data-theme="dark"] #modal .nv-filter-row :is(input,select) { color:#5eead4; }
 html[data-theme="dark"] #modal .nv-filter-footer { background:#1c3352; border-top-color:#52617b; }
 html[data-theme="dark"] #modal .nv-filter-footer .primary,
-html[data-theme="dark"] #modal .fe-save { background:#27bea6; color:#142744; border-color:#27bea6; font-weight:700; }
+html[data-theme="dark"] #modal .fe-save { background:#5eead4; color:#142744; border-color:#5eead4; font-weight:700; }
 html[data-theme="dark"] #modal.flight-editor-modal .fe-card { border-color:#52617b; background:#30415d; }
-html[data-theme="dark"] #modal.flight-editor-modal .nv-primary-times strong { color:#58e1cf; font-variant-numeric:tabular-nums; }
+html[data-theme="dark"] #modal.flight-editor-modal .nv-primary-times strong { color:#5eead4; font-variant-numeric:tabular-nums; }
 html[data-theme="dark"] #modal.flight-editor-modal .nv-counter button { background:#34445f; color:#edf2fa; border-color:#52617b; }
 @media(max-width:720px) {
   html[data-theme="dark"] #app .nv-logbook { width:100%; }
@@ -76,8 +76,8 @@ html[data-theme="dark"] #modal.flight-editor-modal .nv-counter button { backgrou
   html[data-theme="dark"] #app .nv-card-heading { column-gap:8px; }
   html[data-theme="dark"] #app .nv-card-foot { border-top-color:#52617b77; }
   html[data-theme="dark"] #app .bottom-nav .nv-nav-pill { background:#30415d; border-color:#52617b; box-shadow:0 6px 24px #07132240; }
-  html[data-theme="dark"] #app .bottom-nav button.active { background:#214e5b; color:#58e1cf; }
-  html[data-theme="dark"] #app .bottom-nav .nv-floating-add { background:#30415d; color:#58e1cf; border-color:#52617b; }
+  html[data-theme="dark"] #app .bottom-nav button.active { background:#214e5b; color:#5eead4; }
+  html[data-theme="dark"] #app .bottom-nav .nv-floating-add { background:#30415d; color:#5eead4; border-color:#52617b; }
   html[data-theme="dark"] #app .main { padding-bottom:calc(126px + env(safe-area-inset-bottom)); }
 }
 @media(max-width:359px) {
@@ -87,4 +87,77 @@ html[data-theme="dark"] #modal.flight-editor-modal .nv-counter button { backgrou
 }
 @media(prefers-reduced-motion:reduce) {
  html[data-theme="dark"] #app .nv-flight-card { transition:none; }
+}
+
+/* V2.1.5 structural layout — live logbook, not a mockup. */
+@media(max-width:720px) {
+ html[data-theme="dark"] #app .nv-logbook-shell .page-heading { display:none; }
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar {
+   position:sticky;top:0;z-index:26;background:#142744;box-shadow:0 2px 16px #0b15272b;
+   padding:18px 16px 8px;border-bottom:0;min-height:78px;
+ }
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar-main { min-height:52px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .breadcrumbs { display:none; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-avatar {
+   width:48px;height:48px;min-width:48px;background:#679b35;color:white;border:0;
+   font-size:22px;font-weight:500;border-radius:999px;
+ }
+ html[data-theme="dark"] #app .nv-logbook-shell .top-actions { justify-content:flex-end;gap:8px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .top-actions .nv-top-management {
+   width:46px;height:46px;min-width:46px;min-height:46px;padding:10px;border:1px solid #52617b;
+   border-radius:50%;background:#30415d;color:#edf2fa;font-size:0;display:grid;place-items:center;
+ }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-top-management svg { width:22px;height:22px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account { max-width:150px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-logbook-tools { top:78px;padding:10px 0 16px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-search { border:0;border-radius:22px;min-height:54px;padding-inline:15px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-search input { min-height:54px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-filter-button { border-radius:50%;min-width:52px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-month-navigator { margin-block:4px 12px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-list-status { font-size:12px;margin:12px 0; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-month-header { position:sticky;top:160px;z-index:5;background:#142744; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-collection-actions { margin-top:24px; }
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-collection-actions [data-action="add"] { display:none; }
+}
+html[data-theme="dark"] #app .nv-v215-card .nv-card-heading { gap:7px;min-height:24px;margin-bottom:10px;align-items:center; }
+html[data-theme="dark"] #app .nv-v215-card .nv-card-separator { color:#8292a9;font-size:14px; }
+html[data-theme="dark"] #app .nv-v215-card .nv-flight-date { flex-shrink:0; }
+html[data-theme="dark"] #app .nv-v215-card .nv-flight-date small { color:#9faec2; }
+html[data-theme="dark"] #app .nv-v215-card .nv-flight-date strong { font-size:20px; }
+html[data-theme="dark"] #app .nv-v215-card .nv-flight-number { flex:1;min-width:0;white-space:nowrap; }
+html[data-theme="dark"] #app .nv-v215-card .nv-flight-number strong { font-size:clamp(14px,3.8vw,18px);font-weight:650; }
+html[data-theme="dark"] #app .nv-v215-card .nv-flight-function { font-size:11px;font-weight:650;flex-shrink:0; }
+html[data-theme="dark"] #app .nv-v215-card .nv-flight-state { margin-left:auto;font-size:9px;max-width:66px;flex-shrink:0; }
+html[data-theme="dark"] #app .nv-v215-card .nv-card-route { margin:7px 0 2px;align-items:end; }
+html[data-theme="dark"] #app .nv-v215-card .nv-card-route>span { font-size:23px;color:#27bea6;font-weight:700; }
+html[data-theme="dark"] #app .nv-v215-card .nv-card-times { align-items:start;gap:7px;grid-template-columns:minmax(0,1fr) minmax(82px,1.4fr) minmax(0,1fr); }
+html[data-theme="dark"] #app .nv-v215-card .nv-station { display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0; }
+html[data-theme="dark"] #app .nv-v215-card .nv-station-main { display:flex;align-items:baseline;gap:5px;flex-wrap:wrap; }
+html[data-theme="dark"] #app .nv-v215-card .nv-station-main b { font-size:clamp(13px,3.7vw,17px);color:#edf2fa;font-weight:550; }
+html[data-theme="dark"] #app .nv-v215-card .nv-station-main small { color:#abb8ce;font-size:clamp(10px,2.9vw,12px); }
+html[data-theme="dark"] #app .nv-v215-card .nv-station-dest { align-items:flex-end;text-align:right; }
+html[data-theme="dark"] #app .nv-v215-card .nv-station-role { font-size:11px;letter-spacing:.06em;color:#9dacc0; }
+html[data-theme="dark"] #app .nv-v215-card .nv-timeline { display:flex;flex-direction:column;gap:5px;padding-top:7px;min-width:0; }
+html[data-theme="dark"] #app .nv-v215-card .nv-timeline-track { width:100%;min-width:0; }
+html[data-theme="dark"] #app .nv-v215-card .nv-timeline-labels { width:100%;display:flex;justify-content:space-between; }
+html[data-theme="dark"] #app .nv-v215-card .nv-card-foot { margin-top:14px; }
+html[data-theme="dark"] #app .nv-v215-card .nv-card-caption { font-size:9px;max-width:100%; }
+html[data-theme="dark"] #modal.flight-editor-modal .fe-overview,
+html[data-theme="dark"] #modal.flight-editor-modal .fe-route-card,
+html[data-theme="dark"] #modal.flight-editor-modal .nv-primary-times,
+html[data-theme="dark"] #modal.flight-editor-modal .fe-summary-card {
+ background:linear-gradient(130deg,#30415d,#34445f);border:1px solid #52617b;border-radius:24px;
+}
+html[data-theme="dark"] #modal.flight-editor-modal .fe-tabs [aria-selected="true"] { color:#5eead4;border-color:#5eead4; }
+html[data-theme="dark"] #modal.flight-editor-modal .fe-card-heading h3 { font-weight:650;letter-spacing:-.02em; }
+html[data-theme="dark"] #modal.flight-editor-modal .fe-route-inputs { background:#30415d;border-radius:22px 22px 0 0; }
+html[data-theme="dark"] #modal.flight-editor-modal .fe-actual-grid { border-top:1px solid #52617b; }
+html[data-theme="dark"] #modal.flight-editor-modal .fe-time-cell { border-color:#52617b; }
+html[data-theme="dark"] #modal.flight-editor-modal .fe-summary-grid strong { color:#5eead4;font-variant-numeric:tabular-nums; }
+html[data-theme="dark"] #modal.flight-editor-modal .fe-save { border-radius:999px;min-width:90px; }
+html[data-theme="dark"] #modal.nv-filter-modal .nv-filter-footer .primary { border-radius:999px;min-height:54px; }
+@media(max-width:359px) {
+ html[data-theme="dark"] #app .nv-v215-card .nv-card-heading { flex-wrap:wrap; }
+ html[data-theme="dark"] #app .nv-v215-card .nv-flight-state { display:none; }
+ html[data-theme="dark"] #app .nv-v215-card .nv-card-times { grid-template-columns:minmax(0,1fr) minmax(72px,1.2fr) minmax(0,1fr); }
 }
