@@ -32,6 +32,14 @@ const {chromium,webkit}=require('playwright');
       assert(layout.separate,'iPad flight list and detail are separate columns');assert.equal(layout.scrollLeft,'auto');assert.equal(layout.scrollRight,'auto');
       if(count>1){const card=p.locator('[data-flight-card]').nth(1),id=await card.getAttribute('data-flight-card');await card.locator('[data-action=tablet-preview]').click();assert.equal(await card.locator('[data-action=tablet-preview]').getAttribute('aria-pressed'),'true');assert(await pane.locator('[data-action=edit]').getAttribute('data-id')===id);}
       assert.equal(await read(p),before,'iPad selection is read-only');await fits(p);
+      await pane.locator('[data-action=edit]').click();
+      const inline=await p.locator('#modal').evaluate(d=>{const pane=document.querySelector('[data-tablet-preview]').getBoundingClientRect(),rect=d.getBoundingClientRect();return{open:d.open,modal:d.matches(':modal'),rightPaneAligned:Math.abs(rect.left-pane.left)<2&&Math.abs(rect.width-pane.width)<3}});
+      assert.equal(inline.open,true,'iPad editor should be open');
+      assert.equal(inline.modal,false,'iPad editor must not blur the list as a modal overlay');
+      assert.equal(inline.rightPaneAligned,true,'editor must occupy the right pane');
+      if(count>1){const other=p.locator('[data-flight-card]').first();const otherId=await other.getAttribute('data-flight-card');await other.locator('[data-action=tablet-preview]').click();assert.equal(await p.locator('#flight-form').getAttribute('data-id'),otherId,'switching iPad selection must change the native editor record');}
+      await p.locator('.fe-back').click();assert.equal(await p.locator('#modal').evaluate(d=>d.open),false);
+      assert.equal(await read(p),before,'iPad native editor open/switch/close must not persist until Save');
       await p.screenshot({path:path.join(root,name+'-820-tablet-split.png')});
      }
      await p.locator('[data-filter=search]').fill('VN0605');assert.equal(await p.locator('[data-flight-card]').count(),1);
