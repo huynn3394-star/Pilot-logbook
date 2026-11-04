@@ -42,3 +42,11 @@
 }
 
 @media(max-width:359px){.study-shell .atpl-header .ui-header-actions{min-width:0;width:100%;justify-content:flex-end}.study-shell .atpl-header .library-account-menu{max-width:44px}.study-shell .atpl-header .library-account-menu [data-account-content]{position:fixed;left:8px;right:8px;top:108px;width:auto;max-width:calc(100vw - 16px);box-sizing:border-box;overflow:auto}.study-shell .atpl-header .library-management .atpl-help{max-width:calc(100vw - 16px)}}
+
+/* Owner-approved compact white AVL logo on every ATPL header. */
+.study-sidebar .brand .nv21-brand-img{width:99px;height:42px;filter:brightness(0) invert(1)}
+.study-shell .atpl-header .nv21-library-logo{width:87px;height:38px;filter:brightness(0) invert(1)}
+.study-shell .app>.topbar .brand .nv21-study-subject-logo{width:55px;height:26px;filter:brightness(0) invert(1)}
+/* Retain the application-wide heading scale verified by shared UI tests. */
+.study-shell .atpl-library h1{font-size:var(--ui-title-size);line-height:1.25;font-weight:750}
+@media(max-width:720px){.study-shell .atpl-library h1{font-size:24px}}
