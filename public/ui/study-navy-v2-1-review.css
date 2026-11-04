@@ -30,3 +30,13 @@
  .study-shell .atpl-header>.atpl-tag{display:none}
  .study-shell .app>.topbar .brand .nv21-study-subject-logo{width:60px;height:29px}
 }
+
+/* 320px ATPL header uses two accessible rows instead of clipping account actions. */
+@media(max-width:359px){
+ .study-shell .atpl-header{display:grid!important;grid-template-columns:auto minmax(0,1fr);row-gap:4px;column-gap:8px;align-items:center}
+ .study-shell .atpl-header .ui-back{grid-column:1;grid-row:1;justify-self:start}
+ .study-shell .atpl-header .nv21-library-logo{grid-column:2;grid-row:1;justify-self:end;width:86px;height:38px}
+ .study-shell .atpl-header .ui-header-actions{grid-column:1/-1;grid-row:2;display:flex;justify-content:flex-end;max-width:100%;min-width:0;flex-wrap:wrap}
+ .study-shell .atpl-header .library-management .atpl-help{position:fixed;left:8px;right:8px;top:100px;
+  width:auto;max-width:calc(100vw - 16px);max-height:75dvh;overflow:auto;box-sizing:border-box}
+}
