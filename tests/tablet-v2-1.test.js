@@ -53,3 +53,14 @@ test('Tablet editor is the existing native Save form, not a duplicate record edi
  assert.match(app,/form\.addEventListener\("submit", saveFlight\)/);
  assert.match(app,/data-tablet-preview/);
 });
+
+test('iPad labels scheduled values honestly, including incomplete actual records',()=>{
+ const scheduled={...flight,confirmed:false,actual:{},scheduled:{out:'2026-11-02T07:00:00Z',in:'2026-11-02T09:00:00Z'}};
+ const html=renderTabletFlightPreview(scheduled);
+ assert.match(html,/SCHEDULED TIMES · UTC/);
+ assert.doesNotMatch(html,/ACTUAL TIMES · UTC/);
+ const partial={...scheduled,actual:{off:'2026-11-02T07:20:00Z'}};
+ const actual=renderTabletFlightPreview(partial);
+ assert.match(actual,/ACTUAL TIMES · UTC/);
+ assert.match(actual,/07:20/);
+});
