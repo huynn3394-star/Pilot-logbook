@@ -76,3 +76,14 @@
 #modal #flight-form.nv21-continuous [data-flight-panel="airports"],
 #modal #flight-form.nv21-continuous [data-flight-panel="tools"]{border-top:1px solid var(--ui-line);padding-top:14px;margin-top:20px}
 #modal #flight-form.nv21-continuous .fe-review-button{display:none}
+
+/* Smallest iPhone width: toolbar and its popovers must not exceed the viewport. */
+@media(max-width:359px){
+ #app .topbar-main{flex-wrap:wrap!important;max-width:100%}
+ #app .topbar .mobile-brand{display:none!important}
+ #app .topbar .top-actions{flex:1 1 100%;width:100%;max-width:100%;min-width:0;justify-content:flex-end;flex-wrap:wrap}
+ #app .topbar [data-page-tools]{min-width:0;max-width:100%}
+ #app .topbar .page-management-content,
+ #app .topbar .workspace-account-popover{position:fixed!important;left:8px!important;right:8px!important;width:auto!important;max-width:calc(100vw - 16px)!important;box-sizing:border-box}
+ #app .topbar .page-management-content .btn{max-width:100%;white-space:normal}
+}
