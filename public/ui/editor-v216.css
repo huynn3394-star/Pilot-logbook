@@ -212,3 +212,20 @@ html[data-theme="dark"] #modal.flight-editor-modal {
     width:auto !important;max-width:none !important;z-index:100;
  }
 }
+
+/* Geometry must remain safe in BOTH appearance modes; color is theme-specific. */
+@media(max-width:720px) {
+ #app .nv-logbook-shell .topbar [data-page-tools] {display:none !important;}
+ #app .nv-logbook-shell .topbar-main {width:100%;min-width:0;}
+ #app .nv-logbook-shell .topbar .top-actions {gap:4px;min-width:0;justify-content:flex-end;}
+ #app .nv-logbook-shell .topbar [data-action="appearance-theme"] {display:none;}
+ #app .nv-logbook-shell .workspace-account {min-width:44px;max-width:44px;flex:0 0 44px;}
+ #app .nv-logbook-shell .workspace-account-menu {width:44px;max-width:44px;}
+ #app .nv-logbook-shell .workspace-account-popover {
+   position:fixed !important;
+   left:12px !important;
+   right:12px !important;
+   width:calc(100vw - 24px) !important;
+   max-width:none !important;
+ }
+}
