@@ -255,3 +255,27 @@
  #modal.flight-editor-modal[open]{position:fixed;inset:12px 12px 12px auto;margin:0;width:min(51vw,720px);
    height:calc(100dvh - 24px);max-height:calc(100dvh - 24px)}
 }
+
+/* Tablet-only sidebar quick action and compact brand banner. */
+#app .nv21-ipad-add,#app .nv21-tablet-banner{display:none}
+@media(min-width:768px) and (max-width:1199px){
+ #app .sidebar .nv21-ipad-add{display:grid;place-items:center;margin:10px auto 18px;
+   width:49px;height:49px;border-radius:50%;border:1px solid #ffffff35;background:#ffffff14;
+   color:#ffffff;box-shadow:0 5px 20px #04132335;cursor:pointer}
+ #app .sidebar .nv21-ipad-add svg{width:23px;height:23px}
+ #app .sidebar .nv21-ipad-add:hover,#app .sidebar .nv21-ipad-add:focus-visible{background:var(--ui-accent)}
+ #app .nv21-tablet-list .nv21-tablet-banner{display:flex;align-items:center;justify-content:space-between;
+   flex-wrap:wrap;gap:8px;padding:9px 14px;margin:0 0 14px;border-radius:13px;
+   background:linear-gradient(105deg,#142744,#1c4855);color:white}
+ #app .nv21-tablet-banner span{font-size:10px;font-weight:700;letter-spacing:.08em}
+ #app .nv21-tablet-banner small{font-size:9px;color:#deedf3}
+}
+@media(min-width:1200px) and (max-width:1439px) and (pointer:coarse){
+ #app .sidebar .nv21-ipad-add{display:grid;place-items:center;margin:10px auto 18px;
+   width:49px;height:49px;border-radius:50%;border:1px solid #ffffff35;background:#ffffff14;color:#fff}
+ #app .sidebar .nv21-ipad-add svg{width:23px;height:23px}
+ #app .nv21-tablet-list .nv21-tablet-banner{display:flex;align-items:center;justify-content:space-between;
+   padding:10px 15px;margin-bottom:14px;border-radius:13px;
+   background:linear-gradient(105deg,#142744,#1c4855);color:white}
+ #app .nv21-tablet-banner small{font-size:10px;color:#deedf3}
+}
