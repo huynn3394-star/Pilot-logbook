@@ -186,3 +186,14 @@ html[data-theme="dark"] #modal.flight-editor-modal {
  #modal.flight-editor-modal .nv-v216-count-card .nv-counter button {min-width:34px !important;width:34px !important}
  #modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field {padding:10px 5px !important}
 }
+
+/* Keep the real-account mobile header within the 320px safe-area viewport. */
+@media(max-width:359px) {
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar {padding-inline:8px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .top-actions {gap:4px;min-width:0;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar [data-action="appearance-theme"] {display:none;}
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account {min-width:44px;max-width:58px;flex:0 1 58px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-sync-status {display:none;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-top-management {width:44px;min-width:44px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-flight-open {padding-inline:9px;}
+}
