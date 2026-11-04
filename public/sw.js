@@ -1,5 +1,5 @@
 const BUNDLE_BUILD = "80c44a81f174";
-const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r3" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
+const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v215" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
 const SHELL = [
   "/lib/usage.js",
   "/workspace/flight-conflict.js",
@@ -15,6 +15,7 @@ const SHELL = [
   "/ui/study-shell.js",
   "/ui/study-shell.css",
   "/ui/navy-v2.css",
+  "/ui/navy-v2-1-5.css",
   "/ui/navy-v2.js",
   "/ui/weather-attention.css",
   "/ui/weather-report-highlights.js",
