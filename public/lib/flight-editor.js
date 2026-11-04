@@ -137,14 +137,14 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
  // Navy V2.1 continuous editor: reuse the SAME form controls and Save handler.
  // No duplicated inputs, storage changes, calculated fields or synthetic controls.
  form.classList.add('nv21-continuous');
- const tabbar=form.querySelector('.fe-tabs');if(tabbar)tabbar.hidden=true;
+ const tabbar=form.querySelector('.fe-tabs'); // Keep accessible section shortcuts for keyboard/browser compatibility.
  const sectionLabels={log:'Thông tin và giờ bay',airports:'Sân bay và hành trình',tools:'Nguồn và xác nhận'};
  for(const panel of panels){panel.hidden=false;panel.setAttribute('role','region');panel.removeAttribute('aria-labelledby');panel.setAttribute('aria-label',sectionLabels[panel.dataset.flightPanel]||'Chi tiết chuyến bay');}
  let selected='log';const positions=new Map();
  function show(key,{focus=false,restore=true}={}){
   if(!tabs.some(tab=>tab.dataset.flightTab===key))return;
   positions.set(selected,form.scrollTop);selected=key;
-  for(const tab of tabs){const active=tab.dataset.flightTab===key;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;if(active&&focus&&!tabbar?.hidden)tab.focus();}
+  for(const tab of tabs){const active=tab.dataset.flightTab===key;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;if(active&&focus)tab.focus();}
   // Panels remain visible in one continuous scroll; link buttons jump to a section.
   const target=panels.find(panel=>panel.dataset.flightPanel===key);
   if(restore&&target&&key!=='log')target.scrollIntoView({block:'start',behavior:'instant'});
