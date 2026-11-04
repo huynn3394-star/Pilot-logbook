@@ -37,3 +37,19 @@ test('tablet split view only appears on tablet and uses current filtered flights
  assert.match(app,/selectFlights\(state.flights,\{month,query,filters:navyFilters,people:state.people\}\)\.slice\(0,navyLimit\)/);
  assert.match(app,/tabletSelectedFlightId=null/);
 });
+
+test('iPad split view groups only saved fields and resolves real crew names',()=>{
+ const withCrew={...flight,captainId:'pilot-1',foId:'pilot-2',logbook:{takeoffDay:1,landingDay:1}};
+ const people=[{id:'pilot-1',name:'Captain Sample'},{id:'pilot-2',name:'FO Sample'}];
+ const html=renderTabletFlightPreview(withCrew,people);
+ for(const value of ['FLIGHT INFORMATION','CREW','ACTUAL TIMES','FLIGHT ALLOCATION','TAKEOFFS / LANDINGS','Captain Sample','FO Sample','1 / —'])assert.ok(html.includes(value),value);
+ assert.doesNotMatch(html,/<form|<input|data-action="save"/);
+});
+test('Tablet editor is the existing native Save form, not a duplicate record editor',()=>{
+ const css=read('public/ui/navy-v2-1-review.css'),app=read('public/app.js');
+ assert.match(css,/#modal\.flight-editor-modal\[open\]/);
+ assert.match(css,/overflow-y:auto/);
+ assert.match(app,/modal\._flightEditor=mountFlightEditor\(modal/);
+ assert.match(app,/form\.addEventListener\("submit", saveFlight\)/);
+ assert.match(app,/data-tablet-preview/);
+});
