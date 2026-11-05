@@ -158,7 +158,7 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
  }
  const countFields=['takeoffDay','landingDay','takeoffNight','landingNight'].map(key=>form.elements.namedItem('log_'+key)?.closest('label'));
  if(countFields.every(Boolean)){
-  const card=document.createElement('section');card.className='fe-card nv-count-card';card.setAttribute('aria-label','Takeoffs và Landings');card.innerHTML='<div class="nv-count-heading"><h3>Takeoffs</h3><h3>Landings</h3></div><div class="fe-grid fe-v14-fields nv-count-grid"></div>';
+  const card=document.createElement('section');card.className='fe-card nv-count-card nv-v216-count-card';card.setAttribute('aria-label','Takeoffs và Landings');card.innerHTML='<div class="nv-count-heading"><h3>✈ Takeoffs</h3><h3>✈ Landings</h3></div><div class="nv-count-grid"></div>';
   card.querySelector('.nv-count-grid').append(...countFields);form.querySelector('.nv-primary-times').after(card);
  }
  const setSaveState=state=>{const save=head.querySelector('.fe-save');save.disabled=state==='saving'||[...form.elements].some(input=>input.willValidate&&!input.validity.valid);save.setAttribute('aria-busy',String(state==='saving'));save.textContent=({saving:'Đang lưu…',saved:'Đã lưu',error:'Thử lưu lại'})[state]||'Lưu ✓';};

@@ -1,0 +1,397 @@
+/* Avilog Navy V2.1.6: actual Flight Editor layout, built on existing fields.
+   Visual-only, except moving existing unmodified counters into a compact grid. */
+html[data-theme="dark"] #modal.flight-editor-modal {
+  --fe-bg:#142744;
+  --fe-card:var(--ui-surface);
+  --fe-soft:#34445f;
+  --fe-line:#52617b;
+  --fe-accent:#5eead4;
+  --fe-muted:#abb8ce;
+  background:#142744;
+}
+#modal.flight-editor-modal .modal-head {
+  background:var(--fe-bg);
+  border-bottom:1px solid var(--fe-line);
+  grid-template-columns:48px minmax(0,1fr) 95px;
+  gap:6px;
+  padding:12px 16px;
+  min-height:72px;
+}
+#modal.flight-editor-modal .fe-title>span {
+  font-size:18px;
+  letter-spacing:0;
+  font-weight:700;
+  color:var(--ui-ink);
+}
+#modal.flight-editor-modal .fe-title h2 {font-size:12px;color:var(--fe-muted)}
+#modal.flight-editor-modal .fe-back {
+  border:1px solid var(--fe-line);
+  border-radius:999px;
+  width:44px;
+  height:44px;
+}
+#modal.flight-editor-modal .fe-save {
+  border-radius:999px;
+  min-width:90px;
+  background:#5eead4;
+  color:#142744;
+  border:0;
+  font-size:15px;
+}
+#modal.flight-editor-modal .fe-save:disabled {opacity:.48}
+#modal.flight-editor-modal .flight-editor-form {scroll-padding-top:75px}
+#modal.flight-editor-modal .fe-tabs {
+  position:sticky;
+  top:0;
+  z-index:5;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+  padding:8px 16px;
+  background:#142744;
+  border-bottom:0;
+}
+#modal.flight-editor-modal .fe-tabs button {
+  min-height:44px;
+  border:1px solid var(--fe-line);
+  background:var(--fe-card);
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+  gap:5px;
+  color:var(--fe-muted);
+  padding:8px 5px;
+}
+#modal.flight-editor-modal .fe-tabs button[aria-selected="true"] {
+  background:#214e5b;
+  border:1px solid #5eead4;
+  color:#5eead4;
+  box-shadow:inset 0 0 0 1px #27bea620;
+}
+#modal.flight-editor-modal .fe-body {padding:10px 16px calc(36px + env(safe-area-inset-bottom))}
+#modal.flight-editor-modal .fe-status-row {margin:0 4px 11px}
+#modal.flight-editor-modal .fe-card {
+  border-radius:24px;
+  background-color:var(--fe-card);
+  border:1px solid var(--fe-line);
+  overflow:visible;
+  margin-bottom:14px;
+}
+#modal.flight-editor-modal .fe-card .fe-field {padding:10px 12px}
+#modal.flight-editor-modal .fe-field>span {font-size:11px;color:var(--fe-muted)}
+#modal.flight-editor-modal .fe-main-fields [name="flightNo"] {font-size:22px}
+#modal.flight-editor-modal .fe-route-inputs input {font-size:25px}
+#modal.flight-editor-modal .fe-time-cell {padding:10px 11px}
+#modal.flight-editor-modal .fe-time-cell input[data-utc-clock] {
+  font-size:clamp(20px,5.6vw,27px);
+  min-width:0;
+}
+#modal.flight-editor-modal .fe-time-cell input[type="date"] {font-size:12px;max-width:100%}
+#modal.flight-editor-modal .fe-route-foot {padding:7px 12px}
+#modal.flight-editor-modal .nv-primary-times {padding:13px 8px}
+#modal.flight-editor-modal .nv-primary-times strong {font-size:30px;color:#5eead4}
+#modal.flight-editor-modal .nv-v216-count-card {padding:0;overflow:hidden}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-heading {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  padding:13px 8px 11px;
+  border-bottom:1px solid var(--fe-line);
+  gap:8px;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-heading h3 {
+  font-size:14px;font-weight:650;margin:0;text-align:center;color:var(--ui-ink);
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:0;
+  padding:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field {
+  display:flex !important;
+  flex-direction:column;
+  gap:6px;
+  padding:12px 8px !important;
+  min-width:0;
+  align-items:stretch;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field:nth-child(even) {
+  border-left:1px solid var(--fe-line);
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field:nth-child(n+3) {
+  border-top:1px solid var(--fe-line);
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field>span:first-child {
+  min-height:18px;
+  white-space:normal;
+  font-size:clamp(10px,2.8vw,12px);
+  line-height:1.25;
+  text-align:center;
+  letter-spacing:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter {
+  display:grid !important;
+  grid-template-columns:38px minmax(0,1fr) 38px;
+  grid-template-rows:44px;
+  gap:4px;
+  align-items:stretch;
+  width:100%;
+  min-width:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter button {
+  display:grid !important;place-items:center;
+  width:38px !important;
+  min-width:38px !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0;
+  border:1px solid var(--fe-line);
+  border-radius:12px;
+  background:#243958;
+  color:#5eead4;
+  font-size:23px;
+  padding:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter input {
+  display:block !important;
+  width:100% !important;
+  min-width:0 !important;
+  height:44px !important;
+  min-height:44px !important;
+  margin:0 !important;
+  text-align:center !important;
+  padding:2px 0 !important;
+  border-radius:12px;
+  border:1px solid #52617b;
+  background:#203653;
+  color:#edf2fa;
+  font-size:17px !important;
+  font-variant-numeric:tabular-nums;
+  -moz-appearance:textfield;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter input::-webkit-inner-spin-button,
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter input::-webkit-outer-spin-button {
+  -webkit-appearance:none;margin:0;
+}
+#modal.flight-editor-modal .nv-v216-count-card .nv-counter input::placeholder {font-size:10px;color:#abb8ce}
+#modal.flight-editor-modal .fe-scheduled {margin-top:16px}
+#modal.flight-editor-modal .fe-scheduled>summary {padding:10px 14px;min-height:46px}
+#modal.flight-editor-modal .fe-card-heading {padding:12px 14px}
+#modal.flight-editor-modal .fe-summary-grid {gap:0}
+#modal.flight-editor-modal .fe-summary-grid strong {color:#5eead4;font-variant-numeric:tabular-nums}
+#modal.flight-editor-modal .fe-remarks textarea {min-height:78px}
+@media (max-width:359px) {
+ #modal.flight-editor-modal .fe-body {padding-inline:10px}
+ #modal.flight-editor-modal .fe-tabs {padding-inline:10px}
+ #modal.flight-editor-modal .nv-v216-count-card .nv-counter {grid-template-columns:34px minmax(0,1fr) 34px;gap:2px}
+ #modal.flight-editor-modal .nv-v216-count-card .nv-counter button {min-width:34px !important;width:34px !important}
+ #modal.flight-editor-modal .nv-v216-count-card .nv-count-grid>.fe-field {padding:10px 5px !important}
+}
+
+/* Keep the real-account mobile header within the 320px safe-area viewport. */
+@media(max-width:359px) {
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar {padding-inline:8px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .top-actions {gap:4px;min-width:0;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar [data-action="appearance-theme"] {display:none;}
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account {min-width:44px;max-width:58px;flex:0 1 58px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-sync-status {display:none;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-top-management {width:44px;min-width:44px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-flight-open {padding-inline:9px;}
+}
+
+/* Avoid duplicate topbar management controls on the compact mobile Logbook. 
+   Import remains accessible through the existing Navy management sheet. */
+@media(max-width:720px) {
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar [data-page-tools] {display:none !important;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar-main {width:100%;min-width:0;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .top-actions {min-width:0;gap:4px;justify-content:flex-end;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar [data-action="appearance-theme"] {display:none;}
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account {flex:0 0 44px;min-width:44px;max-width:44px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account-menu {max-width:44px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .workspace-account-popover {
+    position:fixed !important;left:12px !important;right:12px !important;
+    width:auto !important;max-width:none !important;z-index:100;
+ }
+}
+
+/* Geometry must remain safe in BOTH appearance modes; color is theme-specific. */
+@media(max-width:720px) {
+ #app .nv-logbook-shell .topbar [data-page-tools] {display:none !important;}
+ #app .nv-logbook-shell .topbar-main {width:100%;min-width:0;}
+ #app .nv-logbook-shell .topbar .top-actions {gap:4px;min-width:0;justify-content:flex-end;}
+ #app .nv-logbook-shell .topbar [data-action="appearance-theme"] {display:none;}
+ #app .nv-logbook-shell .workspace-account {min-width:44px;max-width:44px;flex:0 0 44px;}
+ #app .nv-logbook-shell .workspace-account-menu {width:44px;max-width:44px;}
+ #app .nv-logbook-shell .workspace-account-popover {
+   position:fixed !important;
+   left:12px !important;
+   right:12px !important;
+   width:calc(100vw - 24px) !important;
+   max-width:none !important;
+ }
+}
+
+/* Preserve the existing Import/Add management control for keyboard and browser tests.
+   Present it as an icon-size circle instead of an oversized header label. */
+@media(max-width:720px) {
+ #app .nv-logbook-shell .topbar [data-page-tools] {
+   display:flex !important; flex:0 0 44px; width:44px;min-width:44px;max-width:44px;
+ }
+ #app .nv-logbook-shell .page-management {position:relative;width:44px;min-width:44px;}
+ #app .nv-logbook-shell .page-management>summary {
+   display:grid;place-items:center;box-sizing:border-box;
+   width:44px;min-width:44px;max-width:44px;height:44px;min-height:44px;
+   border:1px solid var(--ui-line);border-radius:999px;
+   padding:0;font-size:0;overflow:hidden;white-space:nowrap;
+ }
+ #app .nv-logbook-shell .page-management>summary::before {
+   content:'+';font-size:25px;line-height:1;color:var(--ui-accent);
+ }
+ #app .nv-logbook-shell .page-management:not([open]) .page-management-content,
+ #app .nv-logbook-shell .workspace-account-menu:not([open]) .workspace-account-popover {
+   display:none !important;
+ }
+ #app .nv-logbook-shell .page-management-content {
+   position:fixed;left:12px;right:12px;top:74px;
+   box-sizing:border-box;max-width:calc(100vw - 24px);
+ }
+ #app .nv-logbook-shell .topbar {padding-right:8px;box-sizing:border-box;}
+ #app .nv-logbook-shell .topbar-main {box-sizing:border-box;max-width:100%;}
+}
+
+/* iPhone 320px: keep the last account control fully within the visual viewport. */
+@media(max-width:359px) {
+ #app .nv-logbook-shell .topbar .top-actions {position:relative;right:16px;}
+}
+
+/* Stable mobile hit targets: the legacy management menu remains accessible
+   even when the toolbar is very narrow; no duplicate management trigger. */
+@media(max-width:720px) {
+ #app .nv-logbook-shell .topbar {
+   position:sticky;
+   min-height:68px;
+ }
+ #app .nv-logbook-shell .topbar-main {
+   justify-content:flex-start;
+   padding-right:112px;
+   min-width:0;
+ }
+ #app .nv-logbook-shell .topbar .top-actions {
+   position:static !important;
+   right:auto !important;
+   flex:0 0 0 !important;
+   width:0 !important;
+   min-width:0 !important;
+   margin:0;
+   padding:0;
+ }
+ #app .nv-logbook-shell .topbar [data-page-tools] {
+   display:flex !important;
+   position:absolute !important;
+   top:12px !important;
+   right:62px !important;
+   z-index:4;
+   width:44px !important;
+   min-width:44px !important;
+   height:44px !important;
+ }
+ #app .nv-logbook-shell .topbar .page-management {
+   display:block !important;
+   position:relative !important;
+   visibility:visible !important;
+   width:44px !important;
+   height:44px !important;
+   flex:0 0 44px;
+ }
+ #app .nv-logbook-shell .topbar .page-management>summary {
+   display:flex !important;
+   align-items:center;justify-content:center;
+   visibility:visible !important;
+   opacity:1 !important;
+   width:44px;
+   height:44px;
+ }
+ #app .nv-logbook-shell .topbar .nv-top-management {display:none !important;}
+ #app .nv-logbook-shell .topbar .workspace-account {
+   display:flex;
+   position:absolute !important;
+   top:12px;
+   right:8px;
+   z-index:5;
+   width:44px;
+   max-width:44px;
+   min-width:44px;
+ }
+}
+
+/* Dark-mode selector specificity: retain the accessible + management entry. */
+@media(max-width:720px) {
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar [data-page-tools] {
+   display:flex !important;position:absolute !important;right:62px !important;
+   top:12px !important;width:44px !important;min-width:44px !important;
+ }
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .page-management {
+   display:block !important;visibility:visible !important;
+ }
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .nv-top-management {
+   display:none !important;
+ }
+}
+
+/* Hard viewport anchor (not topbar width): prevents off-screen account at 320px. */
+@media(max-width:720px) {
+ #app .nv-logbook-shell .topbar .workspace-account-menu,
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .workspace-account-menu {
+   position:fixed !important;
+   top:12px !important;
+   right:8px !important;
+   left:auto !important;
+   width:44px !important;
+   max-width:44px !important;
+   height:44px !important;
+   margin:0 !important;
+   transform:none !important;
+   z-index:33;
+ }
+ #app .nv-logbook-shell .topbar .workspace-account-menu>summary {width:44px !important;max-width:44px !important;}
+}
+
+/* Shared surface token is also the accessibility-tested Flight Editor card color. */
+html[data-theme="dark"] #modal.flight-editor-modal .fe-card {
+  background-color:var(--ui-surface);
+  background-image:none;
+}
+
+/* Use one verifiable Navy surface instead of a gradient with transparent CSS color. */
+html[data-theme="dark"] #app .nv-logbook .nv-flight-card {
+  background-color:var(--ui-surface);
+  background-image:none;
+}
+
+/* Keep BOTH real controls functional:
+   "+" manages Import/Add, and the separate Navy menu opens the Logbook sheet. */
+@media(max-width:720px) {
+ #app .nv-logbook-shell .topbar .nv-top-management,
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .nv-top-management {
+   display:grid !important;
+   position:fixed !important;
+   top:12px !important;
+   left:64px !important;
+   right:auto !important;
+   width:44px !important;
+   min-width:44px !important;
+   max-width:44px !important;
+   height:44px !important;
+   min-height:44px !important;
+   padding:8px !important;
+   margin:0 !important;
+   place-items:center;
+   overflow:hidden;
+   border:1px solid var(--ui-line);
+   border-radius:999px;
+   background:var(--ui-surface);
+   color:var(--ui-accent);
+   font-size:0;
+   z-index:34;
+ }
+ #app .nv-logbook-shell .topbar .nv-top-management svg {width:22px;height:22px;flex-shrink:0;}
+}
