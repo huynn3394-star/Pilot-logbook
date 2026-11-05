@@ -251,3 +251,24 @@ html[data-theme="dark"] #modal.nv-filter-modal .nv-filter-footer .primary { bord
  html[data-theme="dark"] #app .nv-wader-logbook .nv-card-caption{padding:0;font-size:9px;opacity:.75;}
  html[data-theme="dark"] #app .nv-wader-logbook .nv-card-scan{position:static;display:block;width:100%;min-height:30px;text-align:right;padding:2px 14px 7px;font-size:10px;}
 }
+
+/* Full-screen Wader-like grouped filter controls, preserving existing form names. */
+@media(max-width:720px){
+ #modal.nv-filter-modal{width:100%;max-width:100%;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0;padding:0 0 env(safe-area-inset-bottom,0px);overflow:auto;background:#131a2a;}
+ #modal.nv-filter-modal .modal-head{position:sticky;top:0;z-index:15;background:#131a2a;padding:calc(12px + env(safe-area-inset-top,0px)) 20px 16px;border:0;}
+ #modal.nv-filter-modal .modal-head h2{font-size:22px;font-weight:650;}
+ #modal.nv-filter-modal .nv-wader-filter{display:grid;gap:20px;padding:4px 18px 24px;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-card{display:grid;gap:0;padding:0;background:#242d40;border:1px solid #455066;border-radius:24px;overflow:hidden;box-shadow:none;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,44%);align-items:center;gap:10px;margin:0;min-height:66px;padding:10px 18px;border-bottom:1px solid #3a455a;color:#e5e8ee;font-size:16px;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-row:last-child{border-bottom:0;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-row>span{font-weight:450;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-row select,
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-row input{min-width:0;width:100%;text-align:right;text-align-last:right;border:0;background:transparent;color:#23b89f;font-size:16px;padding:10px 2px;box-shadow:none;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-row input::placeholder{color:#8c98a8;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-rows{display:grid;gap:0;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-rows[hidden]{display:none;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-card h3{padding:16px 18px 4px;font-size:14px;color:#aeb7c7;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-footer{position:sticky;bottom:0;z-index:20;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;padding:12px 0 max(12px,env(safe-area-inset-bottom,0px));background:#131a2a;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-footer .primary{min-height:56px;border-radius:999px;font-size:17px;font-weight:700;background:#23b89f;color:#14202c;}
+ #modal.nv-filter-modal .nv-wader-filter .nv-filter-footer .ghost{min-height:56px;border-radius:999px;padding:0 18px;}
+}
