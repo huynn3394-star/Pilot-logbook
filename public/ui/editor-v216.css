@@ -322,3 +322,17 @@ html[data-theme="dark"] #modal.flight-editor-modal {
    min-width:44px;
  }
 }
+
+/* Dark-mode selector specificity: retain the accessible + management entry. */
+@media(max-width:720px) {
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar [data-page-tools] {
+   display:flex !important;position:absolute !important;right:62px !important;
+   top:12px !important;width:44px !important;min-width:44px !important;
+ }
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .page-management {
+   display:block !important;visibility:visible !important;
+ }
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar .nv-top-management {
+   display:none !important;
+ }
+}
