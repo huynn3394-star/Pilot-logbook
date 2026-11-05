@@ -50,7 +50,7 @@ export function parseAircraft(text, family, date) {
     flightNo: scan.flightNo,
     dep: airportAliases[scan.dep] || scan.dep,
     dest: airportAliases[scan.dest] || scan.dest,
-    aircraft: "A321",
+    aircraft: "", // A320/A321 cannot be determined from this scan; require user selection.
     actual: normalizeEvents(date, scan.clocks),
     scheduled: {},
     confirmed: false,
@@ -75,6 +75,9 @@ export function parseRoster(text, month) {
     if (dm) {
       date = `${dm[3] || month.slice(0, 4)}-${dm[2].padStart(2, "0")}-${dm[1].padStart(2, "0")}`;
       validDate(date);
+      if (date.slice(0, 7) !== month) {
+        throw Error(`Ngày ${date} không thuộc tháng roster ${month}. Kiểm tra tháng đã chọn hoặc dữ liệu PDF.`);
+      }
     }
     const re =
       /\b(VN\s*\d{1,5})\s+([A-Z]{3,4})\s*[-–→/]\s*([A-Z]{3,4})\s+(\d{2}:\d{2})\s*[-–→/]\s*(\d{2}:\d{2})/g;
