@@ -325,3 +325,14 @@ html[data-theme="dark"] #modal.nv-filter-modal .nv-filter-footer .primary { bord
  html[data-theme="dark"] #app .bottom-nav .nv-floating-add svg{width:27px;height:27px;}
  html[data-theme="dark"] #app .nv-logbook-shell .main{padding-bottom:110px;}
 }
+
+/* Flight card status, date and group refinements — separate semantics from decorative icons. */
+@media(max-width:720px){
+ html[data-theme="dark"] #app .nv-logbook .nv-flight-status-pill{display:inline-flex;align-items:center;justify-content:center;margin-left:auto;padding:5px 8px;min-width:43px;border:1px solid #5c6b7c;border-radius:999px;font-size:9px;letter-spacing:.05em;font-weight:750;line-height:1.2;white-space:nowrap;color:#c2cbd8;}
+ html[data-theme="dark"] #app .nv-logbook .nv-flight-status-pill.is-final{background:#204b4c;border-color:#2d8b80;color:#65e6cd;}
+ html[data-theme="dark"] #app .nv-logbook .nv-flight-status-pill.is-draft{background:#4b3d2d;border-color:#94714b;color:#f6c98b;}
+ html[data-theme="dark"] #app .nv-logbook .nv-flight-status-pill.is-scheduled{background:#2a3549;color:#b5c2d4;}
+ html[data-theme="dark"] #app .nv-logbook .nv-card-foot{display:flex;justify-content:space-between;gap:8px;}
+ html[data-theme="dark"] #app .nv-logbook .nv-card-day{font-size:10px;white-space:nowrap;color:#aeb9c8;}
+ html[data-theme="dark"] #app .nv-logbook .nv-month-header>span{max-width:45%;text-align:right;line-height:1.4;}
+}
