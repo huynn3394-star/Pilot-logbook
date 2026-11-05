@@ -161,3 +161,41 @@ html[data-theme="dark"] #modal.nv-filter-modal .nv-filter-footer .primary { bord
  html[data-theme="dark"] #app .nv-v215-card .nv-flight-state { display:none; }
  html[data-theme="dark"] #app .nv-v215-card .nv-card-times { grid-template-columns:minmax(0,1fr) minmax(72px,1.2fr) minmax(0,1fr); }
 }
+
+
+/* Wader-reference mobile refinement (Nov 2026): presentation-only.
+   Keep flight data, UTC semantics, editing actions and existing navigation intact. */
+@media (max-width:720px) {
+ html[data-theme="dark"] { --ui-bg:#131a2a;--ui-surface:#30394c;--ui-soft:#242d40;--ui-line:#455066;--ui-accent:#23b89f;--ui-accent-soft:#204b4c;--ui-ink:#e5e8ee;--ui-muted:#929bab;--ui-on-accent:#13202b; }
+ html[data-theme="dark"] body,html[data-theme="dark"] #app {background:#131a2a;}
+ html[data-theme="dark"] #app .nv-logbook-shell .topbar {background:#131a2a;box-shadow:none;padding-top:calc(12px + env(safe-area-inset-top,0px));}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-logbook-tools {background:#131a2a;gap:12px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-search {background:#30394c;border:0;border-radius:22px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-filter-button {background:#242d40;border:1px solid #465064;color:#e5e8ee;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-month-header {background:#131a2a;border-bottom:1px solid #d0d4dd;padding:12px 2px 10px;margin-bottom:16px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-month-header h2 {font-size:23px;font-weight:500;letter-spacing:-.025em;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-month-header span {font-size:11px;letter-spacing:.08em;text-transform:uppercase;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-month-header strong {color:#e5e8ee;font-size:18px;letter-spacing:0;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-flight-list {gap:16px;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-flight-card {background:linear-gradient(125deg,#30394c,#2a3346);border:1px solid #475267;border-left:4px solid #23b89f;border-radius:24px;box-shadow:0 8px 22px #070d1b44;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-flight-open {padding:13px 14px 12px;color:#e5e8ee;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-card-route>strong {font-size:clamp(28px,8vw,39px);font-weight:400;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-card-route b {color:#23b89f;font-size:clamp(20px,6vw,29px);}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-card-foot {border-top:1px solid #b4bccb;padding-top:8px;color:#9099aa;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-timeline-track:before {background:#23b89f;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-timeline-track>i {background:#23b89f;}
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-flight-number small,
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-timeline,
+ html[data-theme="dark"] #app .nv-logbook-shell .nv-timeline-labels {color:#23b89f;}
+ html[data-theme="dark"] #app .bottom-nav .nv-nav-pill {background:#293245;border:1px solid #475267;border-radius:999px;box-shadow:0 12px 30px #080e1e77;}
+ html[data-theme="dark"] #app .bottom-nav button.active {background:#204b4c;color:#23b89f;}
+ html[data-theme="dark"] #app .bottom-nav .nv-floating-add {background:#293245;color:#23b89f;border:1px solid #475267;box-shadow:0 12px 30px #080e1e77;}
+ html[data-theme="dark"] #modal.nv-filter-modal,
+ html[data-theme="dark"] #modal.flight-editor-modal,
+ html[data-theme="dark"] #modal.nv-sheet {background:#131a2a;color:#e5e8ee;}
+ html[data-theme="dark"] #modal.nv-filter-modal>.modal-head {background:#131a2a;}
+ html[data-theme="dark"] #modal .nv-filter-card,
+ html[data-theme="dark"] #modal.flight-editor-modal .fe-card {background:#30394c;border-color:#475267;border-radius:22px;}
+ html[data-theme="dark"] #modal .nv-filter-footer .primary,
+ html[data-theme="dark"] #modal .fe-save {background:#23b89f;color:#13202b;border-color:#23b89f;}
+}
