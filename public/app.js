@@ -368,7 +368,7 @@ function navyFilterDialog(){
   const invalid=(draft.period==='range'&&draft.from&&draft.to&&draft.from>draft.to)||(draft.minBlock!==''&&draft.maxBlock!==''&&Number(draft.minBlock)>Number(draft.maxBlock));
   error.hidden=!invalid;error.textContent=invalid?'Kiểm tra thứ tự ngày hoặc giới hạn Block.':'';apply.disabled=invalid||!form.checkValidity();
   draft={...defaultFilters(),...draft};
-  apply.textContent='Hiển thị '+selectFlights(state.flights,{month,query,filters:draft,people:state.people}).length+' chuyến';
+  apply.textContent='Show '+selectFlights(state.flights,{month,query,filters:draft,people:state.people}).length+' records';
  }
  form.addEventListener('input',review);form.addEventListener('change',review);
  form.querySelector('[data-navy-filter-clear]').onclick=()=>{for(const [key,value]of Object.entries(defaultFilters())){form.elements[key].disabled=false;form.elements[key].value=value;}review();};
