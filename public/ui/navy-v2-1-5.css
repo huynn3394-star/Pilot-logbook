@@ -336,3 +336,10 @@ html[data-theme="dark"] #modal.nv-filter-modal .nv-filter-footer .primary { bord
  html[data-theme="dark"] #app .nv-logbook .nv-card-day{font-size:10px;white-space:nowrap;color:#aeb9c8;}
  html[data-theme="dark"] #app .nv-logbook .nv-month-header>span{max-width:45%;text-align:right;line-height:1.4;}
 }
+
+/* Keep floating controls at the bottom safe-area edge rather than over study cards. */
+@media(max-width:720px){
+ html[data-theme="dark"] #app .bottom-nav{bottom:max(2px,env(safe-area-inset-bottom,0px));}
+ body.avilog-study-page .study-shell>.bottom-nav{bottom:max(2px,env(safe-area-inset-bottom,0px));}
+ body.avilog-study-page .study-shell .app{padding-bottom:110px;}
+}
