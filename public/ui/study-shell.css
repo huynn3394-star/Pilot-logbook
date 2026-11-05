@@ -67,7 +67,7 @@ body.avilog-study-page .dock { left:var(--study-rail); right:0; width:auto; }
  .study-shell .app>.topbar .top-tools { display:flex; flex-wrap:nowrap; width:100%; margin-left:0; justify-content:space-between; }
  .study-shell .app { padding-bottom:130px; }
  .study-shell .library-account-menu [data-account-content] { position:fixed; top:74px; left:16px; right:16px; width:auto; }
- .study-shell>.bottom-nav { position:fixed; inset:auto 12px calc(10px + env(safe-area-inset-bottom)); z-index:35; display:flex; gap:10px; border:0; background:transparent; padding:0; width:auto; }
+ .study-shell>.bottom-nav { position:fixed; inset:auto 8px max(2px, env(safe-area-inset-bottom, 0px)); z-index:35; display:flex; gap:10px; border:0; background:transparent; padding:0; width:auto; }
  .study-shell .nv-nav-pill { display:flex; flex:1; min-width:0; padding:5px; border:1px solid var(--ui-line); border-radius:999px; background:var(--ui-surface); box-shadow:var(--ui-menu-shadow); }
  .study-shell .bottom-nav :is(a,button) { display:flex; flex:1 1 0; flex-direction:column; align-items:center; justify-content:center; gap:4px; min-width:0; min-height:54px; padding:6px 3px; border:0; border-radius:20px; background:transparent; color:var(--ui-muted); text-decoration:none; font:500 11px/1.25 var(--ui-font); }
  .study-shell .bottom-nav .active { background:var(--ui-accent-soft); color:var(--ui-accent); }
