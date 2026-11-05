@@ -272,3 +272,42 @@ html[data-theme="dark"] #modal.nv-filter-modal .nv-filter-footer .primary { bord
  #modal.nv-filter-modal .nv-wader-filter .nv-filter-footer .primary{min-height:56px;border-radius:999px;font-size:17px;font-weight:700;background:#23b89f;color:#14202c;}
  #modal.nv-filter-modal .nv-wader-filter .nv-filter-footer .ghost{min-height:56px;border-radius:999px;padding:0 18px;}
 }
+
+/* Flight editor V3: Wader-inspired identity header and vertically grouped full-screen cards. */
+@media(max-width:720px){
+ #modal.flight-editor-modal{width:100%;max-width:100%;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0;overflow:auto;padding:0 0 env(safe-area-inset-bottom,0px);background:#131a2a;}
+ #modal.flight-editor-modal .modal-head{position:sticky;top:0;z-index:25;background:#131a2a;border:0;padding:calc(10px + env(safe-area-inset-top,0px)) 18px 12px;}
+ #modal.flight-editor-modal .modal-head h2{font-size:17px;}
+ #modal.flight-editor-modal .flight-editor-form{padding:0 16px 24px;}
+ #modal.flight-editor-modal .fe-wader-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 4px 16px;color:#e5e8ee;}
+ #modal.flight-editor-modal .fe-wader-head strong{font-size:20px;letter-spacing:.01em;}
+ #modal.flight-editor-modal .fe-wader-head span{font-size:11px;color:#9ba7b8;}
+ #modal.flight-editor-modal .fe-wader-head .fe-wader-eyebrow{color:#23b89f;font-weight:700;}
+ #modal.flight-editor-modal .fe-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0 0 18px;padding:4px;background:#242d40;border-radius:18px;}
+ #modal.flight-editor-modal .fe-tabs button{min-height:46px;border-radius:14px;}
+ #modal.flight-editor-modal .fe-tabs button[aria-selected="true"]{background:#204b4c;color:#23b89f;}
+ #modal.flight-editor-modal .fe-body{padding:0;display:block;}
+ #modal.flight-editor-modal .fe-wader-log-panel,
+ #modal.flight-editor-modal .fe-wader-airports-panel,
+ #modal.flight-editor-modal .fe-wader-tools-panel{display:grid;gap:16px;}
+ #modal.flight-editor-modal [role="tabpanel"][hidden]{display:none;}
+ #modal.flight-editor-modal .fe-card{margin:0;background:linear-gradient(120deg,#30394c,#2a3346);border:1px solid #475267;border-radius:24px;overflow:hidden;box-shadow:none;}
+ #modal.flight-editor-modal .fe-overview .fe-field,
+ #modal.flight-editor-modal .fe-route-card .fe-field{min-width:0;}
+ #modal.flight-editor-modal .fe-overview .fe-main-fields,
+ #modal.flight-editor-modal .fe-overview .fe-aircraft-fields{gap:0;}
+ #modal.flight-editor-modal .fe-overview .fe-field{padding:10px 14px;}
+ #modal.flight-editor-modal .fe-wader-route .fe-route-inputs{padding:8px 12px;}
+ #modal.flight-editor-modal .fe-wader-route .fe-time-caption{margin:12px 14px 8px;}
+ #modal.flight-editor-modal .fe-wader-route .fe-actual-grid{gap:0;border-top:1px solid #475267;}
+ #modal.flight-editor-modal .fe-wader-route .fe-time-cell{padding:10px 12px;border-bottom:1px solid #475267;}
+ #modal.flight-editor-modal .nv-primary-times{display:grid;grid-template-columns:1fr 1fr;padding:20px 12px;text-align:center;}
+ #modal.flight-editor-modal .nv-primary-times>div+div{border-left:1px solid #475267;}
+ #modal.flight-editor-modal .nv-primary-times strong{font-size:31px;color:#23b89f;}
+ #modal.flight-editor-modal .fe-wader-summary .fe-card-heading{padding:14px 16px 6px;}
+ #modal.flight-editor-modal .fe-wader-summary .fe-time-summary{padding:10px 16px 18px;}
+ #modal.flight-editor-modal .fe-field input,
+ #modal.flight-editor-modal .fe-field select,
+ #modal.flight-editor-modal .fe-field textarea{border-radius:12px;min-height:43px;}
+ #modal.flight-editor-modal .fe-save{min-height:48px;border-radius:999px;}
+}
