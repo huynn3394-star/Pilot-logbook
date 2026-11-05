@@ -343,3 +343,23 @@ html[data-theme="dark"] #modal.nv-filter-modal .nv-filter-footer .primary { bord
  body.avilog-study-page .study-shell>.bottom-nav{bottom:max(2px,env(safe-area-inset-bottom,0px));}
  body.avilog-study-page .study-shell .app{padding-bottom:110px;}
 }
+
+/* Compact stepper layout for Takeoffs / Landings: one day/night row per column. */
+@media(max-width:720px){
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-card{padding:0;border-radius:22px;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-heading{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid #475267;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-heading h3{margin:0;padding:14px 12px 12px;font-size:16px;font-weight:650;text-align:center;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-heading h3+ h3{border-left:1px solid #475267;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-heading small{display:block;font-size:10px;font-weight:400;color:#aab7c8;margin-top:2px;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"takeoff-day landing-day" "takeoff-night landing-night";gap:0;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field{display:flex;flex-direction:column;gap:7px;min-width:0;margin:0;padding:14px 9px;border:0;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field[data-count-period="day"][data-count-operation="takeoff"]{grid-area:takeoff-day;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field[data-count-period="day"][data-count-operation="landing"]{grid-area:landing-day;border-left:1px solid #475267;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field[data-count-period="night"][data-count-operation="takeoff"]{grid-area:takeoff-night;border-top:1px solid #475267;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field[data-count-period="night"][data-count-operation="landing"]{grid-area:landing-night;border-left:1px solid #475267;border-top:1px solid #475267;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field>span{font-size:11px;letter-spacing:.08em;color:#aab7c8;text-align:center;font-weight:700;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field .nv-counter{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:4px;align-items:center;width:100%;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field .nv-counter button{width:38px;min-width:0;height:42px;min-height:42px;padding:0;border-radius:13px;font-size:23px;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field .nv-counter input{width:100%;min-width:0;min-height:42px;height:42px;padding:2px 0;text-align:center;font-size:17px;border-radius:13px;}
+ html[data-theme="dark"] #modal.flight-editor-modal .nv-count-field .nv-counter input::placeholder{font-size:0;}
+}
