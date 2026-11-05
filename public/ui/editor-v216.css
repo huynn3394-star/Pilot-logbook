@@ -78,7 +78,7 @@ html[data-theme="dark"] #modal.flight-editor-modal {
   margin-bottom:14px;
 }
 #modal.flight-editor-modal .fe-card .fe-field {padding:10px 12px}
-#modal.flight-editor-modal .fe-field>span {font-size:11px;color:#abb8ce}
+#modal.flight-editor-modal .fe-field>span {font-size:11px;color:var(--fe-muted)}
 #modal.flight-editor-modal .fe-main-fields [name="flightNo"] {font-size:22px}
 #modal.flight-editor-modal .fe-route-inputs input {font-size:25px}
 #modal.flight-editor-modal .fe-time-cell {padding:10px 11px}
