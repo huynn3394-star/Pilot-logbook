@@ -2,7 +2,7 @@
    Visual-only, except moving existing unmodified counters into a compact grid. */
 html[data-theme="dark"] #modal.flight-editor-modal {
   --fe-bg:#142744;
-  --fe-card:#30415d;
+  --fe-card:var(--ui-surface);
   --fe-soft:#34445f;
   --fe-line:#52617b;
   --fe-accent:#5eead4;
@@ -353,4 +353,10 @@ html[data-theme="dark"] #modal.flight-editor-modal {
    z-index:33;
  }
  #app .nv-logbook-shell .topbar .workspace-account-menu>summary {width:44px !important;max-width:44px !important;}
+}
+
+/* Shared surface token is also the accessibility-tested Flight Editor card color. */
+html[data-theme="dark"] #modal.flight-editor-modal .fe-card {
+  background-color:var(--ui-surface);
+  background-image:none;
 }
