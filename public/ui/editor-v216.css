@@ -360,3 +360,9 @@ html[data-theme="dark"] #modal.flight-editor-modal .fe-card {
   background-color:var(--ui-surface);
   background-image:none;
 }
+
+/* Use one verifiable Navy surface instead of a gradient with transparent CSS color. */
+html[data-theme="dark"] #app .nv-logbook .nv-flight-card {
+  background-color:var(--ui-surface);
+  background-image:none;
+}
