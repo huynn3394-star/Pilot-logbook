@@ -29,18 +29,19 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
  const typeOptions=[['','Chưa ghi'],...['A320','A321','E190','B787','A350'].map(value=>[value,value]),['OTHER','Khác']];
  const confirmed=f.confirmed?'FINAL · Đã xác nhận':'DRAFT · Chưa xác nhận';
  return `<form id="flight-form" data-id="${esc(f.id)}" class="flight-editor-form" data-v14-enabled="${v14Enabled}">
+  <div class="fe-wader-head"><span class="fe-wader-eyebrow">FLIGHT LOGBOOK</span><strong>${esc(f.flightNo||"NEW FLIGHT")}</strong><span>${esc(f.date)} · UTC</span></div>
   <nav class="fe-tabs" role="tablist" aria-label="Chi tiết chuyến bay">
    ${[['log','book','Log'],['airports','pin','Airports'],['tools','settings','Tools']].map(([key,ico,label],index)=>`<button type="button" role="tab" data-flight-tab="${key}" id="fe-tab-${key}" aria-controls="fe-panel-${key}" aria-selected="${!index}" tabindex="${index?-1:0}">${icon(ico)}<span>${label}</span></button>`).join('')}
   </nav>
   <div class="modal-body fe-body">
    <div class="error fe-error" data-error role="alert" tabindex="-1" hidden></div>
-   <section role="tabpanel" data-flight-panel="log" id="fe-panel-log" aria-labelledby="fe-tab-log">
+   <section role="tabpanel" class="fe-wader-log-panel" data-flight-panel="log" id="fe-panel-log" aria-labelledby="fe-tab-log">
     <div class="fe-status-row"><span class="fe-eyebrow">FLIGHT RECORD</span><span class="fe-status" data-fe-status>${confirmed}</span></div>
     ${warning?`<div class="fe-notice fe-review-notice" data-ocr-review role="note">${icon('camera')}<div><strong>Kiểm tra kết quả Smart Scan</strong><p>${esc(warning)}</p></div></div>`:''}
     ${imported?'<p class="fe-help">Đã đọc từ ảnh, chưa tự lưu. Kiểm tra hành trình, từng giờ và ngày UTC trước khi xác nhận.</p>':''}
     ${!v14Enabled?'<div class="fe-notice" data-v14-gate>Chế độ tương thích V13. Giờ bổ sung và lịch sử V14 cần chủ app cập nhật Firebase rules rồi bật V14. Dữ liệu hiện có không bị xóa.</div>':''}
     ${renderScanComparison(original,scan)}
-    <section class="fe-card fe-overview" aria-label="Thông tin chuyến bay">
+    <section class="fe-card fe-overview fe-wader-overview" aria-label="Thông tin chuyến bay">
      <div class="fe-grid fe-main-fields">
       ${field('flightNo','Flight number',f.flightNo,'text','required maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false"')}
       ${field('date','Ngày bay · UTC',f.date,'date','required')}
@@ -55,7 +56,7 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
       <div class="fe-crew-content"><div class="fe-grid"><div class="crew-entry" data-crew-field="captain"></div><div class="crew-entry" data-crew-field="fo"></div></div><div class="crew-entry" data-crew-field="crew"></div></div>
      </details>
     </section>
-    <section class="fe-card fe-route-card" aria-label="Hành trình và giờ thực tế">
+    <section class="fe-card fe-route-card fe-wader-route" aria-label="Hành trình và giờ thực tế">
      <div class="fe-grid fe-route-inputs">
       ${field('dep','DEP · IATA / ICAO',f.dep,'text','required maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false"')}
       ${field('dest','DEST · IATA / ICAO',f.dest,'text','required maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false"')}
@@ -82,19 +83,19 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
     </section>
     ${renderTimeFields(f,{enabled:v14Enabled})}
     <section class="fe-card fe-remarks"><label class="fe-field"><span>Remarks · Ghi chú</span><textarea name="note" rows="2" maxlength="3000" placeholder="Ghi chú cho chuyến bay…">${esc(f.note||'')}</textarea></label></section>
-    <section class="fe-card fe-summary-card" aria-label="Tổng thời gian chuyến bay">
+    <section class="fe-card fe-summary-card fe-wader-summary" aria-label="Tổng thời gian chuyến bay">
      <div class="fe-card-heading"><h3>${icon('clock')} Flight Times</h3><span data-fe-summary-state>Từ biểu mẫu</span></div>
      <div id="actual-summary" class="fe-time-summary" aria-live="polite"></div>
     </section>
     <button type="button" class="fe-review-button" data-fe-open="tools">${icon('shield')}<span>Nguồn, ảnh & xác nhận Actual<small>Kiểm tra trước khi lưu chuyến bay</small></span>${icon('chevron')}</button>
    </section>
-   <section role="tabpanel" data-flight-panel="airports" id="fe-panel-airports" aria-labelledby="fe-tab-airports" hidden>
+   <section role="tabpanel" class="fe-wader-airports-panel" data-flight-panel="airports" id="fe-panel-airports" aria-labelledby="fe-tab-airports" hidden>
     <div class="fe-section-heading"><span class="fe-eyebrow">ROUTE</span><h3>Sân bay của chuyến bay</h3><p>Thông tin hành trình từ biểu mẫu, không phải dữ liệu tra cứu trực tuyến.</p></div>
     <section class="fe-card"><div class="fe-grid fe-airport-pair"><div><span>DEPARTURE</span><strong data-fe-airport="dep">${esc(f.dep||'—')}</strong><small data-fe-icao="dep">${esc(f.dep?icaoFor(f.dep):'—')}</small></div><div><span>DESTINATION</span><strong data-fe-airport="dest">${esc(f.dest||'—')}</strong><small data-fe-icao="dest">${esc(f.dest?icaoFor(f.dest):'—')}</small></div></div><button type="button" class="fe-inline-button" data-fe-open="log">Sửa DEP / DEST trong Log ${icon('arrow')}</button></section>
     <section class="fe-card"><div class="fe-card-heading"><h3>${icon('calendar')} Hành trình dự kiến</h3></div><div class="fe-grid fe-scheduled-route">${field('s_dep','Scheduled DEP',scheduled.dep||f.dep,'text','maxlength="4" autocapitalize="characters" spellcheck="false"')}${field('s_dest','Scheduled DEST',scheduled.dest||f.dest,'text','maxlength="4" autocapitalize="characters" spellcheck="false"')}</div><p class="fe-help fe-inset">Giữ riêng hành trình Scheduled khi chuyến bay thay đổi hoặc chuyển hướng.</p></section>
     <div class="fe-notice">${icon('info')}<div><strong>Chưa có trường procedure riêng</strong><p>Runway, SID/STAR, approach và threats chưa được lưu riêng trong phiên bản này. Có thể ghi tại Remarks; không tự tạo dữ liệu từ ảnh minh họa.</p></div></div>
    </section>
-   <section role="tabpanel" data-flight-panel="tools" id="fe-panel-tools" aria-labelledby="fe-tab-tools" hidden>
+   <section role="tabpanel" class="fe-wader-tools-panel" data-flight-panel="tools" id="fe-panel-tools" aria-labelledby="fe-tab-tools" hidden>
     <div class="fe-section-heading"><span class="fe-eyebrow">REVIEW & SAVE</span><h3>Nguồn & xác nhận</h3><p>Thông tin được lưu theo chuyến bay. Kết quả scan cần bạn kiểm tra trước khi chốt Actual.</p></div>
     <section class="fe-card"><div class="fe-card-heading"><h3>${icon('file')} Source</h3></div><div class="fe-source-fields">${field('source','Nguồn',f.source||'manual','text','maxlength="120"')}${field('confidence','Độ tin cậy nhận dạng (%)',f.confidence??100,'number','min="0" max="100"')}</div><p class="fe-help fe-inset">Độ tin cậy là thông tin nhận dạng, không phải chứng nhận độ chính xác.</p></section>
     <section class="fe-card"><div class="fe-card-heading"><h3>${icon('camera')} Files / Photos</h3><span>Ảnh gốc</span></div><div class="fe-evidence" data-flight-evidence><label class="fe-file-label"><span>Thêm / thay ảnh minh chứng</span><input type="file" name="evidence" accept="image/jpeg,image/png,image/webp"><small>JPG / PNG / WebP · tối đa 6 MB</small></label>${photo?`<img class="image-preview" src="${photo}" alt="Ảnh minh chứng chuyến bay"><label class="check"><input type="checkbox" name="removeAttachment">Bỏ ảnh khỏi chuyến này</label>`:''}</div><p class="fe-help fe-inset">Đính kèm ảnh ở đây không chạy OCR. Để đọc giờ, chọn Nhập ảnh Flight Log ngay trong tab Log của chuyến này.</p></section>
