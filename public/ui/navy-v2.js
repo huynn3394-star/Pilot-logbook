@@ -54,7 +54,7 @@ export function renderFlightCard(f){
     <span class="nv-card-separator" aria-hidden="true">|</span>
     <span class="nv-flight-number"><small>✈ FLT</small><strong>${e(f.flightNo)}</strong></span>
     <span class="nv-flight-function">${allocation}</span>
-    <span class="nv-wader-cloud" aria-label="Trạng thái chuyến bay" title="${status}">☁</span>
+    <span class="nv-wader-cloud" aria-label="${e(status)}" title="${e(status)}">${f.confirmed?'☁✓':'☁'}</span>
    </span>
    <span class="nv-card-route"><strong>${e(f.dep)}</strong><span><b class="mono">${block}</b></span><strong>${e(f.dest)}</strong></span>
    <span class="nv-card-times nv-v215-times">
@@ -72,17 +72,17 @@ export function renderFlightCard(f){
  </article>`;
 }
 export function renderLogbook({flights,people,month,query,filters,limit=80,icon=()=>''}){
- const selected=selectFlights(flights,{month,query,filters,people}),shown=selected.slice(0,limit),visibleIds=new Set(shown.map(f=>f.id)),groups=flightGroups(selected),total=statistics(selected);
+ const selected=selectFlights(flights,{month,query,filters,people}),shown=selected.slice(-limit),visibleIds=new Set(shown.map(f=>f.id)),groups=flightGroups(selected).reverse(),total=statistics(selected);
  return `<section class="nv-logbook" data-navy-logbook>
-  <div class="nv-logbook-tools"><label class="nv-search">${icon('search')}<input type="search" data-filter="search" value="${e(query)}" placeholder="Flight, sân bay, crew…" aria-label="Tìm chuyến bay"></label><button type="button" class="iconbtn nv-filter-button" data-action="navy-filters" aria-label="Bộ lọc chuyến bay${filterCount(filters)?' · '+filterCount(filters)+' điều kiện':''}">${icon('filter')}${filterCount(filters)?'<b>'+filterCount(filters)+'</b>':''}</button></div>
+  <div class="nv-logbook-tools"><label class="nv-search">${icon('search')}<input type="search" data-filter="search" value="${e(query)}" placeholder="Search logbook" aria-label="Tìm chuyến bay"></label><button type="button" class="iconbtn nv-filter-button" data-action="navy-filters" aria-label="Bộ lọc chuyến bay${filterCount(filters)?' · '+filterCount(filters)+' điều kiện':''}">${icon('filter')}${filterCount(filters)?'<b>'+filterCount(filters)+'</b>':''}</button></div>
   <div class="nv-wader-month-switch" aria-label="Chọn tháng và phạm vi logbook">
     <button type="button" class="nv-wader-month-button" data-action="month-prev" aria-label="Tháng trước">${icon('left')}</button>
-    <label class="nv-wader-month-picker"><span>Tháng đang xem</span><strong>${new Date(month+'-01T12:00:00Z').toLocaleDateString('en-GB',{month:'short',year:'numeric',timeZone:'UTC'})}</strong><input type="month" value="${e(month)}" data-navy-month aria-label="Chọn tháng bay"></label>
+    <label class="nv-wader-month-picker"><span>MONTH</span><strong>${new Date(month+'-01T12:00:00Z').toLocaleDateString('en-GB',{month:'short',year:'numeric',timeZone:'UTC'})}</strong><input type="month" value="${e(month)}" data-navy-month aria-label="Chọn tháng bay"></label>
     <button type="button" class="nv-wader-month-button" data-action="month-next" aria-label="Tháng sau">${icon('chevron')}</button>
-    <button type="button" class="nv-wader-all-months" data-action="navy-period">${filters.period==='all'?'Theo tháng':'Tất cả tháng'}</button>
+    <button type="button" class="nv-wader-all-months" data-action="navy-period">${filters.period==='all'?'This month':'All months'}</button>
   </div>
   <div class="nv-wader-summary" role="status"><span>${selected.length} chuyến${selected.length>shown.length?' · hiển thị '+shown.length:''}</span><span>ACTUAL <strong class="mono">${duration(total.block)}</strong></span></div>
-  ${groups.map(g=>{const visible=g.records.filter(f=>visibleIds.has(f.id));return visible.length?`<section class="nv-month-group"><header class="nv-month-header"><h2>${monthLabel(g.month)}</h2><span>ACTUAL · BLOCK <strong class="mono">${duration(g.totals.block)}</strong></span></header><div class="nv-flight-list">${visible.map(renderFlightCard).join('')}</div></section>`:'';}).join('')||`<div class="empty nv-empty">${icon('book')}<h2>Chưa có chuyến bay phù hợp</h2><p>Đổi tháng, tìm kiếm hoặc xóa bộ lọc để xem lại.</p><button type="button" class="btn" data-action="navy-clear">Xóa bộ lọc</button><button type="button" class="btn primary" data-action="add">Thêm chuyến bay</button></div>`}
+  ${groups.map(g=>{const visible=g.records.filter(f=>visibleIds.has(f.id)).reverse();return visible.length?`<section class="nv-month-group"><header class="nv-month-header"><h2>${monthLabel(g.month)}</h2><span>ACTUAL · BLOCK <strong class="mono">${duration(g.totals.block)}</strong></span></header><div class="nv-flight-list">${visible.map(renderFlightCard).join('')}</div></section>`:'';}).join('')||`<div class="empty nv-empty">${icon('book')}<h2>Chưa có chuyến bay phù hợp</h2><p>Đổi tháng, tìm kiếm hoặc xóa bộ lọc để xem lại.</p><button type="button" class="btn" data-action="navy-clear">Xóa bộ lọc</button><button type="button" class="btn primary" data-action="add">Thêm chuyến bay</button></div>`}
   ${selected.length>shown.length?'<button type="button" class="btn nv-load-more" data-action="navy-more-records">Xem thêm '+Math.min(80,selected.length-shown.length)+' chuyến</button>':''}
   <p class="nv-total-note">Tổng Actual chỉ gồm Block đã xác nhận. Flight = OFF → ON, Block = OUT → IN. Bộ lọc không sửa dữ liệu.</p>
  </section>`;
