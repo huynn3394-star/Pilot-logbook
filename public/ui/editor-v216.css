@@ -71,7 +71,7 @@ html[data-theme="dark"] #modal.flight-editor-modal {
 #modal.flight-editor-modal .fe-body {padding:10px 16px calc(36px + env(safe-area-inset-bottom))}
 #modal.flight-editor-modal .fe-status-row {margin:0 4px 11px}
 #modal.flight-editor-modal .fe-card {
-  border-radius:22px;
+  border-radius:24px;
   background:linear-gradient(135deg,var(--fe-card),#34445f);
   border:1px solid var(--fe-line);
   overflow:visible;
@@ -261,4 +261,64 @@ html[data-theme="dark"] #modal.flight-editor-modal {
 /* iPhone 320px: keep the last account control fully within the visual viewport. */
 @media(max-width:359px) {
  #app .nv-logbook-shell .topbar .top-actions {position:relative;right:16px;}
+}
+
+/* Stable mobile hit targets: the legacy management menu remains accessible
+   even when the toolbar is very narrow; no duplicate management trigger. */
+@media(max-width:720px) {
+ #app .nv-logbook-shell .topbar {
+   position:sticky;
+   min-height:68px;
+ }
+ #app .nv-logbook-shell .topbar-main {
+   justify-content:flex-start;
+   padding-right:112px;
+   min-width:0;
+ }
+ #app .nv-logbook-shell .topbar .top-actions {
+   position:static !important;
+   right:auto !important;
+   flex:0 0 0 !important;
+   width:0 !important;
+   min-width:0 !important;
+   margin:0;
+   padding:0;
+ }
+ #app .nv-logbook-shell .topbar [data-page-tools] {
+   display:flex !important;
+   position:absolute !important;
+   top:12px !important;
+   right:62px !important;
+   z-index:4;
+   width:44px !important;
+   min-width:44px !important;
+   height:44px !important;
+ }
+ #app .nv-logbook-shell .topbar .page-management {
+   display:block !important;
+   position:relative !important;
+   visibility:visible !important;
+   width:44px !important;
+   height:44px !important;
+   flex:0 0 44px;
+ }
+ #app .nv-logbook-shell .topbar .page-management>summary {
+   display:flex !important;
+   align-items:center;justify-content:center;
+   visibility:visible !important;
+   opacity:1 !important;
+   width:44px;
+   height:44px;
+ }
+ #app .nv-logbook-shell .topbar .nv-top-management {display:none !important;}
+ #app .nv-logbook-shell .topbar .workspace-account {
+   display:flex;
+   position:absolute !important;
+   top:12px;
+   right:8px;
+   z-index:5;
+   width:44px;
+   max-width:44px;
+   min-width:44px;
+ }
 }
