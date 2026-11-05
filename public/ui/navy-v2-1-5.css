@@ -220,3 +220,34 @@ html[data-theme="dark"] #modal.nv-filter-modal .nv-filter-footer .primary { bord
  #app .nv-logbook-shell .nv-wader-summary{margin-bottom:10px}
  #app .nv-v215-card .nv-wader-cloud{font-size:17px}
 }
+
+/* Logbook screen layout V3 — structural card and month layout. */
+@media(max-width:720px){
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-wader-month-switch{position:sticky;top:140px;z-index:12;display:flex;justify-content:flex-end;gap:4px;margin:0 0 4px;padding:6px 0;background:#131a2a;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-wader-month-button{width:28px;height:36px;border:0;background:transparent;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-wader-month-picker{min-height:42px;padding:3px 14px;background:#23b89f;color:#13202b;border:0;min-width:124px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-wader-month-picker span{display:none;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-wader-month-picker strong{font-size:17px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-wader-all-months{padding:0 7px;max-width:82px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-wader-summary{display:flex;justify-content:space-between;padding:4px 2px 8px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-month-group{margin:0 0 32px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-month-header{position:sticky;top:194px;z-index:6;padding:10px 0 12px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-month-header h2{font-size:24px;font-weight:500;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-flight-card{min-height:174px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-card-heading{display:flex;gap:7px;flex-wrap:nowrap;white-space:nowrap;min-height:30px;margin:0 0 8px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-flight-date{gap:5px;flex-shrink:0;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-flight-date small{font-size:11px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-flight-date strong{font-size:20px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-flight-number{min-width:0;flex-shrink:1;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-flight-number strong{font-size:18px;overflow:hidden;text-overflow:ellipsis;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-flight-function{font-size:12px;font-weight:700;flex-shrink:0;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-wader-cloud{flex-shrink:0;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-card-route{grid-template-columns:minmax(0,1fr) minmax(86px,1fr) minmax(0,1fr);margin:0 0 4px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-card-route>strong{font-size:clamp(28px,8vw,38px);font-weight:400;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-card-times{grid-template-columns:minmax(0,1fr) minmax(88px,1.3fr) minmax(0,1fr);gap:4px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-station-main{display:flex;align-items:baseline;gap:4px;flex-wrap:wrap;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-station-dest .nv-station-main{justify-content:flex-end;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-card-foot{margin-top:9px;padding:7px 0 0;font-size:11px;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-card-caption{padding:0;font-size:9px;opacity:.75;}
+ html[data-theme="dark"] #app .nv-wader-logbook .nv-card-scan{position:static;display:block;width:100%;min-height:30px;text-align:right;padding:2px 14px 7px;font-size:10px;}
+}
