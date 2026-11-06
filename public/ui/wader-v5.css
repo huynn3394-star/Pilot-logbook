@@ -1,0 +1,337 @@
+/* Wader 5.0 reference implementation for AviLog's own working features.
+   Reference: waderaviation.com, official 5.0 screenshots, 2026-11-06. */
+html[data-theme="dark"]{--navy-bg:#131a2a;--navy-secondary:#232c3d;--navy-card:#303849;--navy-raised:#394254;--border-primary:#414a5d;--text-primary:#e7e9ee;--text-secondary:#939bab;--accent-primary:#25b89f;--accent-muted:#1d4647;--ui-bg:#131a2a;--ui-surface:#303849;--ui-soft:#232c3d;--ui-line:#414a5d;--ui-ink:#e7e9ee;--ui-muted:#939bab;--ui-accent:#25b89f;--ui-accent-soft:#1d4647;--ui-on-accent:#101f25;--ui-shadow:0 4px 18px #060b1218;--w5-glass:#303849da;--w5-gradient:linear-gradient(115deg,#3c4456,#293143);--w5-divider:#131a2a;--w5-map:#dbe5ec}
+html[data-theme="light"]{--ui-bg:#f1f3f6;--ui-surface:#fff;--ui-soft:#e8ecf1;--ui-ink:#273446;--ui-muted:#6c7788;--ui-line:#d7dde5;--ui-accent:#128b79;--ui-accent-soft:#d9efea;--ui-on-accent:#fff;--w5-glass:#ffffffdc;--w5-gradient:linear-gradient(115deg,#fff,#f2f4f7);--w5-divider:#dbe1e8;--w5-map:#dbe5ec}
+html[data-theme]{--ui-radius-card:22px;--radius-card:22px;--ui-radius-control:12px;--ui-font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;--ui-header-height:72px;--ui-body-size:14px}
+html[data-theme] body{background:var(--ui-bg);color:var(--ui-ink)}
+html[data-theme] #app .w5-shell{background:var(--ui-bg);min-height:100dvh}
+html[data-theme] #app .workspace{min-width:0;background:var(--ui-bg)}
+html[data-theme] #app .topbar{background:var(--ui-bg);border:0;box-shadow:none;min-height:72px;padding:10px 22px;position:sticky;top:0;z-index:30}
+html[data-theme] #app .topbar-main{min-height:48px;padding:0;flex-wrap:nowrap;gap:12px}
+html[data-theme] #app .topbar .breadcrumbs{font-size:18px;color:var(--ui-ink);font-weight:550;margin-right:auto}
+html[data-theme] #app .topbar .breadcrumbs strong{color:var(--ui-ink)}
+html[data-theme] #app .topbar .breadcrumbs>span{color:var(--ui-muted)}
+html[data-theme] #app .topbar .top-actions{flex:1;gap:10px;flex-wrap:nowrap}
+html[data-theme] #app .topbar :where(.iconbtn,.workspace-account-menu>summary,.nv-top-management){display:grid;place-items:center;width:42px;height:42px;min-width:42px;min-height:42px;padding:0;border:1px solid var(--ui-line);border-radius:50%;background:var(--ui-soft);color:var(--ui-ink);box-shadow:inset 0 1px #ffffff08}
+html[data-theme] #app .topbar .nv-avatar{background:#688b44;color:white;border:2px solid var(--ui-accent);width:40px;height:40px;font-size:15px;font-weight:600}
+html[data-theme] #app .topbar :is(.mobile-brand,.utc-clock,.notification-btn){display:none}
+html[data-theme] #app .topbar .w5-refresh{font-size:25px;font-weight:300}
+html[data-theme] #app .topbar .workspace-account-menu>summary{font-size:20px}
+html[data-theme] #app .topbar .nv-top-management{font-size:0}
+html[data-theme] #app .topbar .nv-top-management svg{width:20px;height:20px}
+html[data-theme] #app .topbar .workspace-account{min-width:42px;gap:0}
+html[data-theme] #app .topbar .nv-sync-status{position:absolute;width:7px;height:7px;min-width:0;max-width:7px;padding:0;overflow:hidden;color:transparent;border-radius:50%;background:var(--ui-muted);right:1px;top:2px;pointer-events:none}
+html[data-theme] #app .topbar .nv-sync-status[data-kind=synced]{background:var(--ui-accent)}
+html[data-theme] #app .topbar .nv-sync-status:is([data-kind=error],[data-kind=conflict]){background:var(--ui-warning)}
+html[data-theme] #app .page-heading{margin:6px 0 22px}
+html[data-theme] #app .page-heading h1{font-size:28px;font-weight:600;letter-spacing:-.025em}
+html[data-theme] #app .page-heading p{color:var(--ui-muted);font-size:13px}
+html[data-theme] #app .badge-preview{display:none}
+html[data-theme] #app .main{max-width:1320px;padding:0 24px 36px;margin:auto}
+html[data-theme] #app .footer{color:var(--ui-muted);border:0;font-size:10px;opacity:.75;margin-top:28px}
+html[data-theme] #app .panel{border:1px solid var(--ui-line);background:var(--w5-gradient);border-radius:22px;box-shadow:none}
+html[data-theme] #app :is(.metric,.person-card,.settings-section,.weather-group){background:var(--w5-gradient);border:1px solid var(--ui-line);border-radius:22px;box-shadow:none}
+html[data-theme] #app .btn.primary{background:var(--ui-accent);color:var(--ui-on-accent);border-color:var(--ui-accent)}
+html[data-theme] #app .metric-value{font-weight:500;letter-spacing:-.04em}
+html[data-theme] #app :is(.metric-top,.metric-foot){color:var(--ui-muted)}
+/* Floating tablet rail. Every destination remains a real AviLog action. */
+html[data-theme] #app .sidebar{width:88px;position:fixed;left:14px;top:18px;bottom:94px;height:auto;padding:14px 7px;border:1px solid var(--ui-line);border-radius:28px;background:var(--w5-glass);backdrop-filter:blur(22px);overflow:visible;box-shadow:0 6px 20px #0000000d;z-index:35}
+html[data-theme] #app .sidebar :is(.brand,.nav-caption,.sidebar-toggle,.plan-card,.profile){display:none}
+html[data-theme] #app .w5-sidebar-profile{display:grid;place-items:center;gap:4px;background:none;color:var(--ui-muted);margin:0 auto 14px;padding:0;min-height:56px}
+html[data-theme] #app .w5-sidebar-profile>span{display:grid;place-items:center;width:36px;height:36px;border:2px solid var(--ui-accent);border-radius:50%;background:#688b44;color:#fff;font-size:14px}
+html[data-theme] #app .w5-sidebar-profile>small{font-size:9px;letter-spacing:.02em}
+html[data-theme] #app .sidebar .nav{display:grid;gap:4px;overflow-y:auto;max-height:calc(100dvh - 220px)}
+html[data-theme] #app .sidebar .nav button{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;min-height:58px;width:100%;padding:7px 2px;border-radius:16px;border:0;color:var(--ui-muted);background:transparent;font-size:9px;line-height:1.3;text-align:center;font-weight:450}
+html[data-theme] #app .sidebar .nav button>svg{width:20px;height:20px;stroke-width:1.5}
+html[data-theme] #app .sidebar .nav button.active{background:var(--ui-accent-soft);color:var(--ui-accent)}
+html[data-theme] #app .sidebar .nav .num{display:none}
+html[data-theme] #app .sidebar-bottom{position:static;margin:0;padding:0}
+html[data-theme] #app .w5-sidebar-add{position:fixed;left:14px;bottom:18px;width:88px;height:64px;border:1px solid var(--ui-line);border-radius:24px;background:var(--w5-glass);backdrop-filter:blur(20px);color:var(--ui-accent);display:grid;place-items:center}
+html[data-theme] #app .w5-sidebar-add svg{width:26px;height:26px}
+html[data-theme] #app .app-shell{display:block}
+html[data-theme] #app .workspace{margin-left:114px}
+html[data-theme] #app .bottom-nav{display:none}
+/* Compact logbook, matching the reference card hierarchy. */
+html[data-theme] #app .nv-logbook{max-width:none;margin:0}
+html[data-theme] #app .nv-logbook-shell .page-heading{display:none}
+html[data-theme] #app .nv-logbook-shell .breadcrumbs{font-size:0}
+html[data-theme] #app .nv-logbook-shell .breadcrumbs strong{font-size:17px}
+html[data-theme] #app .nv-logbook-shell .page-management{display:none}
+html[data-theme] #app .nv-demo-note{font-size:10px;line-height:1.4;margin:0 0 2px;color:var(--ui-muted)}
+html[data-theme] #app .nv-demo-note .text-button{min-height:26px;font-size:10px}
+html[data-theme] #app .w5-logbook-layout{display:grid;grid-template-columns:minmax(320px,440px) minmax(300px,1fr);gap:26px;align-items:start}
+html[data-theme] #app .w5-list-pane{min-width:0}
+html[data-theme] #app .nv-logbook-tools{position:static;padding:0 0 10px;gap:10px;background:transparent}
+html[data-theme] #app .nv-search{min-height:44px;padding:0 13px;border:1px solid var(--ui-line);border-radius:18px;background:var(--ui-surface);box-shadow:none;gap:8px}
+html[data-theme] #app .nv-search svg{width:18px;color:var(--ui-muted)}
+html[data-theme] #app .nv-search input{min-height:44px;height:44px;padding:5px 0;font-size:14px;color:var(--ui-ink)}
+html[data-theme] #app .nv-search input::placeholder{font-style:italic;color:var(--ui-muted);opacity:.85}
+html[data-theme] #app .nv-filter-button{width:44px;height:44px;background:var(--ui-soft);color:var(--ui-ink);border:1px solid var(--ui-line)}
+html[data-theme] #app .nv-wader-month-switch{display:flex;justify-content:flex-end;align-items:center;gap:3px;margin:0 0 2px}
+html[data-theme] #app .nv-wader-month-button{width:36px;min-height:36px;border:0;background:transparent;color:var(--ui-muted);padding:6px}
+html[data-theme] #app .nv-wader-month-button svg{width:16px;height:16px}
+html[data-theme] #app .nv-wader-month-picker{position:relative;display:grid;place-items:center;min-width:100px;min-height:36px;background:transparent;color:var(--ui-accent);border:0;padding:4px;font-size:12px}
+html[data-theme] #app .nv-wader-month-picker>span{display:none}
+html[data-theme] #app .nv-wader-month-picker>strong{font-weight:500}
+html[data-theme] #app .nv-wader-month-picker input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer}
+html[data-theme] #app .nv-wader-all-months{background:var(--ui-accent-soft);color:var(--ui-accent);font-size:10px;border:0;border-radius:10px;min-height:32px;padding:5px 9px}
+html[data-theme] #app .nv-wader-summary{display:flex;justify-content:space-between;gap:8px;padding:0 0 8px;margin:0;font-size:10px;color:var(--ui-muted)}
+html[data-theme] #app .nv-wader-summary strong{font-size:13px;font-weight:500;color:var(--ui-ink)}
+html[data-theme] #app .nv-month-group{margin:0 0 24px}
+html[data-theme] #app .nv-month-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:nowrap;gap:6px;border-bottom:1px solid var(--ui-muted);margin:0 0 14px;padding:6px 0 9px}
+html[data-theme] #app .nv-month-header h2{display:flex;align-items:center;gap:6px;font-size:16px;font-style:italic;font-weight:450;letter-spacing:0;white-space:nowrap}
+html[data-theme] #app .nv-month-header h2 i{width:5px;height:5px;border-radius:50%;background:var(--ui-accent)}
+html[data-theme] #app .nv-month-header>span{font-size:8px;letter-spacing:.1em;white-space:nowrap}
+html[data-theme] #app .nv-month-header strong{font-size:13px;font-style:italic;font-weight:500;color:var(--ui-ink);letter-spacing:0}
+html[data-theme] #app .nv-flight-list{display:grid;grid-template-columns:1fr;gap:14px}
+html[data-theme] #app .nv-flight-card{border:1px solid var(--ui-line);border-radius:22px;background:var(--w5-gradient);box-shadow:inset 0 1px #ffffff04;min-height:0;overflow:hidden}
+html[data-theme] #app .nv-flight-open{padding:13px 14px 7px;font-family:var(--ui-font)}
+html[data-theme] #app .nv-card-heading{display:flex;flex-wrap:nowrap;gap:6px;margin:0 0 6px;min-height:18px;color:var(--ui-ink);white-space:nowrap;font-size:12px}
+html[data-theme] #app .nv-flight-date{display:flex;align-items:baseline;gap:4px;flex-shrink:0}
+html[data-theme] #app .nv-flight-date small{font-size:10px;font-style:italic;color:var(--ui-muted)}
+html[data-theme] #app .nv-flight-date strong{font-size:15px;font-weight:600}
+html[data-theme] #app .nv-card-separator{font-size:14px;color:var(--ui-muted);opacity:.65}
+html[data-theme] #app .nv-flight-number{display:flex;align-items:baseline;gap:5px;min-width:0}
+html[data-theme] #app .nv-flight-number small{font-size:9px;color:var(--ui-accent)}
+html[data-theme] #app .nv-flight-number strong{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis}
+html[data-theme] #app .nv-flight-function{font-size:10px;font-style:italic;font-weight:550;padding:0;border:0;color:var(--ui-accent)}
+html[data-theme] #app .nv-flight-function:before{content:'/';color:var(--ui-muted);margin-right:5px}
+html[data-theme] #app .nv-flight-status-pill{margin-left:auto;border:0;background:transparent;color:var(--ui-muted);padding:0;font-size:8px;font-weight:550;letter-spacing:.03em;min-width:0}
+html[data-theme] #app .nv-flight-status-pill.is-final{color:var(--ui-accent)}
+html[data-theme] #app .nv-card-route{display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:4px;margin:0;align-items:end}
+html[data-theme] #app .nv-card-route>strong{font-size:25px;font-weight:400;letter-spacing:-.025em;line-height:1.1}
+html[data-theme] #app .nv-card-route>span{font-size:18px;color:var(--ui-accent);gap:0;align-self:center}
+html[data-theme] #app .nv-card-route>span small{font-size:7px;letter-spacing:.1em;opacity:.7}
+html[data-theme] #app .nv-card-route b{font-family:var(--ui-font);font-weight:500;font-style:italic}
+html[data-theme] #app .nv-card-times{grid-template-columns:1fr 1.05fr 1fr;gap:4px;align-items:center;margin-top:4px}
+html[data-theme] #app .nv-card-times .nv-station{display:grid;gap:4px;align-content:start;justify-content:stretch;min-width:0}
+html[data-theme] #app .nv-station-main{display:flex;align-items:baseline;gap:4px;font-size:12px;white-space:nowrap}
+html[data-theme] #app .nv-station-main b{font-size:12px;font-family:var(--ui-font);font-weight:450;font-style:italic}
+html[data-theme] #app .nv-station-main small{font-size:10px;font-style:italic;color:var(--ui-muted)}
+html[data-theme] #app .nv-station-dest .nv-station-main{justify-content:flex-end}
+html[data-theme] #app .nv-station-role{font-size:8px;color:var(--ui-muted)}
+html[data-theme] #app .nv-timeline{display:grid;gap:3px;color:var(--ui-accent);align-self:start}
+html[data-theme] #app .nv-timeline-track{height:12px}
+html[data-theme] #app .nv-timeline-track:before{height:1px;background:var(--ui-accent)}
+html[data-theme] #app .nv-timeline-track>i{width:5px;height:5px}
+html[data-theme] #app .nv-timeline-track>b{font-size:16px;font-weight:400;background:transparent;color:var(--ui-accent)}
+html[data-theme] #app .nv-timeline-labels{gap:0;border:0;padding:0;color:var(--ui-accent)}
+html[data-theme] #app .nv-timeline-labels small{font-size:7px;color:var(--ui-accent);font-style:italic}
+html[data-theme] #app .nv-card-foot{display:flex;flex-wrap:nowrap;justify-content:space-between;border-top:1px solid var(--ui-line);margin-top:8px;padding:5px 0 0;min-height:0;gap:6px;font-size:9px;color:var(--ui-muted)}
+html[data-theme] #app .nv-card-day{font-size:8px;opacity:.8}
+html[data-theme] #app .nv-card-caption{padding:2px 0 0;font-size:8px;line-height:1.4;color:var(--ui-muted)}
+html[data-theme] #app .nv-card-scan.flight-scan-shortcut{position:static;display:block;width:100%;min-height:30px;padding:3px 14px 7px;text-align:right;font-size:9px;font-weight:450;color:var(--ui-accent);border:0;background:none}
+html[data-theme] #app .nv-total-note{font-size:9px;line-height:1.5;color:var(--ui-muted)}
+html[data-theme] #app .nv-logbook-summary{max-width:440px;font-size:12px}
+html[data-theme] #app .nv-collection-actions{max-width:440px}
+/* The second iPad pane uses saved data, never sample values or invented tracking. */
+html[data-theme] #app .w5-detail-pane{position:sticky;top:94px;border:1px solid var(--ui-line);background:var(--w5-gradient);border-radius:24px;padding:22px;min-width:0}
+.w5-detail-top{display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.15em;color:var(--ui-muted)}
+.w5-detail-pane h2{font-size:27px;font-weight:550;margin:16px 0 2px}
+.w5-detail-date{font-size:11px;color:var(--ui-muted);margin:0 0 20px}
+.w5-detail-route{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0}
+.w5-detail-route>div{display:grid;gap:2px}.w5-detail-route>div:last-child{text-align:right}
+.w5-detail-route strong{font-size:40px;font-weight:350;letter-spacing:-.035em}.w5-detail-route small{font-size:11px;color:var(--ui-muted)}
+.w5-detail-route>span{color:var(--ui-accent);font-size:26px}
+.w5-detail-times{display:grid;grid-template-columns:1fr 1fr;overflow:hidden;background:var(--ui-soft);border-radius:16px}
+.w5-detail-times>div{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px;padding:14px;border-bottom:1px solid var(--w5-divider)}
+.w5-detail-times>div:nth-child(odd){border-right:1px solid var(--w5-divider)}
+.w5-detail-times small{grid-column:1/-1;font-size:9px;color:var(--ui-muted);letter-spacing:.1em}.w5-detail-times strong{font-size:24px;font-weight:400}.w5-detail-times span{font-size:8px;color:var(--ui-muted)}
+.w5-detail-totals{display:grid;grid-template-columns:1fr 1fr;padding:22px 0;border-bottom:1px solid var(--ui-line)}
+.w5-detail-totals>div{display:grid;text-align:center;gap:4px}.w5-detail-totals>div+div{border-left:1px solid var(--ui-line)}
+.w5-detail-totals small{font-size:9px;color:var(--ui-muted);letter-spacing:.12em}.w5-detail-totals strong{font-size:26px;font-weight:450;color:var(--ui-accent)}
+.w5-detail-section{padding-top:18px}.w5-detail-section>span{font-size:9px;letter-spacing:.15em;color:var(--ui-muted)}.w5-detail-section p{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere}
+.w5-detail-status{font-size:10px;color:var(--ui-accent);display:block;margin-top:24px}
+/* Weather, calendar, dashboard, account and crew share the same surfaces. */
+html[data-theme] #app .weather-main{max-width:1120px}
+html[data-theme] #app .weather-group{padding:16px 18px}
+html[data-theme] #app .weather-station-row{border-color:var(--ui-line);background:var(--ui-soft);border-radius:16px;overflow:hidden;margin:10px 0}
+html[data-theme] #app .weather-station-row>summary{padding:12px}
+html[data-theme] #app .weather-station-detail{padding:0 12px 12px}
+html[data-theme] #app .weather-report{background:var(--ui-bg);border-radius:12px;padding:12px}
+html[data-theme] #app .weather-row-saved{color:var(--ui-warning);background:var(--ui-warning-soft);font-size:9px;border-radius:7px;padding:2px 5px}
+html[data-theme] #app .weather-group-products{border-radius:999px;background:var(--ui-bg);padding:3px}
+html[data-theme] #app .weather-group-products button{border-radius:999px}
+html[data-theme] #app .weather-group-products button[aria-pressed=true]{background:var(--ui-accent-soft);color:var(--ui-accent)}
+html[data-theme] #app .metrics{gap:14px;margin-bottom:18px}
+html[data-theme] #app .metric{padding:18px}
+html[data-theme] #app .metric.featured{background:var(--w5-gradient);color:var(--ui-ink);border-color:var(--ui-line)}
+html[data-theme] #app .calendar{border-color:var(--ui-line)}
+html[data-theme] #app .day{border-color:var(--ui-line);background:none;color:var(--ui-ink)}
+html[data-theme] #app .day.selected{background:var(--ui-accent-soft);color:var(--ui-accent)}
+html[data-theme] #app .cal-flight{background:var(--ui-soft);color:var(--ui-muted)}
+html[data-theme] #app .cal-flight.confirmed{background:var(--ui-accent-soft);color:var(--ui-accent)}
+/* Grouped editor. Same fields, validation, FormData and save handlers. */
+html[data-theme] #modal.flight-editor-modal{background:var(--ui-bg);border:1px solid var(--ui-line);border-radius:26px;overflow:hidden;max-height:94dvh;width:620px;padding:0;color:var(--ui-ink)}
+html[data-theme] #modal.flight-editor-modal .modal-head{background:var(--ui-bg);border:0;display:flex;align-items:center;padding:12px 18px;position:sticky;top:0;z-index:15}
+html[data-theme] #modal.flight-editor-modal .fe-title>span{display:none}
+html[data-theme] #modal.flight-editor-modal .fe-title h2{font-size:17px;font-weight:500}
+html[data-theme] #modal.flight-editor-modal .fe-back{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--ui-line);border-radius:50%;background:var(--ui-soft);color:var(--ui-ink)}
+html[data-theme] #modal.flight-editor-modal .fe-save{border-radius:999px;background:var(--ui-accent-soft);color:var(--ui-accent);border:1px solid var(--ui-accent);font-size:13px;min-height:40px;padding:8px 14px}
+html[data-theme] #modal .flight-editor-form{padding:0 16px 24px;overflow:auto;max-height:calc(94dvh - 70px)}
+html[data-theme] #modal .fe-wader-head{display:none}
+html[data-theme] #modal .fe-tabs{display:flex;gap:2px;width:max-content;max-width:100%;padding:4px;margin:0 auto 14px;border-radius:999px;border:1px solid var(--ui-line);background:var(--ui-soft);position:sticky;top:0;z-index:10}
+html[data-theme] #modal .fe-tabs button{display:flex;align-items:center;gap:6px;min-height:38px;padding:5px 15px;border-radius:999px;background:transparent;border:0;color:var(--ui-muted);font-size:13px}
+html[data-theme] #modal .fe-tabs button[aria-selected=true]{background:var(--ui-surface);color:var(--ui-ink);box-shadow:inset 0 0 0 1px var(--ui-line)}
+html[data-theme] #modal .fe-tabs button[aria-selected=true] svg{color:var(--ui-accent)}
+html[data-theme] #modal .fe-body{padding:0;overflow:visible}
+html[data-theme] #modal .fe-status-row{padding:0 4px 10px;font-size:9px;color:var(--ui-muted)}
+html[data-theme] #modal .fe-card{background:var(--ui-surface);border:1px solid var(--ui-line);border-radius:22px;overflow:hidden;box-shadow:none;margin:0 0 14px}
+html[data-theme] #modal .fe-grid{gap:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+html[data-theme] #modal .fe-main-fields,html[data-theme] #modal .fe-aircraft-fields{padding:0}
+html[data-theme] #modal .fe-field{min-width:0;display:grid;gap:4px;padding:10px 13px;margin:0;border-bottom:1px solid var(--w5-divider)}
+html[data-theme] #modal .fe-field>span{font-size:10px;color:var(--ui-muted);font-weight:400}
+html[data-theme] #modal .fe-grid>.fe-field:nth-child(odd){border-right:1px solid var(--w5-divider)}
+html[data-theme] #modal .fe-field :is(input,select){background:transparent;border:0;box-shadow:none;font-size:19px;padding:3px 0;min-height:38px;color:var(--ui-ink);border-radius:4px;width:100%;min-width:0;font-weight:400}
+html[data-theme] #modal .fe-field input[type=date]{font-size:14px;color:var(--ui-accent)}
+html[data-theme] #modal .fe-field select{color:var(--ui-accent);font-size:17px}
+html[data-theme] #modal .fe-crew-details>summary{display:flex;justify-content:space-between;gap:12px;align-items:center;min-height:50px;padding:10px 13px;font-size:15px}
+html[data-theme] #modal .fe-trailing{font-size:11px;color:var(--ui-muted)}
+html[data-theme] #modal .fe-crew-content{padding:10px 13px}
+html[data-theme] #modal .fe-route-inputs{padding:0}
+html[data-theme] #modal .fe-route-inputs .fe-field input{font-size:30px;font-weight:400;text-align:center;text-transform:uppercase;letter-spacing:.01em}
+html[data-theme] #modal .fe-route-inputs .fe-field>span{text-align:center;font-size:9px}
+html[data-theme] #modal .fe-time-caption{display:flex;justify-content:space-between;padding:7px 13px;font-size:9px;color:var(--ui-muted);border-top:1px solid var(--w5-divider)}
+html[data-theme] #modal .fe-departure-arrival{font-size:10px;padding:4px 12px;color:var(--ui-muted)}
+html[data-theme] #modal .fe-time-cell{padding:10px 12px;border-top:1px solid var(--w5-divider)}
+html[data-theme] #modal .fe-time-cell:nth-child(odd){border-right:1px solid var(--w5-divider)}
+html[data-theme] #modal .fe-time-cell .utc-time-field{background:transparent;border:0;padding:0;display:grid;gap:3px}
+html[data-theme] #modal .fe-time-cell label{font-size:9px;color:var(--ui-muted)}
+html[data-theme] #modal .fe-time-cell input{background:transparent;border:0;border-radius:6px;padding:3px 0;min-width:0;width:100%;font-size:24px;font-weight:400;min-height:38px}
+html[data-theme] #modal .fe-time-cell input[type=date]{font-size:10px;color:var(--ui-muted);min-height:24px}
+html[data-theme] #modal .fe-route-foot{font-size:9px;padding:8px 12px;color:var(--ui-muted);border-top:1px solid var(--w5-divider)}
+html[data-theme] #modal .nv-primary-times{padding:14px;background:var(--ui-surface)}
+html[data-theme] #modal .nv-primary-times span{font-size:9px;letter-spacing:.12em}
+html[data-theme] #modal .nv-primary-times strong{font-size:28px;font-weight:450;color:var(--ui-accent)}
+html[data-theme] #modal .nv-count-heading{padding:10px;border-color:var(--w5-divider)}
+html[data-theme] #modal .nv-count-heading h3{font-size:13px;font-weight:450;margin:0;display:grid;gap:2px}
+html[data-theme] #modal .nv-count-heading small{font-size:8px;color:var(--ui-muted);font-weight:400}
+html[data-theme] #modal .nv-count-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0}
+html[data-theme] #modal .nv-count-field{display:flex;align-items:center;gap:6px;padding:5px 8px;min-width:0;border-bottom:1px solid var(--w5-divider)}
+html[data-theme] #modal .nv-count-field>span{font-size:8px;min-width:25px;margin:0}
+html[data-theme] #modal .nv-counter{display:grid;grid-template-columns:28px minmax(24px,1fr) 28px;flex:1;min-width:0;gap:0;align-items:center}
+html[data-theme] #modal .nv-counter button{width:28px;min-width:28px;height:36px;min-height:36px;padding:0;border:0;background:transparent;color:var(--ui-accent);font-size:20px;border-radius:8px}
+html[data-theme] #modal .nv-counter input{font-size:18px;text-align:center;width:100%;min-width:0;padding:0;height:36px;min-height:36px;border:0;background:transparent}
+html[data-theme] #modal .fe-card-heading{padding:12px 14px;color:var(--ui-ink);border-bottom-color:var(--w5-divider)}
+html[data-theme] #modal .fe-card-heading h3{font-size:13px;font-weight:500}
+html[data-theme] #modal .fe-inline-button{min-height:40px;font-size:11px;color:var(--ui-accent);padding:8px 13px}
+html[data-theme] #modal .fe-help{color:var(--ui-muted);font-size:10px}
+html[data-theme] #modal .fe-note-field textarea{background:transparent;border:0;font-size:14px;padding:12px}
+html[data-theme] #modal .fe-summary-grid{background:transparent;gap:0}
+html[data-theme] #modal .fe-summary-grid>div{background:transparent;border:0;border-bottom:1px solid var(--w5-divider);border-right:1px solid var(--w5-divider)}
+html[data-theme] #modal .fe-confirm-content{padding:14px}
+/* Filters and More use the same glass/grouped vocabulary. */
+html[data-theme] #modal.nv-sheet{background:var(--ui-bg);border:1px solid var(--ui-line);border-radius:26px 26px 0 0}
+html[data-theme] #modal.nv-filter-modal{background:var(--ui-bg);border-color:var(--ui-line)}
+html[data-theme] #modal.nv-filter-modal .modal-head{background:var(--ui-bg);border:0;padding:16px 18px}
+html[data-theme] #modal .nv-filter-card,html[data-theme] #modal .nv-sheet-list{background:var(--w5-gradient);border-color:var(--ui-line);border-radius:22px}
+html[data-theme] #modal .nv-filter-row{border-color:var(--w5-divider);min-height:56px}
+html[data-theme] #modal.nv-filter-modal .nv-filter-footer{background:var(--w5-glass);backdrop-filter:blur(20px)}
+html[data-theme] #modal .nv-filter-footer .primary{border-radius:999px}
+@media(min-width:721px) and (max-width:1060px){html[data-theme] #app .main{padding-inline:16px}html[data-theme] #app .w5-logbook-layout{grid-template-columns:minmax(280px,1fr) minmax(250px,1fr);gap:16px}html[data-theme] #app .w5-detail-pane{padding:16px}html[data-theme] #app .nv-card-heading{gap:4px}html[data-theme] #app .nv-flight-number small{display:none}}
+@media(min-width:1000px){html[data-theme] #modal.flight-editor-modal{position:fixed;inset:12px 18px 12px auto;margin:0;width:min(600px,calc(100vw - 600px));height:calc(100dvh - 24px);max-height:none}html[data-theme] #modal.flight-editor-modal::backdrop{background:#060b1226;backdrop-filter:blur(1px)}html[data-theme] #modal .flight-editor-form{max-height:calc(100dvh - 94px)}}
+@media(max-width:720px){
+ html[data-theme] #app .sidebar{display:none}
+ html[data-theme] #app .workspace{margin-left:0}
+ html[data-theme] #app .topbar{padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;min-height:64px}
+ html[data-theme] #app .topbar-main{min-height:40px;gap:8px}
+ html[data-theme] #app .topbar .top-actions{flex:1;gap:8px}
+ html[data-theme] #app .topbar .breadcrumbs{display:none}
+ html[data-theme] #app .topbar .w5-theme-button{display:none}
+ html[data-theme] #app .topbar .nv-top-management{display:grid}
+ html[data-theme] #app .topbar .nv-avatar{width:38px;height:38px;min-width:38px;min-height:38px}
+ html[data-theme] #app .main{padding:0 16px calc(116px + env(safe-area-inset-bottom))}
+ html[data-theme] #app .page-heading{margin:6px 0 18px}
+ html[data-theme] #app .page-heading h1{font-size:25px}
+ html[data-theme] #app .page-heading p{font-size:11px}
+ html[data-theme] #app .w5-logbook-layout{display:block}
+ html[data-theme] #app .w5-detail-pane{display:none}
+ html[data-theme] #app .nv-logbook-tools{padding:0 0 8px}
+ html[data-theme] #app .nv-wader-month-switch{margin-top:0}
+ html[data-theme] #app .nv-collection-actions{display:none}
+ html[data-theme] #app .nv-logbook-summary{margin-top:12px}
+ html[data-theme] #app .bottom-nav{position:fixed;inset:auto 14px calc(12px + env(safe-area-inset-bottom)) 14px;z-index:40;display:flex;align-items:center;gap:10px;width:auto;padding:0;border:0;background:transparent;box-shadow:none}
+ html[data-theme] #app .nv-nav-pill{display:flex;align-items:center;flex:1;min-width:0;padding:5px;border-radius:999px;border:1px solid var(--ui-line);background:var(--w5-glass);backdrop-filter:blur(24px);box-shadow:0 8px 24px #00000020}
+ html[data-theme] #app .bottom-nav .nv-nav-pill>button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex:1;min-width:0;min-height:50px;background:transparent;border:0;border-radius:999px;padding:4px 2px;color:var(--ui-ink);font-size:10px;font-weight:450}
+ html[data-theme] #app .bottom-nav .nv-nav-pill>button svg{width:22px;height:22px;stroke-width:1.6}
+ html[data-theme] #app .bottom-nav .nv-nav-pill>button.active{background:var(--ui-accent-soft);color:var(--ui-accent)}
+ html[data-theme] #app .bottom-nav .nv-floating-add{display:grid;place-items:center;flex:0 0 58px;width:58px;height:58px;min-height:58px;border-radius:50%;border:1px solid var(--ui-line);background:var(--w5-glass);backdrop-filter:blur(24px);color:var(--ui-accent);box-shadow:0 8px 24px #00000020}
+ html[data-theme] #app .bottom-nav .nv-floating-add svg{width:25px;height:25px}
+ html[data-theme] #app .metrics{grid-template-columns:1fr 1fr;gap:10px}
+ html[data-theme] #app .metric{padding:14px}.metric-value{font-size:29px}
+ html[data-theme] #app .weather-group{padding:12px}
+ html[data-theme] #app .weather-watch-toolbar{gap:8px}
+ html[data-theme] #app .footer{font-size:8px}
+ html[data-theme] #modal.flight-editor-modal{position:fixed;inset:0;width:100%;height:100dvh;max-width:100%;max-height:100dvh;margin:0;border:0;border-radius:0}
+ html[data-theme] #modal.flight-editor-modal .modal-head{padding:calc(10px + env(safe-area-inset-top,0px)) 16px 8px}
+ html[data-theme] #modal .flight-editor-form{padding:0 12px 20px;max-height:calc(100dvh - 66px - env(safe-area-inset-top,0px))}
+ html[data-theme] #modal .fe-field{padding:8px 11px}
+ html[data-theme] #modal .fe-tabs{margin-bottom:12px}
+ html[data-theme] #modal .fe-time-cell{padding:8px 11px}
+ html[data-theme] #modal.nv-filter-modal{border:0;width:100%;max-width:100%;height:100dvh;margin:0}
+ html[data-theme] #modal .nv-filter-form{padding:8px 16px calc(100px + env(safe-area-inset-bottom))}
+ html[data-theme] #app :is(.workspace-account-popover,.page-management-content){position:fixed;left:16px;right:16px;top:72px;width:auto;max-width:none;z-index:60}
+}
+@media(max-width:359px){html[data-theme] #app .main{padding-inline:12px}html[data-theme] #app .nv-flight-number small{display:none}html[data-theme] #app .nv-flight-number strong{font-size:12px}html[data-theme] #app .nv-card-route>strong{font-size:23px}html[data-theme] #app .nv-card-heading{gap:4px}html[data-theme] #app .nv-flight-status-pill{font-size:7px}html[data-theme] #app .bottom-nav{left:10px;right:10px;gap:7px}html[data-theme] #app .bottom-nav .nv-floating-add{flex-basis:52px;width:52px;height:52px;min-height:52px}html[data-theme] #app .bottom-nav .nv-nav-pill>button{font-size:9px}html[data-theme] #modal .nv-count-field{padding:5px}html[data-theme] #modal .nv-counter{grid-template-columns:24px minmax(22px,1fr) 24px}html[data-theme] #modal .nv-counter button{width:24px;min-width:24px}}
+@media(prefers-reduced-motion:reduce){html[data-theme] *{scroll-behavior:auto;transition:none!important;animation:none!important}}
+
+html[data-theme] #app .nv-logbook-shell .workspace-account-menu>summary{display:none}
+html[data-theme] #app .nv-logbook-shell .workspace-account{min-width:0}
+
+/* Compact camera action stays available without adding a separate card row. */
+html[data-theme] #app .nv-card-scan.flight-scan-shortcut{position:absolute;bottom:9px;right:10px;width:32px;height:32px;min-height:32px;display:grid;place-items:center;padding:0;margin:0;border-radius:50%;background:var(--ui-accent-soft);color:var(--ui-accent)}
+html[data-theme] #app .nv-card-scan>span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+html[data-theme] #app .nv-card-scan svg{width:16px;height:16px}
+html[data-theme] #app .nv-card-foot,html[data-theme] #app .nv-card-caption{padding-right:36px}
+html[data-theme] #app .nv-card-caption{font-size:7.5px}
+html[data-theme] #app .nv-flight-open{padding-bottom:11px;line-height:1.2}
+html[data-theme] #app .sidebar .profile{display:none!important}
+html[data-theme] #modal .flight-time-input{padding:0;border:0;margin:0;min-width:0}
+html[data-theme] #modal .flight-time-input legend{font-size:9px;color:var(--ui-muted);padding:0;margin:0 0 4px}
+html[data-theme] #modal .flight-time-parts{display:flex;flex-direction:column;gap:3px}
+html[data-theme] #modal .flight-time-parts>label{display:grid;gap:1px;font-size:8px;color:var(--ui-muted)}
+html[data-theme] #modal .flight-time-parts>label:first-child{order:2}
+html[data-theme] #modal .fe-time-cell input[data-utc-clock]{font-family:var(--ui-font);font-weight:400}
+html[data-theme] #modal .fe-time-caption{display:none}
+/* Offline route overview, rendered only from saved airports and real coordinates. */
+.w5-route-map{position:relative;border-radius:24px;overflow:hidden;min-height:220px;background:var(--w5-map);isolation:isolate;border:1px solid #ffffff1c}
+.w5-route-map>svg{display:block;width:100%;height:100%;min-height:280px;max-height:480px;aspect-ratio:2/1;background:#c6d9e7}
+.w5-map-label{position:absolute;top:14px;left:14px;padding:8px 12px;background:#ffffffdc;color:#34465a;border-radius:999px;backdrop-filter:blur(12px);font-size:11px;box-shadow:0 2px 6px #29314312}
+.w5-map-expand{position:absolute;top:14px;right:14px;display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#ffffffdc;color:#34465a;font-size:24px;box-shadow:0 2px 6px #29314312}
+.w5-map-source{position:absolute;bottom:8px;left:12px;font-size:8px;color:#47606c;text-shadow:0 1px #fff}
+.w5-map-empty{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:#34465a;font-size:13px}
+.w5-briefing{margin-bottom:18px}
+.w5-briefing-summary{display:flex;align-items:center;gap:22px;border:1px solid var(--ui-line);border-radius:22px;background:var(--w5-gradient);padding:18px 20px;margin-top:12px}
+.w5-briefing-identity{display:grid;gap:5px;flex:1}.w5-briefing-identity>span{font-size:10px;color:var(--ui-muted)}
+.w5-briefing-identity>strong{font-size:25px;font-weight:450;letter-spacing:.03em}.w5-briefing-identity>strong>span{font-size:18px;color:var(--ui-accent);padding:0 12px}
+.w5-briefing-identity small{font-size:10px;color:var(--ui-muted)}.w5-briefing-time{display:grid;gap:6px}.w5-briefing-time small{font-size:8px;color:var(--ui-muted);letter-spacing:.1em}
+.w5-briefing-time strong{font-size:19px;font-weight:450}.w5-briefing-time strong>span{color:var(--ui-accent)}
+.w5-briefing-actions{display:flex;gap:8px}.w5-briefing-actions .btn{font-size:11px;border-radius:999px}
+.w5-calendar-section>summary,.w5-dashboard-more>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 2px;font-size:13px;color:var(--ui-muted)}
+.w5-calendar-section>summary:after,.w5-dashboard-more>summary:after{content:'⌄';font-size:18px;color:var(--ui-accent)}
+.w5-calendar-section[open]>summary:after,.w5-dashboard-more[open]>summary:after{content:'⌃'}
+.w5-dashboard{display:grid;gap:14px}
+.w5-pilot-card{display:flex;align-items:center;gap:14px;padding:18px 20px;border:1px solid var(--ui-line);border-radius:22px;background:var(--w5-gradient)}
+.w5-pilot-avatar{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;border:3px solid var(--ui-accent);background:#688b44;color:#fff;font-size:22px;flex-shrink:0}
+.w5-pilot-card h2{font-size:20px;font-weight:550;margin:0}.w5-pilot-card p{font-size:11px;color:var(--ui-muted);margin:5px 0 0}.w5-pilot-card>.iconbtn{margin-left:auto;border-radius:50%;color:var(--ui-accent);background:var(--ui-accent-soft)}
+.w5-dashboard-top{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}
+.w5-total-card,.w5-activity-card,.w5-fleet{padding:18px 20px;border:1px solid var(--ui-line);border-radius:22px;background:var(--w5-gradient)}
+.w5-card-eyebrow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:9px;letter-spacing:.15em;color:var(--ui-muted)}
+.w5-card-eyebrow>span{font-size:9px;letter-spacing:0}
+.w5-total-main{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;padding:16px 0 14px}
+.w5-total-main>strong{font-size:42px;font-weight:450;letter-spacing:-.04em;white-space:nowrap}.w5-total-main>strong>small{font-size:14px;color:var(--ui-muted);font-weight:400;margin-left:6px}
+.w5-spark{display:flex;gap:4px;align-items:flex-end;height:46px;flex:1;max-width:160px;min-width:60px;padding-bottom:6px}.w5-spark i{flex:1;min-width:3px;background:var(--ui-muted);opacity:.55;border-radius:2px}.w5-spark i:last-child{background:var(--ui-accent);opacity:1}
+.w5-total-foot{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border-top:1px solid var(--ui-line);padding-top:12px}
+.w5-total-foot>div{display:grid;gap:4px}.w5-total-foot small{font-size:8px;letter-spacing:.06em;color:var(--ui-muted)}.w5-total-foot strong{font-size:18px;font-weight:500}
+.w5-activity-metrics{display:flex;justify-content:space-around;gap:10px;margin:30px 0 14px}.w5-activity-metrics>div{display:grid;gap:8px;text-align:center}.w5-activity-metrics strong{font-size:27px;font-weight:450;color:var(--ui-accent)}.w5-activity-metrics small{font-size:9px;color:var(--ui-muted)}
+.w5-activity-card>p{font-size:10px;color:var(--ui-muted);margin:8px 0 0;text-align:center}
+.w5-fleet-row{display:flex;align-items:center;gap:16px;padding:15px 0 0}.w5-fleet-row>span{font-size:15px;min-width:52px}.w5-fleet-row>i{flex:1;height:5px;border-radius:999px;background:linear-gradient(to right,var(--ui-accent) var(--fleet-width),var(--ui-soft) var(--fleet-width))}.w5-fleet-row>strong{font-size:16px;font-weight:450}.w5-fleet-row small{font-size:10px;color:var(--ui-muted)}
+#modal .w5-route-map.is-full{border-radius:0}.w5-route-map.is-full>svg{max-height:70dvh;min-height:320px}
+@media(max-width:720px){.w5-route-map{min-height:200px;border-radius:20px}.w5-route-map>svg{min-height:240px;max-height:350px}.w5-briefing-summary{flex-wrap:wrap;gap:14px;padding:16px}.w5-briefing-identity{flex:1 1 45%}.w5-briefing-time{flex:1 1 40%;text-align:right}.w5-briefing-actions{flex:1 1 100%}.w5-briefing-actions .btn{flex:1}.w5-dashboard-top{grid-template-columns:1fr;gap:12px}.w5-total-card,.w5-activity-card,.w5-fleet{padding:16px}.w5-activity-metrics{margin:20px 0 12px}.w5-total-main>strong{font-size:38px}.w5-pilot-card{padding:16px}.w5-pilot-avatar{width:46px;height:46px;font-size:17px}.w5-pilot-card h2{font-size:18px}}
+/* Keep touch targets usable in narrow two-column counter rows. */
+html[data-theme] #modal .nv-count-field{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;padding:6px 8px}
+html[data-theme] #modal .nv-count-field>span{text-align:center;font-size:8px}
+html[data-theme] #modal .nv-counter{grid-template-columns:44px minmax(20px,1fr) 44px;width:100%;gap:0}
+html[data-theme] #modal .nv-counter button{width:44px;min-width:44px;height:44px;min-height:44px}
+html[data-theme] #modal .nv-counter input{height:44px;min-height:44px;font-size:18px}
+html[data-theme] #app .w5-sidebar-add{position:absolute;left:-1px;bottom:-78px}

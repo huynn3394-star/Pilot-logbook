@@ -54,9 +54,9 @@ export function renderFlightCard(f){
     <span class="nv-card-separator" aria-hidden="true">|</span>
     <span class="nv-flight-number"><small>✈ FLT</small><strong>${e(f.flightNo)}</strong></span>
     <span class="nv-flight-function">${allocation}</span>
-    <span class="nv-flight-status-pill ${f.confirmed?'is-final':actual?'is-draft':'is-scheduled'}" aria-label="${e(status)}">${f.confirmed?'FINAL':actual?'DRAFT':'PLAN'}</span>
+    <span class="nv-flight-state nv-flight-status-pill ${f.confirmed?'is-final':actual?'is-draft':'is-scheduled'}" aria-label="${e(status)}">${f.confirmed?'FINAL':actual?'DRAFT':'PLAN'}</span>
    </span>
-   <span class="nv-card-route"><strong>${e(f.dep)}</strong><span><b class="mono">${block}</b></span><strong>${e(f.dest)}</strong></span>
+   <span class="nv-card-route"><strong>${e(f.dep)}</strong><span><small>BLOCK</small><b class="mono">${block}</b></span><strong>${e(f.dest)}</strong></span>
    <span class="nv-card-times nv-v215-times">
     <span class="nv-station"><span class="nv-station-main"><b class="mono">${clock(times.out)}</b><small>${airport(f.dep)}</small></span><span class="nv-station-role">✈ ${e(op)}</span></span>
     <span class="nv-timeline" aria-label="Timeline minh họa Init / Dep / Arr, không theo tỷ lệ thời gian">
@@ -68,12 +68,12 @@ export function renderFlightCard(f){
    <span class="nv-card-foot"><span>${e(f.reg||'Registration —')} · ${e(f.aircraft||'Aircraft —')}</span><span class="nv-card-day">${e(f.date)}</span></span>
    <span class="nv-card-caption">${actual?'Actual':'Scheduled'} OUT / IN · UTC · FLIGHT ${airborne}${times.in?.slice(0,10)>f.date?' · IN '+e(times.in.slice(0,10)):''}${f.confirmed?'':' · Chưa tính vào tổng Actual'}</span>
   </button>
-  <button type="button" class="nv-card-scan flight-scan-shortcut" data-flight-scan-shortcut="list" data-action="image" data-id="${e(f.id)}" aria-label="Scan Flight Log · ${e(f.flightNo)}">Scan Flight Log</button>
+  <button type="button" class="nv-card-scan flight-scan-shortcut" data-flight-scan-shortcut="list" data-action="image" data-id="${e(f.id)}" aria-label="Scan Flight Log · ${e(f.flightNo)}" title="Scan Flight Log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 6h5l2-3h4l2 3h5v15H3Z M12 9a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/></svg><span>Scan Flight Log</span></button>
  </article>`;
 }
 export function renderLogbook({flights,people,month,query,filters,limit=80,icon=()=>''}){
  const selected=selectFlights(flights,{month,query,filters,people}),shown=selected.slice(-limit),visibleIds=new Set(shown.map(f=>f.id)),groups=flightGroups(selected).reverse(),total=statistics(selected);
- return `<section class="nv-logbook" data-navy-logbook>
+ return `<section class="nv-logbook w5-logbook" data-navy-logbook><div class="w5-logbook-layout"><div class="w5-list-pane">
   <div class="nv-logbook-tools"><label class="nv-search">${icon('search')}<input type="search" data-filter="search" value="${e(query)}" placeholder="Search logbook" aria-label="Tìm chuyến bay"></label><button type="button" class="iconbtn nv-filter-button" data-action="navy-filters" aria-label="Bộ lọc chuyến bay${filterCount(filters)?' · '+filterCount(filters)+' điều kiện':''}">${icon('filter')}${filterCount(filters)?'<b>'+filterCount(filters)+'</b>':''}</button></div>
   <div class="nv-wader-month-switch" aria-label="Chọn tháng và phạm vi logbook">
     <button type="button" class="nv-wader-month-button" data-action="month-prev" aria-label="Tháng trước">${icon('left')}</button>
@@ -81,11 +81,17 @@ export function renderLogbook({flights,people,month,query,filters,limit=80,icon=
     <button type="button" class="nv-wader-month-button" data-action="month-next" aria-label="Tháng sau">${icon('chevron')}</button>
     <button type="button" class="nv-wader-all-months" data-action="navy-period">${filters.period==='all'?'This month':'All months'}</button>
   </div>
-  <div class="nv-wader-summary" role="status"><span>${selected.length} flights${selected.length>shown.length?' · showing '+shown.length:''}</span><span>BLOCK <strong class="mono">${duration(total.block)}</strong></span></div>
-  ${groups.map(g=>{const visible=g.records.filter(f=>visibleIds.has(f.id)).reverse();return visible.length?`<section class="nv-month-group"><header class="nv-month-header"><h2>${monthLabel(g.month)}</h2><span>${visible.length} flights · BLOCK <strong class="mono">${duration(g.totals.block)}</strong></span></header><div class="nv-flight-list">${visible.map(renderFlightCard).join('')}</div></section>`:'';}).join('')||`<div class="empty nv-empty">${icon('book')}<h2>Chưa có chuyến bay phù hợp</h2><p>Đổi tháng, tìm kiếm hoặc xóa bộ lọc để xem lại.</p><button type="button" class="btn" data-action="navy-clear">Xóa bộ lọc</button><button type="button" class="btn primary" data-action="add">Thêm chuyến bay</button></div>`}
+  <div class="nv-wader-summary nv-list-status" role="status"><span>${selected.length} chuyến${selected.length>shown.length?' · đang hiển thị '+shown.length:''}</span><span>BLOCK <strong class="mono">${duration(total.block)}</strong></span></div>
+  ${groups.map(g=>{const visible=g.records.filter(f=>visibleIds.has(f.id)).reverse();return visible.length?`<section class="nv-month-group"><header class="nv-month-header"><h2><i aria-hidden="true"></i>${monthLabel(g.month)}</h2><span>ACTUAL <strong class="mono">${duration(g.totals.block)}</strong></span></header><div class="nv-flight-list">${visible.map(renderFlightCard).join('')}</div></section>`:'';}).join('')||`<div class="empty nv-empty">${icon('book')}<h2>Chưa có chuyến bay phù hợp</h2><p>Đổi tháng, tìm kiếm hoặc xóa bộ lọc để xem lại.</p><button type="button" class="btn" data-action="navy-clear">Xóa bộ lọc</button><button type="button" class="btn primary" data-action="add">Thêm chuyến bay</button></div>`}
   ${selected.length>shown.length?'<button type="button" class="btn nv-load-more" data-action="navy-more-records">Xem thêm '+Math.min(80,selected.length-shown.length)+' chuyến</button>':''}
-  <p class="nv-total-note">Tổng Actual chỉ gồm Block đã xác nhận. Flight = OFF → ON, Block = OUT → IN. Bộ lọc không sửa dữ liệu.</p>
+  <p class="nv-total-note">Giờ UTC · Actual đã xác nhận · Flight OFF → ON / Block OUT → IN</p></div>${renderFlightPreview(shown.at(-1),people)}</div>
  </section>`;
+}
+export function renderFlightPreview(f,people=[]){
+ if(!f)return '<aside class="w5-detail-pane w5-detail-empty"><p>Chọn một chuyến bay để xem chi tiết.</p></aside>';
+ const t=timeTotals(f),times=f.actual||{},crew=[f.captainId,f.foId,...(f.crewIds||[])].filter(Boolean).map(id=>people.find(p=>p.id===id)?.name).filter(Boolean);
+ const time=(label,value)=>`<div><small>${label}</small><strong>${clock(value)}</strong><span>UTC</span></div>`;
+ return `<aside class="w5-detail-pane" aria-label="Tóm tắt chuyến bay"><div class="w5-detail-top"><span>FLIGHT LOG</span><button class="btn small" type="button" data-action="edit" data-id="${e(f.id)}">Chỉnh sửa</button></div><h2>${e(f.flightNo)}</h2><p class="w5-detail-date">${e(f.date)} · ${e(f.aircraft||'—')} · ${e(f.reg||'—')}</p><div class="w5-detail-route"><div><strong>${e(f.dep)}</strong><small>${e(icaoFor(f.dep))}</small></div><span aria-hidden="true">✈</span><div><strong>${e(f.dest)}</strong><small>${e(icaoFor(f.dest))}</small></div></div><div class="w5-detail-times">${time('OUT',times.out)}${time('ON',times.on)}${time('OFF',times.off)}${time('IN',times.in)}</div><div class="w5-detail-totals"><div><small>FLIGHT</small><strong>${t.airborne===null?'—':duration(t.airborne)}</strong></div><div><small>BLOCK</small><strong>${t.block===null?'—':duration(t.block)}</strong></div></div><div class="w5-detail-section"><span>CREW</span><p>${crew.map(e).join(' · ')||'Chưa ghi crew'}</p></div><div class="w5-detail-section"><span>REMARKS</span><p>${e(f.note||'Chưa có ghi chú.')}</p></div><span class="w5-detail-status">${f.confirmed?'✓ FINAL · Actual đã xác nhận':'◷ DRAFT · Chưa xác nhận'}</span></aside>`;
 }
 const select=(name,label,value,options)=>`<label class="nv-filter-row"><span>${label}</span><select name="${name}">${options.map(([v,text])=>`<option value="${e(v)}"${value===v?' selected':''}>${e(text)}</option>`).join('')}</select></label>`;
 const input=(name,label,value,type='text',attrs='')=>`<label class="nv-filter-row"><span>${label}</span><input name="${name}" type="${type}" value="${e(value)}" ${attrs}></label>`;

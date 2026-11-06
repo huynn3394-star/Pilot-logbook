@@ -150,7 +150,7 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
  form.addEventListener('click',click);form.addEventListener('keydown',keydown);form.addEventListener('invalid',invalid,true);
  show('log');
  for(const input of form.querySelectorAll('input[name^="log_takeoff"],input[name^="log_landing"]')){
-  const wrapper=document.createElement('span');wrapper.className='nv-counter';input.before(wrapper);wrapper.append(input);
+  const wrapper=document.createElement('span');wrapper.className='nv-counter';input.placeholder='—';input.before(wrapper);wrapper.append(input);
   for(const [delta,label]of [[-1,'Giảm'],[1,'Tăng']]){
    const button=document.createElement('button');button.type='button';button.textContent=delta<0?'−':'+';button.setAttribute('aria-label',label+' '+input.closest('label').querySelector('span')?.textContent);
    button.disabled=input.disabled;button.onclick=()=>{if(!input.validity.valid&&input.value!=='')return;input.value=String(Math.max(0,Math.min(20,Number(input.value||0)+delta)));input.dispatchEvent(new Event('input',{bubbles:true}));};

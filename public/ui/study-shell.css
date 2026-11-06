@@ -1,3 +1,4 @@
+@import url("/ui/wader-v5.css");
 /* Shared frame around immutable ATPL sources. All selectors stay outside the engine. */
 body.avilog-study-page { --study-rail:156px; margin:0; background:var(--ui-bg); color:var(--ui-ink); }
 .study-shell { display:grid; grid-template-columns:var(--study-rail) minmax(0,1fr); min-height:100dvh; }
