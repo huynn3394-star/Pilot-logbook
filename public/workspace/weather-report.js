@@ -38,7 +38,13 @@ export function currentReport(raw,station,product,now=new Date()){
 export function mergeWeatherProducts(previous,incoming){
  const result={...incoming,sources:{...incoming.sources},productFetchedAt:{},staleProducts:{}};
  for(const product of ['metar','taf']){
-  const owner=incoming[product]?incoming:previous;
+  const incomingTiming=incoming?.[product]&&savedReportTiming(incoming,product);
+  const previousTiming=previous?.[product]&&savedReportTiming(previous,product);
+  const incomingIssue=incomingTiming?Date.parse(incomingTiming.issuedAt):NaN;
+  const previousIssue=previousTiming?Date.parse(previousTiming.issuedAt):NaN;
+  // Never replace a newer saved bulletin with an older provider response.
+  const older=Number.isFinite(previousIssue)&&(!Number.isFinite(incomingIssue)||incomingIssue<previousIssue);
+  const owner=incoming?.[product]&&!older?incoming:previous;
   if(!owner?.[product])continue;
   result[product]=owner[product];result.sources[product]=owner.sources?.[product];
   result.productFetchedAt[product]=owner.productFetchedAt?.[product]||owner.fetchedAt;
