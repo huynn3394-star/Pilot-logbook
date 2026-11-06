@@ -1,6 +1,6 @@
 import {icaoFor} from '../lib/parsers.js';
 import {connect} from '../lib/storage.js';
-import {weatherSourceURL,mergeWeatherProducts} from './weather-report.js';
+import {weatherSourceURL,mergeWeatherProducts,savedReportTiming} from './weather-report.js';
 export function normalizeAirports(list){
  if(!Array.isArray(list))throw Error('Danh sách sân bay không hợp lệ.');
  if(list.some(value=>typeof value!=='string'))throw Error('Mã sân bay phải là chữ.');
@@ -8,23 +8,42 @@ export function normalizeAirports(list){
  if(values.length>40||values.some(v=>!/^[A-Z]{4}$/.test(v)))throw Error('Nhập ICAO 4 chữ cái hoặc IATA có hỗ trợ; tối đa 40 sân bay.');return values;
 }
 async function readCache(key){const db=await connect();return new Promise((resolve,reject)=>{const r=db.transaction('workspace').objectStore('workspace').get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});}
-async function writeCache(key,value){const db=await connect();return new Promise((resolve,reject)=>{const tx=db.transaction('workspace','readwrite');tx.objectStore('workspace').put(value,key);tx.oncomplete=()=>resolve();tx.onabort=tx.onerror=()=>reject(tx.error||Error('Không lưu được bản tin.'));});}
+// Read/merge/write in one transaction: another tab's newer bulletin wins even if
+// this watch loaded its snapshot before that tab refreshed. Preserve other stations.
+async function writeCache(key,value){
+ const db=await connect();return new Promise((resolve,reject)=>{
+  const tx=db.transaction('workspace','readwrite'),store=tx.objectStore('workspace'),request=store.get(key);let merged;
+  request.onsuccess=()=>{try{merged=mergeWeatherCache(request.result,value);store.put(merged,key);}catch{tx.abort();}};
+  tx.oncomplete=()=>resolve(merged);tx.onabort=tx.onerror=()=>reject(tx.error||Error('Không lưu được bản tin.'));
+ });
+}
+export function mergeWeatherCache(previous,incoming){
+ const reports={};
+ for(const envelope of [previous,incoming])for(const [station,value]of Object.entries(envelope?.reports||{})){
+  if(!/^[A-Z]{4}$/.test(station))continue;
+  try{const valid=report(value,station);reports[station]=reports[station]?mergeWeatherProducts(reports[station],valid):valid;}catch{}
+ }
+ return {reports};
+}
+
 function report(data,station){
  if(!data||data.station!==station||typeof data.provider!=='string'||data.provider.length>160||typeof data.fetchedAt!=='string'||!Number.isFinite(Date.parse(data.fetchedAt)))throw Error('Bản tin không khớp sân bay/thời điểm.');
- const value={station,provider:data.provider,fetchedAt:data.fetchedAt,metar:null,taf:null,sources:{},productFetchedAt:{},staleProducts:{}};
+ const value={station,provider:data.provider,fetchedAt:data.fetchedAt,metar:null,taf:null,sources:{},productFetchedAt:{},productIssuedAt:{},staleProducts:{}};
  for(const product of['metar','taf'])if(data[product]!==null&&data[product]!==undefined){
   if(typeof data[product]!=='string'||data[product].length>32768||/data:image\//i.test(data[product]))throw Error('Bản tin chữ không hợp lệ.');
   const source=data.sources?.[product];if(!weatherSourceURL(source,station,product))throw Error('Nguồn bản tin không hợp lệ.');value[product]=data[product];value.sources[product]=source;
   const anchor=data.productFetchedAt?.[product]||data.fetchedAt;if(typeof anchor!=='string'||!Number.isFinite(Date.parse(anchor)))throw Error('Thời điểm bản tin không hợp lệ.');value.productFetchedAt[product]=anchor;if(data.stale||data.staleProducts?.[product]===true)value.staleProducts[product]=true;
+  const timing=savedReportTiming(data,product);if(!timing||timing.station!==station||Date.parse(timing.issuedAt)>Date.parse(anchor)+600000||/\bNIL\b/.test(data[product]))throw Error('Nội dung hoặc ngày bản tin không hợp lệ.');value.productIssuedAt[product]=timing.issuedAt;
  }
  if(!value.metar&&!value.taf)throw Error('Nguồn chưa có METAR/TAF hiện hành cho sân bay này.');if(data.stale)value.stale=true;return value;
 }
 export function createWeatherWatch({uid=null,airports=[],fetchImpl=fetch,now=()=>new Date(),isCurrent=()=>true,readCache:load=readCache,writeCache:save=writeCache}={}){
- let selected=normalizeAirports(airports),reports={},errors={},cacheError=null,active=true,pending=null,queue=Promise.resolve();const listeners=new Set(),controllers=new Set(),loading=new Set(),key='weather-watch:v1:'+(uid?'account:'+uid:'guest');
+ let selected=normalizeAirports(airports),reports={},errors={},cacheError=null,active=true,pending=null,queue=Promise.resolve();const listeners=new Set(),controllers=new Set(),loading=new Set(),scope=uid?'account:'+uid:'guest',key='weather-watch:v2:'+scope,legacyKey='weather-watch:v1:'+scope;
  const current=()=>active&&isCurrent(),snapshot=()=>({airports:[...selected],reports:structuredClone(Object.fromEntries(Object.entries(reports).filter(([s])=>selected.includes(s)))),errors:{...errors},loading:[...loading],cacheError});
  const emit=()=>{if(current())for(const fn of listeners)fn(snapshot());};
- const ready=(async()=>{try{const cached=await load(key);if(!current())return;for(const [station,value]of Object.entries(cached?.reports||{})){if(!selected.includes(station))continue;try{reports[station]=report(value,station);}catch{}}}catch{cacheError='Không đọc được bản tin đã lưu.';}emit();})();
- function persist(){queue=queue.catch(()=>{}).then(async()=>{if(!current())return;try{await save(key,{reports:structuredClone(Object.fromEntries(Object.entries(reports).filter(([s])=>selected.includes(s))))});if(current())cacheError=null;}catch{if(current())cacheError='Không lưu được bản tin offline. Kiểm tra dung lượng và thử cập nhật lại.';}emit();});return queue;}
+ // v2 is isolated from pre-upgrade tabs that still overwrite the entire v1 key.
+ const ready=(async()=>{try{let cached=await load(key),migrate=false;if(!cached){cached=await load(legacyKey);migrate=Boolean(cached);}if(!current())return;for(const [station,value]of Object.entries(cached?.reports||{})){if(!selected.includes(station))continue;try{reports[station]=report(value,station);}catch{}}if(migrate)await persist();}catch{cacheError='Không đọc được bản tin đã lưu.';}emit();})();
+ function persist(){queue=queue.catch(()=>{}).then(async()=>{if(!current())return;try{const saved=await save(key,{reports:structuredClone(Object.fromEntries(Object.entries(reports).filter(([s])=>selected.includes(s))))});if(current()){for(const [station,value]of Object.entries(saved?.reports||{})){if(selected.includes(station))reports[station]=mergeWeatherProducts(reports[station],report(value,station));}cacheError=null;}}catch{if(current())cacheError='Không lưu được bản tin offline. Kiểm tra dung lượng và thử cập nhật lại.';}emit();});return queue;}
  async function refresh({force=false}={}){
   await ready;if(!current())return snapshot();
   if(pending){await pending;if(current()&&selected.some(s=>!reports[s]&&!errors[s]))return refresh();return snapshot();}

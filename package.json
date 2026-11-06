@@ -19,6 +19,7 @@
     "test:workspace-upgrade": "node scripts/verify-workspace-upgrade.cjs",
     "test:workspace-browser": "node scripts/workspace-emulators.cjs browser",
     "test:workspace-all": "node scripts/verify-workspace-all.cjs",
+    "test:weather-cache": "node scripts/verify-weather-cache.cjs",
     "test:weather-ui": "node scripts/verify-weather-ui.cjs",
     "test:navy-ui": "node scripts/verify-navy-v2.cjs",
     "test:study-ui": "node scripts/verify-study-shell.cjs",

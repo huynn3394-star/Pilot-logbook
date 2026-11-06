@@ -13,6 +13,13 @@ export function weatherGroupProduct(viewState,groupId){
  const products=viewState?.products;
  return products&&Object.hasOwn(products,groupId)&&products[groupId]==='taf'?'taf':'metar';
 }
+export function weatherProductState(report,product,{now=Date.now(),offline=false,error=false}={}){
+ const timing=report?.[product]&&savedReportTiming(report,product),issued=Date.parse(timing?.issuedAt),fetched=Date.parse(report?.productFetchedAt?.[product]||report?.fetchedAt);
+ const invalid=!timing||!Number.isFinite(fetched)||issued>now+600000||fetched>now+600000;
+ const old=Number.isFinite(issued)&&now-issued>(product==='metar'?2:36)*3600000;
+ const expired=Boolean(timing?.validTo)&&Date.parse(timing.validTo)<=now;
+ return {timing,invalid,old,expired,saved:Boolean(report?.[product])&&(offline||invalid||old||expired||now-fetched>=300000||Boolean(error)||Boolean(report.stale)||Boolean(report.staleProducts?.[product]))};
+}
 export function mountWeatherWatch({element,watch,getGroups,onGroups,viewState={},isCurrent=()=>true,onError=()=>{}}){
  let disposed=false,optionsKey='',searchActive=false;
  viewState.open??={};viewState.editing??=false;viewState.products??={};
@@ -61,11 +68,10 @@ export function mountWeatherWatch({element,watch,getGroups,onGroups,viewState={}
   const options=groups.length?groups:[{id:'legacy',name:'Danh sách hiện tại'}],key=JSON.stringify(options.map(g=>[g.id,g.name]));if(key!==optionsKey){optionsKey=key;select.innerHTML=options.map(g=>'<option value="'+esc(g.id)+'"'+(g.id===viewState.selectedGroup?' selected':'')+'>'+esc(g.name)+'</option>').join('');}select.value=viewState.selectedGroup;
   status.textContent=(offline?'Offline · xem bản tin chữ đã lưu. ':data.loading.length?'Đang cập nhật '+data.loading.length+' sân bay… ':'Đang xem bản tin chữ đã lưu. Tự cập nhật mỗi 5 phút khi có mạng và mở mục này. ')+(data.cacheError||'Chạm sân bay để xem đầy đủ METAR/TAF. Luôn kiểm tra giờ phát hành và thời hạn.');refreshButton.disabled=offline||data.loading.length>0;editButton.setAttribute('aria-pressed',String(viewState.editing));editButton.textContent=viewState.editing?'Xong':'Sắp xếp';
   const stationRow=(group,station,index)=>{
-   const r=data.reports[station],key=group.id+':'+station,preview=weatherGroupProduct(viewState,group.id),hasSpeci=speciStations.has(station),age=r?Date.now()-Date.parse(r.productFetchedAt?.[preview]||r.fetchedAt):0;
-   const previewTiming=r?.[preview]&&savedReportTiming(r,preview),issueAge=previewTiming?Date.now()-Date.parse(previewTiming.issuedAt):Infinity,tooOld=preview==='metar'?issueAge>7200000:previewTiming?.validTo?Date.parse(previewTiming.validTo)<Date.now():issueAge>36000000;
-   const saved=Boolean(r?.[preview])&&(offline||age>=300000||tooOld||r.stale||r.staleProducts?.[preview]||Boolean(data.errors[station]));
-   const product=name=>{const raw=r?.[name],timing=raw&&savedReportTiming(r,name),expired=timing?.validTo&&Date.parse(timing.validTo)<Date.now(),old=timing&&name==='metar'&&Date.now()-Date.parse(timing.issuedAt)>7200000;
-    const flags=[r?.staleProducts?.[name]?'CHƯA CẬP NHẬT ĐƯỢC · GIỮ BẢN CŨ':'',expired?'HẾT HIỆU LỰC':old?'BẢN TIN CŨ':'',timing?.cancelled?'BẢN TIN HỦY':''].filter(Boolean);
+   const r=data.reports[station],key=group.id+':'+station,preview=weatherGroupProduct(viewState,group.id),hasSpeci=speciStations.has(station);
+   const {saved}=weatherProductState(r,preview,{offline,error:data.errors[station]});
+   const product=name=>{const raw=r?.[name],{timing,expired,old,invalid}=weatherProductState(r,name,{offline,error:data.errors[station]});
+    const flags=[r?.staleProducts?.[name]?'CHƯA CẬP NHẬT ĐƯỢC · GIỮ BẢN CŨ':'',raw&&invalid?'GIỜ BẢN TIN CẦN KIỂM TRA':'',expired?'HẾT HIỆU LỰC':old?'BẢN TIN CŨ':'',timing?.cancelled?'BẢN TIN HỦY':''].filter(Boolean);
     const display=raw?(name==='taf'?formatTAFReport(raw):raw):'Chưa có bản tin hiện hành.';
     return '<section class="weather-product"><h3>'+(name==='metar'&&hasSpeci?'SPECI':name.toUpperCase())+'</h3>'+(flags.length?'<p class="weather-error">'+esc(flags.join(' · '))+'</p>':'')+'<pre class="weather-report">'+highlightWeatherReport(display)+'</pre></section>';};
    const previewRaw=r?.[preview],previewText=previewRaw?(preview==='taf'?formatTAFReport(previewRaw):previewRaw):'Chưa có '+preview.toUpperCase()+' đã lưu';
