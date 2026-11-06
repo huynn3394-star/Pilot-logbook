@@ -14,10 +14,12 @@ const {chromium,webkit}=require('playwright');
     if(width<=720){await p.locator('[data-action=navy-more]').click();await p.locator('#modal [data-tab=atpl]').click();}else await p.locator('.sidebar [data-tab=atpl]').click();
     await p.waitForURL('**/atpl/');await p.locator('.study-shell [data-bank=MB]').waitFor();
     assert.equal(await p.locator('html').getAttribute('data-theme'),'dark');
-    const navigation=width<=720?'.bottom-nav':'.study-sidebar';assert(await p.locator(navigation).isVisible());
+    const navigation=width<=720?'.bottom-nav':'.study-sidebar';
+    if(width>720){const rail=await p.locator('.study-sidebar').evaluate(n=>({width:n.getBoundingClientRect().width,radius:getComputedStyle(n).borderRadius}));assert.equal(rail.width,88);assert.equal(rail.radius,'28px');}
+    assert.equal(await p.locator('.study-library-summary strong').first().innerText(),'11');assert(await p.locator(navigation).isVisible());
     if(width>720)assert.equal(await p.locator('.study-sidebar [aria-current=page]').innerText(),'Ôn thi');
     await p.locator('[data-appearance-toggle]').click();assert.equal(await p.locator('html').getAttribute('data-theme'),'light');
-    const color=await p.locator('body').evaluate(n=>getComputedStyle(n).backgroundColor);assert.equal(color,'rgb(242, 244, 248)');
+    const color=await p.locator('body').evaluate(n=>getComputedStyle(n).backgroundColor);assert.equal(color,'rgb(241, 243, 246)');const accountStyle=await p.locator('[data-account-menu]>summary').evaluate(n=>({color:getComputedStyle(n).color,radius:getComputedStyle(n).borderRadius}));assert.equal(accountStyle.radius,'50%');assert.equal(accountStyle.color,'rgb(39, 52, 70)');
     assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));
     if(width===390)await p.screenshot({path:path.join(out,name+'-library-light.png')});
     await p.locator('[data-appearance-toggle]').click();
@@ -25,12 +27,17 @@ const {chromium,webkit}=require('playwright');
     await p.locator('[data-bank=MB] a').click();await p.locator('[data-study-subject]').filter({hasText:'Mass'}).waitFor();await p.locator('#atpl-offline-button').waitFor({state:'attached'});
     assert.equal(await p.locator('html').getAttribute('data-theme'),'dark');assert.match(await p.locator('.topbar .brand').innerText(),/AviLog · Ôn thi/);assert(!await p.locator('.topbar .brand').innerText().then(s=>s.includes('ATPL TRAINER')));
     assert(await p.locator(navigation).isVisible());await p.locator('[data-account-menu]>summary').click();assert(await p.locator('[data-account-content]').isVisible());await p.keyboard.press('Escape');
+    const settingsIcon=await p.locator('[data-bank-manage]>summary svg').boundingBox();assert(settingsIcon.width>=18&&settingsIcon.height>=18);
     await p.locator('[data-action=study]').first().click();await p.locator('.answer-option').first().waitFor();
     if(width<=720)assert(!await p.locator('.bottom-nav').isVisible(),'quiz actions have room on mobile');else assert(await p.locator('.study-sidebar').isVisible());
     const correct=await p.evaluate(()=>{const qid=Number(document.querySelector('[data-question-id]').dataset.questionId);return JSON.parse(document.getElementById('bank-data').textContent)[window.ATPL_SUBJECT].questions.find(q=>q.id===qid).answer;});
-    await p.locator('[data-action=answer][data-key="'+correct+'"]').click();assert(await p.locator('.answer-option.correct').count());
-    const progress=await p.evaluate(()=>JSON.parse(localStorage.getItem('atpl_mb_v2_state')));assert(Object.keys(progress.progress).length>0);assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));
-    if(width===390)await p.screenshot({path:path.join(out,name+'-quiz-dark.png')});if(width===1440)await p.screenshot({path:path.join(out,name+'-1440-quiz-dark.png')});
+    const incorrect=await p.locator('[data-action=answer]').evaluateAll((buttons,correct)=>buttons.find(b=>b.dataset.key!==correct).dataset.key,correct);await p.locator('[data-action=answer][data-key="'+incorrect+'"]').click();assert.equal(await p.locator('.answer-option.incorrect').count(),1);
+    await p.locator('[data-action=next]').click();await p.locator('.answer-option').first().waitFor();const nextCorrect=await p.evaluate(()=>{const qid=Number(document.querySelector('[data-question-id]').dataset.questionId);return JSON.parse(document.getElementById('bank-data').textContent)[window.ATPL_SUBJECT].questions.find(q=>q.id===qid).answer;});
+    await p.locator('[data-action=answer][data-key="'+nextCorrect+'"]').click();assert(await p.locator('.answer-option.correct').count());
+    await p.locator('[data-action=bookmark]').click();assert.equal(await p.locator('[data-action=bookmark]').innerText(),'★');
+    let progress=await p.evaluate(()=>JSON.parse(localStorage.getItem('atpl_mb_v2_state')));assert(Object.keys(progress.progress).length>0);assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2));
+    if(width===390){await p.screenshot({path:path.join(out,name+'-quiz-dark.png')});await p.locator('.lang-switch [data-lang=en]').click();assert.equal(await p.locator('.lang-switch [data-lang=en]').getAttribute('aria-pressed'),'true');await p.locator('.lang-switch [data-lang=vi]').click();await require('./ui-controls.cjs').bankManage(p);await p.locator('[data-action=settings]').click();await p.locator('#dialog[open]').waitFor();await p.screenshot({path:path.join(out,name+'-settings-dark.png')});await p.keyboard.press('Escape');}if(width===1440)await p.screenshot({path:path.join(out,name+'-1440-quiz-dark.png')});
+    progress=await p.evaluate(()=>JSON.parse(localStorage.getItem('atpl_mb_v2_state')));
     await p.locator('#choose-subject').click();await p.waitForURL('**/atpl/');await p.locator('[data-bank=MB]').waitFor();assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('atpl_mb_v2_state'))),progress);
     if(width<=720){await p.locator('[data-study-more]').click();await p.locator('.study-more-sheet [data-tab=logbook]').click();}else await p.locator('.study-sidebar [data-tab=logbook]').click();
     await p.locator('[data-navy-logbook]').waitFor();assert.equal(new URL(p.url()).searchParams.get('tab'),'logbook');assert.equal(await p.locator('html').getAttribute('data-theme'),'dark');
@@ -48,6 +55,11 @@ const {chromium,webkit}=require('playwright');
      await p.reload();await p.locator('.study-shell [data-bank=MB]').waitFor();await p.goto(origin+url);await p.locator('.study-shell [data-study-subject]').waitFor();
      assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('atpl_mb_v2_state'))),progress);
      await p.goto(origin+'/?tab=logbook');await p.locator('[data-navy-logbook]').waitFor();report.checks.push({browser:name,offlineStudyAndReturnToLogbook:true,progressRetained:true});
+     unavailable=false;await context.setOffline(false);await p.goto(origin+'/atpl/');await p.locator('[data-bank=INS] a').click();await p.locator('#atpl-offline-button').waitFor({state:'attached'});await p.locator('[data-action=study]').first().click();await p.locator('#dock [data-action=picker]').click();await p.locator('[data-action=range][data-range="1"]').click();await p.locator('[data-action=jump][data-qid="148"]').click();
+     assert.deepEqual(await p.locator('.answer-option .letter').allTextContents(),['E','F','G','H']);const insKey=await p.evaluate(()=>JSON.parse(document.getElementById('bank-data').textContent).INS.questions.find(q=>q.id===148).answer);await p.locator('[data-action=answer][data-key="'+insKey+'"]').click();assert.equal(await p.locator('.answer-option.correct').count(),1);
+     const source=p.locator('[data-action=source],[data-action=image]').first();await source.evaluate(el=>{for(let parent=el.parentElement;parent;parent=parent.parentElement)if(parent.tagName==='DETAILS')parent.open=true;});await source.click();await p.locator('#image-dialog img').evaluate(img=>img.decode());assert(await p.locator('#image-dialog img').evaluate(img=>img.naturalWidth>500));assert.equal(await p.locator('#image-dialog .image-stage').evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(255, 255, 255)');await p.screenshot({path:path.join(out,name+'-source-image.png')});await p.locator('[data-action=image-close]').click();
+     assert.deepEqual(await p.evaluate(()=>JSON.parse(localStorage.getItem('atpl_mb_v2_state'))),progress);report.checks.push({browser:name,originalEFGHLetters:true,sourceImageDecoded:true,sourceBackgroundWhite:true,otherBankProgressUnchanged:true});
+
     }
    }catch(e){await p.screenshot({path:path.join(out,name+'-'+width+'-failure.png'),fullPage:true}).catch(()=>{});throw e;}finally{unavailable=false;await context.close();}
   }}finally{await browser.close();}
