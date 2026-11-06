@@ -196,3 +196,7 @@ nhưng giảm khoảng trống trong header, card và lưới giờ Actual ở m
 chức năng xác nhận/khóa Actual không thay đổi; dữ liệu lưu, nguồn ATPL và rules Firebase
 không đổi. PWA shell `avilog-shell-v13-compact`: sau khi triển khai hãy đóng/mở lại app
 khi có mạng, **không xóa site data**. Hướng dẫn & QA xem `FLIGHT_UI_V13_RELEASE.md`.
+
+### Optional legacy MET Office connection
+
+HTTPS remains the default. For the fixed legacy endpoint only, an operator can explicitly set `MET_OFFICE_ALLOW_HTTP=true` to use `http://118.69.213.84` for server-side login and feeds. Enable only after the account owner accepts that credentials, session cookies and bulletins cross this connection without transport encryption. The browser still calls Avilog over HTTPS, but that does not encrypt the server-to-provider leg. No automatic downgrade occurs. Requests and redirects remain pinned to the selected origin and `/index.php`; credentials are never returned to browsers. Remove the flag to restore HTTPS. Existing newest-bulletin selection and offline persistence continue unchanged.
