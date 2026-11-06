@@ -62,7 +62,8 @@ export function mountWeatherWatch({element,watch,getGroups,onGroups,viewState={}
   status.textContent=(offline?'Offline · xem bản tin chữ đã lưu. ':data.loading.length?'Đang cập nhật '+data.loading.length+' sân bay… ':'Đang xem bản tin chữ đã lưu. Tự cập nhật mỗi 5 phút khi có mạng và mở mục này. ')+(data.cacheError||'Chạm sân bay để xem đầy đủ METAR/TAF. Luôn kiểm tra giờ phát hành và thời hạn.');refreshButton.disabled=offline||data.loading.length>0;editButton.setAttribute('aria-pressed',String(viewState.editing));editButton.textContent=viewState.editing?'Xong':'Sắp xếp';
   const stationRow=(group,station,index)=>{
    const r=data.reports[station],key=group.id+':'+station,preview=weatherGroupProduct(viewState,group.id),hasSpeci=speciStations.has(station),age=r?Date.now()-Date.parse(r.productFetchedAt?.[preview]||r.fetchedAt):0;
-   const saved=Boolean(r?.[preview])&&(offline||age>=300000||r.stale||r.staleProducts?.[preview]||Boolean(data.errors[station]));
+   const previewTiming=r?.[preview]&&savedReportTiming(r,preview),issueAge=previewTiming?Date.now()-Date.parse(previewTiming.issuedAt):Infinity,tooOld=preview==='metar'?issueAge>7200000:previewTiming?.validTo?Date.parse(previewTiming.validTo)<Date.now():issueAge>36000000;
+   const saved=Boolean(r?.[preview])&&(offline||age>=300000||tooOld||r.stale||r.staleProducts?.[preview]||Boolean(data.errors[station]));
    const product=name=>{const raw=r?.[name],timing=raw&&savedReportTiming(r,name),expired=timing?.validTo&&Date.parse(timing.validTo)<Date.now(),old=timing&&name==='metar'&&Date.now()-Date.parse(timing.issuedAt)>7200000;
     const flags=[r?.staleProducts?.[name]?'CHƯA CẬP NHẬT ĐƯỢC · GIỮ BẢN CŨ':'',expired?'HẾT HIỆU LỰC':old?'BẢN TIN CŨ':'',timing?.cancelled?'BẢN TIN HỦY':''].filter(Boolean);
     const display=raw?(name==='taf'?formatTAFReport(raw):raw):'Chưa có bản tin hiện hành.';
