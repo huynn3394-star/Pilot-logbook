@@ -335,3 +335,13 @@ html[data-theme] #modal .nv-counter{grid-template-columns:44px minmax(20px,1fr) 
 html[data-theme] #modal .nv-counter button{width:44px;min-width:44px;height:44px;min-height:44px}
 html[data-theme] #modal .nv-counter input{height:44px;min-height:44px;font-size:18px}
 html[data-theme] #app .w5-sidebar-add{position:absolute;left:-1px;bottom:-78px}
+
+/* Automatic local-clock night allocations share the flight editor card rhythm. */
+.flight-editor-form .fe-auto-night{padding:16px;display:grid;gap:10px}
+.flight-editor-form .fe-auto-night .fe-card-heading{padding:0;flex-wrap:wrap;gap:8px}
+.flight-editor-form .fe-auto-night .fe-card-heading span{font-size:12px}
+.flight-editor-form .fe-auto-night .fe-help{margin:0;line-height:1.6;overflow-wrap:anywhere}
+.flight-editor-form .fe-auto-night .fe-inline-button{justify-self:start;margin:0;white-space:normal}
+/* Keep each operation under its heading even on the narrowest supported screen. */
+html[data-theme] #modal.flight-editor-modal .nv-count-grid .nv-count-field[data-count-operation="takeoff"]{grid-column:1}
+html[data-theme] #modal.flight-editor-modal .nv-count-grid .nv-count-field[data-count-operation="landing"]{grid-column:2}

@@ -24,6 +24,7 @@
     "test:wader-ui": "node scripts/verify-wader-v5.cjs",
     "test:navy-ui": "node scripts/verify-navy-v2.cjs",
     "test:study-ui": "node scripts/verify-study-shell.cjs",
+    "test:flight-night": "node scripts/verify-flight-night.cjs",
     "test:weather-account": "node scripts/workspace-emulators.cjs weather"
   },
   "dependencies": {

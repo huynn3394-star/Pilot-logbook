@@ -494,15 +494,16 @@ function safeImage(value) {
     ? value
     : "";
 }
-function actualSummary() {
+function actualSummary(event) {
   const form=modal.querySelector('#flight-form');
-  if(form)updateFlightEditor(form);
+  if(form)updateFlightEditor(form,{changedField:event?.target?.name});
 }
 async function saveFlight(ev) {
   ev.preventDefault();
-  const form = ev.currentTarget,
-    fd = new FormData(form);
+  const form = ev.currentTarget;
   if(form._saving)return;
+  updateFlightEditor(form);
+  const fd = new FormData(form);
   form._saving=true;
   modal._flightEditor?.setSaveState('saving');
   try {
@@ -545,6 +546,7 @@ async function saveFlight(ev) {
       updatedAt: new Date().toISOString(),
       attachment: imported?.attachment || old?.attachment,
     };
+    if(String(fd.get('nightMinutes')??'').trim()==='')delete f.nightMinutes;
     // An unchanged route placeholder must not add fields to historical Scheduled.
     for(const key of ['dep','dest'])if(old&&!Object.hasOwn(old.scheduled||{},key)&&f.scheduled[key]===old[key])delete f.scheduled[key];
     const v14Enabled=!workspaceSession?.uid||account?.config?.logbookV14Enabled===true;

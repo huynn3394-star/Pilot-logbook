@@ -6,6 +6,7 @@ import {flightTimeInput,readUTCInput} from './utc-input.js';
 import {icaoFor} from './parsers.js';
 import {readLogbookFields,timeTotals} from './flight-times.js';
 import {renderTimeFields,renderScanComparison,renderAuditTrail} from './flight-v14-ui.js';
+import {updateAutomaticNight} from './flight-night-ui.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const field=(name,label,value='',type='text',attrs='')=>`<label class="fe-field"><span>${esc(label)}</span><input name="${name}" type="${type}" value="${esc(value)}" ${attrs}></label>`;
@@ -28,7 +29,7 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
  const time=(name,label,value)=>`<div class="fe-time-cell">${flightTimeInput(name,label,value)}</div>`;
  const typeOptions=[['','Chưa ghi'],...['A320','A321','E190','B787','A350'].map(value=>[value,value]),['OTHER','Khác']];
  const confirmed=f.confirmed?'FINAL · Đã xác nhận':'DRAFT · Chưa xác nhận';
- return `<form id="flight-form" data-id="${esc(f.id)}" class="flight-editor-form" data-v14-enabled="${v14Enabled}">
+ return `<form id="flight-form" data-id="${esc(f.id)}" class="flight-editor-form" data-existing-flight="${Boolean(original)}" data-v14-enabled="${v14Enabled}">
   <div class="fe-wader-head"><span class="fe-wader-eyebrow">FLIGHT LOGBOOK</span><strong>${esc(f.flightNo||"NEW FLIGHT")}</strong><span>${esc(f.date)} · UTC</span></div>
   <nav class="fe-tabs" role="tablist" aria-label="Chi tiết chuyến bay">
    ${[['log','book','Log'],['airports','pin','Airports'],['tools','settings','Tools']].map(([key,ico,label],index)=>`<button type="button" role="tab" data-flight-tab="${key}" id="fe-tab-${key}" aria-controls="fe-panel-${key}" aria-selected="${!index}" tabindex="${index?-1:0}">${icon(ico)}<span>${label}</span></button>`).join('')}
@@ -70,6 +71,7 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
      <div class="fe-route-foot">${icon('info')} Mỗi mốc có ngày UTC riêng. Chỉnh ngày khi bay qua nửa đêm.</div>
     </section>
     <section class="fe-card nv-primary-times" aria-label="Flight và Block"><div><span>FLIGHT</span><strong class="mono" data-nv-primary-time="airborne">—</strong></div><div><span>BLOCK</span><strong class="mono" data-nv-primary-time="block">—</strong></div></section>
+    <section class="fe-card fe-auto-night" aria-label="Ngày và đêm tự động"><div class="fe-card-heading"><h3>Ngày / đêm tự động</h3><span>18:00–06:00 · local</span></div><p class="fe-help" data-night-status role="status"></p><button type="button" class="fe-inline-button" data-night-recalculate>Tính lại ngày/đêm</button><p class="fe-help">Giờ nhập vẫn là UTC. Night tính trong OUT → IN theo tuyến ước tính; có thể sửa tay. Cất / hạ cánh dùng OFF / ON tại sân bay. Quy tắc cố định bạn chọn, không theo hoàng hôn.</p></section>
     <details class="fe-card fe-scheduled" data-fe-scheduled${!Object.values(actual).some(Boolean)?' open':''}>
      <summary><span>${icon('calendar')} Scheduled · Giờ dự kiến</span><span aria-hidden="true">⌄</span></summary>
      <div class="fe-grid fe-scheduled-grid">${time('s_out','Scheduled OUT',scheduled.out)}${time('s_in','Scheduled IN',scheduled.in)}</div>
@@ -78,8 +80,8 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
     <section class="fe-card" aria-label="Vai trò và thao tác">
      <div class="fe-grid fe-operations">${choice('takeoffBy','Takeoff by',f.takeoffBy||'',performerOptions)}${choice('landingBy','Landing by',f.landingBy||'',performerOptions)}</div>
      <div class="fe-grid fe-operations">${choice('role','Pilot role',f.role,[['PF','PF · Pilot Flying'],['PM','PM · Pilot Monitoring']])}${choice('landingMode','Landing mode',f.landingMode||'manual',[['manual','Manual'],['autoland','Autoland']])}</div>
-     <div class="fe-grid fe-allocations">${field('picMinutes','PIC · phút',f.picMinutes||0,'number','min="0" max="1440" step="1"')}${field('nightMinutes','Night · phút',f.nightMinutes||0,'number','min="0" max="1440" step="1"')}</div>
-     <p class="fe-help fe-inset">PIC và Night nhập thủ công; PF/PM không tự quyết định PIC/SIC.</p>
+     <div class="fe-grid fe-allocations">${field('picMinutes','PIC · phút',f.picMinutes||0,'number','min="0" max="1440" step="1"')}${field('nightMinutes','Night · phút',f.nightMinutes??'','number','min="0" max="1440" step="1" placeholder="Chưa tính"')}</div>
+     <p class="fe-help fe-inset">PIC nhập thủ công. Night tự ước tính cho chuyến mới, sửa tay để giữ giá trị riêng. PF/PM không tự quyết định PIC/SIC hay người cất / hạ cánh.</p>
     </section>
     ${renderTimeFields(f,{enabled:v14Enabled})}
     <section class="fe-card fe-remarks"><label class="fe-field"><span>Remarks · Ghi chú</span><textarea name="note" rows="2" maxlength="3000" placeholder="Ghi chú cho chuyến bay…">${esc(f.note||'')}</textarea></label></section>
@@ -107,15 +109,18 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
  </form>`;
 }
 
-export function updateFlightEditor(form){
- const data=new FormData(form);let actual={};
- try{actual=Object.fromEntries(['out','off','on','in'].map(key=>[key,readUTCInput(data,'a_'+key,form._timeValues?.actual?.[key])]));}catch{/* Invalid clocks display unknown totals until corrected. */}
+export function updateFlightEditor(form,options={}){
+ let data=new FormData(form);const actual={};
+ for(const key of ['out','off','on','in'])try{actual[key]=readUTCInput(data,'a_'+key,form._timeValues?.actual?.[key]);}catch{actual[key]='invalid';}
+ updateAutomaticNight(form,{...options,actual});
+ data=new FormData(form);
  let logbook;try{logbook=readLogbookFields(data,form._timeValues?.logbook);}catch{}
  const totals=timeTotals({actual,picMinutes:Number(data.get('picMinutes')),nightMinutes:Number(data.get('nightMinutes')),logbook});
+ if(String(data.get('nightMinutes')??'').trim()===''){totals.night=null;totals.day=null;}
  const time=value=>value===null?'—':duration(value);
  for(const key of ['airborne','block']){const node=form.querySelector('[data-nv-primary-time="'+key+'"]');if(node)node.textContent=time(totals[key]);}
  const cell=(label,key,help)=>`<div><span>${label}${help?`<small>${help}</small>`:''}</span><strong class="mono" data-fe-total="${key}">${time(totals[key])}</strong></div>`;
- form.querySelector('#actual-summary').innerHTML=`<div class="fe-summary-grid">${cell('Flight','airborne','OFF → ON')}${cell('Block','block','OUT → IN')}${cell('PIC','pic','Nhập thủ công')}${cell('SIC','sic',totals.legacySIC?'Cũ: Block − PIC · cần kiểm tra':'Nhập thủ công')}${cell('Day','day','Block − Night')}${cell('Night','night','Nhập thủ công')}${logbook?cell('PICUS','picus','Nhập thủ công')+cell('IFR','ifr','Nhập thủ công')+cell('VFR','vfr','Nhập thủ công')+cell('Instrument','instrument','Nhập thủ công')+cell('Cross-country','crossCountry','Nhập thủ công'):''}</div><p class="fe-help fe-inset">Tạm tính từ biểu mẫu. Thống kê chỉ nhận Actual đã lưu và xác nhận.</p>`;
+ form.querySelector('#actual-summary').innerHTML=`<div class="fe-summary-grid">${cell('Flight','airborne','OFF → ON')}${cell('Block','block','OUT → IN')}${cell('PIC','pic','Nhập thủ công')}${cell('SIC','sic',totals.legacySIC?'Cũ: Block − PIC · cần kiểm tra':'Nhập thủ công')}${cell('Day','day','Block − Night')}${cell('Night','night','18:00–06:00 local / sửa tay')}${logbook?cell('PICUS','picus','Nhập thủ công')+cell('IFR','ifr','Nhập thủ công')+cell('VFR','vfr','Nhập thủ công')+cell('Instrument','instrument','Nhập thủ công')+cell('Cross-country','crossCountry','Nhập thủ công'):''}</div><p class="fe-help fe-inset">Tạm tính từ biểu mẫu. Thống kê chỉ nhận Actual đã lưu và xác nhận.</p>`;
  const complete=['out','off','on','in'].every(key=>actual[key])&&totals.airborne!==null&&totals.block!==null;
  const save=form.closest('dialog')?.querySelector('.fe-save');
  if(save&&!form._saving)save.disabled=[...form.elements].some(input=>input.willValidate&&!input.validity.valid);
@@ -143,7 +148,7 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
   for(const panel of panels)panel.hidden=panel.dataset.flightPanel!==key;
   if(restore)form.scrollTop=positions.get(key)||0;
  }
- const click=event=>{const tab=event.target.closest('[data-flight-tab]'),link=event.target.closest('[data-fe-open]');if(tab)show(tab.dataset.flightTab);else if(link)show(link.dataset.feOpen,{focus:true});};
+ const click=event=>{const tab=event.target.closest('[data-flight-tab]'),link=event.target.closest('[data-fe-open]');if(tab)show(tab.dataset.flightTab);else if(link)show(link.dataset.feOpen,{focus:true});else if(event.target.closest('[data-night-recalculate]')){updateFlightEditor(form,{recalculate:true});form.dispatchEvent(new Event('input',{bubbles:true}));}};
  const keydown=event=>{const tab=event.target.closest('[data-flight-tab]');if(!tab||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();let i=tabs.indexOf(tab);if(event.key==='Home')i=0;else if(event.key==='End')i=tabs.length-1;else i=(i+(event.key==='ArrowRight'?1:-1)+tabs.length)%tabs.length;show(tabs[i].dataset.flightTab,{focus:true});};
  const invalid=event=>{const input=form.querySelector('input:invalid,select:invalid,textarea:invalid')||event.target,panel=input.closest('[data-flight-panel]');if(panel)show(panel.dataset.flightPanel,{restore:false});let parent=input.parentElement;while(parent&&parent!==form){if(parent.tagName==='DETAILS')parent.open=true;parent=parent.parentElement;}};
  // Field values remain in the same form for native FormData and the existing saveFlight().

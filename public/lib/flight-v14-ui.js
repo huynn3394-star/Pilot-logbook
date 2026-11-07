@@ -7,7 +7,7 @@ const labels={sicMinutes:'SIC · phút',picusMinutes:'PICUS · phút',ifrMinutes
 export function renderTimeFields(f,{enabled=true}={}){
  if(!enabled&&!f.logbook)return '';
  const fields=[...logbookMinuteFields,...logbookCountFields].map(k=>`<label class="fe-field"><span>${labels[k]}</span><input type="number" name="log_${k}" value="${esc(f.logbook?.[k]??'')}" min="0" max="${logbookCountFields.includes(k)?20:1440}" step="1" inputmode="numeric" placeholder="Chưa ghi"${enabled?'':' disabled'}></label>`).join('');
- return `<details class="fe-card fe-extra-times" data-v14-times><summary><span>Phân bổ giờ & số lần của tôi</span><span aria-hidden="true">⌄</span></summary><div class="fe-grid fe-v14-fields">${fields}</div><p class="fe-help fe-inset">Để trống = chưa ghi; 0 = đã xác nhận bằng 0. Không tự suy PIC/SIC từ PF/PM, Instrument từ IFR hoặc ngày/đêm từ giờ trên đồng hồ. Các nhóm giờ khác nhau không cộng dồn với nhau.</p></details>`;
+ return `<details class="fe-card fe-extra-times" data-v14-times><summary><span>Phân bổ giờ & số lần của tôi</span><span aria-hidden="true">⌄</span></summary><div class="fe-grid fe-v14-fields">${fields}</div><p class="fe-help fe-inset">Để trống = chưa ghi; 0 = đã xác nhận bằng 0. Ngày/đêm tự điền theo 18:00–06:00 local khi đủ giờ Actual, sân bay và người thực hiện; có thể sửa tay. Không tự suy PIC/SIC từ PF/PM hoặc Instrument từ IFR. Các nhóm giờ khác nhau không cộng dồn với nhau.</p></details>`;
 }
 const scanLabels={dep:'DEP',dest:'DEST','actual.out':'OUT','actual.off':'OFF','actual.on':'ON','actual.in':'IN'};
 function display(value){if(value===null||value===undefined||value==='')return '—';if(typeof value==='object')return JSON.stringify(value,null,2);return String(value);}
