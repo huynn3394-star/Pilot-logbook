@@ -9,8 +9,10 @@ export function resolveFlightPeople(people,entries){
  const crewIds=[...new Set((entries.crew||[]).map(p=>resolve(p,'Crew')).filter(id=>id&&id!==captainId&&id!==foId))];if(crewIds.length>100)throw Error('Tối đa 100 crew trong một chuyến.');return {people:next,captainId,foId,crewIds};
 }
 export function mountCrewEntry(form,people,flight){
- const chosen=(flight.crewIds||[]).map(id=>people.find(p=>p.id===id)).filter(Boolean).map(p=>({id:p.id,name:p.name}));
+ const crewFor=record=>(record.crewIds||[]).map(id=>people.find(p=>p.id===id)).filter(Boolean).map(p=>({id:p.id,name:p.name}));
+ const chosen=crewFor(flight);
  const controls={};
+ const applyCrew={};
  for(const[role,label,field]of[['captain','Captain','captainId'],['fo','First Officer','foId'],['crew','Crew khác','crewIds']]){
   const options=role==='crew'?people:[{id:'self',name:'Tôi',rank:'Chính tôi'},...people],host=form.querySelector(`[data-crew-field=${role}]`),old=role==='crew'?null:options.find(p=>p.id===flight[field]);
   host.innerHTML=`<label>${label}<input type="text" name="${role==='crew'?'crewName':field}" data-person-input="${role}" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="crew-options-${role}" autocomplete="off" maxlength="80" placeholder="Gõ tên để tìm hoặc tạo mới" value="${esc(old?.name||'')}"></label><div class="crew-options" role="listbox" id="crew-options-${role}" hidden></div>${role==='crew'?'<button class="btn small" type="button" data-add-crew>＋ Thêm tên</button><div data-crew-chips></div>':''}`;
@@ -23,6 +25,19 @@ export function mountCrewEntry(form,people,flight){
   input.addEventListener('input',()=>{selected=null;show();});input.addEventListener('focus',show);host.addEventListener('focusout',e=>{if(!host.contains(e.relatedTarget))hide();});list.addEventListener('pointerdown',e=>e.preventDefault());list.addEventListener('click',e=>{const b=e.target.closest('[data-choice]');if(b)pick(matches[Number(b.dataset.choice)]);});
   input.addEventListener('keydown',e=>{if(['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();if(list.hidden)show();if(matches.length){active=(active+(e.key==='ArrowDown'?1:-1)+matches.length)%matches.length;for(const[b,i]of[...list.children].map((b,i)=>[b,i]))b.setAttribute('aria-selected',String(i===active));input.setAttribute('aria-activedescendant',list.children[active].id);}}else if(e.key==='Enter'){e.preventDefault();if(!list.hidden&&active>=0)pick(matches[active]);else if(role==='crew')add();else hide();}else if(e.key==='Escape'&&!list.hidden){e.preventDefault();e.stopPropagation();hide();}});
   host.querySelector('[data-add-crew]')?.addEventListener('click',add);host.addEventListener('click',e=>{const b=e.target.closest('[data-remove-crew]');if(b){chosen.splice(Number(b.dataset.removeCrew),1);chips();form.dispatchEvent(new Event('input',{bubbles:true}));}});chips();controls[role]=()=>selected||{name:input.value};
+  applyCrew[role]=record=>{
+   const person=role==='crew'?null:options.find(p=>p.id===record[field]);
+   selected=person?{id:person.id,name:person.name}:null;
+   input.value=person?.name||'';
+   hide();
+   chips();
+  };
  }
- return {read(){const pending=controls.crew();return {captain:controls.captain(),fo:controls.fo(),crew:[...chosen,...(tidy(pending.name)?[pending]:[])]};}};
+ return {
+  read(){const pending=controls.crew();return {captain:controls.captain(),fo:controls.fo(),crew:[...chosen,...(tidy(pending.name)?[pending]:[])]};},
+  apply(record){
+   chosen.splice(0,chosen.length,...crewFor(record));
+   for(const apply of Object.values(applyCrew))apply(record);
+  },
+ };
 }

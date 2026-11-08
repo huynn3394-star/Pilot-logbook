@@ -328,20 +328,552 @@ html[data-theme] #modal .fe-time-caption{display:none}
 .w5-fleet-row{display:flex;align-items:center;gap:16px;padding:15px 0 0}.w5-fleet-row>span{font-size:15px;min-width:52px}.w5-fleet-row>i{flex:1;height:5px;border-radius:999px;background:linear-gradient(to right,var(--ui-accent) var(--fleet-width),var(--ui-soft) var(--fleet-width))}.w5-fleet-row>strong{font-size:16px;font-weight:450}.w5-fleet-row small{font-size:10px;color:var(--ui-muted)}
 #modal .w5-route-map.is-full{border-radius:0}.w5-route-map.is-full>svg{max-height:70dvh;min-height:320px}
 @media(max-width:720px){.w5-route-map{min-height:200px;border-radius:20px}.w5-route-map>svg{min-height:240px;max-height:350px}.w5-briefing-summary{flex-wrap:wrap;gap:14px;padding:16px}.w5-briefing-identity{flex:1 1 45%}.w5-briefing-time{flex:1 1 40%;text-align:right}.w5-briefing-actions{flex:1 1 100%}.w5-briefing-actions .btn{flex:1}.w5-dashboard-top{grid-template-columns:1fr;gap:12px}.w5-total-card,.w5-activity-card,.w5-fleet{padding:16px}.w5-activity-metrics{margin:20px 0 12px}.w5-total-main>strong{font-size:38px}.w5-pilot-card{padding:16px}.w5-pilot-avatar{width:46px;height:46px;font-size:17px}.w5-pilot-card h2{font-size:18px}}
-/* Keep touch targets usable in narrow two-column counter rows. */
-html[data-theme] #modal .nv-count-field{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;padding:6px 8px}
-html[data-theme] #modal .nv-count-field>span{text-align:center;font-size:8px}
-html[data-theme] #modal .nv-counter{grid-template-columns:44px minmax(20px,1fr) 44px;width:100%;gap:0}
-html[data-theme] #modal .nv-counter button{width:44px;min-width:44px;height:44px;min-height:44px}
-html[data-theme] #modal .nv-counter input{height:44px;min-height:44px;font-size:18px}
 html[data-theme] #app .w5-sidebar-add{position:absolute;left:-1px;bottom:-78px}
 
-/* Automatic local-clock night allocations share the flight editor card rhythm. */
-.flight-editor-form .fe-auto-night{padding:16px;display:grid;gap:10px}
-.flight-editor-form .fe-auto-night .fe-card-heading{padding:0;flex-wrap:wrap;gap:8px}
-.flight-editor-form .fe-auto-night .fe-card-heading span{font-size:12px}
-.flight-editor-form .fe-auto-night .fe-help{margin:0;line-height:1.6;overflow-wrap:anywhere}
-.flight-editor-form .fe-auto-night .fe-inline-button{justify-self:start;margin:0;white-space:normal}
-/* Keep each operation under its heading even on the narrowest supported screen. */
-html[data-theme] #modal.flight-editor-modal .nv-count-grid .nv-count-field[data-count-operation="takeoff"]{grid-column:1}
-html[data-theme] #modal.flight-editor-modal .nv-count-grid .nv-count-field[data-count-operation="landing"]{grid-column:2}
+/* Flight entry follows the compact app form and the four-column Wader web form. */
+html[data-theme] #modal.flight-editor-modal {
+  --fe-row: var(--ui-surface);
+  --fe-rule: var(--w5-divider);
+  --fe-ink: var(--ui-ink);
+  --fe-muted: var(--ui-muted);
+  --fe-teal: var(--ui-accent);
+}
+html[data-theme] #modal.flight-editor-modal .modal-head {
+  flex: none;
+  min-height: 60px;
+  gap: 10px;
+  justify-content: space-between;
+}
+#modal .fe-head-actions, #modal .fe-crew-tail, #modal .fe-crew-avatars {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+#modal :where(.fe-flight-badge,.fe-web-label,.fe-column-title,.fe-web-close-icon,.fe-head-actions .fe-scan span,.fe-title small) {
+  display: none;
+}
+#modal .fe-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+html[data-theme] #modal.fe-new-flight-modal .fe-title { position: absolute; clip-path: inset(50%); }
+html[data-theme] #modal.flight-editor-modal .fe-save {
+  min-width: 68px;
+  color: var(--fe-teal);
+  background: var(--ui-soft);
+  border-color: var(--ui-line);
+  font-size: 15px;
+}
+html[data-theme] #modal.flight-editor-modal .fe-save:disabled { opacity: .45; }
+html[data-theme] #modal.flight-editor-modal .flight-editor-form {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  padding: 0 10px max(16px, env(safe-area-inset-bottom, 0px));
+  scroll-padding-block: 52px 16px;
+}
+html[data-theme] #modal.flight-editor-modal .fe-tabs {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  width: 100%;
+  gap: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: var(--ui-bg);
+  margin: 0 0 10px;
+}
+html[data-theme] #modal.flight-editor-modal .fe-tabs button {
+  justify-content: center;
+  border-radius: 0;
+  min-height: 44px;
+  padding: 0 6px;
+  border-bottom: 2px solid transparent;
+}
+html[data-theme] #modal.flight-editor-modal .fe-tabs button[aria-selected=true] {
+  color: var(--fe-teal);
+  border-color: var(--fe-teal);
+  background: transparent;
+  box-shadow: none;
+}
+html[data-theme] #modal.fe-new-flight-modal .fe-tabs { position: static; margin: 8px 0 0; }
+#modal .fe-entry-grid { display: flex; flex-direction: column; }
+#modal .fe-entry-column { display: contents; }
+#modal [data-fe-counter-slot] { display: none; }
+html[data-theme] #modal.flight-editor-modal .fe-entry-grid > .fe-entry-column > .fe-card {
+  margin: 0 0 10px;
+  background: var(--fe-row);
+  border-color: var(--ui-line);
+  border-radius: 20px;
+}
+html[data-theme] #modal.flight-editor-modal :is(.fe-main-fields,.fe-aircraft-fields,.fe-scheduled-grid,.fe-crew-row,.fe-route-inputs,.fe-actual-grid,.fe-pilot-grid,.fe-autofill:not(:empty)) {
+  background: var(--fe-row);
+  overflow: hidden;
+}
+#modal .fe-main-fields { order: 1; border-radius: 20px 20px 0 0; }
+#modal .fe-autofill { order: 2; }
+#modal .fe-autofill:empty, #modal .fe-web-scan-slot:empty { display: none; }
+#modal .fe-aircraft-fields { order: 3; }
+#modal .fe-scheduled-grid { order: 4; }
+#modal .fe-crew-row { order: 5; margin-bottom: 10px; border-radius: 0 0 20px 20px; position: relative; }
+#modal .fe-route-inputs { order: 6; border-radius: 20px 20px 0 0; }
+#modal .fe-actual-grid { order: 7; }
+#modal .fe-pilot-grid { order: 8; margin-bottom: 10px; border-radius: 0 0 20px 20px; }
+#modal .nv-primary-times { order: 9; }
+#modal .nv-count-card { order: 10; }
+#modal .fe-operation-card { order: 11; }
+#modal .fe-allocation-card { order: 12; }
+#modal .fe-auto-night { order: 13; }
+#modal .fe-extra-times:not(.fe-auto-night) { order: 14; }
+#modal .fe-remarks { order: 15; }
+#modal .fe-wader-summary { order: 16; }
+#modal .fe-review-button { order: 17; }
+html[data-theme] #modal.flight-editor-modal :is(.fe-main-fields,.fe-aircraft-fields) .fe-field { padding: 0 12px; border: 0; align-content: center; }
+html[data-theme] #modal.flight-editor-modal :is(.fe-main-fields,.fe-aircraft-fields) .fe-field > span,
+html[data-theme] #modal.flight-editor-modal .fe-route-airport > .fe-web-label { display: none; }
+html[data-theme] #modal.flight-editor-modal .fe-main-fields { grid-template-columns: minmax(0,1fr) minmax(144px,1.15fr); }
+html[data-theme] #modal.flight-editor-modal .fe-aircraft-fields {
+  grid-template-columns: 40px minmax(0,1fr) minmax(62px,auto) auto;
+  align-items: center;
+  min-height: 49px;
+  border-top: 1px solid var(--fe-rule);
+}
+#modal .fe-aircraft-icon {
+  display: grid;
+  align-self: stretch;
+  place-items: center;
+  border-right: 1px solid var(--fe-rule);
+  color: var(--fe-muted);
+}
+html[data-theme] #modal.flight-editor-modal .fe-aircraft-fields select { font-size: 16px; }
+#modal .fe-date-stepper {
+  display: grid;
+  grid-template-columns: 32px minmax(0,1fr) 32px;
+  min-width: 0;
+  min-height: 50px;
+  border-left: 1px solid var(--fe-rule);
+}
+#modal .fe-date-stepper button {
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--fe-ink);
+  padding: 0;
+}
+#modal :is(.fe-date-stepper,.fe-pilot-control,.fe-time-cell,.nv-count-heading,.nv-counter) svg { width: 19px; height: 19px; }
+#modal .fe-flight-date {
+  position: relative;
+  display: grid;
+  place-items: center;
+  color: var(--fe-teal);
+  font-size: clamp(12px, 3.7vw, 16px);
+  font-weight: 650;
+  white-space: nowrap;
+}
+html[data-theme] #modal.flight-editor-modal :is(.fe-flight-date,.fe-time-date) input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+#modal :is(.fe-flight-date,.fe-time-date) input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+html[data-theme] #modal.flight-editor-modal :is(.fe-flight-date,.fe-time-date) input:focus-visible {
+  opacity: 1;
+  width: 110px;
+  left: auto;
+  z-index: 2;
+  background: var(--fe-row);
+  color: var(--fe-ink);
+  font-size: 13px;
+  outline: 2px solid var(--fe-teal);
+}
+html[data-theme] #modal.flight-editor-modal .fe-time-cell {
+  display: grid;
+  grid-template-columns: 22px minmax(0,1fr) 43px;
+  align-items: center;
+  min-height: 51px;
+  padding: 0 7px;
+  border-color: var(--fe-rule);
+}
+#modal .fe-time-icon { color: var(--fe-muted); display: grid; place-items: center; }
+html[data-theme] #modal.flight-editor-modal .fe-time-cell [data-utc-clock] {
+  text-align: center;
+  font-size: clamp(19px,5.6vw,25px);
+  letter-spacing: 0;
+  color: var(--fe-ink);
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+}
+#modal .fe-time-date {
+  position: relative;
+  display: grid;
+  align-self: stretch;
+  place-items: end;
+  padding-bottom: 6px;
+  white-space: nowrap;
+  font-size: 10px;
+  color: var(--fe-muted);
+  cursor: pointer;
+}
+html[data-theme] #modal.flight-editor-modal .fe-crew-row { border-top: 1px solid var(--fe-rule); }
+html[data-theme] #modal.flight-editor-modal .fe-crew-details > summary { min-height: 49px; font-size: 18px; }
+#modal .fe-crew-chevron { display: grid; transform: rotate(90deg); }
+#modal .fe-crew-details[open] .fe-crew-chevron { transform: rotate(-90deg); }
+#modal .fe-crew-avatars span {
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: var(--ui-accent-soft);
+  color: var(--fe-teal);
+  font-size: 10px;
+  font-weight: 700;
+}
+#modal .fe-use-last {
+  margin: 0 8px 0 0;
+  padding: 4px 7px;
+  min-height: 28px;
+  border: 1px solid var(--fe-muted);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--fe-ink);
+  font-size: 11px;
+  white-space: nowrap;
+}
+#modal .fe-crew-row > .fe-use-last { position: absolute; top: 10px; left: 76px; }
+html[data-theme] #modal.flight-editor-modal .fe-route-airport {
+  display: grid;
+  justify-items: center;
+  gap: 0;
+  min-height: 63px;
+  padding: 2px 8px 6px;
+  border-color: var(--fe-rule);
+  border-bottom: 0;
+}
+html[data-theme] #modal.flight-editor-modal .fe-route-airport input {
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 25px;
+  min-height: 36px;
+}
+html[data-theme] #modal.flight-editor-modal .fe-airport-code {
+  border-radius: 999px;
+  padding: 3px 9px;
+  background: color-mix(in srgb, var(--ui-ink) 43%, var(--fe-row));
+  color: var(--ui-bg);
+  font-size: 11px;
+  line-height: 1;
+}
+#modal .fe-pilot-control {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 52px;
+  align-items: center;
+  min-height: 50px;
+  padding: 0 8px;
+  border-top: 1px solid var(--fe-rule);
+}
+#modal .fe-pilot-control:first-child { border-right: 1px solid var(--fe-rule); }
+#modal .fe-pilot-picker {
+  position: relative;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  min-height: 44px;
+  margin: 0;
+  color: var(--fe-ink);
+  font-size: 15px;
+}
+#modal .fe-pilot-picker select { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+#modal .fe-pilot-picker:focus-within { outline: 2px solid var(--fe-teal); border-radius: 6px; }
+#modal .fe-pilot-switch {
+  display: grid;
+  align-items: center;
+  width: 50px;
+  height: 31px;
+  padding: 3px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ui-soft);
+  cursor: pointer;
+}
+#modal .fe-pilot-switch::before { content: ''; width: 25px; height: 25px; border-radius: 50%; background: white; }
+#modal .fe-pilot-switch[aria-checked=true] { background: var(--fe-teal); }
+#modal .fe-pilot-switch[aria-checked=true]::before { justify-self: end; }
+html[data-theme] #modal.flight-editor-modal .nv-primary-times { padding: 12px 0; }
+html[data-theme] #modal.flight-editor-modal .nv-primary-times span { text-transform: uppercase; }
+html[data-theme] #modal.flight-editor-modal .nv-count-heading { padding: 0; }
+html[data-theme] #modal.flight-editor-modal .nv-count-heading h3 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 41px;
+  padding: 0 6px;
+  font-size: 16px;
+  font-weight: 450;
+}
+html[data-theme] #modal.flight-editor-modal .nv-count-grid .nv-count-field {
+  display: block;
+  padding: 0;
+  border-color: var(--fe-rule);
+}
+html[data-theme] #modal.flight-editor-modal .nv-count-grid .nv-count-field > span[hidden] { display: none; }
+html[data-theme] #modal.flight-editor-modal .nv-count-grid [data-count-operation=takeoff] { grid-column: 1; }
+html[data-theme] #modal.flight-editor-modal .nv-count-grid [data-count-operation=landing] { grid-column: 2; border-left: 1px solid var(--fe-rule); }
+html[data-theme] #modal.flight-editor-modal .nv-count-field .nv-counter {
+  display: grid;
+  grid-template-columns: 36px minmax(0,1fr) 36px;
+  gap: 0;
+  min-height: 44px;
+}
+html[data-theme] #modal.flight-editor-modal .nv-count-field .nv-counter button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0;
+  color: var(--fe-ink);
+  background: transparent;
+  border: 0;
+}
+#modal .fe-count-value { display: flex; align-items: center; justify-content: center; gap: 4px; color: var(--fe-teal); font-size: 16px; }
+html[data-theme] #modal.flight-editor-modal .nv-count-field .nv-counter input {
+  width: calc(var(--fe-count-digits, 1) * 1ch + 2px);
+  min-height: 38px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+}
+#modal .nv-counter input::-webkit-inner-spin-button, #modal .nv-counter input::-webkit-outer-spin-button { appearance: none; }
+html[data-theme] #modal.flight-editor-modal .nv-count-field .nv-counter input::placeholder { color: var(--fe-muted); font-size: inherit; }
+html[data-theme] #modal.flight-editor-modal .fe-wader-summary .fe-card-heading { background: var(--ui-soft); }
+html[data-theme] #modal.flight-editor-modal .fe-wader-summary .fe-time-summary { padding: 0; }
+html[data-theme] #modal.flight-editor-modal .fe-summary-grid { display: block; }
+html[data-theme] #modal.flight-editor-modal .fe-summary-grid > div,
+html[data-theme] #modal.flight-editor-modal .fe-summary-pair > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 0;
+  border-bottom: 1px solid var(--fe-rule);
+}
+html[data-theme] #modal.flight-editor-modal .fe-summary-grid > .fe-summary-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 0; border: 0; }
+#modal .fe-summary-pair > div + div { border-left: 1px solid var(--fe-rule); }
+#modal .fe-summary-grid strong { color: var(--fe-teal); font-weight: 500; }
+#modal [data-fe-edit-allocation] { display: none; }
+#modal .fe-auto-night .fe-help { line-height: 1.5; overflow-wrap: anywhere; }
+#modal .fe-auto-night summary span + span { font-size: 10px; color: var(--fe-muted); }
+
+@media (min-width: 1040px) {
+  html[data-theme] #modal.fe-new-flight-modal {
+    --fe-row: #fff;
+    --fe-rule: #e4e7ed;
+    --fe-ink: #151c2d;
+    --fe-muted: #657188;
+    --fe-teal: #168c7a;
+    --ui-bg: #fff;
+    --ui-surface: #fff;
+    --ui-soft: #f0f3f9;
+    --ui-line: #dce1e9;
+    --ui-ink: var(--fe-ink);
+    --ui-muted: var(--fe-muted);
+    --ui-accent: var(--fe-teal);
+    --ui-accent-soft: #e5f5f0;
+    --paper: #fff;
+    --ink: var(--fe-ink);
+    --muted: var(--fe-muted);
+    --line: var(--fe-rule);
+    color-scheme: light;
+    inset: 0;
+    margin: auto;
+    width: min(1152px, calc(100vw - 40px));
+    height: min(786px, calc(100dvh - 40px));
+    border: 0;
+    border-radius: 16px;
+    background: white;
+    color: var(--fe-ink);
+  }
+  html[data-theme] #modal.fe-new-flight-modal::backdrop { background: #0c1018a8; backdrop-filter: blur(3px); }
+  html[data-theme] #modal.fe-new-flight-modal .modal-head { background: #131a2a; min-height: 73px; padding: 14px 20px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-title { position: static; clip-path: none; display: flex; gap: 12px; align-items: center; text-align: left; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-title h2 { color: #f0f3fa; font-size: 20px; font-weight: 650; margin: 0; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-title small { display: block; color: #a5afc0; font-size: 13px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-title .fe-flight-badge { display: inline-block; color: #40c4af; font-size: 11px; padding: 4px 8px; border: 1px solid #285350; border-radius: 5px; background: #1b353a; letter-spacing: .04em; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-close { order: 3; background: transparent; border: 0; color: #a5afc0; }
+  #modal.fe-new-flight-modal .fe-mobile-close-icon, #modal.fe-new-flight-modal .fe-head-actions { display: none; }
+  #modal.fe-new-flight-modal .fe-web-close-icon { display: grid; }
+  html[data-theme] #modal.fe-new-flight-modal .flight-editor-form { padding: 0; scroll-padding-block: 12px; }
+  #modal.fe-new-flight-modal .fe-entry-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); align-items: stretch; }
+  #modal.fe-new-flight-modal .fe-entry-column { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 20px; border-right: 1px solid var(--fe-rule); }
+  #modal.fe-new-flight-modal .fe-entry-column:last-child { border: 0; background: #fafbfc; }
+  #modal.fe-new-flight-modal .fe-entry-column > * { order: 0; }
+  #modal.fe-new-flight-modal .fe-column-title { display: flex; align-items: center; gap: 7px; margin: 0 0 6px; color: #758298; font-size: 12px; font-weight: 750; text-transform: uppercase; letter-spacing: .045em; }
+  #modal.fe-new-flight-modal .fe-column-title svg { width: 15px; height: 15px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-entry-grid .fe-entry-column > .fe-card,
+  html[data-theme] #modal.fe-new-flight-modal :is(.fe-main-fields,.fe-aircraft-fields,.fe-scheduled-grid,.fe-crew-row,.fe-route-inputs,.fe-actual-grid,.fe-pilot-grid) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+  html[data-theme] #modal.fe-new-flight-modal .fe-main-fields { grid-template-columns: minmax(0,1fr) auto; gap: 5px 6px; overflow: visible; }
+  #modal.fe-new-flight-modal .fe-web-label, #modal.fe-new-flight-modal .fe-web-scan-slot { display: block; }
+  #modal.fe-new-flight-modal .fe-date-label { grid-area: 1 / 1 / 2 / -1; }
+  #modal.fe-new-flight-modal .fe-date-stepper { grid-area: 2 / 1 / 3 / -1; border: 0; gap: 5px; min-height: 40px; margin-bottom: 7px; }
+  #modal.fe-new-flight-modal .fe-date-stepper button { border: 1px solid var(--ui-line); border-radius: 8px; color: var(--fe-muted); }
+  #modal.fe-new-flight-modal .fe-flight-date > span { display: none; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-flight-date input {
+    position: static;
+    opacity: 1;
+    width: 100%;
+    height: 100%;
+    padding: 4px 6px;
+    border: 1px solid var(--ui-line);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--fe-ink);
+    background: white;
+  }
+  #modal.fe-new-flight-modal .fe-flight-date input::-webkit-calendar-picker-indicator { position: static; width: 14px; height: 14px; }
+  #modal.fe-new-flight-modal .fe-web-scan-slot { align-self: end; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-web-scan-slot .fe-scan {
+    display: flex;
+    gap: 4px;
+    min-height: 37px;
+    width: auto;
+    padding: 0 7px;
+    border-radius: 8px;
+    color: var(--fe-teal);
+    background: var(--ui-soft);
+    font-size: 11px;
+  }
+  #modal.fe-new-flight-modal .fe-web-scan-slot .fe-scan svg { width: 15px; height: 15px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-entry-column .fe-field {
+    padding: 0;
+    border: 0;
+    display: grid;
+    justify-items: stretch;
+    gap: 5px;
+  }
+  html[data-theme] #modal.fe-new-flight-modal .fe-entry-column .fe-field > span:first-child:not([hidden]),
+  #modal.fe-new-flight-modal .fe-web-label { display: block; text-align: left; color: var(--fe-muted); font-size: 12px; font-weight: 650; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-entry-column .fe-field :is(input,select,textarea) {
+    padding: 6px 9px;
+    min-height: 37px;
+    border: 1px solid var(--ui-line);
+    border-radius: 8px;
+    color: var(--fe-ink);
+    background: white;
+    font-size: 14px;
+  }
+  html[data-theme] #modal.fe-new-flight-modal .fe-aircraft-fields, html[data-theme] #modal.fe-new-flight-modal .fe-route-inputs { grid-template-columns: 1fr; gap: 12px; }
+  #modal.fe-new-flight-modal :is(.fe-aircraft-icon,.fe-airport-code,.fe-time-icon) { display: none; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-route-airport { min-height: 0; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-route-airport input { text-align: left; }
+  html[data-theme] #modal.fe-new-flight-modal :is(.fe-actual-grid,.fe-scheduled-grid,.fe-operations,.fe-allocations) { gap: 10px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-time-cell {
+    grid-template-columns: minmax(0,1fr);
+    grid-template-rows: auto minmax(29px,auto);
+    gap: 5px;
+    border: 0;
+    padding: 0;
+    position: relative;
+  }
+  html[data-theme] #modal.fe-new-flight-modal .fe-time-cell [data-utc-clock] {
+    border: 1px solid var(--ui-line);
+    border-radius: 6px;
+    min-height: 29px;
+    padding-right: 27px;
+    background: white;
+    font-size: 13px;
+  }
+  html[data-theme] #modal.fe-new-flight-modal .fe-time-date { position: absolute; bottom: 0; right: 4px; height: 29px; padding-bottom: 3px; font-size: 8px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-crew-details > summary { padding: 0 0 0 1px; min-height: 36px; font-size: 13px; color: var(--fe-muted); }
+  #modal.fe-new-flight-modal .fe-crew-row > .fe-use-last { top: 4px; left: 52px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-crew-content { padding: 0; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-crew-content > .fe-grid { grid-template-columns: 1fr; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-pilot-grid { gap: 8px; }
+  #modal.fe-new-flight-modal .fe-pilot-control { padding: 0 5px; border: 0; border-radius: 8px; background: var(--ui-soft); }
+  #modal.fe-new-flight-modal .fe-pilot-picker { font-size: 13px; }
+  #modal.fe-new-flight-modal .fe-pilot-picker svg { display: none; }
+  #modal.fe-new-flight-modal .fe-pilot-switch[aria-checked=false] { background: #cdd6e4; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-count-heading { border-bottom: 0; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-count-heading h3 { border: 0; justify-content: flex-start; min-height: 32px; color: var(--fe-muted); font-size: 13px; font-weight: 650; }
+  #modal.fe-new-flight-modal .nv-count-heading svg { display: none; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-count-grid { gap: 7px; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-count-grid .nv-count-field { border: 1px solid var(--ui-line); border-radius: 8px; background: white; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-count-field .nv-counter { grid-template-columns: 22px minmax(0,1fr) 22px; min-height: 34px; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-count-field .nv-counter button { width: 22px; min-height: 34px; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-count-field .nv-counter input { width: calc(var(--fe-count-digits, 1) * 1ch + 2px); min-height: 32px; padding: 0; border: 0; color: var(--fe-teal); font-size: 14px; }
+  #modal.fe-new-flight-modal .fe-count-value { font-size: 13px; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-primary-times { display: flex; flex-direction: column-reverse; padding-bottom: 9px; border-bottom: 1px solid var(--fe-rule); }
+  html[data-theme] #modal.fe-new-flight-modal .nv-primary-times > div { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border: 0; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-primary-times span { color: var(--fe-muted); text-transform: none; letter-spacing: normal; font-size: 13px; }
+  html[data-theme] #modal.fe-new-flight-modal .nv-primary-times strong { color: var(--fe-teal); font-size: 16px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-entry-grid .fe-entry-column .fe-extra-times { border: 1px solid var(--fe-rule); border-radius: 8px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-wader-summary :is(.fe-card-heading,.fe-help) { display: none; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-summary-grid { display: flex; flex-direction: column; gap: 7px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-summary-grid > :not([data-summary-featured]):not(.fe-summary-pair),
+  html[data-theme] #modal.fe-new-flight-modal .fe-summary-pair > :not([data-summary-featured]) { display: none; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-summary-grid > .fe-summary-pair { display: contents; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-summary-grid [data-summary-featured] { background: var(--ui-soft); border: 1px solid var(--fe-rule); border-radius: 8px; }
+  #modal.fe-new-flight-modal [data-summary-featured=night] { order: 1; }
+  #modal.fe-new-flight-modal [data-summary-featured=ifr] { order: 2; }
+  #modal.fe-new-flight-modal [data-summary-featured=instrument] { order: 3; }
+  #modal.fe-new-flight-modal [data-summary-featured] strong { margin-left: auto; }
+  #modal.fe-new-flight-modal [data-fe-edit-allocation] { display: block; padding: 4px 0 4px 9px; border: 0; background: transparent; color: var(--fe-teal); font-size: 11px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-entry-column .fe-remarks textarea { min-height: 170px; resize: vertical; }
+  html[data-theme] #modal.fe-new-flight-modal :is(.fe-wader-airports-panel,.fe-wader-tools-panel) { padding: 18px 20px; }
+  html[data-theme] #modal.fe-new-flight-modal .modal-footer {
+    display: flex;
+    flex: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    min-height: 62px;
+    border-top: 1px solid var(--fe-rule);
+    background: #fafbfc;
+  }
+  #modal.fe-new-flight-modal .fe-footer-actions { display: flex; align-items: center; gap: 7px; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-footer-actions button {
+    min-height: 34px;
+    padding: 0 12px;
+    background: white;
+    color: var(--fe-ink);
+    border: 1px solid var(--ui-line);
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  html[data-theme] #modal.fe-new-flight-modal .fe-footer-actions .fe-save { color: white; background: #21aa95; border-color: transparent; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-footer-actions button:disabled { opacity: .45; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-footer-nav .fe-tabs { margin: 0; background: transparent; }
+  html[data-theme] #modal.fe-new-flight-modal .fe-footer-nav .fe-tabs button { min-height: 34px; padding: 0 8px; }
+}

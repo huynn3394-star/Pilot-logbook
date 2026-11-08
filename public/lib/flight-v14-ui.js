@@ -30,7 +30,7 @@ export function mountFlightAssist(form,{flights,onOpen}){
   const input=form.elements.namedItem('flightNo'),date=form.elements.namedItem('date'),key=input.value+'|'+date.value;
   if(key===last)return;last=key;
   result=lookupFlights(flights,{flightNo:input.value,date:date.value});host.replaceChildren();
-  if(result.kind==='none'){if(input.value.trim())host.textContent='Chưa có chuyến phù hợp trong dữ liệu riêng. Tiếp tục nhập thủ công.';return;}
+  if(result.kind==='none')return;
   if(result.kind==='same-day'&&!otherDirty){onOpen(result.matches[0]);return;}
   const message=document.createElement('p');message.textContent=result.kind==='history'?'Hành trình từ lịch sử — chỉ là gợi ý, cần kiểm tra chuyến hôm nay.':'Có chuyến cùng ngày. Mở bản ghi để ghi Actual, không tạo trùng.';host.append(message);
   (result.kind==='history'?result.routes:result.matches).forEach((candidate,index)=>{

@@ -445,7 +445,7 @@ function settingsPage() {
       "",
     )}<div class="form-grid">${input("leadMinutes", "Nhắc trước report (phút)", s.leadMinutes, "number", 'min="5" max="1440" required')}${input("eveningHour", "Giờ nhắc tối hôm trước (UTC)", s.eveningHour, "number", 'min="0" max="23" required')}</div><div class="actions"><button class="btn primary" type="submit">${icon("check")}Lưu cài đặt</button>${btn("notifications", s.notifications ? "Tắt thông báo" : "Bật thông báo trình duyệt", "bell")}</div></form><div class="source-card">Preview kiểm tra reminder khi app đang mở. Chưa có push nền khi app đã đóng. Trên iOS, cài PWA bằng Share → Add to Home Screen; quyền thông báo tùy phiên bản và trình duyệt.</div></section><div><section class="panel settings-card"><div data-workspace-backups></div><h3>Backup logbook & export</h3><p class="muted">Backup JSON gồm chuyến bay, crew, cài đặt và ảnh. Giữ file này ở nơi riêng tư. Restore gộp dữ liệu và giữ Actual đã xác nhận hiện có.</p><div class="actions">${workspaceSession?.uid?"":btn("backup", "Backup JSON khách", "download")}${btn("csv", "Export CSV", "file")}${workspaceSession?.uid?"":btn("restore", "Restore backup", "upload")}${btn("trash", "Thùng rác (" + (state.trash || []).length + ")", null, "ghost")}</div></section><section class="panel settings-card" style="margin-top:20px"><h3>Duty / Rest & FTL</h3><p class="muted">Theo dõi thời lượng thực tế. Chưa có giới hạn FTL Vietnam Airlines được cài đặt.</p><div class="actions">${btn("rules", "Xem căn cứ", "shield")}${btn("duty-list", "Danh sách duty", "clock")}</div></section><section class="panel settings-card" style="margin-top:20px"><h3>Free / Pro</h3><p class="muted">Chỗ dành cho gói Pro và quảng cáo sau này. Preview chưa có thanh toán hoặc quảng cáo thật.</p><div class="actions">${btn("plan", "Thông tin preview ↗", null, "ghost")}${state.demo ? btn("fresh", "Bắt đầu logbook riêng", null, "ghost") : ""}</div></section></div></div>`;
 }
-function editFlight(original, imported, ocrWarning, scanReading=null) {
+function editFlight(original, imported, ocrWarning, scanReading=null, continuation={}) {
   if(modal.open&&modal.querySelector('#flight-form')&&formDirty&&!canLeaveDraft())return;
   const f = structuredClone(
       imported ||
@@ -463,15 +463,19 @@ function editFlight(original, imported, ocrWarning, scanReading=null) {
           nightMinutes: 0,
           source: "manual",
           confidence: 100,
+          ...continuation,
         },
     ),
     old = original || find(f.id);
   const v14Enabled=!workspaceSession?.uid||account?.config?.logbookV14Enabled===true;
   if(v14Enabled&&!old&&!f.logbook)f.logbook={version:1};
   const title=imported ? "Kiểm tra Actual từ ảnh" : old ? "Chi tiết chuyến bay" : "Thêm chuyến bay";
-  const body=renderFlightEditor(f,{original:old,imported,warning:ocrWarning||'',icon,scan:scanReading,v14Enabled});
+  const history=old||imported?[]:state.flights.filter(flight=>flight.date<=f.date).sort((a,b)=>b.date.localeCompare(a.date));
+  const lastAircraft=history.find(flight=>flight.reg&&flight.aircraft);
+  const lastCrew=history.find(flight=>flight.captainId||flight.foId||flight.crewIds?.length);
+  const body=renderFlightEditor(f,{original:old,imported,warning:ocrWarning||'',icon,scan:scanReading,v14Enabled,lastAircraft,lastCrew});
   openModal(title,body);
-  modal._flightEditor=mountFlightEditor(modal,{title,icon});
+  modal._flightEditor=mountFlightEditor(modal,{title,icon,lastAircraft,lastCrew});
   const form = modal.querySelector("form");
   form._timeValues=f;
   bindUTCInputs(form);
@@ -502,6 +506,7 @@ async function saveFlight(ev) {
   ev.preventDefault();
   const form = ev.currentTarget;
   if(form._saving)return;
+  const saveMode=form._saveMode;
   updateFlightEditor(form);
   const fd = new FormData(form);
   form._saving=true;
@@ -584,8 +589,17 @@ async function saveFlight(ev) {
     modal._flightEditor?.setSaveState('saved');
     month = f.date.slice(0, 7);
     day = f.date;
-    modal.close();
-    render();
+    if(saveMode==='next'||saveMode==='return'){
+      render();
+      editFlight(null,null,'',null,{
+        date:f.actual.in?.slice(0,10)||f.date,
+        dep:f.dest,dest:saveMode==='return'?f.dep:'',
+        reg:f.reg,aircraft:f.aircraft,captainId:f.captainId,foId:f.foId,crewIds:f.crewIds,
+      });
+    }else{
+      modal.close();
+      render();
+    }
   } catch (err) {
     error(err.message);
     modal._flightEditor?.setSaveState('error');
@@ -1293,7 +1307,7 @@ document.addEventListener("click", async (ev) => {
         await saveRoster();
         break;
       case "image":
-        if(!canLeaveDraft())break;
+        if(!b.matches('.fe-scan')&&!canLeaveDraft())break;
         imageImport(id);
         break;
       case "image-cancel":

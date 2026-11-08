@@ -14,5 +14,5 @@ Object.assign(module.exports,{pageManage,settingsSection,libraryManage,bankManag
 // Flight editor v12: operate the real tab/details controls before editing hidden fields.
 async function flightTab(page,name='log'){const tab=page.locator('[data-flight-tab="'+name+'"]');if(await tab.count()&&await tab.getAttribute('aria-selected')!=='true')await tab.click();}
 async function flightCrew(page){await flightTab(page,'log');const details=page.locator('[data-fe-crew-details]');if(await details.count()&&!await details.evaluate(n=>n.open))await details.locator(':scope>summary').click();}
-async function flightScheduled(page){await flightTab(page,'log');const details=page.locator('[data-fe-scheduled]');if(await details.count()&&!await details.evaluate(n=>n.open))await details.locator(':scope>summary').click();}
+async function flightScheduled(page){await flightTab(page,'log');const details=page.locator('details[data-fe-scheduled]');if(await details.count()&&!await details.evaluate(n=>n.open))await details.locator(':scope>summary').click();}
 Object.assign(module.exports,{flightTab,flightCrew,flightScheduled});

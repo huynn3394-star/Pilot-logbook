@@ -25,7 +25,7 @@ export function updateAutomaticNight(form,{actual,changedField='',recalculate=fa
  const status=form.querySelector('[data-night-status]'),messages=[];
  if(!Object.values(state.enabled).some(Boolean))messages.push('Giữ số liệu đã lưu / nhập tay. Bấm Tính lại để tự điền.');
  else{
-  const errors={'missing-block':'Nhập OUT và IN cùng ngày UTC chính xác để tính Night.','invalid-times':'Kiểm tra ngày và thứ tự OUT ≤ OFF ≤ ON ≤ IN; Block tối đa 24 giờ.','unknown-airport':'Chưa có tọa độ sân bay này; nhập Night thủ công.','ambiguous-route':'Không xác định được tuyến ước tính; nhập Night thủ công.','unsupported-timezone':'Thiết bị chưa hỗ trợ múi giờ này; nhập Night thủ công.'};
+  const errors={'missing-block':'Nhập OUT và IN, kiểm tra ngày UTC của từng mốc để tính Night.','invalid-times':'Kiểm tra ngày và thứ tự OUT ≤ OFF ≤ ON ≤ IN; Block tối đa 24 giờ.','unknown-airport':'Chưa có tọa độ sân bay này; nhập Night thủ công.','ambiguous-route':'Không xác định được tuyến ước tính; nhập Night thủ công.','unsupported-timezone':'Thiết bị chưa hỗ trợ múi giờ này; nhập Night thủ công.'};
   if(state.enabled.night)messages.push(result.status==='estimated'?`Night ước tính theo tuyến ${flight.dep.toUpperCase()} → ${flight.dest.toUpperCase()}${result.routeEstimated?' từ OUT → IN; thêm OFF / ON để tách taxi':''}.`:errors[result.status]);
   else messages.push('Night: giữ số liệu đã lưu / nhập tay.');
   messages.push(`DEP ${result.depTimeZone||'chưa rõ'} · DEST ${result.destTimeZone||'chưa rõ'}.`);

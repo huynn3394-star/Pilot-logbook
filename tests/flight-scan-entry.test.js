@@ -11,10 +11,9 @@ test('saved flight has one targeted scan button in Log next to Actual times',()=
  assert(log.includes('Nhập ảnh Flight Log'));
  assert(log.indexOf('data-flight-log-scan')<log.indexOf('Actual times'));
 });
-test('unpersisted flight explains saving first instead of starting a new unbound scan',()=>{
+test('unpersisted flight never renders a scan action bound to a stored flight',()=>{
  const html=renderFlightEditor(flight);
  assert.doesNotMatch(html,/data-flight-log-scan/);
- assert.match(html,/Lưu chuyến bay trước khi nhập ảnh Flight Log/);
 });
 test('per-flight action escapes record identifiers and preserves FINAL confirmation controls',()=>{
  const old={...flight,id:'x" onclick="unsafe',confirmed:true};
