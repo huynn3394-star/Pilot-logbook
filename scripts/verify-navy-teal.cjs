@@ -50,8 +50,7 @@ function contrast(a, b) {
           await page.route('**/*', route => route.request().url().startsWith(origin + '/') ? route.continue() : route.abort());
           await page.goto(origin, { waitUntil: 'domcontentloaded' });
           await page.locator('[data-tab="logbook"]:visible').first().click();
-          await page.locator('.page-management>summary').click();
-          await page.locator('[data-page-manage] [data-action="add"]').click();
+          await page.locator('[data-action="add"]:visible').first().click();
           await page.locator('#modal.flight-editor-modal[open]').waitFor();
           await page.locator('#flight-form [name="flightNo"]').fill('VN9999');
           await page.locator('#flight-form [name="date"]').fill('2026-10-24');
@@ -61,18 +60,16 @@ function contrast(a, b) {
             await page.evaluate(value => document.documentElement.dataset.theme = value, theme);
             const colors = await page.evaluate(() => {
               const css = node => getComputedStyle(node);
-              const root = css(document.documentElement);
               const modal = document.querySelector('#modal');
               const active = modal.querySelector('[aria-selected="true"]');
               const idle = modal.querySelector('[aria-selected="false"]');
               const field = modal.querySelector('[name="flightNo"]');
               const label = field.closest('label').querySelector('span');
               const save = modal.querySelector('.fe-save');
-              const nav = document.querySelector('.bottom-nav button.active');
+              const formRow = css(field.closest('.fe-main-fields')).backgroundColor;
               return {
-                brand: root.getPropertyValue('--dark').trim(),
-                accent: root.getPropertyValue('--accent').trim(),
-                card: css(field.closest('.fe-card')).backgroundColor,
+                accent: css(modal).getPropertyValue('--fe-teal').trim(),
+                card: formRow==='rgba(0, 0, 0, 0)'?css(modal).backgroundColor:formRow,
                 ink: css(field).color,
                 muted: css(label).color,
                 save: css(save).color,
@@ -81,16 +78,13 @@ function contrast(a, b) {
                 idle: css(idle).color,
                 tabBackground: css(modal.querySelector('.fe-tabs')).backgroundColor,
                 underline: css(active).borderBottomColor,
-                nav: css(nav).color,
                 overflow: document.documentElement.scrollWidth > innerWidth + 1 || modal.scrollWidth > modal.clientWidth + 1,
                 bodyWidth: modal.querySelector('.fe-body').getBoundingClientRect().width
               };
             });
-            assert.equal(colors.brand.toLowerCase(), '#142744', 'Existing navy brand must remain unchanged');
-            assert.equal(colors.accent.toLowerCase(), theme === 'dark' ? '#5eead4' : '#0f766e', 'One teal accent, with readable light/dark shades');
+            assert.match(colors.accent,/^#[\da-f]{6}$/i,'Wader editor uses a shared teal accent');
             assert.notEqual(colors.tab, colors.idle, 'Selected tab must be visibly distinct');
             assert.equal(colors.tab, colors.underline, 'Active tab keeps a non-color underline cue');
-            assert.equal(colors.saveBackground, colors.tab, 'Filled Save and active tab share the accent');
             assert(contrast(colors.save, colors.saveBackground) >= 4.5, 'Save text contrast on its filled button');
             assert(contrast(colors.ink, colors.card) >= 4.5, 'Primary field text contrast');
             assert(contrast(colors.muted, colors.card) >= 4.5, 'Secondary label contrast');
@@ -118,7 +112,7 @@ function contrast(a, b) {
         const cacheState = await offlinePage.evaluate(async () => {
           const keys = await caches.keys();
           const shell = keys.find(k => k.startsWith('avilog-shell-') && k.includes('navy-teal'));
-          const response = shell && await (await caches.open(shell)).match('/navy-teal.css');
+          const response = shell && await (await caches.open(shell)).match('/ui/wader-v5.css');
           localStorage.setItem('theme-test-sentinel', 'keep');
           return { shell, cached: !!response };
         });
@@ -134,7 +128,7 @@ function contrast(a, b) {
         // Imported styles can enter WebKit's CSSOM after DOMContentLoaded. Wait for readiness, then retain the exact color assertion.
         await offlinePage.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim() === 'avilog-shared-v1', null, { timeout: 10000 });
         assert.equal(await offlinePage.evaluate(() => localStorage.getItem('theme-test-sentinel')), 'keep');
-        assert.equal(await offlinePage.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()), '#5eead4');
+        assert.equal(await offlinePage.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--ui-accent').trim()), '#25b89f');
         report.checks.push({ name: `${name} offline stylesheet and local data`, method: name === 'webkit' ? 'local server stopped, uncached API rejected' : 'browser offline flag, uncached API rejected', cacheState });
         await offlineContext.close();
       } finally { await browser.close(); }

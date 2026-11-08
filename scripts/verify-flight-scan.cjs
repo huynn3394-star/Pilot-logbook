@@ -1,7 +1,7 @@
 /* Local synthetic guest records. Exercises the existing parser with OCR text; no live OCR/cloud writes. */
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
-const {pageManage,flightTab,flightScheduled}=require('./ui-controls.cjs');
+const {flightTab,flightScheduled}=require('./ui-controls.cjs');
 const out=path.resolve('test-results/flight-scan'),report={scope:'Local guest data; parser/review/save flow, not camera hardware or OCR recognition accuracy',checks:[],errors:[]};
 const raw=(code='VN9911',out='06:00')=>`AOC FLT LOG\nFLT ID/DATE DEPT/DEST\n${code}/-- VVNB/ZGGG\nOUT ${out}\nOFF 06:13\nON 07:35\nIN 07:58`;
 (async()=>{
@@ -10,17 +10,18 @@ const raw=(code='VN9911',out='06:00')=>`AOC FLT LOG\nFLT ID/DATE DEPT/DEST\n${co
  try{for(const [engineName,engine]of Object.entries({chromium,webkit})){
   const browser=await engine.launch({headless:true});try{for(const width of [320,390,820])for(const theme of ['light','dark']){
    const context=await browser.newContext({viewport:{width,height:1000}}),p=await context.newPage(),errors=[];p.setDefaultTimeout(15000);p.on('pageerror',e=>errors.push(e.message));
+   p.on('dialog',dialog=>dialog.accept()); // Discard only the intentional unsaved test drafts.
    try{
     await p.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());
     await p.route('**/api/weather**',r=>r.fulfill({status:503,contentType:'application/json',body:'{"error":"synthetic UI check"}'}));
     await p.clock.setFixedTime(new Date('2026-10-25T12:00:00Z'));await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();
     await p.evaluate(async theme=>(await import('/lib/appearance.js')).setAppearance({theme}),theme);
-    await p.locator('[data-tab=logbook]:visible').first().click();await pageManage(p);await p.locator('[data-action=add]:visible').click();
-    const form=p.locator('#flight-form');await form.waitFor();assert.equal(await p.locator('[data-flight-log-scan]').count(),0);assert.match(await form.innerText(),/Lưu chuyến bay trước/);
+    await p.locator('[data-tab=logbook]:visible').first().click();await p.locator('[data-action=add]:visible').first().click();
+    const form=p.locator('#flight-form');await form.waitFor();assert.equal(await p.locator('[data-flight-log-scan]').count(),0);assert(await p.locator('[data-new-flight-scan]').isVisible());
     for(const [name,value]of Object.entries({flightNo:'VN9911',date:'2026-10-25',dep:'HAN',dest:'CAN',reg:'VN-A603',note:'keep saved remark'}))await form.locator(`[name=${name}]`).fill(value);
     await flightScheduled(p);for(const [name,value]of Object.entries({s_out:'06:00',s_out_date:'2026-10-25',s_in:'08:00',s_in_date:'2026-10-25'}))await form.locator(`[name=${name}]`).fill(value);
     const id=await form.getAttribute('data-id');await p.locator('.fe-save').click();await p.locator('#modal').waitFor({state:'hidden'});
-    const open=async()=>{await p.locator(`[data-action=edit][data-id="${id}"]`).click();await form.waitFor();};
+    const open=async()=>{await p.locator('#modal').waitFor({state:'hidden'});await p.locator(`[data-action=edit][data-id="${id}"]`).first().click();await form.waitFor();};
     const scan=async()=>{await p.locator('[data-flight-log-scan]').click();await p.locator('#image-date').waitFor();};
     const preview=async text=>{await p.locator('#image-text').fill(text);await p.locator('[data-action=image-parse]').click();};
     await open();assert.equal(await p.locator('[data-flight-log-scan]').getAttribute('data-id'),id);
@@ -44,9 +45,9 @@ const raw=(code='VN9911',out='06:00')=>`AOC FLT LOG\nFLT ID/DATE DEPT/DEST\n${co
     await scan();await preview(raw());await form.locator('[name=scanReviewed]').check();await flightTab(p,'tools');await form.locator('[name=confirmed]').check();await p.locator('.fe-save').click();await p.locator('#modal').waitFor({state:'hidden'});
     await open();await scan();await preview(raw('VN9911','06:01'));await form.locator('[name=scanReviewed]').check();await flightTab(p,'tools');await form.locator('[name=confirmed]').check();await p.locator('.fe-save').click();assert.equal(await form.isVisible(),true);assert.match(await form.locator('[data-error]').innerText(),/bảo vệ|cho phép/i);
     await form.locator('[name=replaceConfirmed]').check();await form.locator('[name=revisionReason]').fill('Synthetic QA correction');await p.locator('.fe-save').click();await p.locator('#modal').waitFor({state:'hidden'});
-    await open();assert.equal(await form.locator('[name=a_out]').inputValue(),'06:01');assert.equal(await form.getAttribute('data-id'),id);await p.locator('#modal [data-action=close]').first().click();assert.equal(await p.locator(`[data-action=edit][data-id="${id}"]`).count(),1);
+    await open();assert.equal(await form.locator('[name=a_out]').inputValue(),'06:01');assert.equal(await form.getAttribute('data-id'),id);await p.locator('#modal [data-action=close]').first().click();assert.equal(await p.locator(`[data-flight-card] [data-action=edit][data-id="${id}"]`).count(),1);
     // The global entry is inside the existing management menu; open it using its real UI handler.
-    await pageManage(p);await p.locator('#app [data-action=image]:visible').first().click();await p.locator('#image-date').waitFor();assert.equal(await p.locator('[data-image-flight-target]').count(),0);await p.locator('#modal [data-action=close]').first().click();
+    await p.locator('[data-action=navy-management]:visible').first().click();await p.locator('#modal [data-action=image]').click();await p.locator('#image-date').waitFor();assert.equal(await p.locator('[data-image-flight-target]').count(),0);await p.locator('#modal [data-action=close]').first().click();
     // Aircraft family is taken from the selected saved flight.
     await open();await form.locator('[name=aircraft]').selectOption('E190');await flightTab(p,'tools');await form.locator('[name=replaceConfirmed]').check();await form.locator('[name=revisionReason]').fill('Synthetic QA family');await p.locator('.fe-save').click();await p.locator('#modal').waitFor({state:'hidden'});await open();await scan();assert.equal(await p.locator('[name=family]').inputValue(),'E190');await p.locator('[data-action=image-cancel]').last().click();
     // Invalid target never falls through to a new unbound record.

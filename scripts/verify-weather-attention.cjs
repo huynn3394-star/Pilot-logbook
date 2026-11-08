@@ -1,13 +1,13 @@
 /* Synthetic weather on a local server only; no user records, provider login or cloud writes. */
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
-const {weatherManage}=require('./ui-controls.cjs');
+const {navigate,weatherManage}=require('./ui-controls.cjs');
 const {weatherReady}=require('./weather-ready.cjs');
 const NOW='2026-10-25T03:00:00Z',out=path.resolve('test-results/weather-attention');
 const report={scope:'Local guest app with synthetic weather, Chromium/WebKit; not physical iOS or live provider validation',checks:[],errors:[],diagnostics:[]};
-let mode='speci',unavailable=false;
-function observation(station){return (mode==='regular'||station==='VVNB'?'METAR ':'SPECI ')+station+' 250255Z '+(station==='VVTS'?'23012KT 3000 +TSRA BKN020CB 25/24 Q1010=':'00000KT 9999 SCT020 25/24 Q1010=');}
-function forecast(station){return `TAF ${station} 250230Z 2503/2603 23008KT 9999 SCT020 TEMPO 2503/2505 3000 -TSRA FEW015CB=`;}
+let mode='speci',issue='250255Z',unavailable=false;
+function observation(station){return (mode==='regular'||station==='VVNB'?'METAR ':'SPECI ')+station+' '+issue+' '+(station==='VVTS'?'23012KT 3000 +TSRA BKN020CB 25/24 Q1010=':'00000KT 9999 SCT020 25/24 Q1010=');}
+function forecast(station){const tafIssue={'250255Z':'250230Z','250256Z':'250231Z','250257Z':'250232Z'}[issue];return `TAF ${station} ${tafIssue} 2503/2603 23008KT 9999 SCT020 TEMPO 2503/2505 3000 -TSRA FEW015CB=`;}
 function fixture(station){return{station,provider:'SYNTHETIC QA DATA',fetchedAt:'2026-10-25T02:59:00Z',metar:observation(station),taf:forecast(station),sources:{metar:`https://aviationweather.gov/api/data/metar?ids=${station}&format=raw`,taf:`https://aviationweather.gov/api/data/taf?ids=${station}&format=raw`}};}
 function contrast(a,b){const lum=s=>s.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
 async function savedLabelGeometry(row){
@@ -20,7 +20,7 @@ async function savedLabelGeometry(row){
  const handler=server.listeners('request')[0];server.removeAllListeners('request');server.on('request',(req,res)=>unavailable?req.socket.destroy():handler(req,res));await new Promise(r=>server.listen(0,'127.0.0.1',r));const origin='http://127.0.0.1:'+server.address().port;
  try{for(const[name,engine]of Object.entries({chromium,webkit})){
   const browser=await engine.launch({headless:true});try{for(const width of [320,390,820])for(const theme of ['light','dark']){
-   mode='speci';unavailable=false;const context=await browser.newContext({viewport:{width,height:1000}}),p=await context.newPage(),errors=[];p.setDefaultTimeout(15000);p.on('pageerror',e=>errors.push(e.message));
+   mode='speci';issue='250255Z';unavailable=false;const context=await browser.newContext({viewport:{width,height:1000}}),p=await context.newPage(),errors=[];p.setDefaultTimeout(15000);p.on('pageerror',e=>errors.push(e.message));
    try{
     await p.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());await p.clock.setFixedTime(new Date(NOW));
     await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();await weatherReady(p);await p.evaluate(async theme=>(await import('/lib/appearance.js')).setAppearance({theme}),theme);
@@ -52,9 +52,9 @@ async function savedLabelGeometry(row){
     mode='error';await refresh();await banner.filter({hasText:'CHƯA CẬP NHẬT ĐƯỢC'}).waitFor();assert.equal(await banner.locator('[data-speci-open]').count(),2);
     await savedLabelGeometry(row);await savedLabelGeometry(p.locator('[data-weather-station=VVNB]'));
     if(width===390){await p.evaluate(()=>window.scrollTo(0,0));await p.screenshot({path:path.join(out,`${name}-${theme}.png`),fullPage:true});}
-    mode='regular';await refresh();await banner.waitFor({state:'hidden'});assert.equal(await p.locator('.weather-has-speci').count(),0);assert(await row.locator('mark').count()>0,'TSRA/CB still highlight without SPECI');assert.equal(await p.locator('.weather-row-saved').count(),0);
-    mode='speci';await refresh();await banner.waitFor();await p.waitForFunction(()=>!!navigator.serviceWorker.controller);const shell=await p.evaluate(async()=>{const keys=await caches.keys(),k=keys.find(x=>x.includes('unified-weather-attention'));const c=k&&await caches.open(k);return !!c&&!!await c.match('/ui/weather-attention.css')&&!!await c.match('/workspace/weather-attention.js')&&!!await c.match('/ui/weather-report-highlights.js');});assert(shell);
-    await p.locator('[data-action=tab][data-tab=logbook]:visible').first().click();assert.equal(await p.locator('[data-weather-speci]').count(),0,'The SPECI panel is restricted to Weather');await p.locator('[data-action=tab][data-tab=weather]:visible').first().click();await banner.waitFor();
+    mode='regular';issue='250256Z';await refresh();await banner.waitFor({state:'hidden'});assert.equal(await p.locator('.weather-has-speci').count(),0);assert(await row.locator('mark').count()>0,'TSRA/CB still highlight without SPECI');await p.locator('.weather-row-saved').first().waitFor({state:'detached'});
+    mode='speci';issue='250257Z';await refresh();await banner.waitFor();await p.waitForFunction(()=>!!navigator.serviceWorker.controller);const shell=await p.evaluate(async()=>{const keys=await caches.keys(),k=keys.find(x=>x.includes('unified-weather-attention'));const c=k&&await caches.open(k);return !!c&&!!await c.match('/ui/weather-attention.css')&&!!await c.match('/workspace/weather-attention.js')&&!!await c.match('/ui/weather-report-highlights.js');});assert(shell);
+    await navigate(p,'logbook');assert.equal(await p.locator('[data-weather-speci]').count(),0,'The SPECI panel is restricted to Weather');await navigate(p,'weather');await banner.waitFor();
     // Refuse real origin connections for both engines so cached reload cannot pass online.
     unavailable=true;
     if(name==='chromium'){await context.setOffline(true);await banner.filter({hasText:'OFFLINE'}).waitFor();}

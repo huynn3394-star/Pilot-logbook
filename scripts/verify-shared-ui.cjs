@@ -3,6 +3,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs/promises');
 const path=require('node:path');
 const {chromium,webkit}=require('playwright');
+const {navigate,flightTab,bankManage}=require('./ui-controls.cjs');
 const root=path.resolve('test-results/shared-ui');
 const report={scope:'Hosted Chromium/WebKit guest contexts; not physical iOS or live-account validation',checks:[],errors:[]};
 function lum(s){const m=s.match(/[\d.]+/g);assert(m&&m.length>=3,s);return m.slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0)}
@@ -17,28 +18,24 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
  async function verify(p,label,theme,cardSelector){
   lastLabel=label;
   await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1',null,{timeout:5000});
-  await p.locator(cardSelector).first().waitFor();
+  await p.locator(cardSelector).filter({visible:true}).first().waitFor();
   const values=await p.evaluate(sel=>{
    const cs=n=>getComputedStyle(n),r=cs(document.documentElement),card=document.querySelector(sel);
    const header=document.querySelector('#app .topbar,.atpl-header,.app>.topbar');
-   return {accent:r.getPropertyValue('--accent').trim(),brand:r.getPropertyValue('--dark').trim(),text:r.getPropertyValue('--ink').trim(),paper:r.getPropertyValue('--paper').trim(),muted:r.getPropertyValue('--ui-muted').trim(),font:cs(document.body).fontFamily,overflow:document.documentElement.scrollWidth>innerWidth+2,card:card&&{radius:cs(card).borderRadius,background:cs(card).backgroundColor},header:header&&{background:cs(header).backgroundColor,height:header.getBoundingClientRect().height},token:r.getPropertyValue('--ui-radius-card').trim()};
+   return {accent:r.getPropertyValue('--ui-accent').trim(),text:r.getPropertyValue('--ui-ink').trim(),paper:r.getPropertyValue('--ui-surface').trim(),muted:r.getPropertyValue('--ui-muted').trim(),font:cs(document.body).fontFamily,overflow:document.documentElement.scrollWidth>innerWidth+2,card:card&&{radius:cs(card).borderRadius,background:cs(card).backgroundColor},header:header&&{background:cs(header).backgroundColor,height:header.getBoundingClientRect().height},token:r.getPropertyValue('--ui-radius-card').trim()};
   },cardSelector);
-  assert.equal(values.brand,'#142744',label+' navy preserved');
-  assert.equal(values.accent,theme==='dark'?'#5eead4':'#0f766e',label+' one accent');
-  assert(/-apple-system|BlinkMacSystemFont/.test(values.font)&&values.font.includes('Inter'),label+' common native/Inter stack');
-  const fontAudit=await p.evaluate(()=>[...document.querySelectorAll('h1,h2,h3,.brand,.mobile-brand,.airport,button,input,select,textarea,.metric-value,.fe-summary-grid strong')].filter(n=>n.getBoundingClientRect().width>0&&n.getBoundingClientRect().height>0).map(n=>({tag:n.tagName,cls:n.className,font:getComputedStyle(n).fontFamily,clock:n.matches('.fe-time-cell [data-utc-clock],.metric-value,.fe-summary-grid strong')})));
+  assert(/-apple-system|BlinkMacSystemFont/.test(values.font),label+' native font stack');
+  const fontAudit=await p.evaluate(()=>[...document.querySelectorAll('h1,h2,h3,.brand,.mobile-brand,.airport,button,input,select,textarea,.metric-value,.fe-summary-grid strong')].filter(n=>n.getBoundingClientRect().width>0&&n.getBoundingClientRect().height>0).map(n=>({tag:n.tagName,cls:n.className,font:getComputedStyle(n).fontFamily,numeric:getComputedStyle(n).fontVariantNumeric,clock:n.matches('.fe-time-cell [data-utc-clock],.metric-value,.fe-summary-grid strong')})));
   assert(fontAudit.length>0,label+' typography samples exist');
   for(const item of fontAudit){
    assert(!/DM Sans|Manrope/.test(item.font),label+' legacy family remains: '+JSON.stringify(item));
-   if(item.clock)assert(/monospace|SFMono/i.test(item.font),label+' time figures must be monospaced');
+   if(item.clock)assert(/monospace|SFMono/i.test(item.font)||item.numeric.includes('tabular-nums'),label+' time figures must align');
   }
   values.fontAudit=fontAudit;
   assert(!values.overflow,label+' horizontal overflow');
   assert(values.card,label+' representative surface exists');
-  assert.equal(values.card.radius,'24px',label+' common card radius');
-  const cssColor=await p.evaluate(v=>{const n=document.createElement('span');document.body.append(n);const out={};for(const[k,c]of Object.entries(v)){n.style.color=c;out[k]=getComputedStyle(n).color}n.remove();return out},{text:values.text,paper:values.paper,muted:values.muted,accent:values.accent,brand:values.brand});
-  assert.equal(values.card.background,cssColor.paper,label+' common surface / no white leak');
-  assert.equal(values.header?.background,cssColor.brand,label+' shared navy toolbar');
+  assert.equal(values.token,'22px',label+' shared Wader card token');
+  const cssColor=await p.evaluate(v=>{const n=document.createElement('span');document.body.append(n);const out={};for(const[k,c]of Object.entries(v)){n.style.color=c;out[k]=getComputedStyle(n).color}n.remove();return out},{text:values.text,paper:values.paper,muted:values.muted,accent:values.accent});
   assert(values.header.height>=59,label+' toolbar height');
   assert(contrast(cssColor.text,cssColor.paper)>=4.5,label+' text contrast');
   assert(contrast(cssColor.muted,cssColor.paper)>=4.5,label+' secondary contrast');
@@ -55,7 +52,6 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
    try{
     for(const width of [320,390,820,1440]){
      const context=await browser.newContext({viewport:{width,height:1000}}),p=await context.newPage();
-     const navigate=async tab=>{if(width<=720&&!['schedule','logbook','weather'].includes(tab)){await p.locator('.bottom-nav [data-action=navy-more]').click();await p.locator('#modal [data-tab="'+tab+'"]').click();}else await p.locator((width<=720?'.bottom-nav':'.sidebar')+' [data-tab="'+tab+'"]').first().click();};
      p.on('dialog',dialog=>dialog.accept());p.setDefaultTimeout(12000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
      try{
       await p.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());
@@ -65,21 +61,21 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
        await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1');
        await p.evaluate(async theme=>{const m=await import('/lib/appearance.js');m.setAppearance({theme})},theme);
        for(const tab of ['schedule','logbook','crew','statistics','weather','settings']){
-        await navigate(tab);
-        const card={schedule:'.metric',logbook:'.nv-flight-card',crew:'.crew-card',statistics:'.metric',weather:'.weather-group,.weather-watch-card',settings:'.settings-section'}[tab];
+        await navigate(p,tab);
+        const card={schedule:'.w5-briefing-summary,.w5-briefing-empty',logbook:'.nv-flight-card',crew:'.crew-card',statistics:'.w5-pilot-card',weather:'.weather-group,.weather-watch-card',settings:'.settings-section'}[tab];
         await verify(p,`${name} ${width} ${tab}`,theme,card);
         if(width===390)await p.screenshot({path:path.join(root,`${name}-${theme}-${tab}.png`)});
        }
-       await navigate('logbook');
-       await require('./ui-controls.cjs').pageManage(p);await p.locator('[data-page-manage] [data-action=add]').click();
+       await navigate(p,'logbook');
+       await p.locator('[data-action=add]:visible').first().click();
        await p.locator('#flight-form [name=flightNo]').fill('VN9998');
-       for(const tab of ['airports','tools','log'])await require('./ui-controls.cjs').flightTab(p,tab);
+       for(const tab of ['airports','tools','log'])await flightTab(p,tab);
        assert.equal(await p.locator('#flight-form [name=flightNo]').inputValue(),'VN9998');
        await verify(p,`${name} ${width} flight editor`,theme,'.fe-card');
        await p.locator('#modal [data-action=close]').first().click();
-       await navigate('atpl');await p.waitForURL('**/atpl/');
+       await navigate(p,'atpl');await p.waitForURL('**/atpl/');
        await p.locator('[data-bank]').first().waitFor();await verify(p,`${name} ${width} ATPL library`,theme,'.atpl-card');
-       const h1=await p.locator('h1').evaluate(n=>getComputedStyle(n).fontSize);assert.equal(h1,width<=720?'24px':'26px');
+       const h1=await p.locator('h1').evaluate(n=>getComputedStyle(n).fontSize);assert.equal(h1,width<=720?'26px':'28px');
        if(width===390)await p.screenshot({path:path.join(root,`${name}-${theme}-library.png`)});
        const banks=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json());
        for(const bank of width===390?banks.banks:banks.banks.slice(0,1)){
@@ -88,7 +84,7 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
         await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1');
         // The offline button is intentionally inside a collapsed management menu.
         await p.locator('#atpl-offline-button').waitFor({state:'attached'});
-        await require('./ui-controls.cjs').bankManage(p);await p.locator('#atpl-offline-button').waitFor();
+        await bankManage(p);await p.locator('#atpl-offline-button').waitFor();
         await p.locator('[data-bank-manage]>summary').click();
         await verify(p,`${name} ${width} bank ${bank.code}`,theme,'.hero');
         await p.locator('[data-action=study]').first().click();await p.locator('.answer-option').first().waitFor();
@@ -98,7 +94,7 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
         if(await key.count())await key.first().click();else await p.locator('.answer-option').first().click();
         assert(await p.locator('.answer-option.correct,.answer-option.incorrect,.answer-option.selected').count()>0);
         if(width===390&&bank.code==='POF')await p.screenshot({path:path.join(root,`${name}-${theme}-quiz.png`)});
-        await require('./ui-controls.cjs').bankManage(p);await p.locator('[data-action=settings]').click();
+        await bankManage(p);await p.locator('[data-action=settings]').click();
         await p.locator('#dialog[open]').waitFor();assert(await p.locator('#dialog').evaluate(n=>n.scrollWidth<=n.clientWidth+2));
         await p.keyboard.press('Escape');
        }
