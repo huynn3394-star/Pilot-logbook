@@ -2,14 +2,13 @@ import {savedReportTiming,weatherSourceURL} from './weather-report.js';
 
 const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-// Presentation only: keep the report tokens, and put each forecast change group on its own line.
+// Provider line wrapping is presentation only. Keep the report tokens intact.
+export function formatMETARReport(value){
+ return String(value??'').replace(/\s+/g,' ').trim();
+}
+
 export function formatTAFReport(value){
- // Providers indent continuation lines by different amounts; align display rows consistently.
- const raw=String(value??'').replace(/\r\n?/g,'\n').split('\n').map(line=>line.trim()).join('\n').trim();
- return raw.replace(/[ \t]+(?=(?:FM\d{6}\b|BECMG\b|TEMPO\b|PROB(?:30|40)\b))/g,(space,offset,full)=>{
-  if(/^TEMPO\b/.test(full.slice(offset+space.length))&&/\bPROB(?:30|40)$/.test(full.slice(0,offset).trimEnd()))return space;
-  return '\n';
- });
+ return formatMETARReport(value).replace(/ (PROB(?:30|40)(?: TEMPO)?|FM\d{6}|BECMG|TEMPO)(?= |$)/g,'\n$1');
 }
 
 // Work on raw-text offsets, then escape every piece. Never regex-replace generated HTML.
