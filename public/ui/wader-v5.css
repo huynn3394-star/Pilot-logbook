@@ -148,7 +148,7 @@ html[data-theme] #app .weather-group{padding:16px 18px}
 html[data-theme] #app .weather-station-row{border-color:var(--ui-line);background:var(--ui-soft);border-radius:16px;overflow:hidden;margin:10px 0}
 html[data-theme] #app .weather-station-row>summary{padding:12px}
 html[data-theme] #app .weather-station-detail{padding:0 12px 12px}
-html[data-theme] #app .weather-report{background:var(--ui-bg);border-radius:12px;padding:12px}
+html[data-theme] #app .weather-report{background:var(--ui-bg);color:var(--ui-ink);border-radius:12px;padding:12px}
 html[data-theme] #app .weather-row-saved{color:var(--ui-warning);background:var(--ui-warning-soft);font-size:9px;border-radius:7px;padding:2px 5px}
 html[data-theme] #app .weather-group-products{border-radius:999px;background:var(--ui-bg);padding:3px}
 html[data-theme] #app .weather-group-products button{border-radius:999px}

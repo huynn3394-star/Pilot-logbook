@@ -1,7 +1,7 @@
 import {normalizeAirports} from './weather-watch.js';
 import {icaoFor} from '../lib/parsers.js';
 import {savedReportTiming} from './weather-report.js';
-import {formatTAFReport,highlightWeatherReport,collectSpeciAlerts,renderSpeciAlerts,renderWeatherStationIdentity} from './weather-attention.js';
+import {formatMETARReport,formatTAFReport,highlightWeatherReport,collectSpeciAlerts,renderSpeciAlerts,renderWeatherStationIdentity} from './weather-attention.js';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // View-only helpers. Never query a provider or change saved airport membership.
@@ -72,9 +72,9 @@ export function mountWeatherWatch({element,watch,getGroups,onGroups,viewState={}
    const {saved}=weatherProductState(r,preview,{offline,error:data.errors[station]});
    const product=name=>{const raw=r?.[name],{timing,expired,old,invalid}=weatherProductState(r,name,{offline,error:data.errors[station]});
     const flags=[r?.staleProducts?.[name]?'CHƯA CẬP NHẬT ĐƯỢC · GIỮ BẢN CŨ':'',raw&&invalid?'GIỜ BẢN TIN CẦN KIỂM TRA':'',expired?'HẾT HIỆU LỰC':old?'BẢN TIN CŨ':'',timing?.cancelled?'BẢN TIN HỦY':''].filter(Boolean);
-    const display=raw?(name==='taf'?formatTAFReport(raw):raw):'Chưa có bản tin hiện hành.';
+    const display=raw?(name==='taf'?formatTAFReport(raw):formatMETARReport(raw)):'Chưa có bản tin hiện hành.';
     return '<section class="weather-product"><h3>'+(name==='metar'&&hasSpeci?'SPECI':name.toUpperCase())+'</h3>'+(flags.length?'<p class="weather-error">'+esc(flags.join(' · '))+'</p>':'')+'<pre class="weather-report">'+highlightWeatherReport(display)+'</pre></section>';};
-   const previewRaw=r?.[preview],previewText=previewRaw?(preview==='taf'?formatTAFReport(previewRaw):previewRaw):'Chưa có '+preview.toUpperCase()+' đã lưu';
+   const previewRaw=r?.[preview],previewText=previewRaw?(preview==='taf'?formatTAFReport(previewRaw):formatMETARReport(previewRaw)):'Chưa có '+preview.toUpperCase()+' đã lưu';
    const button=(action,label,text,disabled=false)=>'<button class="btn small ghost" type="button" data-weather-action="'+action+'" data-group-id="'+esc(group.id)+'" data-station="'+station+'" aria-label="'+esc(label)+'"'+(disabled?' disabled':'')+'>'+text+'</button>';
    return '<details class="weather-station-row'+(hasSpeci?' weather-has-speci':'')+'" data-weather-station="'+station+'" data-open-key="'+esc(key)+'"'+(open(key)?' open':'')+'><summary>'+renderWeatherStationIdentity(station,{saved,hasSpeci})+'<span class="weather-row-brief" data-weather-preview="'+preview+'">'+highlightWeatherReport(previewText)+'</span></summary><div class="weather-station-detail">'+(viewState.editing?'<div class="weather-row-actions">'+button('station-up','Đưa '+station+' lên','↑',index===0)+button('station-down','Đưa '+station+' xuống','↓',index===group.airports.length-1)+button('station-remove','Bỏ theo dõi '+station,'Bỏ khỏi nhóm')+(groups.length>1?'<label>Chuyển tới<select aria-label="Chuyển '+station+' tới nhóm" data-weather-transfer data-group-id="'+esc(group.id)+'" data-station="'+station+'"><option value="">Chọn nhóm…</option>'+groups.filter(g=>g.id!==group.id).map(g=>'<option value="'+esc(g.id)+'">'+esc(g.name)+'</option>').join('')+'</select></label>':'')+'</div>':'')+(data.errors[station]?'<p class="weather-error" role="status">'+esc(data.errors[station])+' Bản đã lưu được giữ lại.</p>':'')+product('metar')+product('taf')+'</div></details>';
   };

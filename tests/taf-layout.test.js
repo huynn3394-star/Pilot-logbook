@@ -12,14 +12,19 @@ test('TAF inline change groups render on separate lines without changing report 
  assert.equal(formatTAFReport(raw).replace(/\s+/g,' '),raw);
 });
 
-test('TAF source line breaks remain single lines while provider indentation is removed',async()=>{
+test('TAF rebuilds change-group rows and removes provider wrapping within a group',async()=>{
  const {formatTAFReport}=await load();
- const raw='TAF VVTS 250230Z 2503/2603 23008KT 9999 SCT020  \r\n               TEMPO 2503/2505 3000 TSRA\r\n\t FM251200 24012KT 5000 RA=  ';
+ const raw='TAF VVTS 250230Z 2503/2603 23008KT 9999 SCT020  \r\n               TEMPO 2503/2505 3000 TSRA\r\n\t FEW015CB SCT050\n PROB40\r\n TEMPO 2506/2510 2000 +TSRA BKN015CB\n FM251200 24012KT 5000 RA=  ';
  const result=formatTAFReport(raw);
- assert.equal(result,'TAF VVTS 250230Z 2503/2603 23008KT 9999 SCT020\nTEMPO 2503/2505 3000 TSRA\nFM251200 24012KT 5000 RA=');
- assert.equal((result.match(/\n/g)||[]).length,2);
+ assert.equal(result,'TAF VVTS 250230Z 2503/2603 23008KT 9999 SCT020\nTEMPO 2503/2505 3000 TSRA FEW015CB SCT050\nPROB40 TEMPO 2506/2510 2000 +TSRA BKN015CB\nFM251200 24012KT 5000 RA=');
  assert.equal(result.replace(/\s+/g,' '),raw.replace(/\s+/g,' ').trim());
  assert.equal(formatTAFReport(result),result);
+});
+
+test('METAR display removes provider wrapping without changing tokens, including TEMPO',async()=>{
+ const {formatMETARReport}=await load();
+ const raw='METAR VVDN 090930Z 10010G22KT 050V130 9999 SCT017 FEW024TCU\r\n\t SCT050 28/24 Q1016 TEMPO 4000 SHRA=';
+ assert.equal(formatMETARReport(raw),'METAR VVDN 090930Z 10010G22KT 050V130 9999 SCT017 FEW024TCU SCT050 28/24 Q1016 TEMPO 4000 SHRA=');
 });
 
 test('TAF formatting preserves TSRA and CB highlights and the underlying source string',async()=>{
