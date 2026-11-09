@@ -227,24 +227,28 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
  const nav=form.querySelector('.fe-tabs');
  const tabs=[...nav.querySelectorAll('[data-flight-tab]')],panels=[...form.querySelectorAll('[data-flight-panel]')];
  const wide=matchMedia('(min-width: 1040px)');
+ const mobile=matchMedia('(max-width: 720px)');
  function syncLayout(){
-  if(!isNew)return;
-  if(wide.matches){
-   footer.querySelector('.fe-footer-nav').append(nav);
-   footer.querySelector('.fe-footer-actions').append(save);
-   form.querySelector('.fe-web-scan-slot').append(scan);
-   form.querySelector('[data-fe-crew-details]').open=true;
-  }else{
-   form.append(nav);
-   headActions.append(scan,save);
+  if(isNew){
+   if(wide.matches){
+    footer.querySelector('.fe-footer-nav').append(nav);
+    footer.querySelector('.fe-footer-actions').append(save);
+    form.querySelector('.fe-web-scan-slot').append(scan);
+    form.querySelector('[data-fe-crew-details]').open=true;
+   }else{
+    if(mobile.matches)form.prepend(nav);
+    else form.append(nav);
+    headActions.append(scan,save);
+   }
   }
   for(const input of form.querySelectorAll('[data-utc-clock]')){
-   input.dataset.mobilePlaceholder ||= input.placeholder;
-   input.placeholder=wide.matches?'HH:MM':input.dataset.mobilePlaceholder;
+   input.dataset.defaultPlaceholder ||= input.placeholder;
+   input.placeholder=mobile.matches||(isNew&&wide.matches)?'HH:MM':input.dataset.defaultPlaceholder;
   }
  }
  syncLayout();
  if(isNew)wide.addEventListener('change',syncLayout);
+ mobile.addEventListener('change',syncLayout);
  let selected='log';const positions=new Map();
  function show(key,{focus=false,restore=true}={}){
   if(!tabs.some(tab=>tab.dataset.flightTab===key))return;
@@ -339,7 +343,7 @@ export function mountFlightEditor(modal,{title='Chi tiết chuyến bay',icon=()
   save.textContent=({saving:'Đang lưu…',saved:'Đã lưu',error:'Thử lưu lại'})[state]||'Save';
  }
  return{show,setSaveState,dispose(){
-  wide.removeEventListener('change',syncLayout);
+  for(const layout of [wide,mobile])layout.removeEventListener('change',syncLayout);
   modal.removeEventListener('click',click);modal.removeEventListener('keydown',keydown);
   form.removeEventListener('invalid',invalid,true);form.removeEventListener('input',updateDates);form.removeEventListener('change',updateDates);
   modal.classList.remove('flight-editor-modal','fe-new-flight-modal');modal.removeAttribute('aria-labelledby');

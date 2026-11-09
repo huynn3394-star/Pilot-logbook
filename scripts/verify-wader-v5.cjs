@@ -17,7 +17,17 @@ const {navigate,flightCrew}=require('./ui-controls.cjs');
     await page.goto(origin+'/?tab=logbook');await page.locator('[data-flight-card]').first().waitFor();await page.waitForFunction(()=>getComputedStyle(document.querySelector('.nv-flight-card')).borderRadius==='22px');await fits(page);
     const original=await read(page);assert.equal(await page.locator('[data-flight-card]').count(),JSON.parse(original).flights.filter(f=>f.date.startsWith('2026-10')).length);
 
-    if(width<=720){assert(await page.locator('.bottom-nav').isVisible());assert(!await page.locator('.sidebar').isVisible());}
+    if(width<=720){
+     const dock=page.locator('[data-mobile-dock]');
+     assert(await dock.isVisible());assert(!await page.locator('.sidebar').isVisible());
+     const layout=await dock.evaluate(node=>({width:node.getBoundingClientRect().width,bottom:innerHeight-node.getBoundingClientRect().bottom,items:[...node.children].map(child=>({width:child.getBoundingClientRect().width,height:child.getBoundingClientRect().height}))}));
+     assert.equal(layout.width,width);assert(Math.abs(layout.bottom)<=1);
+     assert.equal(layout.items.length,5);assert(layout.items.every(item=>item.width>=44&&item.height>=44));
+     assert.equal(await dock.locator('[aria-current=page]').getAttribute('data-tab'),'logbook');
+     await dock.locator('[data-tab=weather]').click();
+     assert.equal(await dock.locator('[aria-current=page]').getAttribute('data-tab'),'weather');
+     await dock.locator('[data-tab=logbook]').click();
+    }
     else{assert(await page.locator('.w5-detail-pane').isVisible());assert(await page.locator('.sidebar').isVisible());}
     await page.screenshot({path:path.join(out,`${name}-${width}-logbook.png`),fullPage:true});
     await page.locator('[data-filter=search]').fill('VN0605');assert.equal(await page.locator('[data-flight-card]').count(),1);await page.locator('[data-filter=search]').fill('');
@@ -32,6 +42,8 @@ const {navigate,flightCrew}=require('./ui-controls.cjs');
     const changed=JSON.parse(await read(page)),before=JSON.parse(original),saved=changed.flights.find(f=>f.id==='demo-605'),old=before.flights.find(f=>f.id==='demo-605');assert.equal(saved.note,'Wader V5 verified');assert.deepEqual(saved.actual,old.actual);assert.equal(changed.flights.length,before.flights.length);
     if(width===390){
      await page.locator('.nv-floating-add').click();await page.locator('[name=flightNo]').fill('VN9988');await page.locator('[name=date]').fill('2026-10-31');await page.locator('[name=dep]').fill('SGN');await page.locator('[name=dest]').fill('HAN');
+     assert.equal(await page.locator('#flight-form > .fe-tabs').evaluate(node=>node===node.parentElement.firstElementChild&&getComputedStyle(node).position==='sticky'),true);
+     assert.deepEqual(await page.locator('.fe-actual-grid .fe-web-label:visible').allTextContents(),['OUT','ON','OFF','IN']);
      for(const [key,date,time]of [['out','2026-10-31','2350'],['off','2026-11-01','0000'],['on','2026-11-01','0100'],['in','2026-11-01','0110']]){await page.locator('[name=a_'+key+'_date]').fill(date);await page.locator('[name=a_'+key+']').fill(time);await page.locator('[name=a_'+key+']').blur();}
      await page.getByRole('button',{name:'Tăng Takeoff ngày · số lần',exact:true}).click();assert.equal(await page.locator('[name=log_takeoffDay]').inputValue(),'1');await fits(page,'#modal');
      assert.equal(await page.locator('[data-fe-total=block]').innerText(),'01:20');assert.equal(await page.locator('[data-fe-total=airborne]').innerText(),'01:00');

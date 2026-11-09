@@ -11,7 +11,16 @@ function forecast(station){const tafIssue={'250255Z':'250230Z','250256Z':'250231
 function fixture(station){return{station,provider:'SYNTHETIC QA DATA',fetchedAt:'2026-10-25T02:59:00Z',metar:observation(station),taf:forecast(station),sources:{metar:`https://aviationweather.gov/api/data/metar?ids=${station}&format=raw`,taf:`https://aviationweather.gov/api/data/taf?ids=${station}&format=raw`}};}
 function contrast(a,b){const lum=s=>s.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4}).reduce((s,v,i)=>s+v*[.2126,.7152,.0722][i],0);const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
 async function savedLabelGeometry(row){
- const result=await row.evaluate(n=>{const s=n.querySelector('summary'),identity=s.querySelector('.weather-station-identity'),saved=s.querySelector('.weather-row-saved'),name=identity?.querySelector('strong'),brief=s.querySelector('.weather-row-brief');if(!identity||!saved||!name||!brief)return {ok:false,reason:'missing identity/saved label'};const a=name.getBoundingClientRect(),b=saved.getBoundingClientRect(),c=brief.getBoundingClientRect();return{ok:saved.parentElement===identity&&b.top>=a.bottom-1&&Math.abs(b.left-a.left)<1&&b.right<=c.left&&Math.abs(a.top-c.top)<2,airport:{x:a.x,y:a.y},saved:{x:b.x,y:b.y},brief:{x:c.x,y:c.y},label:saved.textContent};});
+ const result=await row.evaluate(n=>{
+  const summary=n.querySelector('summary'),identity=summary.querySelector('.weather-station-identity'),saved=identity?.querySelector('.weather-row-saved'),name=identity?.querySelector('strong'),brief=summary.querySelector('.weather-row-brief');
+  if(!saved||!name||!brief)return {ok:false,reason:'missing identity/saved label'};
+  const a=name.getBoundingClientRect(),b=saved.getBoundingClientRect(),c=brief.getBoundingClientRect();
+  const mobile=matchMedia('(max-width:720px)').matches;
+  const ok=mobile
+   ? b.left>=a.right&&Math.abs((b.top+b.bottom-a.top-a.bottom)/2)<2&&(n.open?c.width===0:c.top>=Math.max(a.bottom,b.bottom)-1&&Math.abs(a.left-c.left)<1)
+   : b.top>=a.bottom-1&&Math.abs(b.left-a.left)<1&&b.right<=c.left&&Math.abs(a.top-c.top)<2;
+  return{ok,mobile,open:n.open,airport:{x:a.x,y:a.y},saved:{x:b.x,y:b.y},brief:{x:c.x,y:c.y},label:saved.textContent};
+ });
  assert(result.ok,JSON.stringify(result));assert.equal(result.label,'Bản lưu');return result;
 }
 (async()=>{
