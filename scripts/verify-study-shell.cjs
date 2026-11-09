@@ -18,8 +18,9 @@ const {chromium,webkit}=require('playwright');
     if(width>720){const rail=await p.locator('.study-sidebar').evaluate(n=>({width:n.getBoundingClientRect().width,radius:getComputedStyle(n).borderRadius}));assert.equal(rail.width,88);assert.equal(rail.radius,'28px');}
     assert.equal(await p.locator('.study-library-summary strong').first().innerText(),'11');assert(await p.locator(navigation).isVisible());
     if(width<=720){
-     const nav=await p.locator(navigation).evaluate(node=>({position:getComputedStyle(node).position,bottom:innerHeight-node.getBoundingClientRect().bottom}));
-     assert.equal(nav.position,'fixed');assert(nav.bottom>=0&&nav.bottom<=16,'study navigation stays at the viewport bottom');
+     const nav=await p.locator(navigation).evaluate(node=>({position:getComputedStyle(node).position,bottom:innerHeight-node.getBoundingClientRect().bottom,width:node.getBoundingClientRect().width}));
+     assert.equal(nav.position,'fixed');assert(Math.abs(nav.bottom)<=1&&nav.width===width,'study navigation spans the viewport bottom');
+     assert.equal(await p.locator('.bottom-nav [data-tab=weather]').getAttribute('href'),'/?tab=weather');
     }
     if(width>720)assert.equal(await p.locator('.study-sidebar [aria-current=page]').innerText(),'Ôn thi');
     await p.locator('[data-appearance-toggle]').click();assert.equal(await p.locator('html').getAttribute('data-theme'),'light');

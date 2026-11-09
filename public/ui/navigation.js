@@ -9,5 +9,13 @@ export function renderNavigation({active,icon=navigationIcon,links=false,count}=
 }).join('');}
 export function renderBottomNavigation({active,icon=navigationIcon,links=false}={}){
  const tag=links?'a':'button';
- return `<nav class="bottom-nav" aria-label="Điều hướng mobile"><div class="nv-nav-pill">${[['crew','people','Crew'],['schedule','route','Briefing'],['logbook','plane','Logbook']].map(([id,ico,title])=>`<${tag} ${links?`href="${destinationURL(id)}"`:'data-action="tab"'} data-tab="${id}" class="${active===id?'active':''}" ${active===id?'aria-current="page"':''}>${['plane','route'].includes(ico)?navigationIcon(ico):icon(ico)}<span>${title}</span></${tag}>`).join('')}<button type="button" ${links?'data-study-more':'data-action="navy-more"'} class="${['atpl','statistics','weather','settings'].includes(active)?'active':''}" aria-label="More · Điều hướng">${navigationIcon('more')}<span>More</span></button></div><${tag} class="nv-floating-add" ${links?'href="/?tab=logbook&compose=flight"':'data-action="add"'} aria-label="Thêm chuyến bay">${icon('plus')}</${tag}></nav>`;
+ const item=(graphic,title)=>`<span class="mobile-dock-icon">${graphic}</span><span>${title}</span>`;
+ const destination=(id,ico,title)=>`<${tag} ${links?`href="${destinationURL(id)}"`:'type="button" data-action="tab"'} data-tab="${id}" ${active===id?'class="active" aria-current="page"':''}>${item(navigationIcon(ico),title)}</${tag}>`;
+ return `<nav class="bottom-nav" data-mobile-dock aria-label="Điều hướng mobile">
+  ${destination('schedule','route','Briefing')}
+  ${destination('logbook','plane','Logbook')}
+  <${tag} class="nv-floating-add" ${links?'href="/?tab=logbook&compose=flight"':'type="button" data-action="add"'} aria-label="Thêm chuyến bay">${item(icon('plus'),'Thêm')}</${tag}>
+  ${destination('weather','cloud','Thời tiết')}
+  <button type="button" ${links?'data-study-more':'data-action="navy-more"'} class="${['atpl','crew','statistics','settings'].includes(active)?'active':''}" aria-haspopup="dialog" aria-label="Khác · Điều hướng">${item(navigationIcon('more'),'Khác')}</button>
+ </nav>`;
 }
