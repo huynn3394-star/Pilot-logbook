@@ -19,9 +19,12 @@
     "test:workspace-upgrade": "node scripts/verify-workspace-upgrade.cjs",
     "test:workspace-browser": "node scripts/workspace-emulators.cjs browser",
     "test:workspace-all": "node scripts/verify-workspace-all.cjs",
+    "test:weather-cache": "node scripts/verify-weather-cache.cjs",
     "test:weather-ui": "node scripts/verify-weather-ui.cjs",
+    "test:wader-ui": "node scripts/verify-wader-v5.cjs",
     "test:navy-ui": "node scripts/verify-navy-v2.cjs",
     "test:study-ui": "node scripts/verify-study-shell.cjs",
+    "test:flight-night": "node scripts/verify-flight-night.cjs",
     "test:weather-account": "node scripts/workspace-emulators.cjs weather"
   },
   "dependencies": {
@@ -32,6 +35,7 @@
   "overrides": {
     "@grpc/grpc-js": "1.14.5",
     "gaxios": { "uuid": "11.1.1" },
+    "glob": { ".": "14.0.2", "minimatch": "11.0.1" },
     "@google-cloud/pubsub": { "@opentelemetry/core": "2.8.0" }
   },
   "devDependencies": {

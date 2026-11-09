@@ -14,3 +14,8 @@ from the latest code or requiring unpublished Git objects.
 pending operations, account study progress and downloaded bank/source images
 across a real controlling service-worker upgrade and offline reopen. The test
 uses current app assets with the historical worker, not a full historical UI.
+
+- `pre-weather-cache-sw.js`: `5bd3fb3:public/sw.js`, after the first latest-weather
+  fix, which did not invalidate the installed cache. `verify-weather-cache.cjs`
+  demonstrates installed stale bytes and upgrades the real controlling worker,
+  then checks two-tab native IndexedDB merges and an offline reopening.

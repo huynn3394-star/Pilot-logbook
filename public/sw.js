@@ -1,5 +1,5 @@
 const BUNDLE_BUILD = "80c44a81f174";
-const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v3-study-fixed-docks-20261106" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
+const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v3-compact-counters-20261105-weather-cache-20261106-wader-v5-20261106-study-20261107-auto-night-20261107-flight-entry-20261108-release-20261108" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
 const SHELL = [
   "/lib/usage.js",
   "/workspace/flight-conflict.js",
@@ -16,6 +16,10 @@ const SHELL = [
   "/ui/study-shell.css",
   "/ui/navy-v2.css",
   "/ui/navy-v2-1-5.css",
+  "/ui/wader-v5.css",
+  "/ui/wader-v5.js",
+  "/ui/airport-map-data.js",
+  "/ui/world-land.svg",
   "/ui/navy-v2.js",
   "/ui/weather-attention.css",
   "/ui/weather-report-highlights.js",
@@ -33,6 +37,9 @@ const SHELL = [
   "/lib/flight-v14-ui.js",
   "/lib/utc-input.js",
   "/lib/flight-editor.js",
+  "/lib/flight-night.js",
+  "/lib/flight-night-ui.js",
+  "/lib/vendor/tz-lookup.js",
   "/lib/appearance.js",
   "/lib/crew-entry.js",
   "/examples/e190-oooi.png",

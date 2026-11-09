@@ -1,7 +1,7 @@
 /* Synthetic local guest records only; real app controls, no live account/provider writes. */
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
-const {weatherManage}=require('./ui-controls.cjs');
+const {navigate,weatherManage}=require('./ui-controls.cjs');
 const out=path.resolve('test-results/weather-view');
 const report={scope:'Hosted Chromium/WebKit; saved-airport UI, no physical device or live cloud test',checks:[],errors:[]};
 const NOW='2026-10-25T11:00:00.000Z';
@@ -48,7 +48,7 @@ const NOW='2026-10-25T11:00:00.000Z';
     assert.equal(calls,beforeCalls,'Switching and searching make no provider calls');assert.equal(await saved(),before,'View controls do not change saved user records');
     await search.fill('VVNB');await p.evaluate(()=>{window.__searchNode=document.querySelector('[data-weather-search]');document.querySelector('[data-watch-refresh]').click();window.__searchNode.focus();});await p.waitForFunction(()=>!document.querySelector('[data-watch-refresh]').disabled);
     assert.equal(await search.inputValue(),'VVNB');assert(await search.evaluate(n=>document.activeElement===n&&window.__searchNode===n),'Refresh preserves typing focus and search node');assert.equal(await intl.locator('[data-weather-product=taf]').getAttribute('aria-pressed'),'true');
-    await p.locator('[data-tab=logbook]:visible').first().click();await p.locator('[data-tab=weather]:visible').first().click();await search.waitFor();assert.equal(await search.inputValue(),'VVNB');assert.equal(await intl.locator('[data-weather-product=taf]').getAttribute('aria-pressed'),'true');
+    await navigate(p,'logbook');await navigate(p,'weather');await search.waitFor();assert.equal(await search.inputValue(),'VVNB');assert.equal(await intl.locator('[data-weather-product=taf]').getAttribute('aria-pressed'),'true');
     await p.locator('[data-weather-search-clear]').click();assert.equal(await search.inputValue(),'');
     await p.waitForFunction(()=>!!navigator.serviceWorker.controller);if(name==='chromium')await context.setOffline(true);else unavailable=true;
     assert(await p.evaluate(()=>fetch('/api/health',{cache:'no-store'}).then(()=>false).catch(()=>true)),'Offline probe must fail');
