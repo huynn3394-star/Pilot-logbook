@@ -26,7 +26,9 @@ import {
   csvCell,
   reminders,
   validDate,
+  isWaderCsvFlight,
 } from "./lib/domain.js";
+import { WADER_CSV_MAX_BYTES, newWaderCsvRecords, parseWaderCsv } from "./lib/wader-csv.js";
 import {
   parseRoster,
   parseAircraft,
@@ -375,7 +377,7 @@ window.addEventListener('beforeunload',event=>{if(formDirty){event.preventDefaul
 function navySheet(kind){
  const navigation=kind==='more',title=navigation?'Điều hướng AviLog':'Quản lý Logbook';
  const entries=navigation?tabs.map(([id,ico,label])=>btn('tab',label,ico,'',`data-tab="${id}"${id===tab?' aria-current="page"':''}`)).join(''):
-  `${btn('tab','Statistics','stats','', 'data-tab="statistics"')}${btn('csv','Export CSV','download')}${btn('import','Import roster','upload')}${btn('image','Nhập từ ảnh Flight Log','camera')}${btn('navy-backup','Backup / Restore','shield')}${btn('tab','Preferences · Settings','settings','','data-tab="settings"')}`;
+  `${btn('tab','Statistics','stats','', 'data-tab="statistics"')}${btn('csv','Export CSV','download')}${btn('import','Import roster','upload')}${btn('image','Nhập từ ảnh Flight Log','camera')}${btn('wader-csv','Nhập Wader CSV','upload')}${btn('navy-backup','Backup / Restore','shield')}${btn('tab','Preferences · Settings','settings','','data-tab="settings"')}`;
  openModal(title,`<button type="button" class="nv-sheet-handle" data-sheet-handle aria-label="Đóng menu" data-action="close"></button><div class="modal-body nv-sheet-list${navigation?' nv-navigation-sheet':''}">${entries}</div>`);
  modal.classList.add('nv-sheet');modal._navySheet=mountSheet(modal);
 }
@@ -582,9 +584,9 @@ async function saveFlight(ev) {
     if(v14Enabled){const logbook=readLogbookFields(fd,old?.logbook||form._timeValues?.logbook);if(logbook)f.logbook=logbook;}
     if(imported&&f.confirmed&&!fd.has('scanReviewed')){modal._flightEditor?.show('log');throw Error('Hãy đối chiếu ảnh và các trường giữ lại trước khi chốt FINAL.');}
     if(requiresFinalPermission(old,f)&&!fd.has('replaceConfirmed'))throw Error('Actual đã xác nhận được bảo vệ. Tích cho phép thay đổi để tiếp tục.');
-    if (
-      state.flights.some((x) => x.id !== f.id && x.date===f.date && normalizeFlightCode(x.flightNo)===normalizeFlightCode(f.flightNo))
-    )
+    const sameWaderNumber = isWaderCsvFlight(old) && f.date === old.date && f.flightNo === old.flightNo;
+    if (f.flightNo && !sameWaderNumber &&
+      state.flights.some((x) => x.id !== f.id && x.date===f.date && normalizeFlightCode(x.flightNo)===normalizeFlightCode(f.flightNo)))
       throw Error("Chuyến này đã có trong ngày. Mở chuyến cũ để ghi Actual.");
     validateFlight(f);
     if (f.captainId && f.captainId === f.foId)
@@ -630,6 +632,136 @@ async function saveFlight(ev) {
     if(form.isConnected)modal._flightEditor?.setSaveState(modal.querySelector('[data-error]:not([hidden])')?'error':'ready');
   }
 }
+function importWaderCsv() {
+  openModal("Nhập Wader CSV", `
+    <div class="modal-body">
+      <p>Chọn CSV xuất từ Logbook của Wader. Avilog đọc file trên thiết bị và hiển thị các bản ghi để bạn kiểm tra.</p>
+      <label class="file-zone">${icon("upload")}<strong>Chọn file Wader CSV</strong>
+        <input type="file" accept=".csv,text/csv" data-wader-file><small>CSV · tối đa 10 MB</small>
+      </label>
+      <p role="status" data-wader-progress></p>
+      <div class="error" data-error role="alert" hidden></div>
+      <div data-wader-preview></div>
+      <label class="check" data-wader-review hidden>
+        <input type="checkbox" data-wader-confirm> Tôi đã kiểm tra dữ liệu và xác nhận giờ trong CSV là UTC.
+      </label>
+    </div>`,
+    `${btn("close", "Đóng", null, "ghost")}<button type="button" class="btn primary" data-wader-save disabled>Lưu vào Logbook</button>`,
+  );
+  const capture = asyncCapture();
+  const fileInput = modal.querySelector("[data-wader-file]");
+  const progress = modal.querySelector("[data-wader-progress]");
+  const preview = modal.querySelector("[data-wader-preview]");
+  const review = modal.querySelector("[data-wader-review]");
+  const confirmImport = modal.querySelector("[data-wader-confirm]");
+  const save = modal.querySelector("[data-wader-save]");
+  const pageSize = 20;
+  let parsed, ready, page = 0, generation = 0;
+
+  function renderPreview() {
+    const total = ready.flights.length + ready.duties.length;
+    const skipped = parsed.flights.length + parsed.duties.length - total;
+    const display = [...ready.flights, ...ready.duties].slice(page * pageSize, (page + 1) * pageSize);
+    const block = ready.flights.reduce((sum, flight) => sum + minutes(flight.actual.out, flight.actual.in), 0);
+    const partial = ready.flights.filter(flight => !flight.actual.off || !flight.actual.on).length;
+    preview.innerHTML = `
+      <p><strong>${ready.flights.length} chuyến bay · ${ready.duties.length} simulator · ${duration(block)} Block</strong></p>
+      ${skipped + parsed.duplicates ? `<p>${skipped + parsed.duplicates} bản ghi trùng được bỏ qua.</p>` : ""}
+      ${partial ? `<p>${partial} chuyến thiếu OFF hoặc ON. Các mốc thiếu sẽ để trống.</p>` : ""}
+      ${parsed.previousExperience ? `<p>${parsed.previousExperience} dòng tổng kinh nghiệm không có chuyến riêng và được bỏ qua.</p>` : ""}
+      ${parsed.instrumentNotes ? "<p>Giờ Actual Instrument thiếu mốc đối chiếu hoặc vượt thời gian trên không được giữ trong ghi chú.</p>" : ""}
+      ${parsed.issues.length ? `<details class="source-card"><summary>${parsed.issues.length} dòng lỗi sẽ được bỏ qua</summary>
+        <ul>${parsed.issues.slice(0, 30).map(issue => `<li>Dòng ${issue.line} · ${e(issue.reason)}</li>`).join("")}</ul>
+        ${parsed.issues.length > 30 ? "<p>Đang hiển thị 30 lỗi đầu tiên.</p>" : ""}</details>` : ""}
+      ${display.length ? `<div class="table-wrap"><table class="data-table">
+        <thead><tr><th>Ngày</th><th>Chuyến / Simulator</th><th>OUT</th><th>OFF</th><th>ON</th><th>IN</th></tr></thead>
+        <tbody>${display.map(record => {
+          const times = record.actual || { out: record.report, in: record.release };
+          const timestamp = value => value ? clock(value) + (value.slice(0, 10) > record.date ? " +1d" : "") : "—";
+          const label = record.actual ? [record.flightNo, record.dep + " → " + record.dest].filter(Boolean).join(" · ") : "Simulator";
+          return `<tr><td>${e(record.date)}</td><td>${e(label)}</td>${["out", "off", "on", "in"].map(key => `<td>${timestamp(times[key])}</td>`).join("")}</tr>`;
+        }).join("")}</tbody>
+      </table></div>` : ""}
+      ${total > pageSize ? `<div class="actions"><button type="button" class="btn" data-wader-page="-1" ${page === 0 ? "disabled" : ""}>Trước</button>
+        <span>${page * pageSize + 1}–${Math.min(total, (page + 1) * pageSize)} / ${total}</span>
+        <button type="button" class="btn" data-wader-page="1" ${(page + 1) * pageSize >= total ? "disabled" : ""}>Sau</button></div>` : ""}
+    `;
+    review.hidden = !total;
+    save.disabled = !total || !confirmImport.checked;
+  }
+
+  preview.onclick = event => {
+    const button = event.target.closest("[data-wader-page]");
+    if (!button) return;
+    page += Number(button.dataset.waderPage);
+    renderPreview();
+    preview.querySelector(`[data-wader-page="${button.dataset.waderPage}"]:not(:disabled)`)?.focus();
+  };
+  fileInput.onchange = async () => {
+    const current = ++generation;
+    const file = fileInput.files[0];
+    parsed = ready = null;
+    page = 0;
+    preview.replaceChildren();
+    review.hidden = true;
+    confirmImport.checked = false;
+    save.disabled = true;
+    progress.textContent = "";
+    modal.querySelector("[data-error]").hidden = true;
+    if (!file) return;
+    formDirty = true;
+    try {
+      if (file.size > WADER_CSV_MAX_BYTES) throw Error("CSV tối đa 10 MB.");
+      progress.textContent = "Đang đọc Wader CSV…";
+      const result = await parseWaderCsv(await file.text());
+      if (!asyncCurrent(capture) || current !== generation) return;
+      parsed = result;
+      ready = newWaderCsvRecords(workspaceSession.view(), parsed);
+      renderPreview();
+    } catch (err) {
+      if (asyncCurrent(capture) && current === generation) error(err.message);
+    } finally {
+      if (asyncCurrent(capture) && current === generation) progress.textContent = "";
+    }
+  };
+  confirmImport.onchange = () => {
+    save.disabled = !confirmImport.checked || !(ready?.flights.length || ready?.duties.length);
+  };
+  save.onclick = async () => {
+    if (!parsed || !confirmImport.checked || saving) return;
+    try {
+      assertAsync(capture);
+      if (parsed.flights.length && workspaceSession.uid && account?.config?.logbookV14Enabled !== true)
+        throw Error("Tài khoản này chưa bật phân bổ giờ Logbook V14. CSV chưa được lưu.");
+      save.disabled = fileInput.disabled = confirmImport.disabled = true;
+      saving = true;
+      const { view: updated, records } = await workspaceSession.appendImport(view => newWaderCsvRecords(view, parsed), capture.token);
+      if (!asyncCurrent(capture)) return;
+      state = updated;
+      if (!records.flights.length && !records.duties.length) {
+        ready = records;
+        page = 0;
+        renderPreview();
+        return;
+      }
+      formDirty = pendingRemote = false;
+      workspaceController?.schedule();
+      toast(`Đã nhập ${records.flights.length} chuyến bay và ${records.duties.length} simulator từ Wader`);
+      if (records.flights.length) selectFlightDate(records.flights.map(flight => flight.date).sort().at(-1));
+      modal.close();
+      render();
+    } catch (err) {
+      if (asyncCurrent(capture)) error(err.message);
+    } finally {
+      saving = false;
+      if (asyncCurrent(capture)) {
+        fileInput.disabled = confirmImport.disabled = false;
+        confirmImport.onchange();
+      }
+    }
+  };
+}
+
 function importRoster() {
   importPreview = null;
   const rosterMonth = tab === "logbook" ? getLogbookMonth() : month;
@@ -1281,6 +1413,7 @@ document.addEventListener("click", async (ev) => {
       case "w5-refresh": if(tab==="weather")await weatherWatch?.refresh({force:true});else {await workspaceController?.syncNow();await workspaceSession?.refresh();}break;
       case "navy-more": navySheet("more");break;
       case "navy-management": navySheet("management");break;
+      case "wader-csv": importWaderCsv();break;
       case "navy-filters": navyFilterDialog();break;
       case "navy-backup": navyBackup();break;
       case "navy-clear": navyFilters=defaultFilters();query="";navyLimit=80;refreshLogbook();break;

@@ -26,3 +26,24 @@ export async function writeState(state) {
     t.onabort = () => reject(t.error || Error("Không thể lưu dữ liệu"));
   });
 }
+
+export async function updateState(update) {
+  const d = await connect();
+  return new Promise((resolve, reject) => {
+    const transaction = d.transaction("workspace", "readwrite");
+    const store = transaction.objectStore("workspace");
+    const request = store.get("state");
+    let next, error;
+    request.onsuccess = () => {
+      try {
+        next = update(request.result);
+        if (next !== request.result) store.put(next, "state");
+      } catch (err) {
+        error = err;
+        transaction.abort();
+      }
+    };
+    transaction.oncomplete = () => resolve(next);
+    transaction.onabort = () => reject(error || transaction.error || Error("Không thể lưu dữ liệu"));
+  });
+}

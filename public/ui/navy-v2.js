@@ -52,7 +52,7 @@ export function renderFlightCard(f){
    <span class="nv-card-heading">
     <span class="nv-flight-date"><small>${e(weekday.toUpperCase())}</small><strong>${day}</strong></span>
     <span class="nv-card-separator" aria-hidden="true">|</span>
-    <span class="nv-flight-number"><small>✈ FLT</small><strong>${e(f.flightNo)}</strong></span>
+    <span class="nv-flight-number"><small>✈ FLT</small><strong>${e(f.flightNo || '—')}</strong></span>
     <span class="nv-flight-function">${allocation}</span>
     <span class="nv-flight-state nv-flight-status-pill ${f.confirmed?'is-final':actual?'is-draft':'is-scheduled'}" aria-label="${e(status)}">${f.confirmed?'FINAL':actual?'DRAFT':'PLAN'}</span>
    </span>
