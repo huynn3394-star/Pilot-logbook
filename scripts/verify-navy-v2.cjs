@@ -10,7 +10,7 @@ const {navigate}=require('./ui-controls.cjs');
  let browser,current,label='start';
  async function fits(p,selector='html'){assert(await p.locator(selector).evaluate(n=>n.scrollWidth<=n.clientWidth+2),label+' overflow '+selector);}
  const read=p=>p.evaluate(async()=>JSON.stringify(await(await import('/lib/storage.js')).readState()));
- async function start(context){const p=await context.newPage();current=p;p.setDefaultTimeout(10000);await context.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());await p.goto(origin);await p.locator('[data-workspace-account]').waitFor({state:'attached'});return p;}
+ async function start(context){const p=await context.newPage();current=p;p.setDefaultTimeout(10000);await context.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());await p.clock.setFixedTime(new Date('2026-10-09T12:00:00Z'));await p.goto(origin);await p.locator('[data-workspace-account]').waitFor({state:'attached'});return p;}
  try{
   for(const [name,engine]of Object.entries({chromium,webkit})){
    browser=await engine.launch({headless:true});

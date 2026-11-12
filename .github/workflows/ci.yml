@@ -78,6 +78,7 @@ jobs:
       - run: node scripts/verify-pdf-import.cjs
       - run: node scripts/verify-visible-flight-scan.cjs
       - run: node scripts/verify-shared-ui.cjs
+      - run: node scripts/verify-logbook-month.cjs
       - run: npm run test:navy-ui
       - run: npm run test:study-ui
       - run: node scripts/verify-atpl-browser.cjs

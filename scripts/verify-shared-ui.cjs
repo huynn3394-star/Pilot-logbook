@@ -56,6 +56,7 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
      try{
       await p.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());
       await p.route('**/api/weather**',r=>r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Isolated UI test: no live weather feed'})}));
+      await p.clock.setFixedTime(new Date('2026-10-09T12:00:00Z'));
       await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();
       for(const theme of ['light','dark']){
        await p.waitForFunction(()=>getComputedStyle(document.documentElement).getPropertyValue('--ui-revision').trim()==='avilog-shared-v1');
