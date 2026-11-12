@@ -1,5 +1,5 @@
 const BUNDLE_BUILD = "80c44a81f174";
-const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v3-compact-counters-20261105-weather-cache-20261106-wader-v5-20261106-study-20261107-auto-night-20261107-flight-entry-20261108-release-20261108-weather-bulletin-display-20261109-mobile-refresh-20261109" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
+const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v3-compact-counters-20261105-weather-cache-20261106-wader-v5-20261106-study-20261107-auto-night-20261107-flight-entry-20261108-release-20261108-weather-bulletin-display-20261109-mobile-refresh-20261109-logbook-current-month" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
 const SHELL = [
   "/lib/usage.js",
   "/workspace/flight-conflict.js",

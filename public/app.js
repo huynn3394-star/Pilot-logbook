@@ -91,8 +91,9 @@ const app = document.querySelector("#app"),
   modal = document.querySelector("#modal");
 let state,
   tab = navigationItems.some(([id])=>id!=="atpl"&&id===new URLSearchParams(location.search).get("tab"))?new URLSearchParams(location.search).get("tab"):"weather",
-  month = "2026-10",
-  day = "2026-10-09",
+  day = todayInputDate(),
+  month = day.slice(0, 7),
+  logbookMonthOverride = null,
   view = "calendar",
   query = "",
   logFilter = "all",
@@ -152,7 +153,14 @@ const fullDate = (d) =>
     month: "long",
     timeZone: "UTC",
   });
+const getLogbookMonth = () => logbookMonthOverride ?? todayInputDate().slice(0, 7);
 const getFlights = () => state.flights.filter((f) => f.date.startsWith(month));
+
+function selectFlightDate(date) {
+  day = date;
+  month = date.slice(0, 7);
+  if (tab === "logbook" && month !== getLogbookMonth()) logbookMonthOverride = month;
+}
 const statusPill = (f) =>
   `<span class="pill ${f.confirmed ? "green" : Object.keys(f.actual || {}).length ? "amber" : "gray"}"><i class="dot"></i>${f.confirmed ? "Actual đã xác nhận" : Object.keys(f.actual || {}).length ? "Actual nháp" : "Scheduled"}</span>`;
 const btn = (action, text, ico, cls = "", extra = "") =>
@@ -211,7 +219,7 @@ function render() {
   const fs = getFlights(),
     s = statistics(fs);
   const nav=renderNavigation({active:tab,icon,count:fs.length});
-  app.innerHTML = `<div data-screen="${tab}" class="app-shell w5-shell${tab==='logbook'?' nv-logbook-shell':''}"><aside class="sidebar"><div class="brand"><span class="brandmark">${icon("plane")}</span>AviLog<span style="color:#ffffff">.</span></div><button type="button" class="sidebar-toggle" data-action="appearance-sidebar" aria-label="Thu gọn hoặc mở rộng thanh điều hướng">☰</button><button type="button" class="w5-sidebar-profile" data-action="navy-account" aria-label="Tài khoản AviLog"><span>${e((state.settings.name||"P").slice(0,2).toUpperCase())}</span><small>AviLog</small></button><div class="nav-caption">YOUR FLIGHT COMPANION</div><nav class="nav" aria-label="Điều hướng">${nav}</nav><div class="sidebar-bottom"><button type="button" class="w5-sidebar-add" data-action="add" aria-label="Thêm chuyến bay">${icon("plus")}</button><div class="plan-card"><strong>${icon("shield")} Your logbook, your story.</strong><p>Lịch bay, giờ bay và những người đồng hành. Gọn trong một nơi.</p>${btn("plan", "Free preview ↗", null, "small")}</div><button class="profile iconbtn" style="width:100%;height:auto;text-align:left;display:flex" data-action="tab" data-tab="settings"><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span><span><strong>${e(state.settings.name || "Pilot")}</strong><small>Personal workspace</small></span>${icon("settings")}</button></div></aside><section class="workspace"><header class="topbar"><div class="topbar-main"><button type="button" class="iconbtn nv-avatar" data-action="navy-account" aria-label="Mở tài khoản và đồng bộ">${e((state.settings.name||"P").slice(0,2).toUpperCase())}</button><div class="breadcrumbs">Workspace <span>/</span> <strong>${titles[tab]}</strong></div><div class="mobile-brand"><span class="brandmark">${icon("plane")}</span>AviLog.</div><div class="top-actions"><button type="button" class="iconbtn w5-theme-button" data-action="appearance-theme" aria-label="Chuyển sang ban đêm">☾</button><button type="button" class="iconbtn w5-refresh" data-action="w5-refresh" aria-label="Cập nhật dữ liệu">↻</button><span class="utc-clock mono" id="utc-clock">${new Date().toISOString().slice(11, 16)} <b>UTC</b></span><button class="iconbtn notification-btn" data-action="reminders" aria-label="Thông báo">${icon("bell")}</button><div data-page-tools></div><section class="workspace-account" data-workspace-account aria-label="Tài khoản AviLog"></section></div></div></header><main class="main${tab === "weather" ? " weather-main" : ""}"><div class="page-heading"><div><div style="display:flex;gap:10px;align-items:center"><h1>${titles[tab]}</h1><span class="badge-preview">PREVIEW</span></div><p>${{ schedule: "Mỗi hành trình, một câu chuyện. Sẵn sàng cho chuyến bay tiếp theo.", logbook: "Ghi lại hành trình. Giữ trọn từng phút bay.", crew: "Những người đồng hành trên mỗi chuyến bay.", statistics: "Một góc nhìn rõ hơn về hành trình của bạn.", weather: "Theo dõi METAR / SPECI và TAF nguyên văn của các sân bay bạn chọn.", settings: "Thiết lập không gian bay của riêng bạn." }[tab]}</p></div><div class="actions">${["schedule", "logbook"].includes(tab) ? `${btn("import", "Import roster", "upload")}${btn("add", "Thêm chuyến bay", "plus", "primary")}` : tab === "crew" ? btn("add-person", "Thêm người", "plus", "primary") : tab === "statistics" ? btn("csv", "Xuất CSV", "download") : ""}</div></div>${tab === "schedule" ? schedule(fs, s) : tab === "logbook" ? logbook(fs, s) : tab === "crew" ? crew() : tab === "statistics" ? statsPage(fs, s) : tab === "weather" ? '<div data-weather-watch></div>' : settingsPage()}<footer class="footer"><span>${icon("shield")} Lưu offline theo không gian đang chọn · All times in UTC · AviLog</span><span>Made for the journey, logged for you.</span></footer></main></section>${renderBottomNavigation({active:tab,icon})}</div>`;
+  app.innerHTML = `<div data-screen="${tab}" class="app-shell w5-shell${tab==='logbook'?' nv-logbook-shell':''}"><aside class="sidebar"><div class="brand"><span class="brandmark">${icon("plane")}</span>AviLog<span style="color:#ffffff">.</span></div><button type="button" class="sidebar-toggle" data-action="appearance-sidebar" aria-label="Thu gọn hoặc mở rộng thanh điều hướng">☰</button><button type="button" class="w5-sidebar-profile" data-action="navy-account" aria-label="Tài khoản AviLog"><span>${e((state.settings.name||"P").slice(0,2).toUpperCase())}</span><small>AviLog</small></button><div class="nav-caption">YOUR FLIGHT COMPANION</div><nav class="nav" aria-label="Điều hướng">${nav}</nav><div class="sidebar-bottom"><button type="button" class="w5-sidebar-add" data-action="add" aria-label="Thêm chuyến bay">${icon("plus")}</button><div class="plan-card"><strong>${icon("shield")} Your logbook, your story.</strong><p>Lịch bay, giờ bay và những người đồng hành. Gọn trong một nơi.</p>${btn("plan", "Free preview ↗", null, "small")}</div><button class="profile iconbtn" style="width:100%;height:auto;text-align:left;display:flex" data-action="tab" data-tab="settings"><span class="avatar">${e((state.settings.name || "P").slice(0, 2).toUpperCase())}</span><span><strong>${e(state.settings.name || "Pilot")}</strong><small>Personal workspace</small></span>${icon("settings")}</button></div></aside><section class="workspace"><header class="topbar"><div class="topbar-main"><button type="button" class="iconbtn nv-avatar" data-action="navy-account" aria-label="Mở tài khoản và đồng bộ">${e((state.settings.name||"P").slice(0,2).toUpperCase())}</button><div class="breadcrumbs">Workspace <span>/</span> <strong>${titles[tab]}</strong></div><div class="mobile-brand"><span class="brandmark">${icon("plane")}</span>AviLog.</div><div class="top-actions"><button type="button" class="iconbtn w5-theme-button" data-action="appearance-theme" aria-label="Chuyển sang ban đêm">☾</button><button type="button" class="iconbtn w5-refresh" data-action="w5-refresh" aria-label="Cập nhật dữ liệu">↻</button><span class="utc-clock mono" id="utc-clock">${new Date().toISOString().slice(11, 16)} <b>UTC</b></span><button class="iconbtn notification-btn" data-action="reminders" aria-label="Thông báo">${icon("bell")}</button><div data-page-tools></div><section class="workspace-account" data-workspace-account aria-label="Tài khoản AviLog"></section></div></div></header><main class="main${tab === "weather" ? " weather-main" : ""}"><div class="page-heading"><div><div style="display:flex;gap:10px;align-items:center"><h1>${titles[tab]}</h1><span class="badge-preview">PREVIEW</span></div><p>${{ schedule: "Mỗi hành trình, một câu chuyện. Sẵn sàng cho chuyến bay tiếp theo.", logbook: "Ghi lại hành trình. Giữ trọn từng phút bay.", crew: "Những người đồng hành trên mỗi chuyến bay.", statistics: "Một góc nhìn rõ hơn về hành trình của bạn.", weather: "Theo dõi METAR / SPECI và TAF nguyên văn của các sân bay bạn chọn.", settings: "Thiết lập không gian bay của riêng bạn." }[tab]}</p></div><div class="actions">${["schedule", "logbook"].includes(tab) ? `${btn("import", "Import roster", "upload")}${btn("add", "Thêm chuyến bay", "plus", "primary")}` : tab === "crew" ? btn("add-person", "Thêm người", "plus", "primary") : tab === "statistics" ? btn("csv", "Xuất CSV", "download") : ""}</div></div>${tab === "schedule" ? schedule(fs, s) : tab === "logbook" ? logbook() : tab === "crew" ? crew() : tab === "statistics" ? statsPage(fs, s) : tab === "weather" ? '<div data-weather-watch></div>' : settingsPage()}<footer class="footer"><span>${icon("shield")} Lưu offline theo không gian đang chọn · All times in UTC · AviLog</span><span>Made for the journey, logged for you.</span></footer></main></section>${renderBottomNavigation({active:tab,icon})}</div>`;
   mountPageLayout();applyAppearance();mountWorkspaceControls();
   // Navy V2.1.5 mobile header: reuse existing management action and real account controls.
   if(tab==='logbook'){
@@ -256,7 +264,7 @@ function schedule(fs, s) {
 function calendar(fs) {
   const date = new Date(month + "-01T00:00Z"),
     start = new Date(+date - ((date.getUTCDay() + 6) % 7) * 86400000),
-    today = new Date().toISOString().slice(0, 10),
+    today = todayInputDate(),
     count =
       Math.ceil(
         (((date.getUTCDay() + 6) % 7) +
@@ -338,15 +346,29 @@ function flightTable(fs) {
     ? `<div class="table-wrap"><table class="data-table"><thead><tr><th>Ngày / Flight</th><th>Hành trình</th><th>Scheduled · UTC</th><th>Actual · UTC</th><th>Block / Air</th><th>Trạng thái</th><th></th></tr></thead><tbody>${filtered.map((f) => `<tr><td><span class="tiny muted">${shortDate(f.date)}</span><br><strong>${e(f.flightNo)}</strong></td><td class="route-col">${e(f.dep)} <span class="muted">→</span> ${e(f.dest)}<br><span class="tiny muted">${e(f.aircraft)} · ${e(f.reg || "Reg chưa ghi")}</span></td><td class="mono">${clock(f.scheduled?.out)}–${clock(f.scheduled?.in)}${(f.scheduled?.dep && f.scheduled.dep !== f.dep) || (f.scheduled?.dest && f.scheduled.dest !== f.dest) ? '<br><span class="tiny">' + e(f.scheduled.dep) + " → " + e(f.scheduled.dest) + "</span>" : ""}${f.scheduled?.in?.slice(0, 10) > f.date ? " +1d" : ""}</td><td class="mono">${clock(f.actual?.out)}–${clock(f.actual?.in)}${f.actual?.in?.slice(0, 10) > f.date ? " +1d" : ""}</td><td class="mono">${f.confirmed ? duration(minutes(f.actual.out, f.actual.in)) + " / " + duration(minutes(f.actual.off, f.actual.on)) : "—"}</td><td>${statusPill(f)}</td><td><button class="iconbtn" data-action="edit" data-id="${e(f.id)}" aria-label="Sửa ${e(f.flightNo)}">${icon("edit")}</button></td></tr>`).join("")}</tbody></table></div>`
     : `<div class="empty">${icon("book")}<p>Không có chuyến bay phù hợp.</p></div>`;
 }
-function logbook(fs, s) {
+function logbook() {
+  const month = getLogbookMonth();
   return `${state.demo?'<p class="nv-demo-note" role="note">Dữ liệu mẫu · chỉ trong kho khách trên thiết bị. <button type="button" class="text-button" data-action="fresh">Bắt đầu logbook riêng</button></p>':''}${renderLogbook({flights:state.flights,people:state.people,month,query,filters:navyFilters,limit:navyLimit,icon})}<details class="nv-logbook-summary"><summary>Thống kê các chuyến đang lọc</summary><div data-navy-metrics>${metrics(statistics(selectFlights(state.flights,{month,query,filters:navyFilters,people:state.people})))}</div></details><div class="nv-collection-actions">${btn('navy-management','Quản lý Logbook','settings')}${btn('add','Thêm chuyến bay','plus','primary')}</div>`;
 }
 
 function refreshLogbook(){
  const host=app.querySelector('[data-navy-logbook]');if(!host)return;
+ const month = getLogbookMonth();
  host.outerHTML=renderLogbook({flights:state.flights,people:state.people,month,query,filters:navyFilters,limit:navyLimit,icon});
  const summary=app.querySelector('[data-navy-metrics]');if(summary)summary.innerHTML=metrics(statistics(selectFlights(state.flights,{month,query,filters:navyFilters,people:state.people})));
 }
+
+function refreshLogbookMonth() {
+  if (tab !== "logbook" || logbookMonthOverride !== null || busyForm()) return;
+  const displayedMonth = app.querySelector("[data-navy-month]")?.defaultValue;
+  if (displayedMonth && displayedMonth !== getLogbookMonth()) refreshLogbook();
+}
+window.addEventListener("focus", refreshLogbookMonth);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) refreshLogbookMonth();
+});
+modal.addEventListener("close", refreshLogbookMonth);
+
 function canLeaveDraft(){return !saving&&(!formDirty||confirm('Bạn còn thay đổi chưa lưu. Bỏ thay đổi để tiếp tục?'));}
 modal.addEventListener('cancel',event=>{if(!canLeaveDraft())event.preventDefault();});
 window.addEventListener('beforeunload',event=>{if(formDirty){event.preventDefault();event.returnValue='';}});
@@ -358,6 +380,7 @@ function navySheet(kind){
  modal.classList.add('nv-sheet');modal._navySheet=mountSheet(modal);
 }
 function navyFilterDialog(){
+ const month = getLogbookMonth();
  let draft={...navyFilters};
  openModal('Bộ lọc chuyến bay',renderFilters(draft,{flights:state.flights,people:state.people,month,query}));
  modal.classList.add('nv-filter-modal');modal._navySheet=mountSheet(modal);
@@ -587,8 +610,7 @@ async function saveFlight(ev) {
     else next.flights[i] = f;
     await commit(next, "Đã lưu chuyến bay",{confirmActualReplacement:fd.has("replaceConfirmed")});
     modal._flightEditor?.setSaveState('saved');
-    month = f.date.slice(0, 7);
-    day = f.date;
+    selectFlightDate(f.date);
     if(saveMode==='next'||saveMode==='return'){
       render();
       editFlight(null,null,'',null,{
@@ -610,9 +632,10 @@ async function saveFlight(ev) {
 }
 function importRoster() {
   importPreview = null;
+  const rosterMonth = tab === "logbook" ? getLogbookMonth() : month;
   openModal(
     "Import month plan",
-    `<div class="modal-body"><div class="steps"><b>01 · Đọc file</b><span>→</span><b>02 · Kiểm tra</b><span>→</span><span>03 · Lưu Scheduled</span></div><p>PDF được đọc trên thiết bị. Lịch mới chỉ cập nhật Scheduled; Actual đã ghi được giữ nguyên. Chuyến không xuất hiện trong file mới sẽ không tự bị xóa.</p><div class="file-zone">${icon("upload")}<strong>Chọn month-plan PDF</strong><input id="roster-file" type="file" accept="application/pdf"><span class="tiny muted">PDF có lớp chữ · tối đa 20 MB / 60 trang</span></div><div class="progress" id="import-progress"></div><div class="form-grid">${input("roster-month", "Tháng / năm của roster", month, "month", 'id="roster-month" required')}</div><div class="form-section"><span>Văn bản nhận được · có thể chỉnh sửa</span>${btn("roster-sample", "Dùng mẫu 09/10", null, "small ghost")}</div><textarea id="roster-text" rows="7" placeholder="09/10 VN7388 SGN-DLI 07:14-08:06&#10;VN7389 DLI-SGN 08:40-09:30"></textarea><p class="tiny muted" style="margin-top:9px">Parser preview hỗ trợ dòng ngày/tháng + VNxxxx + DEP-DEST + HH:MM-HH:MM (UTC). Bố cục khác cần sửa văn bản về định dạng này.</p><div class="error" data-error hidden></div><div id="roster-preview"></div></div>`,
+    `<div class="modal-body"><div class="steps"><b>01 · Đọc file</b><span>→</span><b>02 · Kiểm tra</b><span>→</span><span>03 · Lưu Scheduled</span></div><p>PDF được đọc trên thiết bị. Lịch mới chỉ cập nhật Scheduled; Actual đã ghi được giữ nguyên. Chuyến không xuất hiện trong file mới sẽ không tự bị xóa.</p><div class="file-zone">${icon("upload")}<strong>Chọn month-plan PDF</strong><input id="roster-file" type="file" accept="application/pdf"><span class="tiny muted">PDF có lớp chữ · tối đa 20 MB / 60 trang</span></div><div class="progress" id="import-progress"></div><div class="form-grid">${input("roster-month", "Tháng / năm của roster", rosterMonth, "month", 'id="roster-month" required')}</div><div class="form-section"><span>Văn bản nhận được · có thể chỉnh sửa</span>${btn("roster-sample", "Dùng mẫu 09/10", null, "small ghost")}</div><textarea id="roster-text" rows="7" placeholder="09/10 VN7388 SGN-DLI 07:14-08:06&#10;VN7389 DLI-SGN 08:40-09:30"></textarea><p class="tiny muted" style="margin-top:9px">Parser preview hỗ trợ dòng ngày/tháng + VNxxxx + DEP-DEST + HH:MM-HH:MM (UTC). Bố cục khác cần sửa văn bản về định dạng này.</p><div class="error" data-error hidden></div><div id="roster-preview"></div></div>`,
     `${btn("close", "Hủy", null, "ghost")}${btn("roster-parse", "Đọc & xem trước", "arrow", "primary")}`,
   );
   modal.querySelector("#roster-file").onchange = async (ev) => {
@@ -681,8 +704,7 @@ async function saveRoster() {
     const m = mergeRoster(state.flights, rows,{v14Enabled:!workspaceSession?.uid||account?.config?.logbookV14Enabled===true}),
       next = { ...state, flights: m.flights };
     await commit(next, "Đã cập nhật Scheduled · Actual được giữ nguyên");
-    month = rows[0].date.slice(0, 7);
-    day = rows[0].date;
+    selectFlightDate(rows[0].date);
     modal.close();
     render();
   } catch (err) {
@@ -1194,15 +1216,24 @@ async function fresh() {
     `${btn("backup", "Backup trước", "download")}${btn("close", "Giữ hiện tại", null, "ghost")}${btn("fresh-confirm", "Bắt đầu trống", "check", "primary")}`,
   );
 }
+function pickLogbookMonth(event) {
+  const input = event.target;
+  if (!input.matches("[data-navy-month]") || !/^\d{4}-(0[1-9]|1[0-2])$/.test(input.value)) return;
+  logbookMonthOverride = input.value;
+  selectFlightDate(input.value + "-01");
+  navyFilters = { ...navyFilters, period: "month" };
+  navyLimit = 80;
+  render();
+}
+app.addEventListener("change", pickLogbookMonth);
+app.addEventListener("input", pickLogbookMonth);
 app.addEventListener("change", (ev) => {
-  if(ev.target.matches("[data-navy-month]")&&/^\d{4}-\d{2}$/.test(ev.target.value)){month=ev.target.value;day=month+"-01";navyFilters={...navyFilters,period:"month"};navyLimit=80;render();return;}
   if (ev.target.matches('[data-filter="status"]')) {
     logFilter = ev.target.value;
     render();
   }
 });
 app.addEventListener("input", (ev) => {
-  if(ev.target.matches('[data-navy-month]')&&/^\d{4}-\d{2}$/.test(ev.target.value)){month=ev.target.value;day=month+'-01';navyFilters={...navyFilters,period:'month'};navyLimit=80;render();return;}
   if (ev.target.matches('[data-filter="search"]')) {
     const start = ev.target.selectionStart;
     query = ev.target.value;navyLimit=80;
@@ -1275,15 +1306,15 @@ document.addEventListener("click", async (ev) => {
         break;
       case "month-prev":
       case "month-next": {
-        const d = new Date(month + "-01T12:00Z");
+        const selectedMonth = tab === "logbook" ? getLogbookMonth() : month;
+        const d = new Date(selectedMonth + "-01T12:00Z");
         d.setUTCMonth(d.getUTCMonth() + (action === "month-next" ? 1 : -1));
-        month = d.toISOString().slice(0, 7);
-        day = month + "-01";
+        selectFlightDate(d.toISOString().slice(0, 10));
         render();
         break;
       }
       case "today":
-        day = new Date().toISOString().slice(0, 10);
+        day = todayInputDate();
         month = day.slice(0, 7);
         render();
         break;
@@ -1445,7 +1476,8 @@ document.addEventListener("click", async (ev) => {
           },
           "Logbook riêng đã sẵn sàng",
         );
-        day = new Date().toISOString().slice(0, 10);
+        logbookMonthOverride = null;
+        day = todayInputDate();
         month = day.slice(0, 7);
         modal.close();
         render();
@@ -1470,6 +1502,7 @@ if ("serviceWorker" in navigator)
       toast("Chưa bật được offline cache. Dữ liệu vẫn lưu trên thiết bị."),
     );
 setInterval(() => {
+  refreshLogbookMonth();
   const c = document.querySelector("#utc-clock");
   if (c) c.innerHTML = new Date().toISOString().slice(11, 16) + " <b>UTC</b>";
   notify().catch(() => {});
