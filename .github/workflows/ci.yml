@@ -72,6 +72,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run build:atpl-account
       - run: npx playwright install --with-deps chromium webkit
+      - run: node scripts/verify-wader-csv.cjs
       - run: node scripts/verify-admin.cjs
       - run: node scripts/verify-weather-view.cjs
       - run: node scripts/verify-weather-attention.cjs

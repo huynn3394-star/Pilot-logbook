@@ -1,7 +1,7 @@
 /** Compact flight editor. Optional V14 metadata is guarded by the account capability flag.
  * Tabs only hide DOM panels: changing tabs never rebuilds inputs or drops a draft.
  */
-import {minutes,duration} from './domain.js';
+import {minutes,duration,isWaderCsvFlight} from './domain.js';
 import {flightTimeInput,readUTCInput} from './utc-input.js';
 import {icaoFor} from './parsers.js';
 import {readLogbookFields,timeTotals} from './flight-times.js';
@@ -38,6 +38,7 @@ export function flightEditorSummary(actual={},picMinutes=0,nightMinutes=0){
 
 export function renderFlightEditor(f,{original=null,imported=null,warning='',icon=()=>'',scan=null,v14Enabled=true,lastAircraft=null,lastCrew=null}={}){
  const actual=f.actual||{},scheduled=f.scheduled||{},photo=safePhoto(imported?.attachment||original?.attachment);
+ const wader=isWaderCsvFlight(f),unknown=wader?[['','Chưa ghi']]:[];
  const time=(name,label,value,placeholder,timeIcon)=>flightTimeInput(name,label,value,{date:f.date,placeholder,icon:timeIcon});
  const types=new Set(['A320','A321','E190','B787','A350',f.aircraft,lastAircraft?.aircraft].filter(value=>value&&value!=='OTHER'));
  const typeOptions=[['','Loại tàu bay'],...[...types].map(value=>[value,value]),['OTHER','Khác']];
@@ -60,7 +61,7 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
     <section class="fe-entry-column fe-route-column" aria-label="Route &amp; Schedule">
      <h3 class="fe-column-title">${icon('arrow')} Route &amp; Schedule</h3>
      <div class="fe-grid fe-main-fields">
-      ${field('flightNo','Flight number',f.flightNo,'text','required maxlength="12" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Flight no."')}
+      ${field('flightNo','Flight number',f.flightNo,'text',(wader?'maxlength="16"':'required maxlength="12"')+' autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Flight no."')}
       <span class="fe-web-scan-slot"></span>
       <span class="fe-web-label fe-date-label">Date · UTC</span>
       <div class="fe-date-stepper">
@@ -99,7 +100,7 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
     <section class="fe-entry-column fe-details-column" aria-label="Flight Details">
      <h3 class="fe-column-title">${icon('settings')} Flight Details</h3>
      <section class="fe-card fe-operation-card" aria-label="Vai trò và thao tác">
-      <div class="fe-grid fe-operations">${choice('role','Pilot Role',f.role,[['PF','PF'],['PM','PM']])}${choice('landingMode','Landing Mode',f.landingMode||'manual',[['manual','Manual'],['autoland','Autoland']])}</div>
+      <div class="fe-grid fe-operations">${choice('role','Pilot Role',f.role,[...unknown,['PF','PF'],['PM','PM']])}${choice('landingMode','Landing Mode',f.landingMode||(wader?'':'manual'),[...unknown,['manual','Manual'],['autoland','Autoland']])}</div>
      </section>
      <div class="fe-grid fe-pilot-grid">${renderPilotControl('takeoffBy','Takeoff by',f.takeoffBy||'',icon)}${renderPilotControl('landingBy','Landing by',f.landingBy||'',icon)}</div>
      <div data-fe-counter-slot></div>
@@ -131,7 +132,7 @@ export function renderFlightEditor(f,{original=null,imported=null,warning='',ico
     <div class="fe-section-heading"><span class="fe-eyebrow">REVIEW & SAVE</span><h3>Nguồn & xác nhận</h3><p>Thông tin được lưu theo chuyến bay. Kết quả scan cần bạn kiểm tra trước khi chốt Actual.</p></div>
     <section class="fe-card"><div class="fe-card-heading"><h3>${icon('file')} Source</h3></div><div class="fe-source-fields">${field('source','Nguồn',f.source||'manual','text','maxlength="120"')}${field('confidence','Độ tin cậy nhận dạng (%)',f.confidence??100,'number','min="0" max="100"')}</div><p class="fe-help fe-inset">Độ tin cậy là thông tin nhận dạng, không phải chứng nhận độ chính xác.</p></section>
     <section class="fe-card"><div class="fe-card-heading"><h3>${icon('camera')} Files / Photos</h3><span>Ảnh gốc</span></div><div class="fe-evidence" data-flight-evidence><label class="fe-file-label"><span>Thêm / thay ảnh minh chứng</span><input type="file" name="evidence" accept="image/jpeg,image/png,image/webp"><small>JPG / PNG / WebP · tối đa 6 MB</small></label>${photo?`<img class="image-preview" src="${photo}" alt="Ảnh minh chứng chuyến bay"><label class="check"><input type="checkbox" name="removeAttachment">Bỏ ảnh khỏi chuyến này</label>`:''}</div><p class="fe-help fe-inset">Đính kèm ảnh ở đây không chạy OCR. Để đọc giờ, chọn Nhập ảnh Flight Log ngay trong tab Log của chuyến này.</p></section>
-    <section class="fe-card fe-confirm-card"><div class="fe-card-heading"><h3>${icon('shield')} Xác nhận Actual</h3></div><div class="fe-confirm-content">${original?.confirmed?'<div class="fe-protected">Actual đã xác nhận đang được bảo vệ. Thay đổi giờ hoặc thông tin khai thác cần cho phép rõ ràng.</div>':''}<label class="check"><input type="checkbox" name="confirmed"${f.confirmed?' checked':''}><span>Tôi đã kiểm tra và xác nhận Actual<small>Cần đủ OUT / OFF / ON / IN và đúng ngày UTC.</small></span></label>${original?.confirmed?'<label class="check fe-replace"><input type="checkbox" name="replaceConfirmed"><span>Cho phép thay đổi Actual đã xác nhận<small>Chỉ chọn sau khi đã đối chiếu lại thông tin.</small></span></label>':''}${original?.confirmed&&v14Enabled?field('revisionReason','Lý do sửa FINAL', '', 'text', 'maxlength="500" placeholder="Ví dụ: đối chiếu lại ảnh AOC"'):''}<p class="fe-help">Bấm Lưu ở đầu màn hình để ghi thay đổi. Chuyển tab không lưu và không tự xác nhận.</p></div></section>
+    <section class="fe-card fe-confirm-card"><div class="fe-card-heading"><h3>${icon('shield')} Xác nhận Actual</h3></div><div class="fe-confirm-content">${original?.confirmed?'<div class="fe-protected">Actual đã xác nhận đang được bảo vệ. Thay đổi giờ hoặc thông tin khai thác cần cho phép rõ ràng.</div>':''}<label class="check"><input type="checkbox" name="confirmed"${f.confirmed?' checked':''}><span>Tôi đã kiểm tra và xác nhận Actual<small>${wader?'Bản nhập Wader có thể để trống OFF / ON. Kiểm tra OUT / IN và ngày UTC.':'Cần đủ OUT / OFF / ON / IN và đúng ngày UTC.'}</small></span></label>${original?.confirmed?'<label class="check fe-replace"><input type="checkbox" name="replaceConfirmed"><span>Cho phép thay đổi Actual đã xác nhận<small>Chỉ chọn sau khi đã đối chiếu lại thông tin.</small></span></label>':''}${original?.confirmed&&v14Enabled?field('revisionReason','Lý do sửa FINAL', '', 'text', 'maxlength="500" placeholder="Ví dụ: đối chiếu lại ảnh AOC"'):''}<p class="fe-help">Bấm Lưu ở đầu màn hình để ghi thay đổi. Chuyển tab không lưu và không tự xác nhận.</p></div></section>
     ${renderAuditTrail(f)}
     ${original?`<button type="button" class="fe-archive-button" data-action="archive-flight" data-id="${esc(original.id)}">Bỏ chuyến vào thùng rác</button>`:''}
    </section>
@@ -158,7 +159,7 @@ export function updateFlightEditor(form,options={}){
  const extra=logbook?cell('PICUS','picus')+cell('Act Ins','instrument')+cell('Cross-country','crossCountry'):'';
  const rules=logbook?`<div class="fe-summary-pair">${cell('VFR','vfr')}${cell('IFR','ifr')}</div>`:'';
  form.querySelector('#actual-summary').innerHTML=`<div class="fe-summary-grid">${cell('Flight','airborne')}${cell('Block','block')}${cell('PIC','pic')}${cell('SIC','sic',totals.legacySIC?'Cũ: Block − PIC · cần kiểm tra':'')}${extra}<div class="fe-summary-pair">${cell('Day','day')}${cell('Night','night')}</div>${rules}</div><p class="fe-help fe-inset">Thống kê dùng Actual đã lưu và xác nhận.</p>`;
- const complete=['out','off','on','in'].every(key=>actual[key])&&totals.airborne!==null&&totals.block!==null;
+ const complete=totals.block!==null&&(isWaderCsvFlight({id:form.dataset.id})||totals.airborne!==null);
  const modal=form.closest('dialog');
  if(modal&&!form._saving){
   const invalid=[...form.elements].some(input=>input.willValidate&&!input.validity.valid);

@@ -38,11 +38,13 @@ export const minutes = (a, b) =>
 export const duration = (n) =>
   `${n < 0 ? "-" : ""}${String(Math.floor(Math.abs(n || 0) / 60)).padStart(2, "0")}:${String(Math.abs(n || 0) % 60).padStart(2, "0")}`;
 export const clock = (t) => (t ? new Date(t).toISOString().slice(11, 16) : "—");
-export const flightKey = (f) =>
+export const isWaderCsvFlight = (f) => /^wader-csv-[a-f0-9]{64}$/.test(f?.id || "");
+const flightNumberKey = (f) =>
   `${f.date}:${String(f.flightNo)
     .toUpperCase()
     .replace(/\s/g, "")
     .replace(/^([A-Z]{2})0+(\d)/, "$1$2")}`;
+export const flightKey = (f) => isWaderCsvFlight(f) ? f.id : flightNumberKey(f);
 export function validateFlight(f) {
   validDate(f.date);
   if (typeof f.id !== "string" || !f.id || f.id.length > 100)
@@ -82,7 +84,9 @@ export function validateFlight(f) {
       (!f[k] || typeof f[k] !== "object" || Array.isArray(f[k]))
     )
       throw Error("Giờ chuyến bay không hợp lệ");
-  if (!/^[A-Z0-9]{2,3}\d{1,5}[A-Z]?$/.test(f.flightNo || ""))
+  const wader = isWaderCsvFlight(f);
+  const flightNumberPattern = wader ? /^[A-Z0-9-]{0,16}$/ : /^[A-Z0-9]{2,3}\d{1,5}[A-Z]?$/;
+  if (!flightNumberPattern.test(f.flightNo))
     throw Error("Kiểm tra số hiệu chuyến bay");
   if (!/^[A-Z]{3,4}$/.test(f.dep || "") || !/^[A-Z]{3,4}$/.test(f.dest || ""))
     throw Error("Sân bay phải là mã IATA hoặc ICAO");
@@ -105,8 +109,9 @@ export function validateFlight(f) {
     if (e?.out && e?.in && minutes(e.out, e.in) > 1440)
       throw Error("Block vượt 24 giờ; kiểm tra lại ngày");
   }
-  if (f.confirmed && !eventKeys.every((k) => f.actual?.[k]))
-    throw Error("Cần đủ OUT/OFF/ON/IN trước khi xác nhận");
+  const requiredActual = wader ? ["out", "in"] : eventKeys;
+  if (f.confirmed && !requiredActual.every((k) => f.actual?.[k]))
+    throw Error(wader ? "Cần đủ OUT/IN trước khi xác nhận" : "Cần đủ OUT/OFF/ON/IN trước khi xác nhận");
   if (
     f.nightMinutes !== undefined &&
     (!Number.isInteger(f.nightMinutes) ||
@@ -136,7 +141,12 @@ export function mergeRoster(existing, incoming, { v14Enabled = false } = {}) {
     source: f.scheduled?.source || f.source || "",
   });
   for (const f of incoming) {
-    const i = flights.findIndex((x) => flightKey(x) === flightKey(f));
+    let i = flights.findIndex((x) => flightKey(x) === flightKey(f));
+    if (i < 0 && f.flightNo) {
+      const matches = flights.filter(x => isWaderCsvFlight(x) && flightNumberKey(x) === flightNumberKey(f) &&
+        x.dep === f.dep && x.dest === f.dest);
+      if (matches.length === 1) i = flights.indexOf(matches[0]);
+    }
     if (i < 0) {
       flights.push({
         ...f,
@@ -201,7 +211,8 @@ export function statistics(flights) {
     s.block += b;
     s.airborne += a;
     s.sectors++;
-    s[f.role === "PF" ? "pf" : "pm"]++;
+    if (!isWaderCsvFlight(f) || f.role === "PF" || f.role === "PM")
+      s[f.role === "PF" ? "pf" : "pm"]++;
     const l=f.logbook||{},totals=timeTotals(f);
     s.takeoffs += l.takeoffDay!==undefined||l.takeoffNight!==undefined?(l.takeoffDay||0)+(l.takeoffNight||0):f.takeoffBy==='self'?1:0;
     s.landings += l.landingDay!==undefined||l.landingNight!==undefined?(l.landingDay||0)+(l.landingNight||0):f.landingBy==='self'?1:0;

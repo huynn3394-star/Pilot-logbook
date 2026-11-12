@@ -1,5 +1,7 @@
 import {test} from 'node:test';import assert from 'node:assert/strict';
 import {openWorkspaceSession} from '../public/workspace/session.js';import {snapshot,flightRecord,dutyRecord,personRecord} from './fixtures/workspace.js';import {applyChanges,mergeRecord} from '../public/workspace/model.js';
+import {newWaderCsvRecords,parseWaderCsv} from '../public/lib/wader-csv.js';
+import {overnight,partial,simulator,waderCsv} from './fixtures/wader-csv.mjs';
 function setup({uid='alice',records=[],quota=false,guestState}={}){
  let generation=1,state=snapshot(records),guest=structuredClone(guestState),writes=[],recoveries=[],viewEvents=0,transition=0,onChange;state.uid=uid;const listeners=new Set();
  const coordinator={capture:()=>({uid,generation}),isCurrent:t=>t.uid===uid&&t.generation===generation,getCachedSelection:()=>uid?{uid}:null,subscribe(fn){listeners.add(fn);return()=>listeners.delete(fn);}};
@@ -10,6 +12,24 @@ function setup({uid='alice',records=[],quota=false,guestState}={}){
 test('guest uses original DB adapter while a cached Google UID opens empty local workspace without waiting for Auth',async()=>{
  const original={version:1,flights:[flightRecord().data],people:[],duties:[],settings:{name:'Guest',base:'SGN'},demo:false},g=setup({uid:null,guestState:original}),guest=await openWorkspaceSession(g.options);assert.deepEqual(guest.view(),original);guest.release();
  const a=setup({guestState:original}),account=await openWorkspaceSession(a.options);assert.equal(account.view().demo,false);assert.equal(account.view().flights.length,0);assert.deepEqual(a.guest,original);account.release();
+});
+test('a signed-in Wader import queues only new records and rejects a stale account token',async()=>{
+ const a=setup({records:[flightRecord()]});
+ const session=await openWorkspaceSession({...a.options,v14Enabled:()=>true});
+ const parsed=await parseWaderCsv(waderCsv([overnight,partial,simulator]));
+ const select=view=>newWaderCsvRecords(view,parsed);
+ const {view,records}=await session.appendImport(select);
+ assert.equal(view.flights.length,3);
+ assert.equal(records.flights.length,2);
+ assert.equal(records.duties.length,1);
+ assert.equal(a.writes.length,1);
+ assert.equal(a.writes[0].changes.length,3);
+ assert(a.writes[0].changes.every(change=>change.base===null));
+ assert.deepEqual((await session.appendImport(select)).records,{flights:[],duties:[]});
+ assert.equal(a.writes.length,1);
+ a.change();
+ await assert.rejects(()=>session.appendImport(select),/Tài khoản đã đổi/);
+ session.release();
 });
 test('save diffs against captured form base and merges remote independent change; confirmed Actual needs explicit replacement',async()=>{
  const a=setup({records:[flightRecord()]}),session=await openWorkspaceSession(a.options),form=session.captureForm(),next=session.view();next.flights[0].note='My note';a.remote(flightRecord({data:{scheduled:{out:'2026-10-09T04:02:00.000Z',in:'2026-10-09T05:12:00.000Z'}}}));await session.saveView({...form,next});assert.equal(a.writes[0].changes.length,1);assert.equal(a.writes[0].changes[0].base.data.note,'original');assert.equal(session.view().flights[0].scheduled.out,'2026-10-09T04:02:00.000Z');assert.equal(session.view().flights[0].note,'My note');

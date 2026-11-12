@@ -2,7 +2,7 @@ import {requiresFinalPermission,validateAuditedChange} from '../lib/flight-audit
 import {assertImportCapability} from './capabilities.js';
 import {validateFlight} from '../lib/domain.js';
 import {openWorkspace} from './repository.js';
-import {readState,writeState} from '../lib/storage.js';
+import {readState,writeState,updateState} from '../lib/storage.js';
 import {sampleState} from '../lib/sample.js';
 import {archiveRecord,restoreRecord,flightKey} from '../lib/domain.js';
 import {toWorkspaceView} from './projection.js';
@@ -15,7 +15,7 @@ const key=r=>r.kind+'\0'+r.id,clean=value=>JSON.parse(JSON.stringify(value));
 const equal=(a,b)=>canonical(a??null)===canonical(b??null);
 function equivalent(a,b,k){if(equal(a,b))return true;if(['captainId','foId','takeoffBy','landingBy','landingMode','dutyId'].includes(k)&&!a&&!b)return true;if(k==='crewIds'&&(!a||!a.length)&&(!b||!b.length))return true;if(['picMinutes','nightMinutes'].includes(k)&&(a||0)===(b||0))return true;return false;}
 function entries(view){const result=[];for(const[kind,list]of[['flight',view.flights],['duty',view.duties],['person',view.people]])for(const data of list||[])result.push({kind,id:data.id,data,archived:false});for(const row of view.trash||[])result.push({kind:row.kind,id:row.data.id,data:row.data,archived:true,archive:{id:row.id,at:row.at}});return result;}
-export async function openWorkspaceSession({coordinator,onView=()=>{},onStatus=()=>{},onTransition=()=>{},onLocalChange=()=>{},v14Enabled=()=>false,openRepository=openWorkspace,guestStorage={readState,writeState}}){
+export async function openWorkspaceSession({coordinator,onView=()=>{},onStatus=()=>{},onTransition=()=>{},onLocalChange=()=>{},v14Enabled=()=>false,openRepository=openWorkspace,guestStorage={readState,writeState,updateState}}){
  const token=coordinator.capture(),uid=token.uid,identity=clone(coordinator.getCachedSelection()||{});let released=false,repository=null,snapshot=null,guest=null,device={},cached=null,refreshVersion=0;const urls=new Map();
  const current=t=>!released&&coordinator.isCurrent(t)&&t.uid===uid;
  const guard=(t=token)=>{if(!current(t))throw Error('Tài khoản đã đổi; không lưu dữ liệu của phiên cũ.');};
@@ -51,7 +51,26 @@ export async function openWorkspaceSession({coordinator,onView=()=>{},onStatus=(
  }
  async function archive(kind,id,t=token){guard(t);if(!uid){guest=archiveRecord(guest,kind,id);await guestStorage.writeState(guest);await refresh();return clone(cached);}const state=await repository.read();guard(t);const record=state.records.find(r=>r.kind===kind&&r.id===id);if(!record||record.archived)throw Error('Không tìm thấy bản ghi active.');assertImportCapability({changes:[{base:record,next:record}]},{uid,enabled:v14Enabled()});await repository.save({changes:[{kind,id,base:record,next:{...clone(record),archived:true,archive:{id:crypto.randomUUID(),at:new Date().toISOString()}}}],token:t});await refresh();return clone(cached);}
  async function restore(archiveId,t=token){guard(t);if(!uid){guest=restoreRecord(guest,archiveId);await guestStorage.writeState(guest);await refresh();return clone(cached);}const state=await repository.read();guard(t);const record=state.records.find(r=>r.archived&&r.archive.id===archiveId);if(!record)throw Error('Không tìm thấy bản ghi lưu trữ.');assertImportCapability({changes:[{base:record,next:record}]},{uid,enabled:v14Enabled()});if(record.kind==='flight'&&state.records.some(r=>r.kind==='flight'&&!r.archived&&flightKey(r.data)===flightKey(record.data)))throw Error('Ngày/số chuyến đã có; cần xử lý xung đột trước khi khôi phục.');const next={...clone(record),archived:false};delete next.archive;await repository.save({changes:[{kind:record.kind,id:record.id,base:record,next}],token:t});await refresh();return clone(cached);}
- return{uid,token,displayIdentity:()=>identity.email||identity.displayName||uid||'Khách',get repository(){return repository;},get writable(){return !released&&(!uid||repository.writable)&&current(token);},view:()=>clone(cached),snapshot:()=>clone(snapshot),captureForm:()=>{guard();return{token:clone(token),base:uid?clone(snapshot):{guest:true,state:clone(guest)}};},isCurrent:()=>current(token),refresh,saveView,archive,restore,
+ async function appendImport(select,t=token){
+  guard(t);
+  let records;
+  const append = view => {
+   guard(t);
+   records=select(view);
+   if(!records.flights.length&&!records.duties.length)return view;
+   return {...view,flights:[...view.flights,...records.flights],duties:[...view.duties,...records.duties]};
+  };
+  if(uid){
+   const next=append(cached);
+   if(next!==cached)await saveView({base:clone(snapshot),next,token:t});
+  }else{
+   guest=await guestStorage.updateState(saved=>append(saved??guest));
+   guard(t);
+   await refresh();
+  }
+  return {view:clone(cached),records};
+ }
+ return{uid,token,displayIdentity:()=>identity.email||identity.displayName||uid||'Khách',get repository(){return repository;},get writable(){return !released&&(!uid||repository.writable)&&current(token);},view:()=>clone(cached),snapshot:()=>clone(snapshot),captureForm:()=>{guard();return{token:clone(token),base:uid?clone(snapshot):{guest:true,state:clone(guest)}};},isCurrent:()=>current(token),refresh,saveView,archive,restore,appendImport,
   async saveDevicePreferences(patch,t=token){guard(t);if(uid)await repository.save({devicePatch:patch,token:t});else{guest.settings={...guest.settings,...patch};await guestStorage.writeState(guest);}await refresh();},
   async prepareSwitch({draft,exportDraft=async()=>false,confirmDiscard=async()=>false}){if(!draft)return true;try{guard();if(!repository)throw Error('Khách cần xuất bản nháp.');await repository.saveRecovery({draft:clone(draft),type:'draft',sourceUID:uid},token);return true;}catch{if(await exportDraft(draft))return true;return Boolean(await confirmDiscard(draft));}},
   imageURL:hash=>urls.get(hash)||null,async loadEvidence(hash,t=token){guard(t);if(urls.has(hash))return urls.get(hash);if(!repository)return null;const blob=await repository.getBlob(hash,t);guard(t);if(!blob)return null;const url=URL.createObjectURL(blob);urls.set(hash,url);return url;},
