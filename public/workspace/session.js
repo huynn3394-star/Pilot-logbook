@@ -21,8 +21,18 @@ export async function openWorkspaceSession({coordinator,onView=()=>{},onStatus=(
  const guard=(t=token)=>{if(!current(t))throw Error('Tài khoản đã đổi; không lưu dữ liệu của phiên cũ.');};
  function revoke(){for(const url of urls.values())URL.revokeObjectURL(url);urls.clear();}
  const unsubscribe=coordinator.subscribe(()=>{if(!current(token)){revoke();onTransition({uid,token});}});
- async function refresh(){const version=++refreshVersion;guard();if(uid){const [next,prefs]=await Promise.all([repository.read(),repository.devicePreferences()]);guard();if(version!==refreshVersion)return; snapshot=next;device=prefs;cached=toWorkspaceView(snapshot,device);}else cached=clone(guest);onView(clone(cached));}
- try{if(uid){repository=await openRepository({uid,token,isCurrent:current,onChange:event=>{if(event?.localQueue&&current(token))onLocalChange();refresh().catch(error=>{if(current(token))onStatus({kind:'error',message:error.message});});}});await refresh();onStatus({kind:snapshot.localVersion||snapshot.cloudRevision||snapshot.records.length?'local':'not-loaded'});}else{guest=await guestStorage.readState();guard();if(!guest){guest=sampleState();await guestStorage.writeState(guest);guard();}await refresh();onStatus({kind:'guest'});}}catch(error){unsubscribe();repository?.release();throw error;}
+ async function refresh(){const version=++refreshVersion;guard();if(uid){const [next,prefs]=await Promise.all([repository.read(),repository.devicePreferences()]);guard();if(version!==refreshVersion||next.localVersion<(snapshot?.localVersion??0))return; snapshot=next;device=prefs;cached=toWorkspaceView(snapshot,device);}else cached=clone(guest);onView(clone(cached));}
+ function repositoryChanged(event){
+  if(!current(token))return;
+  if(event?.localQueue)onLocalChange();
+  const next=event?.unchangedView;
+  if(next&&snapshot&&next.localVersion===snapshot.localVersion+1){
+   snapshot=next;
+   return;
+  }
+  refresh().catch(error=>{if(current(token))onStatus({kind:'error',message:error.message});});
+ }
+ try{if(uid){repository=await openRepository({uid,token,isCurrent:current,onChange:repositoryChanged});await refresh();onStatus({kind:snapshot.localVersion||snapshot.cloudRevision||snapshot.records.length?'local':'not-loaded'});}else{guest=await guestStorage.readState();guard();if(!guest){guest=sampleState();await guestStorage.writeState(guest);guard();}await refresh();onStatus({kind:'guest'});}}catch(error){unsubscribe();repository?.release();throw error;}
  async function saveView({base,next,token:t=token,evidenceFile,confirmActualReplacement=false}){
   guard(t);if(!uid){if(!base?.guest)throw Error('Bản nền khách không hợp lệ.');const value=clean(next);
    const previousFlights=new Map(entries(base.state||guest).filter(r=>r.kind==='flight').map(r=>[r.id,r.data]));
