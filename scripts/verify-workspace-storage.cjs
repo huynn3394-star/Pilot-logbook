@@ -148,7 +148,31 @@ const root=path.resolve(__dirname,'..');
     const boundary=await prepareEvidence(big);let denied=0;for(const bad of[new Blob([data],{type:'image/jpeg'}),new Blob([data.slice(0,20)],{type:'image/png'}),new Blob(['<svg/>'],{type:'image/png'})])try{await prepareEvidence(bad);}catch{denied++;}
     return{denied,bytes:prepared.ref.bytes,unchanged:await schema.sha256(await blob.arrayBuffer())===prepared.ref.sha256,boundary:boundary.ref.bytes};
    },'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGP4z8DwHwAFAAH/iZk9HQAAAABJRU5ErkJggg==');assert.equal(imageValidation.denied,3);assert.equal(imageValidation.unchanged,true);assert.equal(imageValidation.boundary,6*1024*1024);
-   await b.evaluate(()=>repo.release());console.log(name+': atomic abort, ack tail/retry, Blob reload, UID guards, readonly export, bounded image reads, shared client and conflict recovery passed');
+   await b.evaluate(()=>repo.release());
+   const bulk=await b.evaluate(async()=>{
+    const {openWorkspaceSession}=await import('/workspace/session.js');
+    const uid='bulk-receipt-qa',token={uid,generation:1};
+    const coordinator={capture:()=>token,isCurrent:t=>t?.uid===uid&&t.generation===token.generation,subscribe:()=>()=>{},getCachedSelection:()=>({uid})};
+    let renders=0;
+    const session=await openWorkspaceSession({coordinator,onView:()=>renders++});
+    try{
+     const people=Array.from({length:32},(_,i)=>fixtures.personRecord('bulk-'+i).data);
+     const next={...session.view(),people};
+     await session.saveView({...session.captureForm(),next});
+     const pending=await session.repository.pending(),before=renders;
+     for(const [index,operation] of pending.entries()){
+      const revision=index+1;
+      const ack={uid,operationId:operation.operationId,operationHash:await schema.sha256(schema.canonical(operation)),
+       priorRevision:index,revision,results:operation.changes.map(c=>({kind:c.kind,id:c.id,status:'accepted',record:{...c.next,revision}}))};
+      await session.repository.acceptAck(ack);
+     }
+     const base=session.captureForm().base;
+     return {people:session.view().people.length,renders:renders-before,revision:base.cloudRevision,
+      lastRevision:base.records.at(-1).revision,pending:(await session.repository.pending()).length};
+    }finally{session.release();}
+   });
+   assert.deepEqual(bulk,{people:32,renders:0,revision:4,lastRevision:4,pending:0});
+   console.log(name+': atomic abort, ack tail/retry, bulk receipts without UI refresh, Blob reload, UID guards, readonly export, bounded image reads, shared client and conflict recovery passed');
   }finally{clearTimeout(deadline);await context.close();await browser.close();}
  }}finally{await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1;});

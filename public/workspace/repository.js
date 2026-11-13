@@ -45,18 +45,42 @@ export async function openWorkspace({uid,token,isCurrent,locks=globalThis.naviga
  const readRows=(names,t=token)=>transaction(names,'readonly',t,false,rows=>rows);
  const conflictID=(op,c)=>op.operationId+'~'+op.changes.findIndex(x=>x.kind===c.kind&&x.id===c.recordId);
  function rebase(state,rows,tx){
-  let snapshot=clone(state.baseline);const conflicts=new Map((rows.conflicts||[]).map(c=>[c.id,c]));
+  const snapshot=clone(state.baseline);
+  const records=new Map(snapshot.records.map(r=>[keyOf(r),r]));
+  const blocked=new Set((rows.conflicts||[]).map(c=>c.kind+'\0'+c.recordId));
   for(const row of operationOrder(rows.outbox||[],state.priorities)){
    const op=row.operation;for(const c of op.changes){
-    const remote=snapshot.records.find(r=>r.kind===c.kind&&r.id===c.id)||null;
-    const existing=[...conflicts.values()].some(f=>f.kind===c.kind&&f.recordId===c.id);if(existing)continue;
+    const key=keyOf(c);
+    if(blocked.has(key))continue;
+    const remote=records.get(key)||null;
     const merged=mergeRecord({base:c.base,local:c.next,remote});
-    if(merged.conflict){const id=conflictID(op,merged.conflict),value={...merged.conflict,uid,id,operationId:op.operationId};conflicts.set(id,value);tx.objectStore('conflicts').put(value);}
-    else snapshot=applyChanges(snapshot,[{...c,next:merged.record}]);
+    if(merged.conflict){const id=conflictID(op,merged.conflict),value={...merged.conflict,uid,id,operationId:op.operationId};blocked.add(key);tx.objectStore('conflicts').put(value);}
+    else records.set(key,merged.record);
    }
   }
+  snapshot.records=[...records.values()];
   snapshot.localVersion=state.snapshot.localVersion+1;state.snapshot=snapshot;return state;
  }
+ function acknowledgeUnchangedAdds(state,rows,op,ack){
+  // These records already appear in the local view. An identical receipt only
+  // advances their revisions when no later edit depends on the same records.
+  if(ack.priorRevision!==state.baseline.cloudRevision||ack.revision<=state.baseline.cloudRevision||
+     operationOrder(rows.outbox,state.priorities)[0]?.id!==op.operationId||
+     op.changes.some(change=>change.base)||ack.results.some((result,index)=>
+       result.status!=='accepted'||keyOf(result)!==keyOf(op.changes[index])))return false;
+  const accepted=new Map(ack.results.map(result=>[keyOf(result),result.record]));
+  if(rows.conflicts.some(conflict=>accepted.has(conflict.kind+'\0'+conflict.recordId))||
+     rows.outbox.some(row=>row.id!==op.operationId&&row.operation.changes.some(change=>accepted.has(keyOf(change)))))return false;
+  const projected=state.snapshot.records.filter(record=>accepted.has(keyOf(record)));
+  if(projected.length!==accepted.size||projected.some(record=>
+    canonical({...record,revision:0})!==canonical({...accepted.get(keyOf(record)),revision:0})))return false;
+  state.snapshot.records=state.snapshot.records.map(record=>accepted.get(keyOf(record))||record);
+  state.snapshot.cloudRevision=ack.revision;
+  state.snapshot.localVersion++;
+  return true;
+ }
+ const readOperation=(id,t)=>transaction(['outbox'],'readonly',t,false,
+  (_,tx)=>tx.objectStore('outbox').get([uid,id]),[]).then(request=>request.result?.operation);
  function stage(state,rows,changes,tx,{importPart,priority=false}={}){
   const seen=new Set();for(const c of changes){if(seen.has(keyOf(c)))throw new Error('Thay đổi trùng bản ghi.');seen.add(keyOf(c));validateRecord(c.next);if(c.base)validateRecord(c.base);}
   const previous=new Map();for(const row of operationOrder(rows.outbox||[],state.priorities))for(const c of row.operation.changes)previous.set(keyOf(c),row.operation.operationId);
@@ -95,13 +119,14 @@ export async function openWorkspace({uid,token,isCurrent,locks=globalThis.naviga
   },
   async acceptAck(ack,t=token){
    guard(t,true);if(ack?.uid!==uid||!validUID(ack.operationId))throw new Error('Ack khác tài khoản.');
-   const pending=await api.pending(),op=pending.find(o=>o.operationId===ack.operationId);
+   const op=await readOperation(ack.operationId,t);
    if(!op){const state=getState(await readRows(['workspaces'],t));if(state.acknowledged[ack.operationId]===ack.operationHash)return;throw new Error('Không có operation cho ack.');}
    const hash=await sha256(canonical(op));guard(t,true);if(hash!==ack.operationHash)throw new Error('Ack khác nội dung operation.');
    if(!Number.isSafeInteger(ack.revision)||ack.revision<1||!Number.isSafeInteger(ack.priorRevision)||ack.revision!==ack.priorRevision+1||!Array.isArray(ack.results)||ack.results.length!==op.changes.length)throw new Error('Ack không hợp lệ.');
    const seen=new Set();for(const result of ack.results){const change=op.changes.find(c=>c.kind===result.kind&&c.id===result.id);if(!change||seen.has(keyOf(result))||!['accepted','already-applied','conflict'].includes(result.status))throw new Error('Kết quả ack không khớp.');seen.add(keyOf(result));if(result.status!=='conflict'){validateRecord(result.record);if(result.record.kind!==result.kind||result.record.id!==result.id)throw new Error('Ack record khác ID.');}else if(!result.conflict||result.conflict.kind!==result.kind||result.conflict.recordId!==result.id)throw new Error('Ack conflict khác ID.');}
-   await transaction(['workspaces','outbox','conflicts','recoveries'],'readwrite',t,true,(rows,tx)=>{
+   const updated=await transaction(['workspaces','outbox','conflicts','recoveries'],'readwrite',t,true,(rows,tx)=>{
     const state=getState(rows),current=rows.outbox.find(x=>x.id===op.operationId);if(!current||canonical(current.operation)!==canonical(op))throw new Error('Operation đã thay đổi.');
+    const unchanged=acknowledgeUnchangedAdds(state,rows,op,ack);
     if(ack.revision>state.baseline.cloudRevision){if(state.baseline.cloudRevision!==ack.priorRevision)throw Object.assign(new Error('Cần tải cloud trước nhận ack.'),{code:'workspace/requires-pull'});state.baseline=applyChanges(state.baseline,ack.results.filter(r=>r.status!=='conflict').map(r=>({kind:r.kind,id:r.id,next:r.record})));state.baseline.cloudRevision=ack.revision;}
     // Predictions made while this receipt was unknown are superseded by its
     // authoritative outcomes. Conflicts belonging to later operations remain.
@@ -109,8 +134,11 @@ export async function openWorkspace({uid,token,isCurrent,locks=globalThis.naviga
     rows.conflicts=rows.conflicts.filter(c=>c.operationId!==op.operationId);
     for(const r of ack.results)if(r.status==='conflict'){const value={...clone(r.conflict),id:conflictID(op,r.conflict),uid,operationId:op.operationId};tx.objectStore('conflicts').put(value);rows.conflicts.push(value);}
     if(ack.results.some(r=>r.status==='conflict'))tx.objectStore('recoveries').put({uid,id:'operation-'+op.operationId,type:'operation',source:clone(op)});
-    tx.objectStore('outbox').delete([uid,op.operationId]);rows.outbox=rows.outbox.filter(row=>row.id!==op.operationId);state.priorities=state.priorities.filter(id=>id!==op.operationId);state.acknowledged[op.operationId]=hash;rebase(state,rows,tx);tx.objectStore('workspaces').put(state);
-   },['workspaces','outbox','conflicts']);notify();
+    tx.objectStore('outbox').delete([uid,op.operationId]);rows.outbox=rows.outbox.filter(row=>row.id!==op.operationId);state.priorities=state.priorities.filter(id=>id!==op.operationId);state.acknowledged[op.operationId]=hash;
+    if(!unchanged)rebase(state,rows,tx);
+    tx.objectStore('workspaces').put(state);
+    return unchanged?state.snapshot:null;
+   },['workspaces','outbox','conflicts']);notify(updated?{unchangedView:updated}:undefined);
   },
   async saveRecovery(value,t=token){const id=crypto.randomUUID();await transaction(['recoveries'],'readwrite',t,false,(_,tx)=>tx.objectStore('recoveries').put({...clone(value),uid,id,type:'recovery'}),[]);return id;},
   async getRestoreProgress(identity,t=token){guard(t);if(!/^[a-f0-9]{64}$/.test(identity))throw Error('Bộ restore không hợp lệ.');return new Promise((resolve,reject)=>{const tx=database.transaction('recoveries','readonly'),r=tx.objectStore('recoveries').get([uid,'restore-'+identity]);let value=null;r.onsuccess=()=>{value=r.result||null;};tx.onabort=()=>reject(tx.error);tx.oncomplete=()=>{try{guard(t);resolve(clone(value));}catch(e){reject(e);}};});},
