@@ -74,6 +74,7 @@ jobs:
       - run: npx playwright install --with-deps chromium webkit
       - run: node scripts/verify-wader-csv.cjs
       - run: node scripts/verify-admin.cjs
+      - run: node scripts/verify-weather-batch.cjs
       - run: node scripts/verify-weather-view.cjs
       - run: node scripts/verify-weather-attention.cjs
       - run: node scripts/verify-pdf-import.cjs
