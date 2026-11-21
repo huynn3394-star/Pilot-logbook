@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {nextWeatherIssueAt,weatherProductFreshness,weatherRefreshAt,noaaSource,savedReportTiming} from '../public/workspace/weather-report.js';
+import {nextWeatherIssueAt,nextWeatherRefreshAt,weatherProductFreshness,weatherRefreshAt,noaaSource,savedReportTiming} from '../public/workspace/weather-report.js';
 import {createWeatherWatch,mergeWeatherCache} from '../public/workspace/weather-watch.js';
 import {createWeatherCollector} from '../public/workspace/weather.js';
 import {WeatherService,MetOfficeProvider} from '../lib/weather.js';
@@ -92,6 +92,13 @@ test('failed refresh retries once per minute across reload and never destroys th
 test('manual refresh bypasses a current bulletin and retry wait without automatic forced calls',async()=>{
  const h=harness(bulletin()),watch=createWeatherWatch(h.options);await watch.refresh();assert.equal(h.calls,0);
  await watch.refresh({force:true});assert.equal(h.calls,1);await watch.refresh();assert.equal(h.calls,1);watch.dispose();
+});
+test('a TAF-only partial response retries missing METAR without waiting six hours',()=>{
+ const r={...bulletin(),metar:null};
+ assert.equal(nextWeatherRefreshAt(r,at('10:01:30')),at('10:02:00'));
+ assert.equal(weatherRefreshAt(r,new Date(at('10:10:00')).toISOString(),at('10:10:30')),at('10:11:00'));
+ const metarOnly={...bulletin(),taf:null};
+ assert.equal(nextWeatherRefreshAt(metarOnly,at('10:10:00')),at('10:30:00'));
 });
 test('server reuses current reports and checks exactly at the next publication, deduplicating callers',async()=>{
  let time=at('10:29:59'),calls=0,next=bulletin();

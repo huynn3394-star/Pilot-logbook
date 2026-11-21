@@ -117,10 +117,14 @@ export function weatherProductFreshness(report,product,{now=Date.now()}={}){
 export function nextWeatherRefreshAt(report,now=Date.now()){
  const products=['metar','taf'].filter(product=>report?.[product]);
  if(!products.length)return now;
- return Math.min(...products.map(product=>{
+ const deadline=Math.min(...products.map(product=>{
   const state=weatherProductFreshness(report,product,{now});
   return state.saved?now:state.nextIssueAt;
  }));
+ // A TAF-only partial response must not silence missing observations for hours.
+ // A missing TAF is common at smaller aerodromes; METAR cycles still check it.
+ const fetched=Date.parse(report.fetchedAt);
+ return report.metar?deadline:Math.min(deadline,Number.isFinite(fetched)?fetched+WEATHER_RETRY_MS:now);
 }
 export function weatherRefreshAt(report,attemptedAt,now=Date.now(),retryMs=WEATHER_RETRY_MS){
  const due=nextWeatherRefreshAt(report,now),attempt=Date.parse(attemptedAt);
