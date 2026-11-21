@@ -11,7 +11,8 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
 (async()=>{
  await fs.mkdir(root,{recursive:true});
  const {createServer}=await import('../server.js');
- const server=createServer();let unavailable=false,lastLabel='start';
+ // A server-side fixture remains valid while WebKit navigates between app pages.
+ const server=createServer({weather:{get:async()=>{throw Error('Isolated UI test: no live weather feed');}}});let unavailable=false,lastLabel='start';
  const handler=server.listeners('request')[0];server.removeAllListeners('request');server.on('request',(req,res)=>unavailable?req.socket.destroy():handler(req,res));
  await new Promise(r=>server.listen(0,'127.0.0.1',r));
  const origin='http://127.0.0.1:'+server.address().port;
@@ -55,7 +56,6 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
      p.on('dialog',dialog=>dialog.accept());p.setDefaultTimeout(12000);const errors=[];p.on('pageerror',e=>errors.push(e.message));
      try{
       await p.route('**/*',r=>r.request().url().startsWith(origin+'/')?r.continue():r.abort());
-      await p.route('**/api/weather**',r=>r.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'Isolated UI test: no live weather feed'})}));
       await p.clock.setFixedTime(new Date('2026-10-09T12:00:00Z'));
       await p.goto(origin,{waitUntil:'domcontentloaded'});await p.locator('[data-workspace-account]').waitFor();
       for(const theme of ['light','dark']){
