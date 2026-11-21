@@ -1,9 +1,9 @@
 @import url("/ui/wader-v5.css");
 /* Same frame and surfaces as the live Logbook. Source-bank DOM and storage stay owned by the engine. */
-body.avilog-study-page{--study-rail:114px;margin:0;background:var(--ui-bg);color:var(--ui-ink);font:400 14px/1.55 var(--ui-font)}
+body.avilog-study-page{--study-rail:114px;--study-control-height:64px;--study-control-bottom:18px;margin:0;background:var(--ui-bg);color:var(--ui-ink);font:400 14px/1.55 var(--ui-font)}
 body.avilog-study-page .study-shell{display:block;min-height:100dvh;background:var(--ui-bg)}
 body.avilog-study-page .study-workspace{min-width:0;margin-left:var(--study-rail);background:var(--ui-bg)}
-body.avilog-study-page .study-sidebar{display:flex;flex-direction:column;position:fixed;top:18px;left:14px;bottom:94px;width:88px;height:auto;padding:14px 7px;background:var(--w5-glass);border:1px solid var(--ui-line);border-radius:28px;backdrop-filter:blur(22px);color:var(--ui-ink);z-index:35;overflow:visible;box-shadow:0 6px 20px #0000000d}
+body.avilog-study-page .study-sidebar{display:flex;flex-direction:column;position:fixed;top:18px;left:14px;bottom:calc(var(--study-control-bottom) + var(--study-control-height) + 12px);width:88px;height:auto;padding:14px 7px;background:var(--w5-glass);border:1px solid var(--ui-line);border-radius:28px;backdrop-filter:blur(22px);color:var(--ui-ink);z-index:35;overflow:visible;box-shadow:0 6px 20px #0000000d}
 .study-sidebar :is(.nav-caption,.sidebar-toggle,.study-sidebar-note){display:none}
 .study-sidebar .brand{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;margin:0 auto 14px;padding:0;color:var(--ui-muted);text-decoration:none;font:400 9px/1.3 var(--ui-font)}
 .study-sidebar .brandmark{display:grid;place-items:center;width:36px;height:36px;background:#688b44;color:#fff;border:2px solid var(--ui-accent);border-radius:50%}
@@ -12,7 +12,8 @@ body.avilog-study-page .study-sidebar{display:flex;flex-direction:column;positio
 .study-sidebar .nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;width:100%;min-height:58px;padding:7px 2px;border:0;border-radius:16px;background:none;color:var(--ui-muted);font:450 9px/1.3 var(--ui-font);text-align:center;text-decoration:none}
 .study-sidebar .nav a>svg{width:20px;height:20px;stroke-width:1.5}
 .study-sidebar .nav a.active{color:var(--ui-accent);background:var(--ui-accent-soft);box-shadow:none}
-.study-sidebar .study-sidebar-add{position:absolute;bottom:-78px;left:-1px;display:grid;place-items:center;width:88px;height:64px;background:var(--w5-glass);border:1px solid var(--ui-line);border-radius:24px;backdrop-filter:blur(22px);color:var(--ui-accent);text-decoration:none}
+/* Include the rail border in the offset so both controls share the same bottom edge. */
+.study-sidebar .study-sidebar-add{position:absolute;bottom:calc(-1 * (var(--study-control-height) + 13px));left:-1px;display:grid;place-items:center;width:88px;height:var(--study-control-height);background:var(--w5-glass);border:1px solid var(--ui-line);border-radius:24px;backdrop-filter:blur(22px);color:var(--ui-accent);text-decoration:none}
 .study-sidebar-add svg{width:26px;height:26px}
 .study-shell .study-header{position:sticky;top:0;z-index:30;background:var(--ui-bg);color:var(--ui-ink);border:0;box-shadow:none;min-height:72px}
 .study-shell .atpl-header{display:flex;align-items:center;flex-wrap:nowrap;gap:12px;min-height:72px;margin:0;padding:10px 24px;background:var(--ui-bg)}
@@ -137,7 +138,7 @@ body.avilog-study-page .study-sidebar{display:flex;flex-direction:column;positio
 .study-shell .library-account-menu [data-account-content]{position:absolute;right:0;top:calc(100% + 8px);width:min(380px,calc(100vw - 32px));max-height:75dvh;overflow:auto;padding:18px;border:1px solid var(--ui-line);border-radius:22px;box-shadow:var(--ui-menu-shadow);background:var(--ui-surface);color:var(--ui-ink);font:400 13px/1.65 var(--ui-font);z-index:50}
 .study-shell .library-account-menu .atpl-account-actions{display:grid;gap:8px}
 .study-shell .library-account-menu .atpl-account-actions .btn{width:100%;min-height:44px;border-radius:12px;text-align:left;font-size:12px;white-space:normal;background:var(--ui-soft);color:var(--ui-ink);border-color:var(--ui-line)}
-body.avilog-study-page .dock{position:fixed;left:calc(var(--study-rail) + 24px);right:24px;bottom:12px;width:auto;padding:7px;border:1px solid var(--ui-line);border-radius:24px;background:var(--w5-glass);backdrop-filter:blur(24px);box-shadow:0 8px 24px #00000020;color:var(--ui-ink);z-index:35}
+body.avilog-study-page .dock{position:fixed;left:calc(var(--study-rail) + 24px);right:24px;bottom:var(--study-control-bottom);width:auto;min-height:var(--study-control-height);padding:9px 7px;border:1px solid var(--ui-line);border-radius:24px;background:var(--w5-glass);backdrop-filter:blur(24px);box-shadow:0 8px 24px #00000020;color:var(--ui-ink);z-index:35}
 body.avilog-study-page .dock-inner{width:100%;max-width:1000px;gap:6px}
 body.avilog-study-page .dock button{min-height:44px;padding:9px 8px;border:1px solid var(--ui-line);border-radius:17px;background:var(--ui-soft);color:var(--ui-ink);font-size:12px;font-weight:450}
 body.avilog-study-page .dock button:last-child{background:var(--ui-accent-soft);border-color:var(--ui-accent-line);color:var(--ui-accent)}
