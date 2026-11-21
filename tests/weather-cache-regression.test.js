@@ -38,43 +38,34 @@ test('wrong-station raw text cannot replace the selected station despite matchin
  const w=createWeatherWatch({airports:['VVPC'],readCache:async()=>({reports:{VVPC:bulletin()}}),writeCache:async()=>{},fetchImpl:async()=>response({...bulletin(),metar:'METAR VVTS 060700Z 9999=',taf:null})});
  await w.refresh({force:true});assert.equal(w.snapshot().reports.VVPC.metar,bulletin().metar);assert.ok(w.snapshot().errors.VVPC);w.dispose();
 });
-test('an earlier cache write cannot mark another station’s new live bulletin as saved',async()=>{
+test('a batch cache write retains both new live bulletins without marking either saved',async()=>{
  const old=bulletin('30','2026-10-30T06:40:00Z');
  const forStation=(value,station)=>({...value,station,metar:value.metar.replace('VVPC',station),taf:value.taf.replace('VVPC',station),sources:{metar:noaaSource(station,'metar'),taf:noaaSource(station,'taf')}});
- const previousForVVTS=forStation({...old,taf:bulletin().taf,fetchedAt:'2026-11-06T06:31:00Z',productFetchedAt:{metar:old.fetchedAt,taf:'2026-11-06T06:31:00Z'}},'VVTS');
- const firstWrite=Promise.withResolvers();
- const releaseWrite=Promise.withResolvers();
- let writes=0,firstEntry;
+ const secondStarted=Promise.withResolvers(),releaseSecond=Promise.withResolvers();
+ let writes=0,entry;
  const watch=createWeatherWatch({
   airports:['VVPC','VVTS'],
-  readCache:async()=>({reports:{VVPC:old,VVTS:previousForVVTS}}),
+  readCache:async()=>({reports:{VVPC:old,VVTS:forStation(old,'VVTS')}}),
   fetchImpl:async url=>{
    const station=new URL(url,'https://example.test').searchParams.get('station');
-   if(station==='VVTS')await firstWrite.promise;
+   if(station==='VVTS'){secondStarted.resolve();await releaseSecond.promise;}
    return response(forStation(bulletin(),station));
   },
-  writeCache:async(key,entry)=>{
-   if(++writes===1){
-    firstEntry=entry;
-    firstWrite.resolve();
-    await releaseWrite.promise;
-   }
-   return structuredClone(entry);
-  },
+  writeCache:async(key,value)=>{writes++;entry=value;return structuredClone(value);},
  });
  try{
-  const refresh=watch.refresh({force:true});
-  await firstWrite.promise;
-  assert.match(firstEntry.reports.VVTS.metar,/300630Z/);
-  await new Promise(resolve=>setImmediate(resolve));
-  releaseWrite.resolve();
-  await refresh;
-  const fresh=watch.snapshot().reports.VVTS;
-  assert.match(fresh.metar,/060630Z/);
-  assert.equal(weatherProductState(fresh,'metar',{now:Date.parse('2026-11-06T06:41:00Z')}).saved,false);
-  assert.equal(fresh.productFetchedAt.taf,bulletin().fetchedAt);
-  assert.deepEqual(fresh.staleProducts,{});
- }finally{releaseWrite.resolve();watch.dispose();}
+  const refresh=watch.refresh({force:true});await secondStarted.promise;
+  await new Promise(resolve=>setImmediate(resolve));assert.equal(writes,0);
+  assert.match(watch.snapshot().reports.VVPC.metar,/300630Z/);
+  releaseSecond.resolve();await refresh;assert.equal(writes,1);
+  for(const station of ['VVPC','VVTS']){
+   const fresh=watch.snapshot().reports[station];
+   assert.match(entry.reports[station].metar,/060630Z/);
+   assert.equal(weatherProductState(fresh,'metar',{now:Date.parse('2026-11-06T06:41:00Z')}).saved,false);
+   assert.equal(fresh.productFetchedAt.taf,bulletin().fetchedAt);
+   assert.deepEqual(fresh.staleProducts,{});
+  }
+ }finally{releaseSecond.resolve();watch.dispose();}
 });
 test('a lagging tab cannot label the newer shared cache report stale or age its receipt',()=>{
  const current=bulletin();
