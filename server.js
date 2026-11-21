@@ -58,6 +58,7 @@ export function createServer({ weather = new WeatherService(), firebaseConfig=re
       if (url.pathname === "/api/weather") {
         const data = await weather.get(
           (url.searchParams.get("station") || "").toUpperCase(),
+          {force:url.searchParams.get('refresh')==='1'},
         );
         return send(200, JSON.stringify(data), {
           "Content-Type": "application/json",
