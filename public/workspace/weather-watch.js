@@ -38,41 +38,65 @@ function report(data,station){
  if(!value.metar&&!value.taf)throw Error('Nguồn chưa có METAR/TAF hiện hành cho sân bay này.');if(data.stale)value.stale=true;return value;
 }
 export function createWeatherWatch({uid=null,airports=[],fetchImpl=fetch,now=()=>new Date(),isCurrent=()=>true,readCache:load=readCache,writeCache:save=writeCache}={}){
- let selected=normalizeAirports(airports),reports={},errors={},cacheError=null,active=true,pending=null,queue=Promise.resolve();const listeners=new Set(),controllers=new Set(),loading=new Set(),scope=uid?'account:'+uid:'guest',key='weather-watch:v2:'+scope,legacyKey='weather-watch:v1:'+scope;
- const current=()=>active&&isCurrent(),snapshot=()=>({airports:[...selected],reports:structuredClone(Object.fromEntries(Object.entries(reports).filter(([s])=>selected.includes(s)))),errors:{...errors},loading:[...loading],cacheError});
+ let selected=normalizeAirports(airports),reports={},errors={},cacheError=null,active=true,pending=null,loading=[];const listeners=new Set(),controllers=new Set(),scope=uid?'account:'+uid:'guest',key='weather-watch:v2:'+scope,legacyKey='weather-watch:v1:'+scope;
+ const current=()=>active&&isCurrent(),snapshot=()=>({airports:[...selected],reports:structuredClone(Object.fromEntries(Object.entries(reports).filter(([s])=>selected.includes(s)))),errors:{...errors},loading:loading.filter(station=>selected.includes(station)),cacheError});
  const emit=()=>{if(current())for(const fn of listeners)fn(snapshot());};
  // v2 is isolated from pre-upgrade tabs that still overwrite the entire v1 key.
  const ready=(async()=>{try{let cached=await load(key),migrate=false;if(!cached){cached=await load(legacyKey);migrate=Boolean(cached);}if(!current())return;for(const [station,value]of Object.entries(cached?.reports||{})){if(!selected.includes(station))continue;try{reports[station]=report(value,station);}catch{}}if(migrate)await persist();}catch{cacheError='Không đọc được bản tin đã lưu.';}emit();})();
- function persist(){
-  queue=queue.catch(()=>{}).then(async()=>{
+ async function persist(){
+  if(!current())return;
+  try{
+   const saved=await save(key,{reports:structuredClone(reports)});
    if(!current())return;
-   try{
-    const saved=await save(key,{reports:structuredClone(Object.fromEntries(Object.entries(reports).filter(([station])=>selected.includes(station))))});
-    if(current()){
-     // Other requests can finish while this IndexedDB transaction is in flight.
-     // Its snapshot is not a provider failure or a reason to age a live bulletin.
-     for(const [station,value]of Object.entries(saved?.reports||{})){
-      if(!selected.includes(station))continue;
-      const cached=report(value,station);
-      reports[station]=reports[station]?mergeWeatherProducts(cached,reports[station],{cacheSnapshot:true}):cached;
-     }
-     cacheError=null;
-    }
-   }catch{if(current())cacheError='Không lưu được bản tin offline. Kiểm tra dung lượng và thử cập nhật lại.';}
-   emit();
-  });
-  return queue;
+   // The transaction may include newer bulletins saved by another tab.
+   for(const [station,value]of Object.entries(saved?.reports||{})){
+    if(!selected.includes(station))continue;
+    const cached=report(value,station);
+    reports[station]=reports[station]?mergeWeatherProducts(cached,reports[station],{cacheSnapshot:true}):cached;
+   }
+   cacheError=null;
+  }catch{if(current())cacheError='Không lưu được bản tin offline. Kiểm tra dung lượng và thử cập nhật lại.';}
  }
  async function refresh({force=false}={}){
   await ready;if(!current())return snapshot();
   if(pending){await pending;if(current()&&selected.some(s=>!reports[s]&&!errors[s]))return refresh();return snapshot();}
   if(globalThis.navigator?.onLine===false){emit();return snapshot();}
   const work=selected.filter(s=>force||!reports[s]||now()-Date.parse(reports[s].fetchedAt)>=300000);let index=0;
-  pending=(async()=>{const worker=async()=>{while(current()&&index<work.length){const station=work[index++];if(!selected.includes(station))continue;const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),35000);controllers.add(controller);loading.add(station);delete errors[station];emit();
-   try{const response=await fetchImpl('/api/weather?station='+station,{signal:controller.signal,cache:'no-store'});const raw=await response.json();if(!current()||!selected.includes(station))continue;if(!response.ok)throw Error('Không kết nối được nguồn thời tiết.');reports[station]=mergeWeatherProducts(reports[station],report(raw,station));await persist();}
-   catch(error){if(current()&&selected.includes(station))errors[station]=error.name==='AbortError'?'Nguồn phản hồi chậm; bấm cập nhật để thử lại.':error.message;}
-   finally{clearTimeout(timer);controllers.delete(controller);loading.delete(station);emit();}
-  }};try{await Promise.all(Array.from({length:Math.min(4,work.length)},worker));}finally{pending=null;emit();}})();await pending;return snapshot();
+  if(!work.length)return snapshot();
+  // Fetch concurrently, but publish one complete batch. Keep the previous reports
+  // visible while requests finish, and avoid a full list repaint/cache write per airport.
+  pending=Promise.resolve().then(async()=>{
+   const results=new Map(),failures=new Map();
+   loading=work;
+   emit();
+   const worker=async()=>{while(current()&&index<work.length){
+    const station=work[index++];
+    if(!selected.includes(station))continue;
+    const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),35000);
+    controllers.add(controller);
+    try{
+     const response=await fetchImpl('/api/weather?station='+station,{signal:controller.signal,cache:'no-store'});
+     if(!response.ok)throw Error('Không kết nối được nguồn thời tiết.');
+     const raw=await response.json();
+     if(current()&&selected.includes(station))results.set(station,report(raw,station));
+    }catch(error){
+     if(current()&&selected.includes(station))failures.set(station,error.name==='AbortError'?'Nguồn phản hồi chậm; bấm cập nhật để thử lại.':error.message);
+    }
+    finally{clearTimeout(timer);controllers.delete(controller);}
+   }};
+   await Promise.all(Array.from({length:Math.min(4,work.length)},worker));
+   if(!current())return;
+   let updated=false;
+   for(const [station,value]of results){
+    if(!selected.includes(station))continue;
+    reports[station]=mergeWeatherProducts(reports[station],value);
+    delete errors[station];
+    updated=true;
+   }
+   for(const [station,error]of failures)if(selected.includes(station))errors[station]=error;
+   if(updated)await persist();
+  }).finally(()=>{loading=[];pending=null;emit();});
+  await pending;return snapshot();
  }
  return{ready,snapshot,refresh,setAirports(list){selected=normalizeAirports(list);for(const s of Object.keys(reports))if(!selected.includes(s))delete reports[s];for(const s of Object.keys(errors))if(!selected.includes(s))delete errors[s];emit();},subscribe(fn){listeners.add(fn);fn(snapshot());return()=>listeners.delete(fn);},dispose(){active=false;for(const c of controllers)c.abort();listeners.clear();}};
 }
