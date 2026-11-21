@@ -87,8 +87,9 @@ test('server cache cannot regress or re-date retained TAF on older replies, empt
 test('saved status only changes the label, preserving day-06 text, and flags invalid/future/expired timing',()=>{
  const r=bulletin(),time=Date.parse('2026-11-06T06:42:00Z'),copy=JSON.stringify(r);
  assert.equal(weatherProductState(r,'metar',{now:time}).saved,false);
- assert.equal(weatherProductState(r,'metar',{now:time,offline:true}).saved,true);
- assert.equal(weatherProductState(r,'metar',{now:time,error:'timeout'}).saved,true);
+ assert.equal(weatherProductState(r,'metar',{now:time,offline:true}).saved,false);
+ assert.equal(weatherProductState(r,'metar',{now:time,error:'timeout'}).saved,false);
+ assert.equal(weatherProductState(r,'metar',{now:Date.parse('2026-11-06T07:00:00Z'),offline:true}).saved,true);
  assert.equal(JSON.stringify(r),copy);
  assert.equal(weatherProductState(r,'metar',{now:Date.parse('2026-11-06T09:00:00Z')}).old,true);
  assert.equal(weatherProductState(r,'taf',{now:Date.parse('2026-11-07T00:00:00Z')}).expired,true);

@@ -84,3 +84,52 @@ export function savedReportTiming(report,product){
  // Legacy entries migrate using their own original receipt, never today's date.
  return reportTiming(report[product],product,new Date(anchor));
 }
+
+export const WEATHER_RETRY_MS=60000;
+// Publication deadlines belong to the bulletin, not to when a page fetched it.
+// VV observations use :00/:30 UTC; elsewhere preserve a routine METAR's minute
+// offset (e.g. :20/:50). A SPECI must not postpone the next routine observation.
+export function nextWeatherIssueAt(report,product){
+ const timing=report?.[product]&&savedReportTiming(report,product);
+ if(!timing)return null;
+ const issued=Date.parse(timing.issuedAt),halfHour=1800000;
+ if(product==='metar'){
+  const routine=!/^\s*SPECI\b/.test(report[product]);
+  return /^VV/.test(report.station)||!routine?Math.floor(issued/halfHour)*halfHour+halfHour:issued+halfHour;
+ }
+ if(timing.cancelled)return issued;
+ const from=Date.parse(timing.validFrom),to=Date.parse(timing.validTo);
+ const interval=(to-from<12*3600000?3:6)*3600000;
+ // Routine TAFs arrive ahead of validity. Keep that cycle when an amendment
+ // retains the original validity start, and never extend beyond validTo.
+ return Math.min(issued+interval,from+interval-3600000,to);
+}
+export function weatherProductFreshness(report,product,{now=Date.now()}={}){
+ const timing=report?.[product]&&savedReportTiming(report,product),issued=Date.parse(timing?.issuedAt),fetched=Date.parse(report?.productFetchedAt?.[product]||report?.fetchedAt);
+ const invalid=!timing||!Number.isFinite(fetched)||issued>now+600000||fetched>now+600000;
+ const old=Number.isFinite(issued)&&now-issued>(product==='metar'?2:36)*3600000;
+ const expired=Boolean(timing?.validTo)&&Date.parse(timing.validTo)<=now;
+ const nextIssueAt=nextWeatherIssueAt(report,product),due=nextIssueAt!==null&&now>=nextIssueAt;
+ // Being offline, reopening the page, or re-fetching identical text does not
+ // change the publication deadline. Only a newer bulletin advances it.
+ return {timing,invalid,old,expired,nextIssueAt,due,saved:Boolean(report?.[product])&&(invalid||old||expired||due)};
+}
+export function nextWeatherRefreshAt(report,now=Date.now()){
+ const products=['metar','taf'].filter(product=>report?.[product]);
+ if(!products.length)return now;
+ const deadline=Math.min(...products.map(product=>{
+  const state=weatherProductFreshness(report,product,{now});
+  return state.saved?now:state.nextIssueAt;
+ }));
+ // A TAF-only partial response must not silence missing observations for hours.
+ // A missing TAF is common at smaller aerodromes; METAR cycles still check it.
+ const fetched=Date.parse(report.fetchedAt);
+ return report.metar?deadline:Math.min(deadline,Number.isFinite(fetched)?fetched+WEATHER_RETRY_MS:now);
+}
+export function weatherRefreshAt(report,attemptedAt,now=Date.now(),retryMs=WEATHER_RETRY_MS){
+ const due=nextWeatherRefreshAt(report,now),attempt=Date.parse(attemptedAt);
+ const deadlines=['metar','taf'].filter(p=>report?.[p]).map(p=>nextWeatherIssueAt(report,p)).filter(at=>at!==null&&at<=now);
+ const boundary=Math.max(0,...deadlines);
+ // An attempt just before a new cycle must not delay that cycle's first check.
+ return due<=now&&Number.isFinite(attempt)&&attempt<=now&&attempt>=boundary?Math.max(due,attempt+retryMs):due;
+}

@@ -1,6 +1,6 @@
 import {icaoFor} from '../lib/parsers.js';
 import {connect} from '../lib/storage.js';
-import {weatherSourceURL,mergeWeatherProducts,savedReportTiming} from './weather-report.js';
+import {weatherSourceURL,mergeWeatherProducts,savedReportTiming,weatherRefreshAt} from './weather-report.js';
 export function normalizeAirports(list){
  if(!Array.isArray(list))throw Error('Danh sách sân bay không hợp lệ.');
  if(list.some(value=>typeof value!=='string'))throw Error('Mã sân bay phải là chữ.');
@@ -18,12 +18,15 @@ async function writeCache(key,value){
  });
 }
 export function mergeWeatherCache(previous,incoming){
- const reports={};
+ const reports={},attempts={};
+ for(const envelope of [previous,incoming])for(const [station,value]of Object.entries(envelope?.attempts||{})){
+  if(/^[A-Z]{4}$/.test(station)&&typeof value==='string'&&Number.isFinite(Date.parse(value))&&(!attempts[station]||Date.parse(value)>Date.parse(attempts[station])))attempts[station]=value;
+ }
  for(const envelope of [previous,incoming])for(const [station,value]of Object.entries(envelope?.reports||{})){
   if(!/^[A-Z]{4}$/.test(station))continue;
   try{const valid=report(value,station);reports[station]=reports[station]?mergeWeatherProducts(reports[station],valid,{cacheSnapshot:true}):valid;}catch{}
  }
- return {reports};
+ return {reports,attempts};
 }
 
 function report(data,station){
@@ -38,16 +41,17 @@ function report(data,station){
  if(!value.metar&&!value.taf)throw Error('Nguồn chưa có METAR/TAF hiện hành cho sân bay này.');if(data.stale)value.stale=true;return value;
 }
 export function createWeatherWatch({uid=null,airports=[],fetchImpl=fetch,now=()=>new Date(),isCurrent=()=>true,readCache:load=readCache,writeCache:save=writeCache}={}){
- let selected=normalizeAirports(airports),reports={},errors={},cacheError=null,active=true,pending=null,loading=[];const listeners=new Set(),controllers=new Set(),scope=uid?'account:'+uid:'guest',key='weather-watch:v2:'+scope,legacyKey='weather-watch:v1:'+scope;
+ let selected=normalizeAirports(airports),reports={},attempts={},errors={},cacheError=null,active=true,pending=null,loading=[];const listeners=new Set(),controllers=new Set(),scope=uid?'account:'+uid:'guest',key='weather-watch:v2:'+scope,legacyKey='weather-watch:v1:'+scope;
  const current=()=>active&&isCurrent(),snapshot=()=>({airports:[...selected],reports:structuredClone(Object.fromEntries(Object.entries(reports).filter(([s])=>selected.includes(s)))),errors:{...errors},loading:loading.filter(station=>selected.includes(station)),cacheError});
  const emit=()=>{if(current())for(const fn of listeners)fn(snapshot());};
  // v2 is isolated from pre-upgrade tabs that still overwrite the entire v1 key.
- const ready=(async()=>{try{let cached=await load(key),migrate=false;if(!cached){cached=await load(legacyKey);migrate=Boolean(cached);}if(!current())return;for(const [station,value]of Object.entries(cached?.reports||{})){if(!selected.includes(station))continue;try{reports[station]=report(value,station);}catch{}}if(migrate)await persist();}catch{cacheError='Không đọc được bản tin đã lưu.';}emit();})();
+ const ready=(async()=>{try{let cached=await load(key),migrate=false;if(!cached){cached=await load(legacyKey);migrate=Boolean(cached);}if(!current())return;attempts=mergeWeatherCache(null,{attempts:cached?.attempts}).attempts;for(const [station,value]of Object.entries(cached?.reports||{})){if(!selected.includes(station))continue;try{reports[station]=report(value,station);}catch{}}if(migrate)await persist();}catch{cacheError='Không đọc được bản tin đã lưu.';}emit();})();
  async function persist(){
   if(!current())return;
   try{
-   const saved=await save(key,{reports:structuredClone(reports)});
+   const saved=await save(key,{reports:structuredClone(reports),attempts:{...attempts}});
    if(!current())return;
+   attempts=mergeWeatherCache({attempts},{attempts:saved?.attempts}).attempts;
    // The transaction may include newer bulletins saved by another tab.
    for(const [station,value]of Object.entries(saved?.reports||{})){
     if(!selected.includes(station))continue;
@@ -57,11 +61,14 @@ export function createWeatherWatch({uid=null,airports=[],fetchImpl=fetch,now=()=
    cacheError=null;
   }catch{if(current())cacheError='Không lưu được bản tin offline. Kiểm tra dung lượng và thử cập nhật lại.';}
  }
+ function stationRefreshAt(station){
+  return weatherRefreshAt(reports[station],attempts[station],now().getTime());
+ }
  async function refresh({force=false}={}){
   await ready;if(!current())return snapshot();
   if(pending){await pending;if(current()&&selected.some(s=>!reports[s]&&!errors[s]))return refresh();return snapshot();}
   if(globalThis.navigator?.onLine===false){emit();return snapshot();}
-  const work=selected.filter(s=>force||!reports[s]||now()-Date.parse(reports[s].fetchedAt)>=300000);let index=0;
+  const work=selected.filter(s=>force||stationRefreshAt(s)<=now().getTime());let index=0;
   if(!work.length)return snapshot();
   // Fetch concurrently, but publish one complete batch. Keep the previous reports
   // visible while requests finish, and avoid a full list repaint/cache write per airport.
@@ -75,14 +82,14 @@ export function createWeatherWatch({uid=null,airports=[],fetchImpl=fetch,now=()=
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),35000);
     controllers.add(controller);
     try{
-     const response=await fetchImpl('/api/weather?station='+station,{signal:controller.signal,cache:'no-store'});
+     const response=await fetchImpl('/api/weather?station='+station+(force?'&refresh=1':''),{signal:controller.signal,cache:'no-store'});
      if(!response.ok)throw Error('Không kết nối được nguồn thời tiết.');
      const raw=await response.json();
      if(current()&&selected.includes(station))results.set(station,report(raw,station));
     }catch(error){
      if(current()&&selected.includes(station))failures.set(station,error.name==='AbortError'?'Nguồn phản hồi chậm; bấm cập nhật để thử lại.':error.message);
     }
-    finally{clearTimeout(timer);controllers.delete(controller);}
+    finally{attempts[station]=now().toISOString();clearTimeout(timer);controllers.delete(controller);}
    }};
    await Promise.all(Array.from({length:Math.min(4,work.length)},worker));
    if(!current())return;
@@ -94,9 +101,9 @@ export function createWeatherWatch({uid=null,airports=[],fetchImpl=fetch,now=()=
     updated=true;
    }
    for(const [station,error]of failures)if(selected.includes(station))errors[station]=error;
-   if(updated)await persist();
+   if(updated||failures.size)await persist();
   }).finally(()=>{loading=[];pending=null;emit();});
   await pending;return snapshot();
  }
- return{ready,snapshot,refresh,setAirports(list){selected=normalizeAirports(list);for(const s of Object.keys(reports))if(!selected.includes(s))delete reports[s];for(const s of Object.keys(errors))if(!selected.includes(s))delete errors[s];emit();},subscribe(fn){listeners.add(fn);fn(snapshot());return()=>listeners.delete(fn);},dispose(){active=false;for(const c of controllers)c.abort();listeners.clear();}};
+ return{ready,snapshot,refresh,nextRefreshAt:()=>selected.length?Math.min(...selected.map(stationRefreshAt)):Infinity,setAirports(list){selected=normalizeAirports(list);for(const s of Object.keys(reports))if(!selected.includes(s))delete reports[s];for(const s of Object.keys(errors))if(!selected.includes(s))delete errors[s];emit();},subscribe(fn){listeners.add(fn);fn(snapshot());return()=>listeners.delete(fn);},dispose(){active=false;for(const c of controllers)c.abort();listeners.clear();}};
 }

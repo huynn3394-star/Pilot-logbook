@@ -1,4 +1,4 @@
-import {savedReportTiming,weatherSourceURL} from './weather-report.js';
+import {savedReportTiming,weatherSourceURL,weatherProductFreshness} from './weather-report.js';
 
 const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -53,7 +53,7 @@ export function collectSpeciAlerts(groups,snapshot,{now=Date.now(),offline=false
   if(snapshot.errors?.[station]||report.stale||report.staleProducts?.metar)flags.push('CHƯA CẬP NHẬT ĐƯỢC · GIỮ BẢN CŨ');
   if(!Number.isFinite(issued)||!Number.isFinite(fetched)||issued>now+600000||fetched>now+600000)flags.push('GIỜ BẢN TIN CẦN KIỂM TRA');
   else if(now-issued>7200000)flags.push('BẢN TIN CŨ · TRÊN 2 GIỜ');
-  else if(now-fetched>=300000&&!offline)flags.push('BẢN LƯU · CHƯA LÀM MỚI');
+  else if(weatherProductFreshness(report,'metar',{now}).due&&!offline)flags.push('BẢN LƯU · ĐANG CHỜ KỲ MỚI');
   alerts.push({...entry,groups:names,flags});
  }
  return alerts.sort((a,b)=>(Date.parse(b.issuedAt)||0)-(Date.parse(a.issuedAt)||0)||a.station.localeCompare(b.station));
@@ -65,6 +65,6 @@ export function renderSpeciAlerts(alerts){
 }
 
 // Keep status labels with the airport, not on an extra row below the report.
-export function renderWeatherStationIdentity(station,{saved=false,hasSpeci=false}={}){
- return '<span class="weather-station-identity"><strong>'+escapeHTML(station)+'</strong>'+(hasSpeci?'<span class="weather-speci-badge">SPECI</span>':'')+(saved?'<span class="weather-row-saved">Bản lưu</span>':'')+'</span>';
+export function renderWeatherStationIdentity(station,{saved=false,hasSpeci=false,current=false}={}){
+ return '<span class="weather-station-identity"><strong>'+escapeHTML(station)+'</strong>'+(hasSpeci?'<span class="weather-speci-badge">SPECI</span>':'')+(saved?'<span class="weather-row-saved">Bản lưu</span>':current?'<span class="weather-row-current">Current</span>':'')+'</span>';
 }
