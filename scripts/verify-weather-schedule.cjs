@@ -43,7 +43,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
     await page.clock.fastForward(59000);assert.equal(calls,1);mode='fresh';await page.clock.fastForward(1000);
     await page.locator('.weather-row-current').waitFor();assert.equal(calls,2);assert.match(await page.locator('[data-weather-preview=metar]').innerText(),/221030Z/);
     await context.setOffline(true);await page.evaluate(()=>{window.dispatchEvent(new Event('offline'));});
-    await page.locator('.weather-row-current').waitFor();await page.clock.fastForward(29*60000);
+    await page.locator('.weather-row-current').waitFor();await page.clock.fastForward(28*60000+40000);
+    await page.locator('.weather-row-current').waitFor();await page.clock.fastForward(20000);
     await page.locator('.weather-row-saved').waitFor();assert.equal(calls,2,'offline boundary repaints without requests');
     await page.locator('[data-weather-product=taf]').click();await page.locator('.weather-row-current').waitFor();assert.equal(calls,2,'TAF remains current independently');
     assert.deepEqual(errors,[]);

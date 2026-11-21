@@ -117,7 +117,9 @@ export function mountWeatherWatch({element,watch,getGroups,onGroups,viewState={}
  const schedule=()=>{
   clearTimeout(timer);if(disposed||watch.snapshot().loading.length)return;
   const at=watch.nextRefreshAt();if(!Number.isFinite(at))return;
-  timer=setTimeout(autoRefresh,Math.max(100,Math.min(2147483647,document.hidden||navigator.onLine===false?60000:at-Date.now())));
+  const remaining=at-Date.now();
+  const delay=document.hidden?60000:navigator.onLine===false?Math.min(60000,remaining>0?remaining:60000):remaining;
+  timer=setTimeout(autoRefresh,Math.max(100,Math.min(2147483647,delay)));
  };
  const autoRefresh=()=>{if(disposed||!isCurrent())return;paint(watch.snapshot());if(document.hidden){schedule();return;}return watch.refresh().finally(schedule);};
  const refresh=()=>watch.refresh({force:true}).finally(schedule),visibility=()=>{if(!document.hidden)autoRefresh();};
