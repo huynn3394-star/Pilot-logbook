@@ -1,4 +1,5 @@
 // Canonical object keys; array order and original report contents remain significant.
+export const validUID=uid=>typeof uid==='string'&&/^[A-Za-z0-9:_-]{1,128}$/.test(uid);
 export const clone=value=>structuredClone(value);
 export const canonical=value=>JSON.stringify(sort(value));
 function sort(value){if(Array.isArray(value))return value.map(sort);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,sort(value[k])]));return value;}
