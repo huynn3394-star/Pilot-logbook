@@ -17,3 +17,13 @@ test('reports and receipts are immutable and owner-only',async()=>{
  await assertSucceeds(setDoc(ref,data));await assertFails(setDoc(ref,{...data,report:report(2000)}));await assertFails(deleteDoc(ref));await assertFails(getDoc(doc(bob,ref.path)));
  const receipt=doc(alice,'users/alice/banks/MB/receipts/batch-test');const r={schemaVersion:1,code:'MB',bankSHA256:identity.bankSHA256,epoch:'initial',batchId:'batch-test',revision:1,deviceId:'phone',importIds:[]};await assertSucceeds(setDoc(receipt,r));await assertFails(setDoc(receipt,{...r,revision:2}));await assertFails(getDoc(doc(guest,receipt.path)));
 });
+
+// New subjects need the same owner-only core/receipt policy as existing banks.
+test('FPL and GNAV accept owner progress without granting unknown subjects or cross-account access',async()=>{
+ for(const code of ['FPL','GNAV']){
+  const ref=doc(alice,'users/alice/banks/'+code),value={...core(),code};
+  await assertSucceeds(setDoc(ref,value));await assertSucceeds(getDoc(ref));
+  await assertFails(getDoc(doc(bob,ref.path)));await assertFails(setDoc(doc(guest,ref.path),value));
+ }
+ await assertFails(setDoc(doc(alice,'users/alice/banks/INVENTED'),{...core(),code:'INVENTED'}));
+});

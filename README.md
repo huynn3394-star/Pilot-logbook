@@ -56,7 +56,7 @@ VN1187 HPH-SGN 13:40-15:32
 
 ## Ôn thi ATPL và học offline
 
-Trong Pilot Logbook chọn **Ôn thi**. Có 11 bộ đề gốc, tổng **6.126 câu**, và **300 câu Mass & Balance tham khảo** ở bộ MBR riêng. Câu hỏi, lựa chọn, UID, đáp án gốc và bộ máy chấm thi được giữ nguyên từ bản ATPL đã bàn giao. Lời giải, cảnh báo xung đột/thiếu căn cứ và ảnh trích nguồn được chuyển nguyên trạng; tích hợp này không tạo thêm kết luận kiểm định.
+Trong Pilot Logbook chọn **Ôn thi**. Có **13 môn, 7.229 câu**: 11 bộ đề gốc (6.126 câu), Flight Planning & Monitoring (503 câu) và General Navigation (600 câu). Bộ MBR cũ (300 câu) giữ riêng để phục hồi bản sao lưu, ẩn khỏi danh sách môn. Câu hỏi, lựa chọn, UID, đáp án gốc và bộ máy chấm thi được giữ nguyên từ bản ATPL đã bàn giao. Lời giải, cảnh báo xung đột/thiếu căn cứ và ảnh trích nguồn được chuyển nguyên trạng; tích hợp này không tạo thêm kết luận kiểm định.
 
 Trên iPad mở app bằng Safari khi có mạng, chọn **Tải offline** cho từng môn và chờ **✓ Sẵn sàng offline**. Có thể thêm app vào Màn hình chính qua menu Chia sẻ. Sau khi tải đủ, câu hỏi, lời giải và ảnh nguồn của môn đó dùng được khi mất mạng. Chọn câu, tiếp tục học, bookmark, thi thử, ngày/đêm và xuất/nhập tiến độ vẫn hoạt động. Bộ MBR tham khảo có tiến độ và đáp án riêng; luyện thi theo đáp án gốc dùng MB.
 
@@ -64,7 +64,9 @@ Mỗi môn hiển thị dung lượng trước khi tải. Có thể dừng rồi
 
 Nguồn đóng gói: SHA-256 `28fbacae42e5b05023c89b077d977e62184a2e916da0dc7d14bd521acd89239f`. `scripts/package-atpl.py` tạo HTML từng môn, catalog và manifest từ app nguồn; `data/atpl-media/` chứa ảnh base64 chia gói, được `lib/atpl-media.js` phục vụ theo URL hash. Ảnh được dùng chung giữa các môn, không lưu toàn bộ thư viện ảnh vào RAM máy chủ.
 
-Kiểm thử: `npm test` và `node scripts/verify-atpl-browser.cjs`. Chromium kiểm tra với offline flag; WebKit kiểm tra khi toàn bộ kết nối tới máy chủ bị từ chối do [lỗi mô phỏng offline của Playwright WebKit #42775](https://github.com/microsoft/playwright/issues/42775). Cả hai mở/chấm đủ 6.426 câu, đọc ảnh nguồn offline, khôi phục backup và giữ nguyên IndexedDB logbook. Chưa kiểm tra trực tiếp trên iPad vật lý. Báo cáo máy chạy được ghi trong `test-results/atpl/Browser_QA.json`.
+Kiểm thử: `npm test` và `node scripts/verify-atpl-browser.cjs`. Chromium kiểm tra với offline flag; WebKit kiểm tra khi toàn bộ kết nối tới máy chủ bị từ chối do [lỗi mô phỏng offline của Playwright WebKit #42775](https://github.com/microsoft/playwright/issues/42775). Cả hai mở/chấm đủ 7.529 câu (bao gồm MBR lưu trữ), đọc ảnh nguồn offline, khôi phục backup và giữ nguyên IndexedDB logbook. Chưa kiểm tra trực tiếp trên iPad vật lý. Báo cáo máy chạy được ghi trong `test-results/atpl/Browser_QA.json`.
+
+Hai môn Word mới có lời giải tiếng Việt theo từng câu, giữ nguyên key in đậm và hình nguồn. Có 221 câu cần đối chiếu thêm điều kiện/chart và 11 câu được đánh dấu mâu thuẫn với key; các câu này không nằm trong đề thi thử mặc định. Xem [quy trình và giới hạn nhập](data/atpl-additions/IMPORT.md).
 
 ## Tài khoản Google và đồng bộ ATPL
 

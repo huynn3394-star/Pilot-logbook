@@ -23,7 +23,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
      return Object.fromEntries(['atpl_mb_v2_state','atpl_mbr_v2_state','atpl_account_v1:mb-original-qa:MB','atpl_account_v1:mb-original-qa:MBR'].map(k=>[k,localStorage.getItem(k)]));
     },mode);
     await page.reload();await page.locator('[data-bank=MB]').waitFor();
-    assert.equal(await page.locator('.atpl-grid>.atpl-card').count(),11);
+    assert.equal(await page.locator('.atpl-grid>.atpl-card').count(),13);
     assert.equal(await page.locator('[data-bank=MB]').count(),1);assert.equal(await page.locator('[data-bank=MBR]').count(),0);
     assert.equal(await page.getByRole('heading',{name:'Mass & Balance',exact:true}).count(),1);
     assert.doesNotMatch(await page.locator('.atpl-library').innerText(),/hiệu chỉnh|Bản tham khảo riêng/);
@@ -47,7 +47,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
     assert.notEqual(saved[activeKey],seeded[activeKey]);
     for(const key of Object.keys(seeded).filter(k=>k!==activeKey))assert.equal(saved[key],seeded[key],key+' remains isolated');
     await page.reload();await page.locator('#atpl-offline-button').waitFor({state:'attached'});assert.deepEqual(await read(),saved);
-    await page.locator('#choose-subject').click();await page.locator('[data-bank=MB]').waitFor();assert.equal(await page.locator('.atpl-grid>.atpl-card').count(),11);assert.deepEqual(await read(),saved);
+    await page.locator('#choose-subject').click();await page.locator('[data-bank=MB]').waitFor();assert.equal(await page.locator('.atpl-grid>.atpl-card').count(),13);assert.deepEqual(await read(),saved);
     await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
     // Existing MB offline files retain their original URL/hash and still reopen.
     await page.evaluate(async()=>{const m=await import('/atpl/offline.js'),c=await m.getCatalog();await m.downloadBank(c.banks.find(b=>b.code==='MB'));});

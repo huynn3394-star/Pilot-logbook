@@ -19,7 +19,7 @@ const accountReady=p=>p.waitForFunction(()=>!!document.querySelector('[data-acco
   await p.goto(base);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.locator('iframe[data-companion-frame]').waitFor({state:'attached'});p=await(await p.locator('iframe[data-companion-frame]').elementHandle()).contentFrame();await p.locator('[data-bank]').first().waitFor();await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await accountReady(p);
-  const catalog=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json()),visibleBanks=catalog.banks.filter(b=>!b.reference);assert.equal(await p.locator('[data-bank]').count(),11);assert.equal(await p.locator('[data-bank=MBR]').count(),0);
+  const catalog=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json()),visibleBanks=catalog.banks.filter(b=>!b.reference);assert.equal(await p.locator('[data-bank]').count(),13);assert.equal(await p.locator('[data-bank=MBR]').count(),0);
   const state=await p.evaluate(async()=>{const m=await import('/lib/storage.js');return JSON.stringify(await m.readState())});assert(state.includes('flights'));
   // Cancel after two actual saved assets: no ready marker, then reuse partial cache.
   const cancelled=await p.evaluate(async bank=>{const m=await import('/atpl/offline.js'),a=new AbortController();try{await m.downloadBank(bank,{signal:a.signal,onProgress:x=>{if(x.completed===2)a.abort()}});return{error:'not cancelled'}}catch(e){return{error:e.name,ready:(await m.bankStatus(bank)).ready}}},catalog.banks.find(b=>b.code==='COM'));

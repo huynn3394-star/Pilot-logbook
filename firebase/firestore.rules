@@ -2,7 +2,7 @@ rules_version = '2';
 service cloud.firestore {
  match /databases/{database}/documents {
   function owner(uid) {return request.auth != null && request.auth.uid == uid && request.auth.token.firebase.sign_in_provider == 'google.com';}
-  function bank(code) {return code in ['POF','COM','INS','MET','RNAV','LAW','MB','MBR','AGK','PERF','OPS','HUM'];}
+  function bank(code) {return code in ['POF','COM','INS','MET','RNAV','LAW','MB','MBR','AGK','PERF','OPS','HUM','FPL','GNAV'];}
   function identity(d,code) {return bank(code) && d.schemaVersion == 1 && d.code == code && d.bankSHA256 is string && d.bankSHA256.matches('^[a-f0-9]{64}$') && d.epoch is string && d.epoch.matches('^[A-Za-z0-9:_-]{1,128}$');}
   function smallState(s) {return s is map && s.keys().hasOnly(['version','progress','wrong','bookmarks','examHistory','study','exam','settings','updatedAt']) && s.version == 2 && s.progress is map && s.progress.size() <= 1000 && s.wrong is list && s.wrong.size() <= 1000 && s.bookmarks is list && s.bookmarks.size() <= 1000 && s.settings is map && s.settings.keys().hasOnly(['theme','language']) && s.settings.theme in ['light','dark','system'] && s.settings.language in ['vi','en','both'] && s.examHistory == [] && s.study == null && s.exam == null;}
   match /users/{uid} {

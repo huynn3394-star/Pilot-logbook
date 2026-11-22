@@ -1,6 +1,6 @@
 import {validUID} from '../atpl/sync/common.js';
 const ACTIVE='atpl_active_account_v1',SIGNAL='atpl_account_signal_v1';
-export const requiredAtplCodes=Object.freeze(['POF','COM','INS','MET','RNAV','LAW','MB','MBR','AGK','PERF','OPS','HUM']);
+export const requiredAtplCodes=Object.freeze(['POF','COM','INS','MET','RNAV','LAW','MB','MBR','AGK','PERF','OPS','HUM','FPL','GNAV']);
 const statusKinds=new Set(['local','pending','offline','syncing','synced','conflict','reauth','error','disabled','readonly','not-loaded','ready','uploading','downloading','offline-ready','epoch']);
 function safeStatus(status){
  if(!statusKinds.has(status?.kind))throw Error('Trạng thái khu vực không hợp lệ.');const safe={kind:status.kind};

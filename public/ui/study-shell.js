@@ -23,6 +23,7 @@ export function mountStudyShell(content,{bank=false}={}){
  more.addEventListener('click',event=>{if(event.target!==more)return;const r=more.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)more.close();});
  document.addEventListener('click',event=>{for(const menu of shell.querySelectorAll('[data-account-menu][open]'))if(!event.composedPath().includes(menu))menu.open=false;});
  document.addEventListener('keydown',event=>{if(event.key==='Escape')for(const menu of shell.querySelectorAll('[data-account-menu][open]')){menu.open=false;menu.querySelector('summary').focus();}});
+ const footer=content.querySelector('footer');if(footer)footer.textContent=footer.textContent.replace('11 bộ đề','13 bộ đề');
  applyAppearance();
  companionReady();
  return {shell,accountElement:shell.querySelector('[data-account-menu]')};
