@@ -8,10 +8,10 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const base='http://127.0.0.1:'+server.address().port;
  const report={date:new Date().toISOString(),browsers:{}};
  try{for(const [name,type]of Object.entries({chromium,webkit})){
-  const browser=await type.launch({headless:true}),context=await browser.newContext({viewport:{width:1024,height:1366},hasTouch:true}),p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push({message:e.message,stack:e.stack,url:p.url()}));
+  const browser=await type.launch({headless:true}),context=await browser.newContext({viewport:{width:1024,height:1366},hasTouch:true}),rootPage=await context.newPage(),errors=[];let p=rootPage;p.on('pageerror',e=>errors.push({message:e.message,stack:e.stack,url:p.url()}));
   // Finish installing the shell before the first navigation can interrupt registration.
   await p.goto(base);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
-  await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.locator('iframe[data-companion-frame]').waitFor({state:'attached'});p=await(await p.locator('iframe[data-companion-frame]').elementHandle()).contentFrame();await p.locator('[data-bank]').first().waitFor();await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   const catalog=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json());assert.equal(await p.locator('[data-bank]').count(),12);
   const state=await p.evaluate(async()=>{const m=await import('/lib/storage.js');return JSON.stringify(await m.readState())});assert(state.includes('flights'));
   // Cancel after two actual saved assets: no ready marker, then reuse partial cache.
@@ -40,7 +40,7 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
   // https://github.com/microsoft/playwright/issues/42775 . Refuse all origin
   // connections for WebKit instead; Chromium uses the actual offline flag.
   if(name==='chromium')await context.setOffline(true);else originUnavailable=true;
-  await p.goto(base+'/atpl/');await p.locator('[data-bank="POF"] [data-ready]').filter({hasText:'✓'}).waitFor({timeout:30000});
+  p=rootPage;await p.goto(base+'/atpl/');await p.locator('[data-bank="POF"] [data-ready]').filter({hasText:'✓'}).waitFor({timeout:30000});
   const banks={};let popupCount=0;
   for(const b of catalog.banks){
    await p.goto(base+b.url);await p.locator('[data-action="study"]').first().waitFor();await require('./ui-controls.cjs').bankManage(p);await p.locator('#atpl-offline-button').waitFor();await p.locator('[data-bank-manage]>summary').click();
@@ -60,8 +60,8 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
   }
   assert(popupCount>=8,'real offline source-image popups required');
   await p.goto(base);const after=await p.evaluate(async()=>{const m=await import('/lib/storage.js');return JSON.stringify(await m.readState())});assert.equal(after,state,'Logbook IndexedDB unchanged');
-  await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.locator('[data-bank="POF"] [data-ready]').filter({hasText:'✓'}).waitFor();await p.screenshot({path:path.join(out,name+'-ipad-offline.png'),fullPage:true});
-  assert(!(await p.locator('#atpl-status').innerText()).includes('load failed'),'Offline must not display a script registration error');
+  await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.locator('iframe[data-companion-frame]').waitFor({state:'attached'});const offlineLibrary=await(await p.locator('iframe[data-companion-frame]').elementHandle()).contentFrame();await offlineLibrary.locator('[data-bank="POF"] [data-ready]').filter({hasText:'✓'}).waitFor();await p.screenshot({path:path.join(out,name+'-ipad-offline.png'),fullPage:true});
+  assert(!(await offlineLibrary.locator('#atpl-status').innerText()).includes('load failed'),'Offline must not display a script registration error');
   assert.deepEqual(errors,[],name);report.browsers[name]={version:browser.version(),offlineMode:name==='chromium'?'context.setOffline(true)':'All origin connections refused; Playwright WebKit issue 42775',blockedOriginRequests,banks,popupCount,cancellation:true,httpFailure:true,quotaFailure:true,missingAssetRepair:true,workerUpdateRetainsDownloads:true,logbookUnchanged:true,errors};fs.writeFileSync(path.join(out,'Browser_QA.json'),JSON.stringify(report,null,2));await browser.close();originUnavailable=false;
  }}finally{server.close()}
  report.complete=true;fs.writeFileSync(path.join(out,'Browser_QA.json'),JSON.stringify(report,null,2));console.log('PASS Chromium offline + WebKit origin unavailable, source-key scoring, images and logbook preservation');
