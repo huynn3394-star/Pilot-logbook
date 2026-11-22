@@ -8,14 +8,12 @@ const tools=document.querySelector('.top-tools'),manage=document.createElement('
 document.addEventListener('click',event=>{if(manage.open&&!event.composedPath().includes(manage))manage.open=false;});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&manage.open){manage.open=false;manage.querySelector('summary').focus();}});
 const compactBankInfo=()=>{for(const card of document.querySelectorAll('#view section.card')){if(!card.querySelector('[data-action=audit]')||card.closest('[data-bank-quality]'))continue;const details=document.createElement('details');details.className='sourcebox';details.dataset.bankQuality='';const summary=document.createElement('summary');summary.textContent='Nguồn và chất lượng câu hỏi';card.before(details);details.append(summary,card);}};
 compactBankInfo();new MutationObserver(compactBankInfo).observe(document.getElementById('view'),{childList:true});
-const compactEdition=()=>{const edition=document.querySelector('.mb-edition');if(!edition||edition.closest('.bank-edition'))return;const details=document.createElement('details');details.className='bank-edition';const summary=document.createElement('summary');summary.textContent=edition.querySelector('strong').textContent;edition.before(details);details.append(summary,edition);};
-compactEdition();new MutationObserver(compactEdition).observe(document.querySelector('.app'),{childList:true});
+// MB keeps the original 300-question Word source and its existing progress key.
+const removeEdition=()=>document.querySelector('.mb-edition')?.remove();
+removeEdition();new MutationObserver(removeEdition).observe(document.querySelector('.app'),{childList:true});
 const studyShell=mountStudyShell(document.querySelector('.app'),{bank:true});
 const choose=document.getElementById('choose-subject');choose.textContent='Môn học';choose.addEventListener('click',()=>{if(!replaceEmbeddedStudy('/atpl/'))location.assign('/atpl/');});
-// Mass & Balance modes retain separate URLs, source keys and localStorage keys.
 const catalog=await getCatalog();
-document.addEventListener('click',e=>{const link=e.target.closest('a.mb-mode-link');if(!link)return;const target=catalog.banks.find(b=>b.code===link.hash.slice(1).toUpperCase());if(target){e.preventDefault();e.stopImmediatePropagation();if(!replaceEmbeddedStudy(target.url))location.assign(target.url)}},true);
-window.addEventListener('hashchange',()=>{const b=catalog.banks.find(b=>b.code===location.hash.slice(1).toUpperCase());if(b&&b.code!==window.ATPL_SUBJECT)location.replace(b.url)});
 const bank=catalog.banks.find(b=>b.code===window.ATPL_SUBJECT);document.querySelector('[data-study-subject]').textContent=bank.name;
 const button=document.createElement('button');button.type='button';button.id='atpl-offline-button';button.textContent='Tải offline';manage.lastElementChild.append(button);
 const line=document.createElement('div');line.id='atpl-offline-status';line.className='storage-line';line.setAttribute('role','status');manage.lastElementChild.append(line);
