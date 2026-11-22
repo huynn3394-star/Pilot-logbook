@@ -3,9 +3,13 @@ const {chromium,webkit}=require('playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=require('node:path');
 (async()=>{
  const {createServer}=await import('../server.js'),server=createServer({firebaseConfig:{enabled:false}}),handler=server.listeners('request')[0];
- const held=new Set(),hits=new Map();let blockPanel=true;
+ const held=new Set(),heldCatalog=new Set(),hits=new Map();let blockPanel=true,catalogMode='',catalogObserved;
  server.removeAllListeners('request');server.on('request',(req,res)=>{
   if(req.url.startsWith('/atpl/banks/'))hits.set(req.url,(hits.get(req.url)||0)+1);
+  if(req.url==='/atpl/catalog.json'&&catalogMode){
+   if(catalogMode==='fail'){res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'});res.end('{}');return;}
+   const pending={req,res};heldCatalog.add(pending);res.on('close',()=>heldCatalog.delete(pending));catalogObserved?.();return;
+  }
   if(blockPanel&&req.url==='/atpl/account-panel.js'){
    const pending={req,res};held.add(pending);res.on('close',()=>held.delete(pending));return;
   }
@@ -54,7 +58,29 @@ const assert=require('node:assert/strict'),fs=require('node:fs/promises'),path=r
    await page.screenshot({path:path.join(out,`${engine}-${width}-${mode}.png`)});assert.deepEqual(errors,[]);
    checks.push({engine,width,mode,metrics,quizUsableWithoutCloudUI:true,earlyAnswersPreserved:true,otherProgressIsolated:true,unchangedBankNotRefetched:true});
   }finally{release();await context.close();}
- }}finally{await browser.close();}
+ }
+ // Slow/failed optional catalog metadata cannot block a local quiz, account
+ // controls or shared appearance, nor reject a module when navigating away.
+ const context=await browser.newContext({viewport:{width:390,height:900},serviceWorkers:'block'}),page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));page.setDefaultTimeout(15000);
+ try{
+  blockPanel=false;await page.goto(origin+'/atpl/');await page.locator('[data-bank=MET] a').waitFor();
+  catalogMode='hold';const requested=new Promise(resolve=>catalogObserved=resolve);
+  await page.locator('[data-bank=MET] a').click();await requested;await page.locator('[data-action=study]').first().waitFor();
+  await page.waitForFunction(()=>!!document.querySelector('[data-account-content] button'));
+  assert.equal(await page.locator('#atpl-offline-button').isDisabled(),true);
+  assert.equal(await page.evaluate(async()=>{const m=await import('/lib/appearance.js');m.setAppearance({theme:'light'});document.querySelector('[data-action=theme]').click();return m.appearance().theme;}),'dark');
+  await page.locator('[data-action=study]').first().click();await page.locator('[data-action=answer]').first().click();
+  const saved=await page.evaluate(()=>localStorage.getItem('atpl_met_v2_state'));assert(saved);
+  catalogMode='';await page.locator('#choose-subject').click();await page.locator('[data-bank=MET] a').waitFor();
+  for(const p of heldCatalog)if(!p.res.destroyed)handler(p.req,p.res);heldCatalog.clear();
+  catalogMode='fail';await page.locator('[data-bank=MET] a').click();await page.locator('[data-bank-manage]>summary').click();
+  await page.locator('#atpl-offline-button').filter({hasText:'Thử lại'}).waitFor();await page.locator('[data-action=resume]').waitFor();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('atpl_met_v2_state')),saved);
+  catalogMode='';await page.locator('#atpl-offline-button').click();await page.locator('#atpl-offline-button').filter({hasText:'Tải offline ·'}).waitFor();
+  assert.deepEqual(errors,[]);checks.push({engine,width:390,mode:'metadata-guard',quizAndAccountUIWithoutCatalog:true,appearanceWithoutCatalog:true,cancelledNavigationHandled:true,failedMetadataRetry:true,progressPreserved:true});
+ }finally{catalogMode='';catalogObserved=null;for(const p of heldCatalog)if(!p.res.destroyed)handler(p.req,p.res);heldCatalog.clear();await context.close();}
+ }finally{await browser.close();}
  }}finally{release();server.closeAllConnections();await new Promise(r=>server.close(r));await fs.writeFile(path.join(out,'QA.json'),JSON.stringify(checks,null,2));}
- assert.equal(checks.length,8);console.log(JSON.stringify(checks,null,2));
+ assert.equal(checks.length,10);console.log(JSON.stringify(checks,null,2));
 })().catch(e=>{console.error(e);process.exitCode=1;});
