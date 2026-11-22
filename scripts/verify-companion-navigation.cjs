@@ -120,6 +120,18 @@ const visibleArea=(page,host,area)=>page.waitForFunction(show=>document.body.cla
    await weatherPage.evaluate(async()=>{(await import('/account/coordinator.js')).getCoordinator().selectAuthenticatedUser({uid:'navigation-dormant-account'});});
    await weatherPage.locator('iframe[data-companion-frame]').waitFor({state:'detached'});
   }finally{await weatherContext.close();}
+  const upgradeContext=await browser.newContext(),upgradePage=await upgradeContext.newPage();
+  try{
+   await upgradePage.goto(origin+'/?tab=logbook');await upgradePage.locator('[data-navy-logbook]').waitFor();await upgradePage.waitForFunction(()=>!!navigator.serviceWorker.controller);
+   const proof=await upgradePage.evaluate(async url=>{
+    const response=await fetch(url,{cache:'reload'}),bytes=await response.arrayBuffer(),digest=async bytes=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))].map(v=>v.toString(16).padStart(2,'0')).join('');
+    const hash=await digest(bytes),headers=Object.fromEntries(response.headers);headers['x-frame-options']='DENY';headers['content-security-policy']="img-src 'self' data:; frame-ancestors 'none'";headers['x-atpl-verified-sha256']=hash;
+    await(await caches.open('avilog-atpl-v1')).put(url,new Response(bytes,{headers}));
+    const delivered=await fetch(url);return {hash,deliveredHash:await digest(await delivered.clone().arrayBuffer()),frame:delivered.headers.get('x-frame-options'),policy:delivered.headers.get('content-security-policy'),verified:delivered.headers.get('x-atpl-verified-sha256')};
+   },bank.url);
+   assert.equal(proof.hash,proof.deliveredHash);assert.equal(proof.verified,proof.hash);assert.equal(proof.frame,'SAMEORIGIN');assert.equal(proof.policy,"img-src 'self' data:; frame-ancestors 'self'");
+   await upgradePage.locator('.sidebar [data-tab=atpl]').click();const study=await companionFrame(upgradePage);await study.locator('[data-bank=POF] a').click();await study.locator('[data-action=study]').first().click();await study.locator('[data-action=answer]').first().waitFor();
+  }finally{await upgradeContext.close();}
   }finally{await browser.close();}
  }}finally{server.closeAllConnections();await new Promise(r=>server.close(r));await fs.writeFile(path.join(out,'QA.json'),JSON.stringify(checks,null,2));}
  assert.equal(checks.length,8);console.log(JSON.stringify(checks,null,2));

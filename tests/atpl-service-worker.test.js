@@ -14,3 +14,13 @@ test('all local account modules precache without needing a reachable provider co
  for(const url of ['/atpl/account-bootstrap.js','/atpl/account.js','/atpl/account-ui.js','/atpl/sync/model.js','/atpl/sync/common.js','/atpl/sync/store.js','/atpl/sync/import.js','/atpl/sync/controller.js','/atpl/vendor/firebase-client.js','/atpl/identities.json','/atpl/privacy.html'])assert.ok(w.shell.includes(url),url);
  assert.ok(!w.shell.includes('/atpl/firebase-config.json'));let activation;w.handlers.activate({waitUntil:p=>activation=p});await activation;assert.deepEqual(w.deleted,['avilog-shell-obsolete']);
 });
+test('pre-upgrade offline banks keep verified bytes while only framing headers migrate',async()=>{
+ const text='Original immutable bank ✓',hash='a'.repeat(64),saved=new Response(text,{headers:{'Content-Type':'text/html','X-Frame-Options':'DENY','Content-Security-Policy':"img-src 'self' data:; frame-ancestors 'none'",'X-ATPL-Verified-SHA256':hash}});
+ let reply;const w=worker({saved});w.handlers.fetch({request:new Request('https://avilog.example/atpl/banks/POF-old.html'),respondWith:p=>reply=p,waitUntil(){}});
+ const response=await reply;assert.equal(response.headers.get('x-frame-options'),'SAMEORIGIN');assert.equal(response.headers.get('content-security-policy'),"img-src 'self' data:; frame-ancestors 'self'");assert.equal(response.headers.get('x-atpl-verified-sha256'),hash);assert.equal(await response.text(),text);
+});
+test('source-image responses retain their original headers and bytes',async()=>{
+ const saved=new Response('image bytes',{headers:{'Content-Type':'image/webp','X-Frame-Options':'DENY'}});let reply;
+ worker({saved}).handlers.fetch({request:new Request('https://avilog.example/atpl/media/source.webp'),respondWith:p=>reply=p,waitUntil(){}});
+ const response=await reply;assert.equal(response.headers.get('x-frame-options'),'DENY');assert.equal(await response.text(),'image bytes');
+});
