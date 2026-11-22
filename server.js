@@ -39,6 +39,11 @@ export function createServer({ weather = new WeatherService(), firebaseConfig=re
     };
     try {
       const url = new URL(req.url, "http://localhost");
+      // Only this origin can embed app/quiz documents as companion views.
+      if(['/','/index.html','/atpl/','/atpl/index.html'].includes(url.pathname)||/^\/atpl\/banks\/[A-Za-z0-9._-]+\.html$/.test(url.pathname)){
+        security['X-Frame-Options']='SAMEORIGIN';
+        security['Content-Security-Policy']="frame-ancestors 'self'";
+      }
       res.once('finish',()=>admin.observe(url.pathname,res.statusCode));
       if(await admin.handle(req,res,url))return;
       if(await authHandler(req,res,url))return;

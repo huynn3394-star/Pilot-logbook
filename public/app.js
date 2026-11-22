@@ -1,4 +1,5 @@
 import {navigationItems,renderNavigation,renderBottomNavigation} from './ui/navigation.js';
+import {setupCompanionNavigation,companionReady} from './ui/companion-navigation.js';
 import {lookupFlights,normalizeFlightCode,prepareScanDraft,scanComparison} from './lib/flight-assist.js';
 import {mountFlightAssist} from './lib/flight-v14-ui.js';
 import {readLogbookFields,timeTotals} from './lib/flight-times.js';
@@ -111,6 +112,13 @@ let state,
 const coordinator=getCoordinator();
 let navyFilters=defaultFilters(),navyLimit=80;
 let workspaceSession=null,account=null,workspaceController=null,evidenceTransfers=null,accountUI=null,backupUI=null,renderCapture=null,formDirty=false,pendingRemote=false,transitioning=false,draftPrepared=false,bootVersion=0,weatherCollector=null,weatherWatch=null,weatherWatchUI=null,weatherViewState={},accountViewState={},pageViewState={};
+const companion=setupCompanionNavigation({area:'app',onNavigate:async path=>{
+ const url=new URL(path,location.origin),nextTab=url.searchParams.get('tab')||'weather',same=tab===nextTab;
+ if(!url.searchParams.has('compose'))modal.close();
+ if(!same){tab=nextTab;modal.close();render();window.scrollTo(0,0);}
+ if(url.searchParams.get('compose')==='flight'){if(tab!=='logbook'){tab='logbook';render();}editFlight();history.replaceState(history.state,'','/?tab=logbook');return {preserveScroll:false,path:'/?tab=logbook'};}
+ applyAppearance();return {preserveScroll:same};
+},onLogin:async()=>{if(await beforeAccountSwitch())await(await getAccountClient()).login({redirect:true});}});
 const busyForm=()=>modal.open||formDirty;
 function asyncCapture(){return{session:workspaceSession,token:workspaceSession.token,context:modal.dataset.context};}
 function asyncCurrent(capture){return capture.session===workspaceSession&&coordinator.isCurrent(capture.token)&&capture.context===modal.dataset.context&&modal.open;}
@@ -1421,12 +1429,10 @@ document.addEventListener("click", async (ev) => {
       case "navy-more-records": navyLimit+=80;refreshLogbook();break;
       case "tab":
         if(!canLeaveDraft())break;
-        if (b.dataset.tab === "atpl") { if(await beforeAccountSwitch())location.assign("/atpl/"); break; }
-        tab = b.dataset.tab;
-        history.replaceState(null,"","/?tab="+encodeURIComponent(tab));
+        if (b.dataset.tab === "atpl") {if(await beforeAccountSwitch()){const discard=formDirty;modal.close();if(discard){formDirty=false;state=workspaceSession.view();render();}draftPrepared=false;await companion.open('/atpl/');}break;}
         modal.close();
-        render();
-        window.scrollTo(0, 0);
+        await companion.open('/?tab='+encodeURIComponent(b.dataset.tab));
+        companionReady();
         break;
       case "view":
         view = b.dataset.view;
@@ -1626,7 +1632,7 @@ document.addEventListener("click", async (ev) => {
     error(err.message);
   }
 });
-try {await bootWorkspace();if(new URLSearchParams(location.search).get("compose")==="flight"){tab="logbook";history.replaceState(null,"","/?tab=logbook");render();editFlight();}} catch(err){app.innerHTML=`<div class="loading"><h2>Không mở được bộ nhớ logbook</h2><p>${e(err.message)}</p><p>Cho phép lưu dữ liệu website rồi tải lại.</p></div>`;}
+try {await bootWorkspace();if(new URLSearchParams(location.search).get("compose")==="flight"){tab="logbook";history.replaceState(null,"","/?tab=logbook");render();editFlight();}companionReady();} catch(err){app.innerHTML=`<div class="loading"><h2>Không mở được bộ nhớ logbook</h2><p>${e(err.message)}</p><p>Cho phép lưu dữ liệu website rồi tải lại.</p></div>`;}
 getAccountClient().then(client=>{account=client;client.subscribe(()=>{if(workspaceSession&&!workspaceSession.isCurrent())transitionAccount();else accountUI?.render();});connectWorkspaceServices();}).catch(err=>toast('Đăng nhập chưa sẵn sàng: '+err.message));
 if ("serviceWorker" in navigator)
   navigator.serviceWorker

@@ -1,4 +1,5 @@
 import {bootstrapBank,getCoordinator} from './account-bootstrap.js';
+import {topLevelLogin} from '../ui/companion-navigation.js';
 import {getAccountClient} from './account.js';
 import {publishAreaStatus} from '../account/coordinator.js';
 import {openAccountBank} from './sync/store.js';
@@ -32,7 +33,8 @@ export function mountAccountUI({element,account,controller,coordinator,store=nul
  const button=(text,fn,disabled=false)=>{const b=document.createElement('button');b.type='button';b.className='btn';b.textContent=text;b.disabled=disabled;b.addEventListener('click',async()=>{b.disabled=true;try{await fn();}catch(e){status.textContent=e.message;}finally{b.disabled=false;}});actions.append(b);return b;};
  function render(){
   actions.replaceChildren();const cached=coordinator.getCachedSelection(),user=account.currentUser();identityLine.textContent=cached?`${cached.displayName||'Tài khoản'} · ${cached.email||''}`:'Chế độ khách · tiến độ chỉ lưu trên thiết bị';status.textContent=statusText(controller.status());
-  if(!user)button(account.config.enabled?'Tiếp tục với Google':'Google chưa kích hoạt',()=>account.login(),!account.config.enabled||account.status==='connecting');else{button('Đồng bộ ngay',()=>controller.syncNow(store?.identity?.code));button('Đăng nhập tài khoản khác',()=>account.login(),account.status==='connecting');}
+  const login=()=>topLevelLogin()||account.login();
+  if(!user)button(account.config.enabled?'Tiếp tục với Google':'Google chưa kích hoạt',login,!account.config.enabled||account.status==='connecting');else{button('Đồng bộ ngay',()=>controller.syncNow(store?.identity?.code));button('Đăng nhập tài khoản khác',login,account.status==='connecting');}
   if(cached){button('Đăng xuất / về khách',()=>account.logout());button('Xuất bản lưu tài khoản',()=>{const raw={};for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(key.startsWith(`atpl_account_v1:${cached.uid}:`))raw[key]=localStorage.getItem(key);}downloads('ATPL_ban_luu_tai_khoan.json',raw);});
    if(user)button('Xem / nhập tiến độ khách',async()=>{
     const list=Object.values(identities).filter(id=>!store||id.code===store.identity.code),candidates=list.map(id=>{const raw=localStorage.getItem(`atpl_${id.code.toLowerCase()}_v2_state`);if(!raw)return null;const guest=JSON.parse(raw);return {identity:id,guest,done:Object.keys(guest.progress||{}).length,reports:guest.examHistory?.length||0};}).filter(Boolean);

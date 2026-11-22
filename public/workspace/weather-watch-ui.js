@@ -1,6 +1,7 @@
 import {normalizeAirports} from './weather-watch.js';
 import {icaoFor} from '../lib/parsers.js';
 import {weatherProductFreshness} from './weather-report.js';
+import {isViewVisible} from '../ui/companion-navigation.js';
 import {formatMETARReport,formatTAFReport,highlightWeatherReport,collectSpeciAlerts,renderSpeciAlerts,renderWeatherStationIdentity} from './weather-attention.js';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
@@ -54,7 +55,7 @@ export function mountWeatherWatch({element,watch,getGroups,onGroups,viewState={}
   searchStatus.hidden=!searchActive;
   searchStatus.textContent=!searchActive?'':matched.size?matched.size+' sân bay phù hợp trong danh sách đã lưu.':'Không tìm thấy sân bay trong danh sách đã lưu. Tìm bằng ICAO hoặc IATA có hỗ trợ.';
  }
- function paint(data){if(disposed||!isCurrent())return;
+ function paint(data){if(disposed||!isCurrent()||!isViewVisible())return;
   rememberOpen();
   const groups=getGroups(),offline=navigator.onLine===false;
   // Alerts always inspect every saved airport, independently of search/product selection.
@@ -118,13 +119,13 @@ export function mountWeatherWatch({element,watch,getGroups,onGroups,viewState={}
   clearTimeout(timer);if(disposed||watch.snapshot().loading.length)return;
   const at=watch.nextRefreshAt();if(!Number.isFinite(at))return;
   const remaining=at-Date.now();
-  const delay=document.hidden?60000:navigator.onLine===false?Math.min(60000,remaining>0?remaining:60000):remaining;
+  const delay=!isViewVisible()?60000:navigator.onLine===false?Math.min(60000,remaining>0?remaining:60000):remaining;
   timer=setTimeout(autoRefresh,Math.max(100,Math.min(2147483647,delay)));
  };
- const autoRefresh=()=>{if(disposed||!isCurrent())return;paint(watch.snapshot());if(document.hidden){schedule();return;}return watch.refresh().finally(schedule);};
- const refresh=()=>watch.refresh({force:true}).finally(schedule),visibility=()=>{if(!document.hidden)autoRefresh();};
- const selectGroup=()=>{viewState.selectedGroup=select.value;};groupForm.addEventListener('submit',create);airportForm.addEventListener('submit',add);select.addEventListener('change',selectGroup);cards.addEventListener('click',click);cards.addEventListener('change',transfer);editButton.addEventListener('click',edit);refreshButton.addEventListener('click',refresh);window.addEventListener('online',autoRefresh);window.addEventListener('offline',autoRefresh);document.addEventListener('visibilitychange',visibility);
+ const autoRefresh=()=>{if(disposed||!isCurrent())return;if(!isViewVisible()){schedule();return;}paint(watch.snapshot());return watch.refresh().finally(schedule);};
+ const refresh=()=>watch.refresh({force:true}).finally(schedule),visibility=()=>{if(isViewVisible())autoRefresh();else schedule();};
+ const selectGroup=()=>{viewState.selectedGroup=select.value;};groupForm.addEventListener('submit',create);airportForm.addEventListener('submit',add);select.addEventListener('change',selectGroup);cards.addEventListener('click',click);cards.addEventListener('change',transfer);editButton.addEventListener('click',edit);refreshButton.addEventListener('click',refresh);window.addEventListener('online',autoRefresh);window.addEventListener('offline',autoRefresh);document.addEventListener('visibilitychange',visibility);window.addEventListener('avilog-view-visibility',visibility);
  searchInput.addEventListener('input',applySearch);searchInput.addEventListener('search',applySearch);searchInput.addEventListener('keydown',searchKey);clearSearchButton.addEventListener('click',clearSearch);
  const unsubscribe=watch.subscribe(data=>{paint(data);schedule();});watch.ready.then(autoRefresh);
- return{dispose(){rememberOpen();disposed=true;speciHost.removeEventListener('click',openSpeci);viewState.manageOpen=manage.open;searchInput.removeEventListener('input',applySearch);searchInput.removeEventListener('search',applySearch);searchInput.removeEventListener('keydown',searchKey);clearSearchButton.removeEventListener('click',clearSearch);groupForm.removeEventListener('input',drafts);airportForm.removeEventListener('input',drafts);clearTimeout(timer);unsubscribe();groupForm.removeEventListener('submit',create);airportForm.removeEventListener('submit',add);select.removeEventListener('change',selectGroup);cards.removeEventListener('click',click);cards.removeEventListener('change',transfer);editButton.removeEventListener('click',edit);refreshButton.removeEventListener('click',refresh);window.removeEventListener('online',autoRefresh);window.removeEventListener('offline',autoRefresh);document.removeEventListener('visibilitychange',visibility);}};
+ return{dispose(){rememberOpen();disposed=true;speciHost.removeEventListener('click',openSpeci);viewState.manageOpen=manage.open;searchInput.removeEventListener('input',applySearch);searchInput.removeEventListener('search',applySearch);searchInput.removeEventListener('keydown',searchKey);clearSearchButton.removeEventListener('click',clearSearch);groupForm.removeEventListener('input',drafts);airportForm.removeEventListener('input',drafts);clearTimeout(timer);unsubscribe();groupForm.removeEventListener('submit',create);airportForm.removeEventListener('submit',add);select.removeEventListener('change',selectGroup);cards.removeEventListener('click',click);cards.removeEventListener('change',transfer);editButton.removeEventListener('click',edit);refreshButton.removeEventListener('click',refresh);window.removeEventListener('online',autoRefresh);window.removeEventListener('offline',autoRefresh);document.removeEventListener('visibilitychange',visibility);window.removeEventListener('avilog-view-visibility',visibility);}};
 }
