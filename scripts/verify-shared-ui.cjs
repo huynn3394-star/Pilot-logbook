@@ -75,8 +75,10 @@ function contrast(a,b){const x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.m
        await verify(p,`${name} ${width} flight editor`,theme,'.fe-card');
        await p.locator('#modal [data-action=close]').first().click();
        await navigate(p,'atpl');await p.waitForURL('**/atpl/');
-       await p.locator('[data-bank]').first().waitFor();await verify(p,`${name} ${width} ATPL library`,theme,'.atpl-card');
-       const h1=await p.locator('h1').evaluate(n=>getComputedStyle(n).fontSize);assert.equal(h1,width<=720?'26px':'28px');
+       await p.locator('iframe[data-companion-frame]').waitFor({state:'attached'});
+       const library=await(await p.locator('iframe[data-companion-frame]').elementHandle()).contentFrame();
+       await library.locator('[data-bank]').first().waitFor();await verify(library,`${name} ${width} ATPL library`,theme,'.atpl-card');
+       const h1=await library.locator('h1').evaluate(n=>getComputedStyle(n).fontSize);assert.equal(h1,width<=720?'26px':'28px');
        if(width===390)await p.screenshot({path:path.join(root,`${name}-${theme}-library.png`)});
        const banks=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json());
        for(const bank of width===390?banks.banks:banks.banks.slice(0,1)){

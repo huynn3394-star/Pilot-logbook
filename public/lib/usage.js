@@ -11,7 +11,7 @@ async function start(){
   const visitorId=id(localStorage,'avilog_usage_browser_v1'),sessionId=id(sessionStorage,'avilog_usage_tab_v1');
   const device=/iPad/i.test(navigator.userAgent)||(/Macintosh/i.test(navigator.userAgent)&&navigator.maxTouchPoints>1)?'tablet':/Mobi|Android/i.test(navigator.userAgent)?'mobile':'desktop';
   let current=feature(),lastActivity=Date.now(),lastError=0;
-  const send=kind=>{if(!navigator.onLine||document.visibilityState!=='visible')return;fetch('/api/usage/event',{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({visitorId,sessionId,eventId:crypto.randomUUID(),kind,feature:current,device}),signal:AbortSignal.timeout(4000)}).catch(()=>{});};
+  const send=kind=>{if(!navigator.onLine||document.visibilityState!=='visible'||document.documentElement.hasAttribute('data-companion-hidden'))return;fetch('/api/usage/event',{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify({visitorId,sessionId,eventId:crypto.randomUUID(),kind,feature:current,device}),signal:AbortSignal.timeout(4000)}).catch(()=>{});};
   send('page_view');
   const root=document.getElementById('app');
   if(root)new MutationObserver(()=>{const next=feature();if(['weather','schedule','logbook','crew','statistics','settings'].includes(next)&&next!==current){current=next;send('feature_view');}}).observe(root,{childList:true,subtree:true,attributes:true,attributeFilter:['aria-current']});

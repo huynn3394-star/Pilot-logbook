@@ -1,5 +1,5 @@
 const BUNDLE_BUILD = "712de166a642";
-const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v3-compact-counters-20261105-weather-cache-20261106-wader-v5-20261106-study-20261107-auto-night-20261107-flight-entry-20261108-release-20261108-weather-bulletin-display-20261109-mobile-refresh-20261109-logbook-current-month-wader-csv-sync-performance-weather-batch-row-layout-study-aligned-weather-current-schedule" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
+const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v3-compact-counters-20261105-weather-cache-20261106-wader-v5-20261106-study-20261107-auto-night-20261107-flight-entry-20261108-release-20261108-weather-bulletin-display-20261109-mobile-refresh-20261109-logbook-current-month-wader-csv-sync-performance-weather-batch-row-layout-study-aligned-weather-current-schedule-companion-navigation" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
 const SHELL = [
   "/lib/usage.js",
   "/workspace/flight-conflict.js",
@@ -12,6 +12,8 @@ const SHELL = [
   "/ui/system.css",
   "/ui/tokens.css",
   "/ui/navigation.js",
+  "/ui/companion-navigation.js",
+  "/ui/companion-navigation.css",
   "/ui/study-shell.js",
   "/ui/study-shell.css",
   "/ui/navy-v2.css",
@@ -116,6 +118,15 @@ self.addEventListener("activate", (e) =>
       .then(() => self.clients.claim()),
   ),
 );
+// Previously downloaded banks retain their original response headers. Adapt only
+// public bank framing headers on delivery; keep the verified body/hash untouched.
+function framedBank(response,pathname){
+ if(!response.ok||!/^\/atpl\/banks\/[A-Za-z0-9._-]+\.html$/.test(pathname))return response;
+ const headers=Object.fromEntries(response.headers);
+ const policy=(headers['content-security-policy']||'').split(';').map(v=>v.trim()).filter(v=>v&&!/^frame-ancestors(?:\s|$)/i.test(v));
+ headers['x-frame-options']='SAMEORIGIN';policy.push("frame-ancestors 'self'");headers['content-security-policy']=policy.join('; ');
+ return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
+}
 self.addEventListener("fetch", (e) => {
   if (
     e.request.method !== "GET" ||
@@ -143,7 +154,7 @@ self.addEventListener("fetch", (e) => {
       const cache = await caches.open("avilog-atpl-v1");
       if (e.request.cache !== "reload") {
         const saved = await cache.match(e.request);
-        if (saved) return saved;
+        if (saved) return framedBank(saved,pathname);
       }
       try {
         const response = await fetch(e.request);
@@ -151,11 +162,11 @@ self.addEventListener("fetch", (e) => {
           const put = cache.put(e.request, response.clone()).catch(() => {});
           e.waitUntil(put);
         }
-        return response;
+        return framedBank(response,pathname);
       } catch {
         // Reload still needs downloaded immutable assets when the network is unavailable.
         const saved = await cache.match(e.request);
-        if (saved) return saved;
+        if (saved) return framedBank(saved,pathname);
         return new Response('<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Chưa tải môn này</title><h1>Môn này chưa tải đầy đủ để học offline</h1><p>Kết nối mạng rồi bấm Tải offline. Tiến độ đã lưu vẫn được giữ.</p><a href="/atpl/">← Danh sách môn</a></html>', {status:503,headers:{"Content-Type":"text/html; charset=utf-8"}});
       }
     })());

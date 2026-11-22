@@ -76,6 +76,7 @@ jobs:
       - run: node scripts/verify-admin.cjs
       - run: node scripts/verify-weather-batch.cjs
       - run: node scripts/verify-weather-schedule.cjs
+      - run: node scripts/verify-companion-navigation.cjs
       - run: node scripts/verify-weather-view.cjs
       - run: node scripts/verify-weather-attention.cjs
       - run: node scripts/verify-pdf-import.cjs

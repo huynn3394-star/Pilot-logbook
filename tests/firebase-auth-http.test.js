@@ -8,7 +8,7 @@ const config=()=>readFirebaseConfig({ATPL_ACCOUNTS_ENABLED:'true',ATPL_APP_ORIGI
 test('runtime config defaults disabled, rejects malformed origin/project and cannot expose arbitrary secrets',async()=>{
  assert.deepEqual(readFirebaseConfig({}),{enabled:false});
  for(const env of [{ATPL_APP_ORIGIN:'https://example.com/path'}, {FIREBASE_PROJECT_ID:'evil.test/path'},{ATPL_APP_ORIGIN:'http://public.example.com'}])assert.throws(()=>readFirebaseConfig({ATPL_ACCOUNTS_ENABLED:'true',ATPL_APP_ORIGIN:'https://example.up.railway.app',FIREBASE_PROJECT_ID:project,FIREBASE_API_KEY:'x',FIREBASE_APP_ID:'x',...env}));
- await withServer({enabled:false},async base=>{const r=await fetch(base+'/atpl/firebase-config.json');assert.equal(r.status,200);assert.deepEqual(await r.json(),{enabled:false});assert.equal((await fetch(base+'/__/auth/handler')).status,503);assert.equal((await fetch(base+'/')).headers.get('x-frame-options'),'DENY');});
+ await withServer({enabled:false},async base=>{const r=await fetch(base+'/atpl/firebase-config.json');assert.equal(r.status,200);assert.deepEqual(await r.json(),{enabled:false});assert.equal((await fetch(base+'/__/auth/handler')).status,503);assert.equal((await fetch(base+'/')).headers.get('x-frame-options'),'SAMEORIGIN');});
 });
 test('auth GET/POST proxy is fixed, no-store and same-origin framed while ordinary routes stay DENY',async()=>{
  const calls=[];await withServer(config(),async base=>{
@@ -16,7 +16,7 @@ test('auth GET/POST proxy is fixed, no-store and same-origin framed while ordina
   const post=await fetch(base+'/__/auth/handler',{method:'POST',body:'callback-data',headers:{'Content-Type':'application/x-www-form-urlencoded'}});assert.equal(post.status,200);assert.equal(calls[1].body.toString(),'callback-data');
   assert.equal((await fetch(base+'/__/auth/handler',{method:'DELETE'})).status,405);
   assert.equal(calls[0].url.startsWith('https://demo-atpl-sync.firebaseapp.com/__/auth/iframe?'),true);assert.equal(calls[0].redirect,'manual');
-  const publicConfig=await (await fetch(base+'/atpl/firebase-config.json')).json();assert.equal(publicConfig.authDomain,'example.up.railway.app');assert.equal((await fetch(base+'/')).headers.get('x-frame-options'),'DENY');
+  const publicConfig=await (await fetch(base+'/atpl/firebase-config.json')).json();assert.equal(publicConfig.authDomain,'example.up.railway.app');assert.equal((await fetch(base+'/')).headers.get('x-frame-options'),'SAMEORIGIN');
  },async(url,options)=>{calls.push({url,...options});return new Response('helper',{headers:{'Content-Type':'text/html','X-Frame-Options':'DENY'}});});
 });
 test('oversized callback bodies/upstream responses, bad redirects and timeout are bounded',async()=>{
