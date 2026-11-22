@@ -12,7 +12,7 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
   // Finish installing the shell before the first navigation can interrupt registration.
   await p.goto(base);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.locator('iframe[data-companion-frame]').waitFor({state:'attached'});p=await(await p.locator('iframe[data-companion-frame]').elementHandle()).contentFrame();await p.locator('[data-bank]').first().waitFor();await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
-  const catalog=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json());assert.equal(await p.locator('[data-bank]').count(),12);
+  const catalog=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json()),visibleBanks=catalog.banks.filter(b=>!b.reference);assert.equal(await p.locator('[data-bank]').count(),11);assert.equal(await p.locator('[data-bank=MBR]').count(),0);
   const state=await p.evaluate(async()=>{const m=await import('/lib/storage.js');return JSON.stringify(await m.readState())});assert(state.includes('flights'));
   // Cancel after two actual saved assets: no ready marker, then reuse partial cache.
   const cancelled=await p.evaluate(async bank=>{const m=await import('/atpl/offline.js'),a=new AbortController();try{await m.downloadBank(bank,{signal:a.signal,onProgress:x=>{if(x.completed===2)a.abort()}});return{error:'not cancelled'}}catch(e){return{error:e.name,ready:(await m.bankStatus(bank)).ready}}},catalog.banks.find(b=>b.code==='COM'));
@@ -20,11 +20,14 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
   // Real503 failure through the server, not a fake cache implementation.
   const agk=catalog.banks.find(b=>b.code==='AGK');failPath=agk.url;
   await require('./ui-controls.cjs').libraryManage(p,'AGK');await p.locator('[data-download="AGK"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="AGK"]').disabled);assert(!(await p.locator('[data-bank="AGK"] [data-ready]').innerText()).includes('✓'));assert((await p.locator('[data-bank="AGK"] .atpl-progress').innerText()).length>20);failPath=null;
-  for(const b of catalog.banks){
+  for(const b of visibleBanks){
    await require('./ui-controls.cjs').libraryManage(p,b.code);await p.locator(`[data-download="${b.code}"]`).click();await p.waitForFunction(code=>!document.querySelector(`[data-download="${code}"]`).disabled,b.code,{timeout:180000});
    assert((await p.locator(`[data-bank="${b.code}"] [data-ready]`).innerText()).includes('✓'),name+':'+b.code+':'+await p.locator(`[data-bank="${b.code}"] .atpl-progress`).innerText());
    if(b.code==='COM') {const corrupted=await p.evaluate(async b=>{const m=await import('/atpl/offline.js'),c=await caches.open(m.ATPL_CACHE),manifest=await(await c.match(b.manifest)).json();await c.put(manifest.assets.find(a=>a.url.endsWith('.webp')).url,new Response('corrupted-but-present'));return(await m.bankStatus(b)).ready},b);assert.equal(corrupted,false,'Unverified replacement must not still be called offline-ready');await require('./ui-controls.cjs').libraryManage(p,'COM');await p.locator('[data-download="COM"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="COM"]').disabled)}
   }
+  // A retired reference stays readable for existing backups/direct URLs, while
+  // its download control is absent from the 11-subject library.
+  await p.evaluate(async bank=>(await import('/atpl/offline.js')).downloadBank(bank),catalog.banks.find(b=>b.code==='MBR'));
   // Missing asset must invalidate ready; retry must repair it.
   const missing=await p.evaluate(async b=>{const m=await import('/atpl/offline.js'),c=await caches.open(m.ATPL_CACHE),a=await(await c.match(b.manifest)).json();await c.delete(a.assets.find(a=>a.url.endsWith('.webp')).url);return (await m.bankStatus(b)).ready},catalog.banks.find(b=>b.code==='MB'));
   assert.equal(missing,false);await require('./ui-controls.cjs').libraryManage(p,'MB');await p.locator('[data-download="MB"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="MB"]').disabled);
@@ -55,7 +58,7 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
    }
    assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2)),b.code+' overflow');
    await p.reload();await p.locator('[data-action="resume"]').first().click();await jump(p,id);assert.equal(await p.locator('[data-action="bookmark"]').innerText(),'★');
-   if(b.code==='MB'){await p.locator('.bank-edition>summary').click();await p.locator('a.mb-mode-link').click();await p.waitForURL('**/'+catalog.banks.find(b=>b.code==='MBR').url.split('/').pop());await require('./ui-controls.cjs').bankManage(p);await p.locator('#atpl-offline-button').waitFor();assert.equal(await p.evaluate(()=>window.ATPL_SUBJECT),'MBR')}
+   if(b.code==='MB')assert.equal(await p.locator('.mb-mode-link,.bank-edition,.mb-edition').count(),0,'MB shows only the Word-source edition');
    banks[b.code]=grade;console.log('OFFLINE PASS',name,b.code,grade.correct);
   }
   assert(popupCount>=8,'real offline source-image popups required');
