@@ -13,17 +13,27 @@ const removeEdition=()=>document.querySelector('.mb-edition')?.remove();
 removeEdition();new MutationObserver(removeEdition).observe(document.querySelector('.app'),{childList:true});
 const studyShell=mountStudyShell(document.querySelector('.app'),{bank:true});
 const choose=document.getElementById('choose-subject');choose.textContent='Môn học';choose.addEventListener('click',()=>{if(!replaceEmbeddedStudy('/atpl/'))location.assign('/atpl/');});
-const catalog=await getCatalog();
-const bank=catalog.banks.find(b=>b.code===window.ATPL_SUBJECT);document.querySelector('[data-study-subject]').textContent=bank.name;
+const bankStore=await window.ATPL_ACCOUNT_READY;
 const button=document.createElement('button');button.type='button';button.id='atpl-offline-button';button.textContent='Tải offline';manage.lastElementChild.append(button);
 const line=document.createElement('div');line.id='atpl-offline-status';line.className='storage-line';line.setAttribute('role','status');manage.lastElementChild.append(line);
-let active;
+let active,bank,preparing;
 async function update(){try{const s=await bankStatus(bank);line.textContent=s.ready?'✓ Môn này sẵn sàng offline · đủ đề, lời giải và ảnh nguồn':'Muốn học khi mất mạng: tải offline môn này trước.';button.textContent=s.ready?'Offline ✓':'Tải offline · '+size(bank.offlineBytes)}catch{line.textContent='Chưa kiểm tra được bộ nhớ offline.'}}
-button.addEventListener('click',async()=>{if(active){active.abort();return}active=new AbortController();button.textContent='Dừng tải';try{await downloadBank(bank,{signal:active.signal,onProgress:p=>{line.textContent=`Đang tải ${size(p.bytes)} / ${size(p.totalBytes)} · ${p.completed}/${p.total} tài nguyên`}});active=null;await update()}catch(e){active=null;button.textContent='Tiếp tục tải offline';line.textContent=downloadError(e)}});
-enableOffline().catch(e=>{line.textContent=downloadError(e)});await update();
+function prepareOffline(){
+ if(preparing)return preparing;
+ button.disabled=true;
+ preparing=(async()=>{
+  const catalog=await getCatalog();bank=catalog.banks.find(b=>b.code===window.ATPL_SUBJECT);
+  if(!bank)throw Error('Chưa tìm thấy thông tin tải offline của môn này.');
+  document.querySelector('[data-study-subject]').textContent=bank.name;await update();
+ })().catch(e=>{line.textContent=downloadError(e);button.textContent='Thử lại thông tin offline';}).finally(()=>{button.disabled=false;preparing=null;});
+ return preparing;
+}
+button.addEventListener('click',async()=>{if(!bank){await prepareOffline();return}if(active){active.abort();return}active=new AbortController();button.textContent='Dừng tải';try{await downloadBank(bank,{signal:active.signal,onProgress:p=>{line.textContent=`Đang tải ${size(p.bytes)} / ${size(p.totalBytes)} · ${p.completed}/${p.total} tài nguyên`}});active=null;await update()}catch(e){active=null;button.textContent='Tiếp tục tải offline';line.textContent=downloadError(e)}});
+// Optional catalog/offline checks cannot hold up account controls or display
+// settings, and a navigation-cancelled fetch must not reject this module.
+enableOffline().catch(e=>{line.textContent=downloadError(e)});prepareOffline();
 
 // Use the same bank store/controller for the collapsed account menu in this subject.
-const bankStore=await window.ATPL_ACCOUNT_READY;
 if(bankStore.uid&&!bankStore.writable)document.getElementById('storage-warning').textContent='Chỉ đọc: môn này đang mở ở tab khác hoặc thiếu Web Locks. Đóng tab cùng môn rồi tải lại để lưu tiến độ.';
 setupAccountUI({element:studyShell.accountElement,bankStore}).catch(()=>{document.getElementById('storage-warning').textContent='Chưa kết nối tài khoản. Tiến độ vẫn lưu trên máy; về Ôn thi để kiểm tra đồng bộ.';});
 
