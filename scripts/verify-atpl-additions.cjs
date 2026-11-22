@@ -16,7 +16,17 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
      const data=await p.evaluate(()=>Object.values(JSON.parse(document.querySelector('#bank-data').textContent))[0]);assert.equal(data.questions.length,count);
      // All source keys grade, including questions excluded from a default mock exam.
      assert.equal(await p.evaluate(()=>{const E=ATPLQuizEngine,qs=Object.values(JSON.parse(document.querySelector('#bank-data').textContent))[0].questions;let s=E.startExam(E.defaultState(),qs.map(q=>q.id));for(const q of qs)s=E.answerExam(s,q.id,q.answer);return E.submitExam(s,qs).exam.report.correct}),count);
-     await p.locator('[data-action=study]').first().click();await jump(p,1);await p.locator('[data-action=answer][data-key='+data.questions[0].answer+']').click();await p.locator('.explanation').waitFor();assert.match(await p.locator('.explanation').innerText(),/giải thích tiếng Việt/i);await p.locator('[data-action=bookmark]').click();assert.equal(await p.locator('[data-action=bookmark]').innerText(),'★');
+     await p.locator('[data-action=study]').first().click();await jump(p,1);await p.locator('[data-action=answer][data-key='+data.questions[0].answer+']').click();await p.locator('.explanation').waitFor();assert(await p.locator('.book-sources').isVisible());assert.match(await p.locator('.book-source').first().innerText(),/CAE Oxford/);assert(await p.locator('.book-source blockquote').count());assert.match(await p.locator('.explanation').innerText(),/giải thích tiếng Việt/i);await p.locator('[data-action=bookmark]').click();assert.equal(await p.locator('[data-action=bookmark]').innerText(),'★');
+     // Actual source cards must stay readable in both existing themes at phone/desktop widths.
+     const initialTheme=await p.locator('html').getAttribute('data-theme');
+     for(const theme of ['light','dark']){
+      await p.evaluate(async t=>(await import('/lib/appearance.js')).setAppearance({theme:t}),theme);
+      assert.equal(await p.locator('html').getAttribute('data-theme'),theme);
+      assert(await p.locator('.book-source blockquote').first().isVisible());
+      assert(await p.locator('.book-source').first().evaluate(el=>el.scrollWidth<=el.clientWidth+2));
+      await p.locator('.book-source').first().screenshot({path:path.join(out,`${name}-${width}-${code}-source-${theme}.png`)});
+     }
+     await p.evaluate(async t=>(await import('/lib/appearance.js')).setAppearance({theme:t||'light'}),initialTheme);
      const illustrated=data.questions.find(q=>q.importedFigures.length);assert(illustrated);await jump(p,illustrated.id);
      assert.equal(await p.locator('.explanation').count(),0,'full screenshot/key is hidden before answering');assert(await p.locator('.qcard .figure').count()||await p.locator('.qcard [data-action=image]').count());
      const crop=p.locator('.qcard [data-action=image]').first();await crop.click();await p.locator('#image-dialog img').evaluate(img=>img.decode());assert(await p.locator('#image-dialog img').evaluate(img=>img.naturalWidth>400));await p.locator('[data-action=image-close]').click();

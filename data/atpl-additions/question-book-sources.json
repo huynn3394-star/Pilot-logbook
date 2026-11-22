@@ -1,0 +1,4266 @@
+{
+  "FPL-01-001": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-01-002": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-01-003": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-01-004": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-01-005": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-01-006": [
+    "fpl-departure"
+  ],
+  "FPL-01-007": [
+    "fpl-wake"
+  ],
+  "FPL-01-008": [
+    "fpl-equipment"
+  ],
+  "FPL-01-009": [
+    "fpl-definitions"
+  ],
+  "FPL-01-010": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-01-011": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-01-012": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-01-013": [
+    "wind-finding",
+    "wind"
+  ],
+  "FPL-01-014": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-015": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-01-016": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-01-017": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-018": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-019": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-01-020": [
+    "fpl-speed"
+  ],
+  "FPL-01-021": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-022": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-023": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-01-024": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-025": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-01-026": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-027": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-01-028": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-029": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-01-030": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-01-031": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-01-032": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-033": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-01-034": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-01-035": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-01-036": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-037": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-01-038": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-01-039": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-040": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-01-041": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-01-042": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-01-043": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-01-044": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-01-045": [
+    "wind-components",
+    "wind"
+  ],
+  "FPL-01-046": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-01-047": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-01-048": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-049": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-050": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-01-051": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-052": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-053": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-054": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-01-055": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-056": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-057": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-058": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-059": [
+    "time-distance",
+    "wind"
+  ],
+  "FPL-01-060": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-061": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-062": [
+    "wind-finding",
+    "wind"
+  ],
+  "FPL-01-063": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-01-064": [
+    "cruise-levels"
+  ],
+  "FPL-01-065": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-01-066": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-01-067": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-068": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-01-069": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-01-070": [
+    "airspeed",
+    "density"
+  ],
+  "FPL-01-071": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-01-072": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-073": [
+    "vfr-chart",
+    "preflight"
+  ],
+  "FPL-01-074": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-001": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-02-002": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-003": [
+    "cruise-levels"
+  ],
+  "FPL-02-004": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-02-005": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-02-006": [
+    "fpl-speed"
+  ],
+  "FPL-02-007": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-02-008": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-009": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-010": [
+    "cruise-levels"
+  ],
+  "FPL-02-011": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-012": [
+    "ifr-minima"
+  ],
+  "FPL-02-013": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-02-014": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-015": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-016": [
+    "earth",
+    "latitude"
+  ],
+  "FPL-02-017": [
+    "fpl-equipment"
+  ],
+  "FPL-02-018": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-02-019": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-02-020": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-021": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-022": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-023": [
+    "cruise-levels"
+  ],
+  "FPL-02-024": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-025": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-02-026": [
+    "fpl-speed"
+  ],
+  "FPL-02-027": [
+    "fpl-equipment"
+  ],
+  "FPL-02-028": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-02-029": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-030": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-02-031": [
+    "ifr-minima"
+  ],
+  "FPL-02-032": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-02-033": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-034": [
+    "ifr-minima"
+  ],
+  "FPL-02-035": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-036": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-037": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-038": [
+    "ifr-minima"
+  ],
+  "FPL-02-039": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-02-040": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-041": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-02-042": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-043": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-044": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-045": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-046": [
+    "ifr-minima"
+  ],
+  "FPL-02-047": [
+    "ifr-minima"
+  ],
+  "FPL-02-048": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-049": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-02-050": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-051": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-052": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-053": [
+    "ifr-minima"
+  ],
+  "FPL-02-054": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-02-055": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-056": [
+    "ifr-minima"
+  ],
+  "FPL-02-057": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-02-058": [
+    "time-distance",
+    "wind"
+  ],
+  "FPL-02-059": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-060": [
+    "ifr-category",
+    "supp-ifr-category"
+  ],
+  "FPL-02-061": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-062": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-063": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-02-064": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-065": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-066": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-067": [
+    "ifr-minima"
+  ],
+  "FPL-02-068": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-069": [
+    "time-distance",
+    "wind"
+  ],
+  "FPL-02-070": [
+    "fpl-rules",
+    "fpl-route"
+  ],
+  "FPL-02-071": [
+    "fpl-departure"
+  ],
+  "FPL-02-072": [
+    "time-distance",
+    "wind"
+  ],
+  "FPL-02-073": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-02-074": [
+    "ifr-minima"
+  ],
+  "FPL-02-075": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-076": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-077": [
+    "ifr-category",
+    "supp-ifr-category"
+  ],
+  "FPL-02-078": [
+    "ifr-altitudes"
+  ],
+  "FPL-02-079": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-02-080": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-02-081": [
+    "time-distance",
+    "wind"
+  ],
+  "FPL-02-082": [
+    "grid"
+  ],
+  "FPL-02-083": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-084": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-085": [
+    "ifr-altitudes"
+  ],
+  "FPL-02-086": [
+    "deviation",
+    "compass"
+  ],
+  "FPL-02-087": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-088": [
+    "ifr-altitudes"
+  ],
+  "FPL-02-089": [
+    "ifr-altitudes"
+  ],
+  "FPL-02-090": [
+    "altitude",
+    "isa"
+  ],
+  "FPL-02-091": [
+    "ifr-minima"
+  ],
+  "FPL-02-092": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-093": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-094": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-095": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-096": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-02-097": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-098": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-099": [
+    "wind-finding",
+    "wind"
+  ],
+  "FPL-02-100": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-101": [
+    "ifr-minima"
+  ],
+  "FPL-02-102": [
+    "cruise-levels"
+  ],
+  "FPL-02-103": [
+    "ifr-minima"
+  ],
+  "FPL-02-104": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-105": [
+    "wind-finding",
+    "wind"
+  ],
+  "FPL-02-106": [
+    "wind-finding",
+    "wind"
+  ],
+  "FPL-02-107": [
+    "fpl-speed"
+  ],
+  "FPL-02-108": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-109": [
+    "ifr-minima"
+  ],
+  "FPL-02-110": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-111": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-112": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-113": [
+    "time-distance",
+    "wind"
+  ],
+  "FPL-02-114": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-115": [
+    "ifr-minima"
+  ],
+  "FPL-02-116": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-117": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-118": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-119": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-120": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-02-121": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-122": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-123": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-124": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-125": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-126": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-127": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-128": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-129": [
+    "ifr-minima"
+  ],
+  "FPL-02-130": [
+    "variation",
+    "compass"
+  ],
+  "FPL-02-131": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-132": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-02-133": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-134": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-02-135": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-02-136": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-137": [
+    "ifr-minima"
+  ],
+  "FPL-02-138": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-02-139": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-140": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-141": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-142": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-143": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-02-144": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-145": [
+    "sid-star",
+    "ifr-chart"
+  ],
+  "FPL-02-146": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-02-147": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-148": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-149": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-150": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-02-151": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-152": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-02-153": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-02-154": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-02-155": [
+    "ifr-frequency",
+    "ifr-chart"
+  ],
+  "FPL-02-156": [
+    "airspeed",
+    "density"
+  ],
+  "FPL-03-001": [
+    "nam-ngm",
+    "wind"
+  ],
+  "FPL-03-002": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-03-003": [
+    "ifr-chart"
+  ],
+  "FPL-03-004": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-03-005": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-03-006": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-03-007": [
+    "ifr-minima"
+  ],
+  "FPL-03-008": [
+    "ifr-altitudes",
+    "ifr-chart"
+  ],
+  "FPL-03-009": [
+    "ifr-minima"
+  ],
+  "FPL-03-010": [
+    "cruise-levels"
+  ],
+  "FPL-03-011": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-03-012": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-03-013": [
+    "altitude",
+    "cold-correction"
+  ],
+  "FPL-03-014": [
+    "preflight",
+    "ifr-chart"
+  ],
+  "FPL-03-015": [
+    "wind-finding",
+    "wind"
+  ],
+  "FPL-03-016": [
+    "ifr-altitudes"
+  ],
+  "FPL-03-017": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-03-018": [
+    "ifr-minima"
+  ],
+  "FPL-03-019": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-03-020": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-03-021": [
+    "wind-components",
+    "wind"
+  ],
+  "FPL-03-022": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-03-023": [
+    "wind-finding",
+    "wind"
+  ],
+  "FPL-03-024": [
+    "fuel-scheme",
+    "fuel-math"
+  ],
+  "FPL-03-025": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-03-026": [
+    "fuel-scheme",
+    "fuel-math"
+  ],
+  "FPL-03-027": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-03-028": [
+    "fpl-speed"
+  ],
+  "FPL-03-029": [
+    "fpl-speed",
+    "fpl-route"
+  ],
+  "FPL-03-030": [
+    "fpl-departure"
+  ],
+  "FPL-03-031": [
+    "fpl-destination"
+  ],
+  "FPL-03-032": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-033": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-034": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-035": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-03-036": [
+    "wind-components",
+    "wind"
+  ],
+  "FPL-03-037": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-03-038": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-039": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-040": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-03-041": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-03-042": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-03-043": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-03-044": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-045": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-03-046": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-047": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-03-048": [
+    "fuel-math",
+    "flight-log"
+  ],
+  "FPL-03-049": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-03-050": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-051": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-052": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-053": [
+    "fpl-speed"
+  ],
+  "FPL-03-054": [
+    "fpl-destination"
+  ],
+  "FPL-03-055": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-03-056": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-057": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-03-058": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-059": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-060": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-03-061": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-03-062": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-03-063": [
+    "variation",
+    "compass"
+  ],
+  "FPL-03-064": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-065": [
+    "fuel-scheme",
+    "fuel-math"
+  ],
+  "FPL-03-066": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-067": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-068": [
+    "ifr-chart",
+    "preflight"
+  ],
+  "FPL-03-069": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-070": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-071": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-03-072": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-073": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-03-074": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-03-075": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-076": [
+    "fuel-extra",
+    "fuel-scheme"
+  ],
+  "FPL-03-077": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-078": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-079": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-03-080": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-081": [
+    "descent",
+    "time-distance"
+  ],
+  "FPL-03-082": [
+    "fuel-scheme",
+    "fuel-math"
+  ],
+  "FPL-03-083": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-084": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-03-085": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-03-086": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-03-087": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-088": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-089": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-03-090": [
+    "fuel-scheme",
+    "fuel-math"
+  ],
+  "FPL-03-091": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-092": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-093": [
+    "fuel-extra",
+    "fuel-scheme"
+  ],
+  "FPL-03-094": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-095": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-096": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-097": [
+    "fpl-supplement"
+  ],
+  "FPL-03-098": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-03-099": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-100": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-101": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-102": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-03-103": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-104": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-105": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-106": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-107": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-108": [
+    "fuel-extra",
+    "fuel-scheme"
+  ],
+  "FPL-03-109": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-110": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-111": [
+    "wind-components",
+    "wind"
+  ],
+  "FPL-03-112": [
+    "jet-chart",
+    "specific-range"
+  ],
+  "FPL-03-113": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-114": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-115": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-03-116": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-117": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-118": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-03-119": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "FPL-03-120": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-04-001": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-002": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-003": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-004": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-005": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-006": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-007": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-04-008": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-009": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-010": [
+    "fuel-reserve",
+    "fuel-math"
+  ],
+  "FPL-04-011": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-012": [
+    "wind",
+    "wind-drift"
+  ],
+  "FPL-04-013": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-014": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-015": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-016": [
+    "wind-components",
+    "wind"
+  ],
+  "FPL-04-017": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-018": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-019": [
+    "sunrise",
+    "longitude-time"
+  ],
+  "FPL-04-020": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-021": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-022": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-023": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-024": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-025": [
+    "wind-components",
+    "wind"
+  ],
+  "FPL-04-026": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-027": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-028": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-029": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-030": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-031": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-032": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-033": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-034": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-035": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-036": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-037": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-038": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-039": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-040": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-041": [
+    "wind-components",
+    "wind"
+  ],
+  "FPL-04-042": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-043": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-044": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-045": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-046": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-047": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-048": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-049": [
+    "range-endurance",
+    "endurance"
+  ],
+  "FPL-04-050": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-051": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-052": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-04-053": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-054": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-055": [
+    "ifr-chart"
+  ],
+  "FPL-04-056": [
+    "psr",
+    "fuel-math"
+  ],
+  "FPL-04-057": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-058": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-059": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-060": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-061": [
+    "ifr-gnss",
+    "supp-ifr-gnss"
+  ],
+  "FPL-04-062": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-063": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-064": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-065": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-066": [
+    "notam-time",
+    "supp-notam-time"
+  ],
+  "FPL-04-067": [
+    "notam-qline",
+    "supp-notam-qline"
+  ],
+  "FPL-04-068": [
+    "etp",
+    "time-distance"
+  ],
+  "FPL-04-069": [
+    "fpl-speed"
+  ],
+  "FPL-05-001": [
+    "fpl-route-spacing"
+  ],
+  "FPL-05-002": [
+    "fpl-speed",
+    "fpl-route"
+  ],
+  "FPL-05-003": [
+    "fpl-route"
+  ],
+  "FPL-05-004": [
+    "fpl-wake"
+  ],
+  "FPL-05-005": [
+    "fpl-route",
+    "fpl-level"
+  ],
+  "FPL-05-006": [
+    "fuel-math",
+    "fuel-scheme"
+  ],
+  "FPL-05-007": [
+    "fuel-math",
+    "fuel-scheme"
+  ],
+  "FPL-05-008": [
+    "fpl-route",
+    "fpl-speed"
+  ],
+  "FPL-05-009": [
+    "fpl-destination"
+  ],
+  "FPL-05-010": [
+    "fpl-level"
+  ],
+  "FPL-05-011": [
+    "fpl-route"
+  ],
+  "FPL-05-012": [
+    "fpl-supplement"
+  ],
+  "FPL-05-013": [
+    "fpl-status",
+    "supp-fpl-status"
+  ],
+  "FPL-05-014": [
+    "fpl-departure",
+    "fpl-filing"
+  ],
+  "FPL-05-015": [
+    "fpl-supplement"
+  ],
+  "FPL-06-001": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-002": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-003": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-004": [
+    "fuel-minimum",
+    "supp-fuel-minimum"
+  ],
+  "FPL-06-005": [
+    "fuel-reserve"
+  ],
+  "FPL-06-006": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-007": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-008": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-009": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-010": [
+    "fuel-checks"
+  ],
+  "FPL-06-011": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-012": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-013": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-06-014": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-015": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-06-016": [
+    "fuel-minimum",
+    "supp-fuel-minimum"
+  ],
+  "FPL-06-017": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-06-018": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-06-019": [
+    "time-distance",
+    "flight-log"
+  ],
+  "FPL-06-020": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-021": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-022": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-023": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-024": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-025": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-026": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-027": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-028": [
+    "course-correction",
+    "wind-correct"
+  ],
+  "FPL-06-029": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-030": [
+    "fuel-minimum",
+    "supp-fuel-minimum"
+  ],
+  "FPL-06-031": [
+    "time-distance",
+    "wind"
+  ],
+  "FPL-06-032": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-06-033": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-034": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-035": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-036": [
+    "fuel-units",
+    "fuel-math"
+  ],
+  "FPL-06-037": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-038": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-039": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-040": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-041": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-042": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-043": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-06-044": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-045": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-06-046": [
+    "fpl-route"
+  ],
+  "FPL-06-047": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-048": [
+    "nam-ngm",
+    "time-distance"
+  ],
+  "FPL-06-049": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-050": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-051": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-052": [
+    "course-correction",
+    "wind-correct"
+  ],
+  "FPL-06-053": [
+    "time-distance",
+    "wind"
+  ],
+  "FPL-06-054": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-055": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-056": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-057": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-058": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-059": [
+    "computer-plan",
+    "fuel-math"
+  ],
+  "FPL-06-060": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-061": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-062": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-063": [
+    "mass",
+    "fuel-math"
+  ],
+  "FPL-06-064": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-065": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-066": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-067": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-068": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "FPL-06-069": [
+    "flight-log",
+    "fuel-math"
+  ],
+  "GNAV-01-001": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-002": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-003": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-004": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-005": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-006": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-007": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-008": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-009": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-010": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-011": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-012": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-013": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-014": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-015": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-016": [
+    "fuel-math",
+    "performance-chart"
+  ],
+  "GNAV-01-017": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-018": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-019": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-020": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-021": [
+    "mach",
+    "compressibility"
+  ],
+  "GNAV-01-022": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-023": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-01-024": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-01-025": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-026": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-01-027": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-028": [
+    "dead-reckoning",
+    "wind"
+  ],
+  "GNAV-01-029": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-030": [
+    "magnetic-field"
+  ],
+  "GNAV-01-031": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-032": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-033": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-034": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-035": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-036": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-037": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-038": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-039": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-040": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-041": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-042": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-01-043": [
+    "dead-reckoning",
+    "wind"
+  ],
+  "GNAV-01-044": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-045": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-046": [
+    "earth",
+    "latitude"
+  ],
+  "GNAV-01-047": [
+    "altitude",
+    "isa"
+  ],
+  "GNAV-01-048": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-049": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-050": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-051": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-052": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-053": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-054": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-055": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-056": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-01-057": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-058": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-059": [
+    "wind",
+    "time-distance"
+  ],
+  "GNAV-01-060": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-061": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-062": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-063": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-064": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-01-065": [
+    "earth",
+    "latitude"
+  ],
+  "GNAV-01-066": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-067": [
+    "mach",
+    "compressibility"
+  ],
+  "GNAV-01-068": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-069": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-070": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-071": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-072": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-073": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-074": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-075": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-076": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-077": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-078": [
+    "scale"
+  ],
+  "GNAV-01-079": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-080": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-081": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-082": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-083": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-01-084": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-085": [
+    "dead-reckoning",
+    "wind"
+  ],
+  "GNAV-01-086": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-087": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-01-088": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-089": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-090": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-091": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-092": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-093": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-094": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-095": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-096": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-01-097": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-098": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-099": [
+    "mach",
+    "wind"
+  ],
+  "GNAV-01-100": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-101": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-102": [
+    "magnetic-change",
+    "variation"
+  ],
+  "GNAV-01-103": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-104": [
+    "mach",
+    "compressibility"
+  ],
+  "GNAV-01-105": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-106": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-107": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-108": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-109": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-01-110": [
+    "earth",
+    "latitude"
+  ],
+  "GNAV-01-111": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-112": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-113": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-114": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-115": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-116": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-117": [
+    "mach",
+    "compressibility"
+  ],
+  "GNAV-01-118": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-119": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-120": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-121": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-122": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-123": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-01-124": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-125": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-126": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-127": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-01-128": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-01-129": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-130": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-131": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-132": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-133": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-134": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-135": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-136": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-137": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-138": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-139": [
+    "mach",
+    "wind"
+  ],
+  "GNAV-01-140": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-141": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-142": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-143": [
+    "course-correction",
+    "wind-correct"
+  ],
+  "GNAV-01-144": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-145": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-146": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-147": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-148": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-149": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-01-150": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-01-151": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-152": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-153": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-154": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-01-155": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-156": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-157": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-158": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-159": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-160": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-161": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-162": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-163": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-164": [
+    "dead-reckoning",
+    "wind"
+  ],
+  "GNAV-01-165": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-166": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-167": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-168": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-169": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-170": [
+    "earth",
+    "latitude"
+  ],
+  "GNAV-01-171": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-172": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-173": [
+    "mach",
+    "wind"
+  ],
+  "GNAV-01-174": [
+    "great-circle",
+    "gc-formula"
+  ],
+  "GNAV-01-175": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-176": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-177": [
+    "altitude",
+    "isa"
+  ],
+  "GNAV-01-178": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-179": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-180": [
+    "course-correction",
+    "wind-correct"
+  ],
+  "GNAV-01-181": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-182": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-183": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-184": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-185": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-01-186": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-187": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-188": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-189": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-190": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-191": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-01-192": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-193": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-194": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-195": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-196": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-197": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-198": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-199": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-200": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-201": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-202": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-203": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-204": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-205": [
+    "mach",
+    "wind"
+  ],
+  "GNAV-01-206": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-207": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-208": [
+    "magnetic-change",
+    "variation"
+  ],
+  "GNAV-01-209": [
+    "mach",
+    "wind"
+  ],
+  "GNAV-01-210": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-211": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-212": [
+    "great-circle",
+    "gc-formula"
+  ],
+  "GNAV-01-213": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-214": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-215": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-216": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-217": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-218": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-219": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-220": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-221": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-222": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-223": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-01-224": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-225": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-226": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-227": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-228": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-229": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-230": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-231": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-232": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-233": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-234": [
+    "mach",
+    "compressibility"
+  ],
+  "GNAV-01-235": [
+    "great-circle",
+    "gc-formula"
+  ],
+  "GNAV-01-236": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-237": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-238": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-239": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-240": [
+    "altitude",
+    "isa"
+  ],
+  "GNAV-01-241": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-242": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-243": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-244": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-01-245": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-246": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-247": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-248": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-249": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-250": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-251": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-252": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-253": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-01-254": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-255": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-256": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-257": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-258": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-259": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-260": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-261": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-262": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-263": [
+    "wind-finding",
+    "wind"
+  ],
+  "GNAV-01-264": [
+    "airspeed",
+    "descent"
+  ],
+  "GNAV-01-265": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-266": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-267": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-268": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-269": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-270": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-271": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-272": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-01-273": [
+    "course-correction",
+    "wind-correct"
+  ],
+  "GNAV-01-274": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-01-275": [
+    "magnetic-change",
+    "variation"
+  ],
+  "GNAV-01-276": [
+    "course-correction",
+    "wind-correct"
+  ],
+  "GNAV-01-277": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-278": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-279": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-280": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-01-281": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-282": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-01-283": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-284": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-285": [
+    "great-circle",
+    "gc-formula"
+  ],
+  "GNAV-01-286": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-287": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-288": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-01-289": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-01-290": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-291": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-292": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-01-293": [
+    "magnetic-field"
+  ],
+  "GNAV-01-294": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-295": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-296": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-297": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-298": [
+    "airspeed",
+    "density"
+  ],
+  "GNAV-01-299": [
+    "magnetic-change",
+    "variation"
+  ],
+  "GNAV-01-300": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-01-301": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-302": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-303": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-01-304": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-01-305": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-01-306": [
+    "course-correction",
+    "wind-correct"
+  ],
+  "GNAV-01-307": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-01-308": [
+    "time-distance",
+    "wind"
+  ],
+  "GNAV-02-001": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-002": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-003": [
+    "pilotage",
+    "wind-drift"
+  ],
+  "GNAV-02-004": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-005": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-02-006": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-02-007": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-02-008": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-009": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-010": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-011": [
+    "dead-reckoning",
+    "wind-finding"
+  ],
+  "GNAV-02-012": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-013": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-02-014": [
+    "lambert"
+  ],
+  "GNAV-02-015": [
+    "relief"
+  ],
+  "GNAV-02-016": [
+    "course-correction",
+    "time-distance"
+  ],
+  "GNAV-02-017": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-02-018": [
+    "rhumb-formula"
+  ],
+  "GNAV-02-019": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-02-020": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-02-021": [
+    "mercator"
+  ],
+  "GNAV-02-022": [
+    "relief",
+    "chart-symbols"
+  ],
+  "GNAV-02-023": [
+    "mercator"
+  ],
+  "GNAV-02-024": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-025": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-026": [
+    "visual-hazards",
+    "pilotage"
+  ],
+  "GNAV-02-027": [
+    "relief",
+    "chart-symbols"
+  ],
+  "GNAV-02-028": [
+    "stereographic"
+  ],
+  "GNAV-02-029": [
+    "scale"
+  ],
+  "GNAV-02-030": [
+    "scale"
+  ],
+  "GNAV-02-031": [
+    "lambert"
+  ],
+  "GNAV-02-032": [
+    "relief",
+    "chart-symbols"
+  ],
+  "GNAV-02-033": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-02-034": [
+    "stereographic"
+  ],
+  "GNAV-02-035": [
+    "mercator"
+  ],
+  "GNAV-02-036": [
+    "mercator"
+  ],
+  "GNAV-02-037": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-02-038": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-039": [
+    "pilotage"
+  ],
+  "GNAV-02-040": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-041": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-042": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-043": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-044": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-045": [
+    "stereographic"
+  ],
+  "GNAV-02-046": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-02-047": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-02-048": [
+    "scale"
+  ],
+  "GNAV-02-049": [
+    "altitude",
+    "isa"
+  ],
+  "GNAV-02-050": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-051": [
+    "mercator"
+  ],
+  "GNAV-02-052": [
+    "lambert"
+  ],
+  "GNAV-02-053": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-02-054": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-055": [
+    "time-distance",
+    "pilotage"
+  ],
+  "GNAV-02-056": [
+    "ifr-chart"
+  ],
+  "GNAV-02-057": [
+    "sunrise",
+    "longitude-time"
+  ],
+  "GNAV-02-058": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-059": [
+    "magnetic-field"
+  ],
+  "GNAV-02-060": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-02-061": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-02-062": [
+    "descent",
+    "time-distance"
+  ],
+  "GNAV-02-063": [
+    "wind-components",
+    "wind"
+  ],
+  "GNAV-02-064": [
+    "deviation",
+    "compass"
+  ],
+  "GNAV-02-065": [
+    "relief"
+  ],
+  "GNAV-02-066": [
+    "visual-hazards",
+    "pilotage"
+  ],
+  "GNAV-02-067": [
+    "pilotage",
+    "compass"
+  ],
+  "GNAV-02-068": [
+    "visual-hazards"
+  ],
+  "GNAV-02-069": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-070": [
+    "visual-hazards",
+    "pilotage"
+  ],
+  "GNAV-02-071": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-072": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-02-073": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-074": [
+    "pilotage",
+    "visual-hazards"
+  ],
+  "GNAV-02-075": [
+    "great-circle",
+    "gc-formula"
+  ],
+  "GNAV-02-076": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-02-077": [
+    "great-circle",
+    "gc-formula"
+  ],
+  "GNAV-02-078": [
+    "great-circle",
+    "gc-formula"
+  ],
+  "GNAV-02-079": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-02-080": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-02-081": [
+    "conversion-angle",
+    "convergence"
+  ],
+  "GNAV-02-082": [
+    "lambert"
+  ],
+  "GNAV-02-083": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-02-084": [
+    "lambert"
+  ],
+  "GNAV-02-085": [
+    "lambert"
+  ],
+  "GNAV-02-086": [
+    "mercator"
+  ],
+  "GNAV-02-087": [
+    "stereographic"
+  ],
+  "GNAV-02-088": [
+    "conformal",
+    "great-circle"
+  ],
+  "GNAV-02-089": [
+    "conformal",
+    "mercator"
+  ],
+  "GNAV-02-090": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-02-091": [
+    "mercator"
+  ],
+  "GNAV-02-092": [
+    "mercator"
+  ],
+  "GNAV-02-093": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-03-001": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-002": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-03-003": [
+    "mercator"
+  ],
+  "GNAV-03-004": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-005": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-006": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-007": [
+    "conversion-angle",
+    "convergence"
+  ],
+  "GNAV-03-008": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-03-009": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-010": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-03-011": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-012": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-013": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-03-014": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-015": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-03-016": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-017": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-03-018": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-03-019": [
+    "mercator"
+  ],
+  "GNAV-03-020": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-021": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-03-022": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-023": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-03-024": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-025": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-03-026": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-027": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-028": [
+    "conversion-angle",
+    "convergence"
+  ],
+  "GNAV-03-029": [
+    "latitude",
+    "coordinates"
+  ],
+  "GNAV-03-030": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-031": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-03-032": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-03-033": [
+    "lambert"
+  ],
+  "GNAV-03-034": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-035": [
+    "conversion-angle",
+    "convergence"
+  ],
+  "GNAV-03-036": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-03-037": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-03-038": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-039": [
+    "conversion-angle",
+    "convergence"
+  ],
+  "GNAV-03-040": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-041": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-042": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-03-043": [
+    "conversion-angle",
+    "convergence"
+  ],
+  "GNAV-03-044": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-03-045": [
+    "rhumb",
+    "rhumb-formula"
+  ],
+  "GNAV-03-046": [
+    "great-circle",
+    "gc-formula"
+  ],
+  "GNAV-03-047": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-04-001": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-002": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-003": [
+    "lambert"
+  ],
+  "GNAV-04-004": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-005": [
+    "stereographic"
+  ],
+  "GNAV-04-006": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-007": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-008": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-009": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-010": [
+    "stereographic"
+  ],
+  "GNAV-04-011": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-012": [
+    "scale"
+  ],
+  "GNAV-04-013": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-014": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-015": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-04-016": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-017": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-018": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-019": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-020": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-021": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-022": [
+    "stereographic"
+  ],
+  "GNAV-04-023": [
+    "stereographic"
+  ],
+  "GNAV-04-024": [
+    "scale"
+  ],
+  "GNAV-04-025": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-04-026": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-027": [
+    "mercator"
+  ],
+  "GNAV-04-028": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-029": [
+    "stereographic"
+  ],
+  "GNAV-04-030": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-031": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-032": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-033": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-034": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-035": [
+    "scale"
+  ],
+  "GNAV-04-036": [
+    "scale"
+  ],
+  "GNAV-04-037": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-038": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-039": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-04-040": [
+    "mercator"
+  ],
+  "GNAV-04-041": [
+    "mercator"
+  ],
+  "GNAV-04-042": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-043": [
+    "stereographic"
+  ],
+  "GNAV-04-044": [
+    "lambert"
+  ],
+  "GNAV-04-045": [
+    "convergence",
+    "great-circle"
+  ],
+  "GNAV-04-046": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-04-047": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-048": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-049": [
+    "lambert"
+  ],
+  "GNAV-04-050": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-051": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-052": [
+    "scale"
+  ],
+  "GNAV-04-053": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-054": [
+    "scale"
+  ],
+  "GNAV-04-055": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-056": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-057": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-058": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-059": [
+    "scale"
+  ],
+  "GNAV-04-060": [
+    "lambert"
+  ],
+  "GNAV-04-061": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-062": [
+    "scale"
+  ],
+  "GNAV-04-063": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-064": [
+    "variation",
+    "compass"
+  ],
+  "GNAV-04-065": [
+    "lambert"
+  ],
+  "GNAV-04-066": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-067": [
+    "mercator"
+  ],
+  "GNAV-04-068": [
+    "stereographic"
+  ],
+  "GNAV-04-069": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-070": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-071": [
+    "lambert"
+  ],
+  "GNAV-04-072": [
+    "scale"
+  ],
+  "GNAV-04-073": [
+    "lambert"
+  ],
+  "GNAV-04-074": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-075": [
+    "lambert"
+  ],
+  "GNAV-04-076": [
+    "lambert"
+  ],
+  "GNAV-04-077": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-078": [
+    "rhumb-formula",
+    "coordinates"
+  ],
+  "GNAV-04-079": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-080": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-081": [
+    "lambert"
+  ],
+  "GNAV-04-082": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-083": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-084": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-085": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-086": [
+    "lambert"
+  ],
+  "GNAV-04-087": [
+    "scale"
+  ],
+  "GNAV-04-088": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-089": [
+    "scale"
+  ],
+  "GNAV-04-090": [
+    "scale"
+  ],
+  "GNAV-04-091": [
+    "stereographic"
+  ],
+  "GNAV-04-092": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-093": [
+    "scale"
+  ],
+  "GNAV-04-094": [
+    "wind",
+    "wind-drift"
+  ],
+  "GNAV-04-095": [
+    "scale"
+  ],
+  "GNAV-04-096": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-097": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-098": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-099": [
+    "mercator"
+  ],
+  "GNAV-04-100": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-101": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-102": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-103": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-104": [
+    "stereographic"
+  ],
+  "GNAV-04-105": [
+    "pilotage",
+    "chart-symbols"
+  ],
+  "GNAV-04-106": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-107": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-108": [
+    "dead-reckoning",
+    "wind"
+  ],
+  "GNAV-04-109": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-04-110": [
+    "mercator-scale",
+    "mercator"
+  ],
+  "GNAV-04-111": [
+    "fix",
+    "bearing"
+  ],
+  "GNAV-04-112": [
+    "stereographic"
+  ],
+  "GNAV-04-113": [
+    "mercator"
+  ],
+  "GNAV-04-114": [
+    "scale"
+  ],
+  "GNAV-04-115": [
+    "lambert-convergence",
+    "lambert"
+  ],
+  "GNAV-05-001": [
+    "solar-time"
+  ],
+  "GNAV-05-002": [
+    "sunrise",
+    "longitude-time"
+  ],
+  "GNAV-05-003": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-004": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-005": [
+    "date-line",
+    "standard-time"
+  ],
+  "GNAV-05-006": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-007": [
+    "standard-time",
+    "longitude-time"
+  ],
+  "GNAV-05-008": [
+    "longitude-time",
+    "date-line"
+  ],
+  "GNAV-05-009": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-010": [
+    "longitude-time",
+    "date-line"
+  ],
+  "GNAV-05-011": [
+    "twilight"
+  ],
+  "GNAV-05-012": [
+    "twilight"
+  ],
+  "GNAV-05-013": [
+    "longitude-time",
+    "date-line"
+  ],
+  "GNAV-05-014": [
+    "standard-time",
+    "longitude-time"
+  ],
+  "GNAV-05-015": [
+    "longitude-time",
+    "date-line"
+  ],
+  "GNAV-05-016": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-017": [
+    "solar-time"
+  ],
+  "GNAV-05-018": [
+    "standard-time",
+    "longitude-time"
+  ],
+  "GNAV-05-019": [
+    "twilight"
+  ],
+  "GNAV-05-020": [
+    "date-line",
+    "standard-time"
+  ],
+  "GNAV-05-021": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-022": [
+    "date-line",
+    "standard-time"
+  ],
+  "GNAV-05-023": [
+    "standard-time",
+    "longitude-time"
+  ],
+  "GNAV-05-024": [
+    "standard-time",
+    "longitude-time"
+  ],
+  "GNAV-05-025": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-026": [
+    "twilight"
+  ],
+  "GNAV-05-027": [
+    "longitude-time",
+    "date-line"
+  ],
+  "GNAV-05-028": [
+    "solar-time"
+  ],
+  "GNAV-05-029": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-030": [
+    "sunrise",
+    "longitude-time"
+  ],
+  "GNAV-05-031": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-032": [
+    "standard-time",
+    "longitude-time"
+  ],
+  "GNAV-05-033": [
+    "standard-time",
+    "longitude-time"
+  ],
+  "GNAV-05-034": [
+    "solar-time"
+  ],
+  "GNAV-05-035": [
+    "solar-time"
+  ],
+  "GNAV-05-036": [
+    "seasons",
+    "sunrise"
+  ],
+  "GNAV-05-037": [
+    "date-line",
+    "standard-time"
+  ]
+}
