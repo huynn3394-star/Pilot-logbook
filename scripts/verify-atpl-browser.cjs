@@ -2,6 +2,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve(__dirname,'..'),out=path.join(root,'test-results/atpl');fs.mkdirSync(out,{recursive:true});
 const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.dataset.action='jump';b.dataset.qid=n;document.body.append(b);b.click();b.remove()},n);
+// This suite verifies offline readiness, including account fallback UI. Finish
+// local setup before the next scripted document replacement: WebKit otherwise
+// misreports same-origin loads started during replacement as access-control
+// pageerrors (https://github.com/microsoft/playwright/issues/43120). Rapid
+// navigation with deliberately withheld cloud UI is covered by subject-entry.
+const accountReady=p=>p.waitForFunction(()=>!!document.querySelector('[data-account-content] button'),null,{timeout:15000});
 (async()=>{
  const {createServer}=await import(pathToFileURL(path.join(root,'server.js')));const server=createServer();let failPath=null,originUnavailable=false,blockedOriginRequests=0;
  const handler=server.listeners('request')[0];server.removeAllListeners('request');server.on('request',(req,res)=>{if(originUnavailable){blockedOriginRequests++;req.socket.destroy();return}if(new URL(req.url,'http://test').pathname===failPath){res.writeHead(503,{'Content-Type':'text/plain'});res.end('Intentional test interruption')}else handler(req,res)});
@@ -12,6 +18,7 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
   // Finish installing the shell before the first navigation can interrupt registration.
   await p.goto(base);await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
   await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.locator('iframe[data-companion-frame]').waitFor({state:'attached'});p=await(await p.locator('iframe[data-companion-frame]').elementHandle()).contentFrame();await p.locator('[data-bank]').first().waitFor();await p.waitForFunction(()=>!!navigator.serviceWorker.controller);
+  await accountReady(p);
   const catalog=await p.evaluate(async()=>await(await fetch('/atpl/catalog.json')).json()),visibleBanks=catalog.banks.filter(b=>!b.reference);assert.equal(await p.locator('[data-bank]').count(),11);assert.equal(await p.locator('[data-bank=MBR]').count(),0);
   const state=await p.evaluate(async()=>{const m=await import('/lib/storage.js');return JSON.stringify(await m.readState())});assert(state.includes('flights'));
   // Cancel after two actual saved assets: no ready marker, then reuse partial cache.
@@ -43,10 +50,10 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
   // https://github.com/microsoft/playwright/issues/42775 . Refuse all origin
   // connections for WebKit instead; Chromium uses the actual offline flag.
   if(name==='chromium')await context.setOffline(true);else originUnavailable=true;
-  p=rootPage;await p.goto(base+'/atpl/');await p.locator('[data-bank="POF"] [data-ready]').filter({hasText:'✓'}).waitFor({timeout:30000});
+  p=rootPage;await p.goto(base+'/atpl/');await p.locator('[data-bank="POF"] [data-ready]').filter({hasText:'✓'}).waitFor({timeout:30000});await accountReady(p);
   const banks={};let popupCount=0;
   for(const b of catalog.banks){
-   await p.goto(base+b.url);await p.locator('[data-action="study"]').first().waitFor();await require('./ui-controls.cjs').bankManage(p);await p.locator('#atpl-offline-button').waitFor();await p.locator('[data-bank-manage]>summary').click();
+   await p.goto(base+b.url);await p.locator('[data-action="study"]').first().waitFor();await accountReady(p);await require('./ui-controls.cjs').bankManage(p);await p.locator('#atpl-offline-button').waitFor();await p.locator('[data-bank-manage]>summary').click();
    const grade=await p.evaluate(()=>{const E=window.ATPLQuizEngine,b=Object.values(JSON.parse(document.getElementById('bank-data').textContent))[0].questions,valid=b.filter(q=>q.valid);let s=E.startExam(E.defaultState(),valid.map(q=>q.id));for(const q of valid)s=E.answerExam(s,q.id,q.answer);s=E.submitExam(s,b);const round=E.importBackup(E.exportBackup(s),b);return{count:valid.length,correct:s.exam.report.correct,backup:round.examHistory[0].correct===valid.length}});assert.equal(grade.correct,b.count,b.code);assert(grade.backup);
    await p.locator('[data-action="study"]').first().click();const id=b.code==='INS'?148:1;await jump(p,id);
    const key=await p.evaluate(id=>Object.values(JSON.parse(document.getElementById('bank-data').textContent))[0].questions.find(q=>q.id===id).answer,id);await p.locator(`[data-action="answer"][data-key="${key}"]`).click();
@@ -57,13 +64,14 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
     await source.evaluate(el=>{for(let x=el.parentElement;x;x=x.parentElement)if(x.tagName==='DETAILS')x.open=true});await source.click();await p.locator('#image-dialog img').evaluate(img=>img.decode());assert(await p.locator('#image-dialog img').evaluate(img=>img.naturalWidth>500));await p.locator('[data-action="image-close"]').click();popupCount++;
    }
    assert(!(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth+2)),b.code+' overflow');
-   await p.reload();await p.locator('[data-action="resume"]').first().click();await jump(p,id);assert.equal(await p.locator('[data-action="bookmark"]').innerText(),'★');
+   await p.reload();await p.locator('[data-action="resume"]').first().click();await jump(p,id);assert.equal(await p.locator('[data-action="bookmark"]').innerText(),'★');await accountReady(p);
    if(b.code==='MB')assert.equal(await p.locator('.mb-mode-link,.bank-edition,.mb-edition').count(),0,'MB shows only the Word-source edition');
    banks[b.code]=grade;console.log('OFFLINE PASS',name,b.code,grade.correct);
   }
   assert(popupCount>=8,'real offline source-image popups required');
   await p.goto(base);const after=await p.evaluate(async()=>{const m=await import('/lib/storage.js');return JSON.stringify(await m.readState())});assert.equal(after,state,'Logbook IndexedDB unchanged');
   await p.locator('[data-action="tab"][data-tab="atpl"]:visible').first().click();await p.waitForURL('**/atpl/');await p.locator('iframe[data-companion-frame]').waitFor({state:'attached'});const offlineLibrary=await(await p.locator('iframe[data-companion-frame]').elementHandle()).contentFrame();await offlineLibrary.locator('[data-bank="POF"] [data-ready]').filter({hasText:'✓'}).waitFor();await p.screenshot({path:path.join(out,name+'-ipad-offline.png'),fullPage:true});
+  await accountReady(offlineLibrary);
   assert(!(await offlineLibrary.locator('#atpl-status').innerText()).includes('load failed'),'Offline must not display a script registration error');
   assert.deepEqual(errors,[],name);report.browsers[name]={version:browser.version(),offlineMode:name==='chromium'?'context.setOffline(true)':'All origin connections refused; Playwright WebKit issue 42775',blockedOriginRequests,banks,popupCount,cancellation:true,httpFailure:true,quotaFailure:true,missingAssetRepair:true,workerUpdateRetainsDownloads:true,logbookUnchanged:true,errors};fs.writeFileSync(path.join(out,'Browser_QA.json'),JSON.stringify(report,null,2));await browser.close();originUnavailable=false;
  }}finally{server.close()}
