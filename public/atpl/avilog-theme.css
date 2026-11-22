@@ -2,3 +2,14 @@
 @import url("/ui/system.css");
 @import url("/ui/study-shell.css");
 /* All bank presentation, including source/correctness cues, now lives in the shared system. */
+/* Book evidence belongs beside the explanation, independently of Word screenshots. */
+.book-sources{margin-top:1.5rem;border-top:1px solid var(--ui-line,rgba(148,163,184,.28));padding-top:1.25rem;min-width:0}
+.book-sources h3{font-size:1rem;margin:0 0 .5rem}
+.book-sources-intro,.book-source-location,.book-source-note{color:var(--ui-muted,#94a3b8);font-size:.85rem;line-height:1.65}
+.book-source{margin:.9rem 0;padding:1rem;border:1px solid var(--ui-line,rgba(148,163,184,.28));border-radius:16px;min-width:0}
+.book-source-title{font-weight:700;line-height:1.5}
+.book-source-location{margin:.4rem 0 .8rem;overflow-wrap:anywhere}
+.book-source blockquote{margin:.7rem 0;padding:.4rem 0 .4rem .85rem;border-left:3px solid var(--ui-accent,#14b8a6);font-style:italic;line-height:1.7;overflow-wrap:anywhere}
+.book-source-connection{line-height:1.7;margin:.8rem 0;overflow-wrap:anywhere}
+.book-source-link{display:inline-block;min-height:44px;padding:.65rem 0;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+@media(max-width:480px){.book-source{padding:.85rem}.book-source blockquote{font-size:.9rem}.book-source-note{font-size:.8rem}}
