@@ -1,8 +1,8 @@
 import {validateState,prepareBatch,acknowledge,diffState,applyDelta,bytes,canonical} from './model.js';
-import {clone,importSessionID} from './common.js';
+import {clone,importSessionID,validUID} from './common.js';
 import {mergeLegacy} from './import.js';
 export const accountKey=(uid,code)=>`atpl_account_v1:${uid}:${code}`;
-export const validUID=uid=>typeof uid==='string'&&/^[A-Za-z0-9:_-]{1,128}$/.test(uid);
+export {validUID} from './common.js';
 export const blankState=()=>({version:2,progress:{},wrong:[],bookmarks:[],examHistory:[],study:null,exam:null,settings:{theme:'system',language:'both'},updatedAt:null});
 export async function openAccountBank({storage,uid,identity,locks,onChange=()=>{},isCurrent=()=>true}){
  if(!validUID(uid)||!identity?.code||!/^[A-Z]{2,4}$/.test(identity.code)||!/^[a-f0-9]{64}$/.test(identity.bankSHA256))throw new Error('Định danh tài khoản/ngân hàng không hợp lệ.');

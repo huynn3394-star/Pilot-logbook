@@ -11,7 +11,7 @@ test('offline reload uses the downloaded immutable bank but does not hide an act
 });
 test('all local account modules precache without needing a reachable provider config',async()=>{
  const w=worker();let installation;w.handlers.install({waitUntil:p=>installation=p});await installation;
- for(const url of ['/atpl/account-bootstrap.js','/atpl/account.js','/atpl/account-ui.js','/atpl/sync/model.js','/atpl/sync/common.js','/atpl/sync/store.js','/atpl/sync/import.js','/atpl/sync/controller.js','/atpl/vendor/firebase-client.js','/atpl/identities.json','/atpl/privacy.html'])assert.ok(w.shell.includes(url),url);
+ for(const url of ['/atpl/account-bootstrap.js','/atpl/account.js','/atpl/account-ui.js','/atpl/account-panel.js','/atpl/account-backup.js','/atpl/sync/model.js','/atpl/sync/common.js','/atpl/sync/store.js','/atpl/sync/import.js','/atpl/sync/controller.js','/atpl/vendor/firebase-client.js','/atpl/identities.json','/atpl/privacy.html'])assert.ok(w.shell.includes(url),url);
  assert.ok(!w.shell.includes('/atpl/firebase-config.json'));let activation;w.handlers.activate({waitUntil:p=>activation=p});await activation;assert.deepEqual(w.deleted,['avilog-shell-obsolete']);
 });
 test('pre-upgrade offline banks keep verified bytes while only framing headers migrate',async()=>{

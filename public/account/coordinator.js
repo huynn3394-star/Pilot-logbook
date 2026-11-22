@@ -1,4 +1,4 @@
-import {validUID} from '../atpl/sync/store.js';
+import {validUID} from '../atpl/sync/common.js';
 const ACTIVE='atpl_active_account_v1',SIGNAL='atpl_account_signal_v1';
 export const requiredAtplCodes=Object.freeze(['POF','COM','INS','MET','RNAV','LAW','MB','MBR','AGK','PERF','OPS','HUM']);
 const statusKinds=new Set(['local','pending','offline','syncing','synced','conflict','reauth','error','disabled','readonly','not-loaded','ready','uploading','downloading','offline-ready','epoch']);
