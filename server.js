@@ -7,6 +7,7 @@ import { WeatherService } from "./lib/weather.js";
 import {createFirebaseAuthHandler,readFirebaseConfig} from "./lib/firebase-auth.js";
 import { readATPLImage } from "./lib/atpl-media.js";
 import {createAdminService} from './lib/admin.js';
+import {createStaticResponder} from './lib/static-response.js';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -26,6 +27,7 @@ export function createServer({ weather = new WeatherService(), firebaseConfig=re
   assertV14Bundle(here,firebaseConfig);
   const authHandler=createFirebaseAuthHandler({config:firebaseConfig,fetchImpl:firebaseFetch});
   const admin=adminService||createAdminService({firebaseConfig});
+  const staticResponse=createStaticResponder();
   const server=http.createServer(async (req, res) => {
     const security = {
       "X-Content-Type-Options": "nosniff",
@@ -111,10 +113,16 @@ export function createServer({ weather = new WeatherService(), firebaseConfig=re
       const file = path.resolve(root, rel);
       if (!file.startsWith(root + path.sep)) return send(404, "Not found");
       const data = await readFile(file);
-      send(200, req.method === "HEAD" ? null : data, {
+      const isAdmin=rel.startsWith('admin/'),type=types[path.extname(file)]||'application/octet-stream';
+      const response=isAdmin?{status:200,body:req.method==='HEAD'?null:data,headers:{'Cache-Control':'no-store, max-age=0'}}:await staticResponse(req,data,{
+        compress:/^(text\/|application\/(javascript|json|manifest\+json))/.test(type),
+        // These content-versioned public banks keep exactly the same source bytes.
+        immutable:root===path.join(here,'public')&&/^atpl\/banks\/[A-Z]{2,4}-[a-f0-9]{16}\.html$/.test(rel),
+      });
+      send(response.status, response.body, {
         "Content-Type": types[path.extname(file)] || "application/octet-stream",
-        "Cache-Control":
-          rel.startsWith('admin/')?'no-store, max-age=0':rel === "sw.js" ? "no-cache" : "public, max-age=0, must-revalidate",
+        ...response.headers,
+        ...(rel==='sw.js'?{'Cache-Control':'no-cache'}:{}),
         ...(rel.startsWith('admin/')?{'X-Robots-Tag':'noindex, nofollow','Content-Security-Policy':"frame-ancestors 'none'"}:{}),
       });
     } catch (e) {
