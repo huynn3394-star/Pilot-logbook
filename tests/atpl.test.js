@@ -4,6 +4,14 @@ import { createServer } from '../server.js';
 import { createHash } from 'node:crypto';
 const counts={POF:487,COM:500,INS:601,MET:900,RNAV:700,LAW:453,MB:300,MBR:300,AGK:782,PERF:399,OPS:501,HUM:503};
 const digest=x=>createHash('sha256').update(x).digest('hex');
+test('the retained MB question text, options and answers match the user-selected Word source',async()=>{
+ const {readFile}=await import('node:fs/promises'),proof=JSON.parse(await readFile('tests/fixtures/mb-original-source.json','utf8'));
+ const catalog=JSON.parse(await readFile('public/atpl/catalog.json','utf8')),bank=catalog.banks.find(b=>b.code===proof.matchedBank);
+ const html=await readFile('public'+bank.url,'utf8'),raw=html.match(/<script[^>]*id="bank-data"[^>]*>(.*?)<\/script>/s)[1],questions=JSON.parse(raw).MB.questions;
+ assert.equal(digest(raw),proof.bankSHA256);assert.equal(questions.length,proof.questions);
+ const compared=questions.map(q=>({id:q.id,content:(q.question+' '+Object.values(q.options).join(' ')).normalize('NFKD').toLowerCase().replace(/[^a-z0-9]/g,''),answer:q.answer}));
+ assert.equal(digest(JSON.stringify(compared)),proof.questionContentAnswerSHA256);
+});
 async function server(run){const s=createServer();await new Promise(r=>s.listen(0,'127.0.0.1',r));try{await run('http://127.0.0.1:'+s.address().port)}finally{s.close()}}
 // Break caught: a missing/incomplete catalog silently drops one of the user's banks.
 test('ATPL is reachable inside logbook and exposes every original bank plus separate MB reference',()=>server(async base=>{
