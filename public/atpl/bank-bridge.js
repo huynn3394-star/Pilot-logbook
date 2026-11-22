@@ -2,7 +2,7 @@ import {mountStudyShell} from '../ui/study-shell.js';
 import {replaceEmbeddedStudy} from '../ui/companion-navigation.js';
 import {appearance,applyAppearance,setAppearance} from '../lib/appearance.js';
 import {setupAccountUI} from './account-ui.js';
-import {getCatalog,enableOffline,bankStatus,downloadBank,downloadError,size} from './offline.js';
+import {getCatalog,enableOffline,bankStatus,downloadBank,downloadError,size,downloadSize} from './offline.js';
 const theme=document.createElement('link');theme.rel='stylesheet';theme.href='/atpl/avilog-theme.css';document.head.append(theme);
 const tools=document.querySelector('.top-tools'),manage=document.createElement('details');manage.dataset.bankManage='';manage.className='bank-management';manage.innerHTML='<summary>＋ Quản lý</summary><div class="bank-management-content"></div>';for(const button of tools.querySelectorAll('[data-action=theme],[data-action=settings]'))manage.lastElementChild.append(button);tools.append(manage);
 document.addEventListener('click',event=>{if(manage.open&&!event.composedPath().includes(manage))manage.open=false;});document.addEventListener('keydown',event=>{if(event.key==='Escape'&&manage.open){manage.open=false;manage.querySelector('summary').focus();}});
@@ -17,7 +17,7 @@ const bankStore=await window.ATPL_ACCOUNT_READY;
 const button=document.createElement('button');button.type='button';button.id='atpl-offline-button';button.textContent='Tải offline';manage.lastElementChild.append(button);
 const line=document.createElement('div');line.id='atpl-offline-status';line.className='storage-line';line.setAttribute('role','status');manage.lastElementChild.append(line);
 let active,bank,preparing;
-async function update(){try{const s=await bankStatus(bank);line.textContent=s.ready?'✓ Môn này sẵn sàng offline · đủ đề, lời giải và ảnh nguồn':'Muốn học khi mất mạng: tải offline môn này trước.';button.textContent=s.ready?'Offline ✓':'Tải offline · '+size(bank.offlineBytes)}catch{line.textContent='Chưa kiểm tra được bộ nhớ offline.'}}
+async function update(){try{const s=await bankStatus(bank);line.textContent=s.ready?'✓ Môn này sẵn sàng offline · đủ đề, lời giải và ảnh nguồn':'Muốn học khi mất mạng: tải offline môn này trước.';button.textContent=s.ready?'Offline ✓':'Tải offline · '+size(downloadSize(bank))}catch{line.textContent='Chưa kiểm tra được bộ nhớ offline.'}}
 function prepareOffline(){
  if(preparing)return preparing;
  button.disabled=true;

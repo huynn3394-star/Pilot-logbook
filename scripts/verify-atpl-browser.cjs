@@ -32,6 +32,22 @@ const accountReady=p=>p.waitForFunction(()=>!!document.querySelector('[data-acco
    assert((await p.locator(`[data-bank="${b.code}"] [data-ready]`).innerText()).includes('✓'),name+':'+b.code+':'+await p.locator(`[data-bank="${b.code}"] .atpl-progress`).innerText());
    if(b.code==='COM') {const corrupted=await p.evaluate(async b=>{const m=await import('/atpl/offline.js'),c=await caches.open(m.ATPL_CACHE),manifest=await(await c.match(b.manifest)).json();await c.put(manifest.assets.find(a=>a.url.endsWith('.webp')).url,new Response('corrupted-but-present'));return(await m.bankStatus(b)).ready},b);assert.equal(corrupted,false,'Unverified replacement must not still be called offline-ready');await require('./ui-controls.cjs').libraryManage(p,'COM');await p.locator('[data-download="COM"]').click();await p.waitForFunction(()=>!document.querySelector('[data-download="COM"]').disabled)}
   }
+  // Simulate an existing installation: original verified bank assets remain,
+  // but the newly added textbook pages have not been downloaded yet.
+  const pageUpgrade=await p.evaluate(async bank=>{
+   const m=await import('/atpl/offline.js'),{bookAssetsFor}=await import('/atpl/book-page-assets.js'),images=bookAssetsFor(bank.code),cache=await caches.open(m.ATPL_CACHE);
+   const original=await(await cache.match(bank.manifest)).text();
+   for(const a of images)await cache.delete(a.url);
+   const before=(await m.bankStatus(bank)).ready,fetches=[],savedFetch=window.fetch;
+   window.fetch=(input,...args)=>{fetches.push(typeof input==='string'?input:input.url);return savedFetch(input,...args)};
+   let result;try{result=await m.downloadBank(bank)}finally{window.fetch=savedFetch}
+   const after=(await m.bankStatus(bank)).ready,markerPreserved=original===await(await cache.match(bank.manifest)).text();
+   await cache.put(images[0].url,new Response('corrupted page'));
+   const corrupted=(await m.bankStatus(bank)).ready;await m.downloadBank(bank);
+   const repaired=await m.hash(await(await cache.match(images[0].url)).arrayBuffer());
+   return {before,after,corrupted,repaired,expected:images[0].sha256,markerPreserved,bankRefetched:fetches.includes(bank.url),sizeCorrect:result.bytes===m.downloadSize(bank)};
+  },catalog.banks.find(b=>b.code==='FPL'));
+  assert.equal(pageUpgrade.before,false);assert(pageUpgrade.after&&pageUpgrade.markerPreserved&&pageUpgrade.sizeCorrect);assert.equal(pageUpgrade.corrupted,false);assert.equal(pageUpgrade.repaired,pageUpgrade.expected);assert.equal(pageUpgrade.bankRefetched,false);
   // A retired reference stays readable for existing backups/direct URLs, while
   // its download control is absent from the 11-subject library.
   await p.evaluate(async bank=>(await import('/atpl/offline.js')).downloadBank(bank),catalog.banks.find(b=>b.code==='MBR'));
@@ -57,7 +73,7 @@ const accountReady=p=>p.waitForFunction(()=>!!document.querySelector('[data-acco
    const grade=await p.evaluate(()=>{const E=window.ATPLQuizEngine,b=Object.values(JSON.parse(document.getElementById('bank-data').textContent))[0].questions,valid=b.filter(q=>q.valid);let s=E.startExam(E.defaultState(),valid.map(q=>q.id));for(const q of valid)s=E.answerExam(s,q.id,q.answer);s=E.submitExam(s,b);const round=E.importBackup(E.exportBackup(s),b);return{count:valid.length,correct:s.exam.report.correct,backup:round.examHistory[0].correct===valid.length}});assert.equal(grade.correct,b.count,b.code);assert(grade.backup);
    await p.locator('[data-action="study"]').first().click();const id=b.code==='INS'?148:1;await jump(p,id);
    const key=await p.evaluate(id=>Object.values(JSON.parse(document.getElementById('bank-data').textContent))[0].questions.find(q=>q.id===id).answer,id);await p.locator(`[data-action="answer"][data-key="${key}"]`).click();
-   if(['FPL','GNAV'].includes(b.code)){assert(await p.locator('.book-sources').isVisible(),b.code+' book evidence works offline');assert.match(await p.locator('.book-source').first().innerText(),/CAE Oxford/);assert(await p.locator('.book-source blockquote').count());}
+   if(['FPL','GNAV'].includes(b.code)){assert(await p.locator('.book-sources').isVisible(),b.code+' book evidence works offline');assert.match(await p.locator('.book-source').first().innerText(),/CAE Oxford/);assert(await p.locator('.book-source blockquote').count());await p.locator('.book-page img').first().scrollIntoViewIfNeeded();await p.locator('.book-page img').first().evaluate(img=>img.decode());assert.equal(await p.locator('.book-page img').first().evaluate(img=>img.naturalHeight),2400);await p.locator('[data-book-page]').first().click();await p.locator('#image-dialog img').evaluate(img=>img.decode());assert.equal(await p.locator('#image-dialog img').evaluate(img=>img.naturalHeight),2400);await p.locator('[data-action=image-zoom]').click();assert(await p.locator('#image-dialog .image-stage').evaluate(el=>el.classList.contains('zoomed')));await p.locator('[data-action=image-close]').click();}
    if(b.code==='INS')assert.deepEqual(await p.locator('.answer-option .letter').allTextContents(),['E','F','G','H']);
    await p.locator('[data-action="bookmark"]').click();
    const old=await p.locator('html').getAttribute('data-theme');await require('./ui-controls.cjs').bankManage(p);await p.locator('[data-action="theme"]').click();assert.notEqual(await p.locator('html').getAttribute('data-theme'),old);await p.locator('[data-bank-manage]>summary').click();

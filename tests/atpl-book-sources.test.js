@@ -3,7 +3,10 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {citationsFor,BOOK_CITATIONS_VERSION} from '../public/atpl/book-citations.js';
+import {citationsFor,bookPageFor,BOOK_CITATIONS_VERSION} from '../public/atpl/book-citations.js';
+import {bookAssetsFor} from '../public/atpl/book-page-assets.js';
+import {downloadSize} from '../public/atpl/offline.js';
+import {readATPLImage} from '../lib/atpl-media.js';
 import {bookSources,explanation} from '../public/atpl/imported-review.js';
 const read=p=>JSON.parse(readFileSync(p,'utf8')),db=read('data/atpl-additions/book-sources.json'),map=read('data/atpl-additions/question-book-sources.json'),qs=read('data/atpl-additions/source-questions.json');
 test('each of the 1103 Word questions has visible, page-specific book evidence',()=>{
@@ -31,6 +34,29 @@ test('adding book sources never changes published banks, keys, manifests, identi
  for(const file of files)assert.equal(createHash('sha256').update(readFileSync(file)).digest('hex'),baseline.files[file],file);
 });
 test('book excerpts are deterministic and bundled in the public offline shell without network waits',()=>{
- const before=readFileSync('public/atpl/book-citations.js'),mapping=readFileSync('data/atpl-additions/question-book-sources.json');execFileSync('python3',['scripts/atpl-import/map_book_sources.py']);assert(mapping.equals(readFileSync('data/atpl-additions/question-book-sources.json')));execFileSync('python3',['scripts/atpl-import/build_book_citations.py']);assert(before.equals(readFileSync('public/atpl/book-citations.js')));
+ const before=readFileSync('public/atpl/book-citations.js'),assets=readFileSync('public/atpl/book-page-assets.js'),mapping=readFileSync('data/atpl-additions/question-book-sources.json');execFileSync('python3',['scripts/atpl-import/map_book_sources.py']);assert(mapping.equals(readFileSync('data/atpl-additions/question-book-sources.json')));execFileSync('python3',['scripts/atpl-import/build_book_citations.py']);assert(before.equals(readFileSync('public/atpl/book-citations.js')));assert(assets.equals(readFileSync('public/atpl/book-page-assets.js')));
  const sw=readFileSync('public/sw.js','utf8');assert.match(sw,/"\/atpl\/book-citations\.js"/);const module=readFileSync('public/atpl/imported-review.js','utf8');assert(!/\bfetch\s*\(/.test(module));assert(!/\bawait\b/.test(module));
+});
+test('every new question shows its actual cited Oxford page, with duplicate pages shown only once',()=>{
+ const pages=read('data/atpl-additions/book-page-images.json').pages;assert.equal(Object.keys(pages).length,81);
+ for(const uid of Object.keys(map)){
+  const refs=citationsFor(uid),images=refs.filter(c=>c.providedByUser).map(c=>{
+   const p=pages[c.book+':'+c.pdfPage];assert(p,uid);assert.equal(p.pdfSHA256,c.pdfSHA256);assert.equal(p.printedPage,c.printedPage);assert.equal(c.image.url,p.url);assert.equal(bookPageFor(c.id).url,p.url);return p.url;
+  });assert(images.length>0,uid);const html=bookSources(uid);assert.equal((html.match(/data-book-page=/g)||[]).length,new Set(images).size,uid);assert.match(html,/loading="lazy"/);assert.match(html,/width="\d+" height="2400"/);
+ }
+ assert.equal(bookPageFor('unknown'),null);
+});
+test('all rendered source-page bytes are served from the existing immutable media store',async()=>{
+ const pages=read('data/atpl-additions/book-page-images.json').pages;
+ for(const p of Object.values(pages)){
+  const bytes=await readATPLImage(p.url.split('/').pop());assert(bytes,p.url);assert.equal(bytes.length,p.bytes);assert.equal(createHash('sha256').update(bytes).digest('hex'),p.sha256);assert.equal(bytes.toString('ascii',8,12),'WEBP');assert.equal(p.height,2400);assert(p.width>1000);
+ }
+});
+test('offline image requirements and displayed download sizes include exactly each bank’s cited pages',()=>{
+ const catalog=read('public/atpl/catalog.json');
+ for(const bank of catalog.banks){
+  const expected=new Set(Object.keys(map).filter(uid=>uid.startsWith(bank.code+'-')).flatMap(uid=>citationsFor(uid).flatMap(c=>c.image?[c.image.url]:[])));
+  const assets=bookAssetsFor(bank.code);assert.deepEqual(new Set(assets.map(a=>a.url)),expected);assert.equal(assets.length,expected.size);assert.equal(downloadSize(bank),bank.offlineBytes+assets.reduce((n,a)=>n+a.bytes,0));
+ }
+ const sw=readFileSync('public/sw.js','utf8');for(const file of ['book-page-assets.js','book-page-viewer.js'])assert(sw.includes('"/atpl/'+file+'"'));assert(!sw.includes('/atpl/media/'),'full page images are not bulk-loaded by the shell');
 });

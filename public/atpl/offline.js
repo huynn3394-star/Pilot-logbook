@@ -1,4 +1,8 @@
+import {bookAssetsFor} from './book-page-assets.js';
 export const ATPL_CACHE = 'avilog-atpl-v1';
+// These additive source images are independent of published bank/manifest hashes.
+export const downloadSize=bank=>bank.offlineBytes+bookAssetsFor(bank.code).reduce((n,a)=>n+a.bytes,0);
+const fullAssets=(manifest,bank)=>[...manifest.assets,...bookAssetsFor(bank.code)];
 let catalogPromise;
 export function getCatalog(){return catalogPromise ||= fetch('/atpl/catalog.json').then(r=>{if(!r.ok)throw Error('Chưa mở được danh sách môn. Kết nối mạng để tải lần đầu.');return r.json()}).catch(e=>{catalogPromise=null;throw e})}
 export async function enableOffline(){
@@ -20,7 +24,7 @@ export async function bankStatus(bank){
  if(!globalThis.caches)return {ready:false,cached:0};
  const cache=await caches.open(ATPL_CACHE),marker=await cache.match(bank.manifest);
  if(!marker)return {ready:false,cached:0};
- try{const bytes=await marker.arrayBuffer();if(await hash(bytes)!==bank.manifestSHA256)return {ready:false,cached:0};const manifest=validateManifest(JSON.parse(new TextDecoder().decode(bytes)),bank);const present=await Promise.all(manifest.assets.map(a=>cache.match(a.url).then(r=>Boolean(r?.ok&&r.headers.get('X-ATPL-Verified-SHA256')===a.sha256))));return {ready:present.every(Boolean),cached:present.filter(Boolean).length}}catch{return {ready:false,cached:0}}
+ try{const bytes=await marker.arrayBuffer();if(await hash(bytes)!==bank.manifestSHA256)return {ready:false,cached:0};const manifest=validateManifest(JSON.parse(new TextDecoder().decode(bytes)),bank);const present=await Promise.all(fullAssets(manifest,bank).map(a=>cache.match(a.url).then(r=>Boolean(r?.ok&&r.headers.get('X-ATPL-Verified-SHA256')===a.sha256))));return {ready:present.every(Boolean),cached:present.filter(Boolean).length}}catch{return {ready:false,cached:0}}
 }
 function cancelled(signal){if(signal?.aborted)throw new DOMException('Đã dừng tải.','AbortError')}
 async function storeVerified(cache,url,response,asset){const headers=new Headers(response.headers);headers.set('X-ATPL-Verified-SHA256',asset.sha256);await cache.put(url,new Response(await response.arrayBuffer(),{status:response.status,statusText:response.statusText,headers}))}
@@ -31,14 +35,14 @@ export async function downloadBank(bank,{onProgress=()=>{},signal}={}){
  try{
   const response=await fetch(bank.manifest,{cache:'reload',signal:controller.signal});if(!response.ok)throw Error('Chưa lấy được bộ tải. Kiểm tra mạng rồi thử lại.');
   const raw=await response.arrayBuffer();if(await hash(raw)!==bank.manifestSHA256)throw Error('Bộ tải đã thay đổi. Mở lại danh sách môn để lấy phiên bản mới.');
-  const manifest=validateManifest(JSON.parse(new TextDecoder().decode(raw)),bank),cache=await caches.open(ATPL_CACHE);let index=0,completed=0,bytes=0;
+  const manifest=validateManifest(JSON.parse(new TextDecoder().decode(raw)),bank),assets=fullAssets(manifest,bank),cache=await caches.open(ATPL_CACHE);let index=0,completed=0,bytes=0;
   try{await navigator.storage?.persist?.()}catch{}
-  const report=()=>onProgress({completed,total:manifest.assets.length,bytes,totalBytes:bank.offlineBytes});report();
-  const worker=async()=>{while(index<manifest.assets.length){cancelled(signal);cancelled(controller.signal);const a=manifest.assets[index++];let stored=await cache.match(a.url);
+  const report=()=>onProgress({completed,total:assets.length,bytes,totalBytes:downloadSize(bank)});report();
+  const worker=async()=>{while(index<assets.length){cancelled(signal);cancelled(controller.signal);const a=assets[index++];let stored=await cache.match(a.url);
    if(!(stored&&await validResponse(stored.clone(),a))){if(stored)await cache.delete(a.url);const r=await fetch(a.url,{cache:'reload',signal:controller.signal});if(!await validResponse(r.clone(),a))throw Error('Tài nguyên bị thiếu hoặc không khớp: '+a.url.split('/').pop()+'. Chưa đánh dấu tải xong.');await storeVerified(cache,a.url,r,a)}else if(stored.headers.get('X-ATPL-Verified-SHA256')!==a.sha256){await storeVerified(cache,a.url,stored,a)}
    completed++;bytes+=a.bytes;report();
   }};
-  const workers=Array.from({length:Math.min(3,manifest.assets.length)},worker);
+  const workers=Array.from({length:Math.min(3,assets.length)},worker);
   try{await Promise.all(workers)}catch(e){controller.abort();await Promise.allSettled(workers);throw e}
   cancelled(signal);await cache.put(bank.manifest,new Response(raw,{headers:{'Content-Type':'application/json'}}));
   return {ready:true,completed,bytes};

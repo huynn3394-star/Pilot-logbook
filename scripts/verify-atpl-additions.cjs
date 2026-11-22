@@ -24,8 +24,11 @@ const jump=(p,n)=>p.evaluate(n=>{const b=document.createElement('button');b.data
       assert.equal(await p.locator('html').getAttribute('data-theme'),theme);
       assert(await p.locator('.book-source blockquote').first().isVisible());
       assert(await p.locator('.book-source').first().evaluate(el=>el.scrollWidth<=el.clientWidth+2));
+      const pageImage=p.locator('.book-page img').first();await pageImage.scrollIntoViewIfNeeded();await pageImage.evaluate(img=>img.decode());assert.equal(await pageImage.evaluate(img=>img.naturalHeight),2400);
+      assert(await pageImage.evaluate(img=>getComputedStyle(img).objectFit==='contain'&&img.closest('button').clientHeight>=img.clientHeight),'full page preview must not clip formulas or printed footer');
       await p.locator('.book-source').first().screenshot({path:path.join(out,`${name}-${width}-${code}-source-${theme}.png`)});
      }
+     await p.locator('[data-book-page]').first().click();await p.locator('#image-dialog img').evaluate(img=>img.decode());assert.equal(await p.locator('#image-dialog img').evaluate(img=>img.naturalHeight),2400);await p.locator('[data-action=image-zoom]').click();assert(await p.locator('#image-dialog .image-stage').evaluate(el=>el.classList.contains('zoomed')));await p.keyboard.press('Escape');assert.equal(await p.locator('#image-dialog').evaluate(d=>d.open),false);
      await p.evaluate(async t=>(await import('/lib/appearance.js')).setAppearance({theme:t||'light'}),initialTheme);
      const illustrated=data.questions.find(q=>q.importedFigures.length);assert(illustrated);await jump(p,illustrated.id);
      assert.equal(await p.locator('.explanation').count(),0,'full screenshot/key is hidden before answering');assert(await p.locator('.qcard .figure').count()||await p.locator('.qcard [data-action=image]').count());
