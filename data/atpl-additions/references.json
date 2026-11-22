@@ -1,0 +1,80 @@
+{
+  "FAA-NAV": {
+    "title": "FAA · Pilot’s Handbook of Aeronautical Knowledge, Chapter 16: Navigation",
+    "url": "https://www.faa.gov/sites/faa.gov/files/18_phak_ch16.pdf",
+    "section": "Pilotage, dead reckoning, wind triangle, flight planning",
+    "checkedAt": "2026-11-22"
+  },
+  "FAA-INSTRUMENT": {
+    "title": "FAA · Instrument Flying Handbook",
+    "url": "https://www.faa.gov/sites/faa.gov/files/regulations_policies/handbooks_manuals/aviation/FAA-H-8083-15B.pdf",
+    "section": "Instrument indications, airspeed and altitude",
+    "checkedAt": "2026-11-22"
+  },
+  "USNO-TIME": {
+    "title": "US Naval Observatory · Equation of Time",
+    "url": "https://aa.usno.navy.mil/faq/eqtime",
+    "section": "Apparent and mean solar time",
+    "checkedAt": "2026-11-22"
+  },
+  "USNO-TWILIGHT": {
+    "title": "US Naval Observatory · Rise, Set, and Twilight Definitions",
+    "url": "https://aa.usno.navy.mil/faq/RST_defs",
+    "section": "Sunrise, sunset and civil twilight",
+    "checkedAt": "2026-11-22"
+  },
+  "USNO-SEASONS": {
+    "title": "US Naval Observatory · Earth's Seasons",
+    "url": "https://aa.usno.navy.mil/faq/rs_solstices",
+    "section": "Equinoxes and solstices",
+    "checkedAt": "2026-11-22"
+  },
+  "USAF-NAV": {
+    "title": "US Air Force · Air Navigation, AFPAM 11-216",
+    "url": "https://static.e-publishing.af.mil/etc/AFPAM11-216.pdf",
+    "section": "Navigation training reference; publisher may restrict access",
+    "checkedAt": "2026-11-22"
+  },
+  "USGS-PROJECTIONS": {
+    "title": "US Geological Survey · Map Projections: A Working Manual",
+    "url": "https://www.usgs.gov/educational-resources/map-projections-working-manual",
+    "section": "Conformal projections, Mercator, Lambert and stereographic geometry",
+    "checkedAt": "2026-11-22"
+  },
+  "ICAO-FPL": {
+    "title": "Sakaeronavigatsia AIS · Instructions for filing the ICAO FPL form",
+    "url": "https://ais.airnav.ge/en/instructions-for-completing-the-flight-plan-form",
+    "section": "Items 7–19 and field formatting",
+    "checkedAt": "2026-11-22"
+  },
+  "ICAO-ROUTE": {
+    "title": "ICAO · Flight plan, Item 15 route conventions",
+    "url": "https://www.icao.int/MID/Documents/2012/infpl_sg4/ip04.pdf",
+    "section": "Flight plan route reporting and formatting; historical training material",
+    "checkedAt": "2026-11-22"
+  },
+  "ICAO-NOTAM": {
+    "title": "FAA · International NOTAM (Q) Codes",
+    "url": "https://www.faa.gov/air_traffic/publications/atpubs/notam_html/appendix_b.html",
+    "section": "International NOTAM subject and condition codes",
+    "checkedAt": "2026-11-22"
+  },
+  "EASA-OPS": {
+    "title": "EASA · Easy Access Rules for Air Operations",
+    "url": "https://www.easa.europa.eu/en/document-library/easy-access-rules/online-publications/easy-access-rules-air-operations",
+    "section": "CAT flight preparation and planning; apply the scheme and date relevant to the question",
+    "checkedAt": "2026-11-22"
+  },
+  "EASA-FUEL": {
+    "title": "EASA · Air Operations, in-flight fuel management",
+    "url": "https://www.easa.europa.eu/en/document-library/easy-access-rules/online-publications/easy-access-rules-air-operations?erules-id=ERULES-1963177438-12803",
+    "section": "CAT.OP.MPA.185: monitor fuel, minimum fuel and fuel emergency",
+    "checkedAt": "2026-11-22"
+  },
+  "CAA-CAP697": {
+    "title": "UK CAA · CAP 697: Flight Planning Manual",
+    "url": "https://www.caa.co.uk/data-and-publications/publications/documents/content/cap-697/",
+    "section": "Aeroplane examination planning reference; use the chart edition in the source question",
+    "checkedAt": "2026-11-22"
+  }
+}

@@ -16,7 +16,7 @@ const {chromium,webkit}=require('playwright');
     assert.equal(await p.locator('html').getAttribute('data-theme'),'dark');
     const navigation=width<=720?'.bottom-nav':'.study-sidebar';
     if(width>720){const rail=await p.locator('.study-sidebar').evaluate(n=>({width:n.getBoundingClientRect().width,radius:getComputedStyle(n).borderRadius}));assert.equal(rail.width,88);assert.equal(rail.radius,'28px');}
-    assert.equal(await p.locator('.study-library-summary strong').first().innerText(),'11');assert(await p.locator(navigation).isVisible());
+    assert.equal(await p.locator('.study-library-summary strong').first().innerText(),'13');assert(await p.locator(navigation).isVisible());
     if(width<=720){
      const nav=await p.locator(navigation).evaluate(node=>({position:getComputedStyle(node).position,bottom:innerHeight-node.getBoundingClientRect().bottom,width:node.getBoundingClientRect().width}));
      assert.equal(nav.position,'fixed');assert(Math.abs(nav.bottom)<=1&&nav.width===width,'study navigation spans the viewport bottom');

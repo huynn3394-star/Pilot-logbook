@@ -79,6 +79,7 @@ jobs:
       - run: node scripts/verify-companion-navigation.cjs
       - run: node scripts/verify-mb-original.cjs
       - run: node scripts/verify-subject-entry.cjs
+      - run: node scripts/verify-atpl-additions.cjs
       - run: node scripts/verify-weather-view.cjs
       - run: node scripts/verify-weather-attention.cjs
       - run: node scripts/verify-pdf-import.cjs

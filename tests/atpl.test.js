@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from '../server.js';
 import { createHash } from 'node:crypto';
-const counts={POF:487,COM:500,INS:601,MET:900,RNAV:700,LAW:453,MB:300,MBR:300,AGK:782,PERF:399,OPS:501,HUM:503};
+const counts={POF:487,COM:500,INS:601,MET:900,RNAV:700,LAW:453,MB:300,MBR:300,AGK:782,PERF:399,OPS:501,HUM:503,FPL:503,GNAV:600};
 const digest=x=>createHash('sha256').update(x).digest('hex');
 test('the retained MB question text, options and answers match the user-selected Word source',async()=>{
  const {readFile}=await import('node:fs/promises'),proof=JSON.parse(await readFile('tests/fixtures/mb-original-source.json','utf8'));
