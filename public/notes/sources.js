@@ -16,6 +16,10 @@ function dialog(title) {
     stop();
     captured.remove();
   };
+  reader.addEventListener("click",event=>{
+    const link=event.target.closest('a[href]');
+    if(link&&new URL(link.href,location.href).origin===location.origin){captured.close();notesUI().close().catch(()=>{});}
+  });
   document.body.append(reader);
   reader.showModal();
   return reader;

@@ -22,7 +22,7 @@ function readEditor(root) {
       return;
     }
     if (node.hasAttribute("data-check")) {
-      blocks.push({ type: "check", checked: node.querySelector("input")?.checked || node.dataset.check === "true", runs: runs(node) });
+      blocks.push({ type: "check", checked: node.querySelector("input")?.checked ?? (node.dataset.check === "true"), runs: runs(node) });
       return;
     }
     if ([...node.children].some((c) => ["DIV", "P", "UL", "OL"].includes(c.tagName))) {
