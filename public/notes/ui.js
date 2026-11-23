@@ -217,7 +217,9 @@ function createUI() {
     renderVersions(entry);
     if (n.source) {
       const current = (await target.all()).find((r) => r.value?.kind === "source" && r.value.key === n.source.key)?.value;
-      sheet.querySelector("[data-source-state]").textContent = { valid: "Nguồn còn đúng phiên bản", updated: "Nguồn đã cập nhật · nên đối chiếu lại. Nội dung ghi chú được giữ nguyên.", unavailable: "Nguồn chưa có trên thiết bị · ghi chú vẫn được giữ." }[sourceState(n, current)];
+      const available = n.source.type !== "pdf" || current && await target.getDocument(current.key + "@" + current.version);
+      if(g !== service.generation || selected?.id !== noteId)return;
+      sheet.querySelector("[data-source-state]").textContent = { valid: "Nguồn còn đúng phiên bản", updated: "Nguồn đã cập nhật · nên đối chiếu lại. Nội dung ghi chú được giữ nguyên.", unavailable: "Nguồn chưa có trên thiết bị · ghi chú vẫn được giữ." }[available ? sourceState(n, current) : 'unavailable'];
     }
     await refresh();
   }
