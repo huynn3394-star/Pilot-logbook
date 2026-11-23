@@ -85,7 +85,7 @@ async function showPDF(source, bytes, updated = false) {
   view.className = "notes-pdf-viewport";
   const toolbar = d.querySelector(".notes-reader-toolbar");
   toolbar.insertAdjacentHTML("beforeend", '<button data-pdf-prev aria-label="Trang trước">←</button><label>Trang <input type="number" min="1" data-pdf-page value="1"></label><span data-pdf-total></span><button data-pdf-next aria-label="Trang tiếp">→</button><button data-pdf-add>＋ Note</button><button data-pdf-notes>Notes (0)</button>');
-  let task, pdf, page = Math.max(1, Number(source.page) || 1), rendering, sequence = 0, textLayer;
+  let task, pdf, page = Math.max(1, Number(source.page) || 1), rendering, sequence = 0, textLayer, refreshMarks=async()=>{},stopChanges=()=>{};
   try {
     view.textContent = "Đang mở PDF trên thiết bị…";
     const lib = await import("/vendor/pdfjs/build/pdf.mjs");
@@ -134,9 +134,12 @@ async function showPDF(source, bytes, updated = false) {
       const pageSource = { ...source, page, section: (source.category || source.section || "PDF") + " · Trang " + page };
       initContexts();
       bindContext(layer, pageSource, { before: wrapper });
-      const rows = await target.all();
-      toolbar.querySelector("[data-pdf-notes]").textContent = "Notes (" + sourceCount(rows, source.key) + ")";
-      for (const entry of visible(rows)) {
+      refreshMarks=async()=>{
+       const rows = await target.all();
+       if(seq!==sequence||!d.isConnected||g!==ui.service.generation)return;
+       toolbar.querySelector("[data-pdf-notes]").textContent = "Notes (" + sourceCount(rows, source.key) + ")";
+       wrapper.querySelectorAll('.notes-pdf-mark').forEach(mark=>mark.remove());
+       for (const entry of visible(rows)) {
         const s = entry.value.source;
         if (s?.key !== source.key || s.version !== source.version || s.page !== page) continue;
         for (const rect of s.anchor?.rects || []) {
@@ -144,10 +147,12 @@ async function showPDF(source, bytes, updated = false) {
           mark.className = "notes-pdf-mark";
           mark.setAttribute("aria-label", "Mở ghi chú đoạn này");
           Object.assign(mark.style, { left: rect.x * 100 + "%", top: rect.y * 100 + "%", width: rect.w * 100 + "%", height: rect.h * 100 + "%" });
-          mark.onclick = () => ui.related(source, s.anchor.block);
+          mark.onclick = () => ui.related(pageSource, s.anchor.block);
           wrapper.append(mark);
         }
-      }
+       }
+      };
+      await refreshMarks();
       layer.addEventListener("mouseup", () => {
         const selection = getSelection();
         if (!selection?.rangeCount || !layer.contains(selection.anchorNode) || !String(selection).trim()) return;
@@ -156,7 +161,7 @@ async function showPDF(source, bytes, updated = false) {
         toolbar.querySelector("[data-pdf-add]").onclick = () => ui.create({ source: { ...pageSource, anchor: { quote, block: "page:" + page, rects } }, title: quote.slice(0, 80) });
       });
       toolbar.querySelector("[data-pdf-add]").onclick = () => ui.create({ source: pageSource, title: source.title + " · " + page });
-      toolbar.querySelector("[data-pdf-notes]").onclick = () => ui.related(source);
+      toolbar.querySelector("[data-pdf-notes]").onclick = () => ui.related({...source,page:undefined});
     }
     const safeShow = () => show().catch((err) => {
       if (err.name !== "RenderingCancelledException" && err.name !== "AbortException") view.textContent = err.message;
@@ -178,9 +183,11 @@ async function showPDF(source, bytes, updated = false) {
       rendering?.cancel();
       textLayer?.cancel();
       task?.destroy();
+      stopChanges();
     }, { once: true });
-    ui.service.subscribe(() => {
+    stopChanges=ui.service.subscribe(() => {
       if (g !== ui.service.generation && d.isConnected) d.close();
+      else refreshMarks().catch(()=>{});
     });
     await safeShow();
   } catch (err) {

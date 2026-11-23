@@ -81,7 +81,8 @@ async function updateContexts() {
       context.dispose();
       continue;
     }
-    const count = sourceCount(rows, context.source.key);
+    const sectionRows = context.source.page ? rows.filter(e => e.value?.source?.page === context.source.page) : rows;
+    const count = sourceCount(sectionRows, context.source.key);
     context.bar.querySelector("[data-quick-list]").textContent = `Notes (${count})`;
     root.classList.toggle("notes-highlight-section", count > 0);
     for (const entry of visible(rows)) {
