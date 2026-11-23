@@ -5,7 +5,7 @@ import {companionDestination} from '../public/ui/companion-navigation.js';
 import {createServer} from '../server.js';
 const origin='https://avilog.example';
 test('companion destinations accept only known app tabs and public study pages',()=>{
- for(const tab of ['schedule','logbook','weather','notes','crew','statistics','settings'])assert.deepEqual(companionDestination('/?tab='+tab,origin),{area:'app',path:'/?tab='+tab});
+ for(const tab of ['schedule','logbook','weather','crew','statistics','settings'])assert.deepEqual(companionDestination('/?tab='+tab,origin),{area:'app',path:'/?tab='+tab});
  assert.deepEqual(companionDestination('/?compose=flight&tab=logbook',origin),{area:'app',path:'/?tab=logbook&compose=flight'});
  assert.deepEqual(companionDestination('/atpl/index.html',origin),{area:'study',path:'/atpl/'});
  assert.deepEqual(companionDestination('/atpl/banks/POF-test.html',origin),{area:'study',path:'/atpl/banks/POF-test.html'});

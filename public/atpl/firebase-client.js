@@ -6,7 +6,6 @@ import {createProgressTransport} from './sync/firebase-transport.js';
 import {createWorkspaceTransport} from '../workspace/firebase-transport.js';
 import {getStorage,connectStorageEmulator} from 'firebase/storage';
 import {createEvidenceTransport} from '../workspace/evidence-transport.js';
-import {createNotesTransport} from '../notes/firebase-transport.js';
 import {validUID} from './sync/store.js';
 export const prefersRedirect=(agent=navigator)=>/iPhone|iPad|iPod|Android/i.test(agent.userAgent)||(/Macintosh/i.test(agent.userAgent)&&agent.maxTouchPoints>0);
 export function createAccountClient({config,coordinator}){
@@ -42,7 +41,6 @@ export function createAccountClient({config,coordinator}){
   },
   async logout(){await ready;coordinator.invalidateGeneration();if(auth)await signOut(auth);user=null;status='guest';coordinator.selectGuest();notify();},
   transport(identity){if(!user||status!=='authenticated')throw new Error('Cần đăng nhập lại để đồng bộ.');return createProgressTransport({db,uid:user.uid,identity,getAuthGeneration:()=>coordinator.generation});},
-  notesTransport(){if(!user||status!=='authenticated')throw new Error('Cần đăng nhập lại để đồng bộ Notes.');return createNotesTransport({db,uid:user.uid,getAuthGeneration:()=>coordinator.generation});},
   workspaceTransport(){if(!config.workspaceSyncEnabled)throw new Error('Đồng bộ workspace chưa được kích hoạt.');if(!user||status!=='authenticated')throw new Error('Cần đăng nhập lại để đồng bộ.');return createWorkspaceTransport({db,uid:user.uid,getAuthGeneration:()=>coordinator.generation});},
   evidenceTransport(){if(!config.evidenceSyncEnabled||!storage)throw new Error('Đồng bộ ảnh chưa được kích hoạt.');if(!user||status!=='authenticated')throw new Error('Cần đăng nhập lại để truyền ảnh.');return createEvidenceTransport({storage,uid:user.uid,getAuthGeneration:()=>coordinator.generation});},
   close(){stop();listeners.clear();}
