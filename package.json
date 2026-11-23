@@ -25,7 +25,10 @@
     "test:navy-ui": "node scripts/verify-navy-v2.cjs",
     "test:study-ui": "node scripts/verify-study-shell.cjs",
     "test:flight-night": "node scripts/verify-flight-night.cjs",
-    "test:weather-account": "node scripts/workspace-emulators.cjs weather"
+    "test:weather-account": "node scripts/workspace-emulators.cjs weather",
+    "test:notes-rules": "node scripts/workspace-emulators.cjs notes",
+    "test:notes-browser": "node scripts/verify-notes.cjs",
+    "test:notes-sync": "node scripts/workspace-emulators.cjs notesbrowser"
   },
   "dependencies": {
     "pdfjs-dist": "6.4.299",
@@ -34,9 +37,16 @@
   },
   "overrides": {
     "@grpc/grpc-js": "1.14.5",
-    "gaxios": { "uuid": "11.1.1" },
-    "glob": { ".": "14.0.2", "minimatch": "11.0.1" },
-    "@google-cloud/pubsub": { "@opentelemetry/core": "2.8.0" }
+    "gaxios": {
+      "uuid": "11.1.1"
+    },
+    "glob": {
+      ".": "14.0.2",
+      "minimatch": "11.0.1"
+    },
+    "@google-cloud/pubsub": {
+      "@opentelemetry/core": "2.8.0"
+    }
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "6.0.0",
