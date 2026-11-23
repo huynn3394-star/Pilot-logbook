@@ -1,6 +1,7 @@
-const BUNDLE_BUILD = "84b68df18084";
-const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v3-compact-counters-20261105-weather-cache-20261106-wader-v5-20261106-study-20261107-auto-night-20261107-flight-entry-20261108-release-20261108-weather-bulletin-display-20261109-mobile-refresh-20261109-logbook-current-month-wader-csv-sync-performance-weather-batch-row-layout-study-aligned-weather-current-schedule-companion-navigation-mb-original-subject-entry-metadata-guard-fpl-gnav-book-sources-page-images" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
+const BUNDLE_BUILD = "3f73108a3a47";
+const CACHE = "avilog-shell-v14-fast-entry-navy-teal-unified-weather-attention-sf-ui-flight-scan-weather-view-scan-shortcuts-report-rows-aligned-private-admin-navy-v2-reference-layout-native-fonts-study-shell-r4-navy-v3-compact-counters-20261105-weather-cache-20261106-wader-v5-20261106-study-20261107-auto-night-20261107-flight-entry-20261108-release-20261108-weather-bulletin-display-20261109-mobile-refresh-20261109-logbook-current-month-wader-csv-sync-performance-weather-batch-row-layout-study-aligned-weather-current-schedule-companion-navigation-mb-original-subject-entry-metadata-guard-fpl-gnav-book-sources-page-images-notes-v1" + (BUNDLE_BUILD === "source-unbuilt" ? "" : "-sdk-" + BUNDLE_BUILD);
 const SHELL = [
+  "/notes/model.js", "/notes/store.js", "/notes/service.js", "/notes/context.js", "/notes/ui.js", "/notes/editor.js", "/notes/sources.js", "/notes/notes.css", "/notes/print.html", "/notes/print.js", "/notes/print.css",
   "/lib/usage.js",
   "/workspace/flight-conflict.js",
   "/workspace/capabilities.js",
@@ -141,12 +142,13 @@ self.addEventListener("fetch", (e) => {
   const requestURL=new URL(e.request.url);
   // Only public app navigation parameters alias the installed root HTML.
   // Arbitrary queries, private routes and authenticated requests still bypass cache.
-  const appNavigation=requestURL.pathname==='/'&&e.request.mode==='navigate'&&[...requestURL.searchParams].every(([key,value])=>key==='tab'?['schedule','logbook','weather','crew','statistics','settings'].includes(value):key==='compose'&&value==='flight');
+  const appNavigation=requestURL.pathname==='/'&&e.request.mode==='navigate'&&[...requestURL.searchParams].every(([key,value])=>key==='tab'?['schedule','logbook','weather','notes','crew','statistics','settings'].includes(value):key==='compose'&&value==='flight');
   if(requestURL.search&&!appNavigation)return;
   const cacheRequest=requestURL.search&&appNavigation?new URL('/',self.location.origin).href:e.request;
   const pathname = requestURL.pathname;
   // Cache public OCR runtime assets after their first successful online use.
   // Model data itself is retained by Tesseract's IndexedDB cache.
+  if(/^\/vendor\/pdfjs\/[a-zA-Z0-9/._-]+\.(mjs|wasm|bcmap|pfb|ttf)$/.test(pathname)){e.respondWith((async()=>{const cache=await caches.open('avilog-pdf-reader-v1'),saved=await cache.match(e.request);if(saved)return saved;const response=await fetch(e.request);if(response.ok)e.waitUntil(cache.put(e.request,response.clone()).catch(()=>{}));return response;})());return;}
   if(/^\/vendor\/(tesseract|tesseract-core)\/[a-zA-Z0-9._-]+\.(js|wasm)$/.test(pathname)){
     e.respondWith((async()=>{const cache=await caches.open('avilog-ocr-v1'),saved=await cache.match(e.request);if(saved)return saved;const response=await fetch(e.request);if(response.ok)e.waitUntil(cache.put(e.request,response.clone()).catch(()=>{}));return response;})());return;
   }

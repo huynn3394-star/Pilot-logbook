@@ -44,3 +44,6 @@ document.addEventListener('click',event=>{if(!event.target.closest('[data-action
 // Keep the original quiz settings control connected to the shared display choice.
 const themeDialog=document.querySelector('#dialog');new MutationObserver(()=>{const select=themeDialog.querySelector('#theme-select');if(select)select.value=appearance().theme||'light';}).observe(themeDialog,{childList:true});
 document.addEventListener('change',event=>{if(event.target.id==='theme-select')setAppearance({theme:event.target.value});},true);
+
+// Additive Notes controls: original bank data, engine and progress keys stay unchanged.
+import('../notes/context.js').then(m=>m.mountStudyNotes()).catch(e=>console.warn('Notes unavailable',e));

@@ -52,6 +52,9 @@ jobs:
       - run: npm run test:rules
       - run: npm run test:workspace-rules
       - run: npm run test:evidence-rules
+      - run: npm run test:notes-rules
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:notes-sync
 
   browser:
     runs-on: ubuntu-latest
@@ -72,6 +75,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run build:atpl-account
       - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:notes-browser
       - run: node scripts/verify-wader-csv.cjs
       - run: node scripts/verify-admin.cjs
       - run: node scripts/verify-weather-batch.cjs
