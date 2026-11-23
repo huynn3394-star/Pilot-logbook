@@ -62,9 +62,14 @@ function createUI() {
       if (line) line.textContent = state.text;
     }
   }
+  function backgroundFailure(err){
+    lastError='Chưa xác minh lưu Notes · '+(err.message||String(err));
+    const line=sheet.querySelector('[data-save-state]')||host?.querySelector('[data-notes-status]');
+    if(line)line.textContent=lastError;
+  }
   service.subscribe(() => {
     clearTimeout(refreshTimer);
-    refreshTimer = setTimeout(() => refresh().catch(message), 80);
+    refreshTimer = setTimeout(() => refresh().catch(backgroundFailure), 80);
   });
   async function recoverDrafts() {
     await service.ready;
@@ -81,7 +86,7 @@ function createUI() {
       }
     }
   }
-  recoverDrafts().then(refresh).catch(message);
+  recoverDrafts().then(refresh).catch(backgroundFailure);
   function render() {
     const current = host;
     if (!current?.isConnected) return;

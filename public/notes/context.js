@@ -61,8 +61,13 @@ function bindContext(root, source, { before = root } = {}) {
     contexts.delete(root);
   } };
   contexts.set(root, state);
-  rememberSource(source).catch(report);
-  updateContexts();
+  const unavailable=()=>{
+    for(const button of bar.querySelectorAll('button'))button.disabled=true;
+    bar.querySelector('[data-quick-list]').textContent='Notes · chưa đọc được bộ nhớ';
+    bar.title='Không xóa dữ liệu trình duyệt. Thử mở lại app khi bộ nhớ thiết bị sẵn sàng.';
+  };
+  rememberSource(source).catch(unavailable);
+  updateContexts().catch(unavailable);
   return state.dispose;
 }
 function report(err) {
@@ -83,6 +88,8 @@ async function updateContexts() {
     }
     const sectionRows = context.source.page ? rows.filter(e => e.value?.source?.page === context.source.page) : rows;
     const count = sourceCount(sectionRows, context.source.key);
+    for(const button of context.bar.querySelectorAll('button'))button.disabled=false;
+    context.bar.title='';
     context.bar.querySelector("[data-quick-list]").textContent = `Notes (${count})`;
     root.classList.toggle("notes-highlight-section", count > 0);
     for (const entry of visible(rows)) {

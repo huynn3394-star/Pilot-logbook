@@ -12,7 +12,7 @@ function createService() {
   const notify = () => {
     for (const fn of listeners) fn();
   };
-  async function status() {
+  async function readStatus() {
     if (!store) return { kind: "loading", text: "Đang mở Notes…" };
     const capturedStore = store, capturedGeneration = generation, rows = await capturedStore.all();
     if (capturedGeneration !== generation || capturedStore !== store) return { kind: "not-loaded", text: "Đang đổi không gian Notes…" };
@@ -21,6 +21,14 @@ function createService() {
     state.text = { conflict: "Có xung đột · giữ đủ các phiên bản", local: scope === "@guest" ? "Đã lưu trên máy · Guest" : "Đã lưu trên máy · Chờ xác minh Cloud", offline: "Đã lưu trên máy · Chờ có mạng", error: "Đã lưu trên máy · Đồng bộ chưa thành công", pending: "Đã lưu trên máy · Chờ đồng bộ", synced: "Đã đồng bộ", syncing: "Đã lưu trên máy · Đang đồng bộ", reauth: "Đã lưu trên máy · Cần đăng nhập lại" }[state.kind] || "Đã lưu trên máy · Chưa xác minh Cloud";
     if (scope !== "@guest") coordinator.publishAreaStatus({ uid: scope, area: "notes", status: { kind: state.kind === "loading" ? "not-loaded" : state.kind, pending, conflicts } });
     return state;
+  }
+  async function status(){
+    try{return await readStatus();}
+    catch(error){
+      // A failed cache read cannot establish Saved/Synced or break another screen.
+      if(scope!=="@guest")coordinator.publishAreaStatus({uid:scope,area:'notes',status:{kind:'error'}});
+      return {kind:'error',text:'Chưa xác minh lưu Notes · không đọc được bộ nhớ. Không xóa dữ liệu trình duyệt; thử mở lại app.'};
+    }
   }
   function schedule() {
     clearTimeout(timer);

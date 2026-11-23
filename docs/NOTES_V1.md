@@ -38,7 +38,7 @@ npm run test:notes-rules
 npm run test:notes-sync
 ```
 
-Browser artifacts: `test-results/notes-v1/` (desktop/mobile screenshots, source PDF, print PDF and reports). Firebase tests use only `demo-atpl-sync` and synthetic users. Checks include native IDB durability, concurrent tabs, old acknowledgements, conflicts, additive restore, UID isolation, trash expiry, no stale resurrection, actual two-device SDK sync, offline edits/logout, and unchanged workspace/quiz content.
+Browser artifacts: `test-results/notes-v1/` (desktop/mobile screenshots, source PDF, print PDF and reports). Firebase tests use only `demo-atpl-sync` and synthetic users. Checks include fault-injected Notes-only IndexedDB failure (no unhandled Promise, no false Saved/Synced and no impact on other screens), native IDB durability, concurrent tabs, old acknowledgements, conflicts, additive restore, UID isolation, trash expiry, no stale resurrection, actual two-device SDK sync, offline edits/logout, and unchanged workspace/quiz content.
 
 ## Boundaries
 
