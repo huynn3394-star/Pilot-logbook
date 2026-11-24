@@ -15,7 +15,7 @@ export function createCoordinator({storage,eventTarget=globalThis.window,channel
  function invalidate(){generation++;areas.clear();areaChanged();}
  function notify(){invalidate();for(const listener of listeners)listener(getCachedSelection());}
  function receiveArea(value){
-  if(value?.uid!==getCachedSelection()?.uid||value.selection!==selection()||!validUID(value.senderId)||!Number.isSafeInteger(value.sequence)||value.sequence<1||!Number.isSafeInteger(value.generation)||value.generation<0||!['workspace','evidence','atpl','notes'].includes(value.area)||value.code!==undefined&&!['ALL',...requiredAtplCodes].includes(value.code))return;
+  if(value?.uid!==getCachedSelection()?.uid||value.selection!==selection()||!validUID(value.senderId)||!Number.isSafeInteger(value.sequence)||value.sequence<1||!Number.isSafeInteger(value.generation)||value.generation<0||!['workspace','evidence','atpl'].includes(value.area)||value.code!==undefined&&!['ALL',...requiredAtplCodes].includes(value.code))return;
   let status;try{status=safeStatus(value.status);}catch{return;}const key=value.senderId+'\0'+value.area+'\0'+(value.code||''),prior=areas.get(key);if(prior&&(value.generation<prior.generation||value.generation===prior.generation&&value.sequence<=prior.sequence))return;
   areas.set(key,{uid:value.uid,senderId:value.senderId,area:value.area,code:value.code,generation:value.generation,sequence:value.sequence,status,receivedAt:Date.now()});areaChanged();
  }
@@ -26,7 +26,7 @@ export function createCoordinator({storage,eventTarget=globalThis.window,channel
  function readAreaStatus(uid){
   const result={kind:'partial',atplVerified:false,atpl:{}};if(uid!==getCachedSelection()?.uid)return result;
   for(const value of areas.values())if(value.uid===uid&&Date.now()-value.receivedAt<120000){const target=value.area==='atpl'?result.atpl:result,slot=value.area==='atpl'?value.code||'ALL':value.area;if(!target[slot]||target[slot].receivedAt<=value.receivedAt)target[slot]=cloneStatus(value);}
-  const all=result.atpl.ALL,verified=all?.status.kind==='synced'&&requiredAtplCodes.every(code=>all.status.checkedCodes?.includes(code)&&(!result.atpl[code]||result.atpl[code].receivedAt<all.receivedAt||result.atpl[code].status.kind==='synced'));result.atplVerified=Boolean(verified);if(result.workspace?.status.kind==='synced'&&result.evidence?.status.kind==='ready'&&!result.evidence.status.pending&&verified&&result.notes?.status.kind==='synced'&&!result.notes.status.pending&&!result.notes.status.conflicts)result.kind='synced';return result;
+  const all=result.atpl.ALL,verified=all?.status.kind==='synced'&&requiredAtplCodes.every(code=>all.status.checkedCodes?.includes(code)&&(!result.atpl[code]||result.atpl[code].receivedAt<all.receivedAt||result.atpl[code].status.kind==='synced'));result.atplVerified=Boolean(verified);if(result.workspace?.status.kind==='synced'&&result.evidence?.status.kind==='ready'&&!result.evidence.status.pending&&verified)result.kind='synced';return result;
  }
  return{get generation(){return generation;},getCachedSelection,publishAreaStatus,readAreaStatus,subscribeAreaStatus(fn){areaListeners.add(fn);return()=>areaListeners.delete(fn);},
   isExplicitGuest(){try{return JSON.parse(storage.getItem(ACTIVE)||'null')?.mode==='guest';}catch{return false;}},

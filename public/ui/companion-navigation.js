@@ -2,7 +2,7 @@
 // retain their own DOM/lifecycle; no question HTML, answers or user data are copied.
 import {getCoordinator} from '../account/coordinator.js';
 const channel='avilog-companion-v1',eventName='avilog-view-visibility';
-const appTabs=new Set(['schedule','logbook','weather','notes','crew','statistics','settings']);
+const appTabs=new Set(['schedule','logbook','weather','crew','statistics','settings']);
 let instance;
 export function companionDestination(value,origin=globalThis.location?.origin){
  try{

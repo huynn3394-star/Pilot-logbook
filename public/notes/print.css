@@ -1,3 +1,0 @@
-body{font-family:Arial,sans-serif;line-height:1.6;max-width:850px;margin:24px auto;padding:0 20px;color:#172536;background:white}button{padding:12px;font:inherit}article{break-after:page;overflow-wrap:anywhere}article:last-child{break-after:auto}aside{padding:14px;background:#eef5f4;font-size:12px}section{margin-top:24px;white-space:pre-wrap}footer{margin-top:30px;font-size:11px;color:#526472}h1{font-size:24px}input{accent-color:#087f76}a{color:#087f76}@page{size:A4;margin:18mm}@media print{nav{display:none}body{padding:0;margin:0;max-width:none}a{color:inherit}article{break-inside:auto}}
-
-[data-check]{display:flex;align-items:baseline;gap:8px}[data-check] input{width:15px;height:15px;flex:none;margin:0}
