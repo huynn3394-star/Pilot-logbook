@@ -1,4 +1,5 @@
 import {mountStudyShell} from '../ui/study-shell.js';
+import {mountQuickReview} from './quick-review.js';
 import {replaceEmbeddedStudy} from '../ui/companion-navigation.js';
 import {appearance,applyAppearance,setAppearance} from '../lib/appearance.js';
 import {setupAccountUI} from './account-ui.js';
@@ -14,6 +15,7 @@ removeEdition();new MutationObserver(removeEdition).observe(document.querySelect
 const studyShell=mountStudyShell(document.querySelector('.app'),{bank:true});
 const choose=document.getElementById('choose-subject');choose.textContent='Môn học';choose.addEventListener('click',()=>{if(!replaceEmbeddedStudy('/atpl/'))location.assign('/atpl/');});
 const bankStore=await window.ATPL_ACCOUNT_READY;
+mountQuickReview();
 const button=document.createElement('button');button.type='button';button.id='atpl-offline-button';button.textContent='Tải offline';manage.lastElementChild.append(button);
 const line=document.createElement('div');line.id='atpl-offline-status';line.className='storage-line';line.setAttribute('role','status');manage.lastElementChild.append(line);
 let active,bank,preparing;
